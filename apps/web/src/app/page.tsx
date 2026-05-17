@@ -27,7 +27,7 @@ export default function HomePage() {
   const navDashboards = [
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, desc: 'Réserver un billet & gérer ses bagages' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, desc: 'Cockpit de navigation & revenus en direct' },
-    { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, desc: 'Gestion de flotte & répartition Wave/OM' },
+    { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, desc: 'Gestion de flotte & trésorerie en direct' },
     { name: 'Guichet de Gare', path: '/dashboard/dispatcher', icon: TicketCheck, desc: 'Scan QR offline & manifeste d\'embarquement' },
     { name: 'Super Admin', path: '/dashboard/superadmin', icon: ShieldAlert, desc: 'Supervision globale & taxes gouvernementales' },
   ];
@@ -39,7 +39,7 @@ export default function HomePage() {
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Topbar / Header */}
-      <header className="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
@@ -50,24 +50,24 @@ export default function HomePage() {
             </span>
           </Link>
 
-          {/* Navigation Topbar Active */}
-          <nav className="hidden xl:flex items-center space-x-8 text-sm font-medium text-slate-300">
-            <Link href="/dashboard/client" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+          {/* Navigation Topbar Active avec défilement fluide vers les sections */}
+          <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-slate-300 cursor-pointer">
+            <a href="#search" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors py-2">
               <User className="w-4 h-4 text-emerald-400" />
               <span>Rechercher un Trajet</span>
-            </Link>
-            <Link href="/dashboard/carrier" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+            </a>
+            <a href="#features" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors py-2">
               <Building2 className="w-4 h-4 text-teal-400" />
               <span>Transporteurs / GIE</span>
-            </Link>
-            <Link href="/dashboard/driver" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+            </a>
+            <a href="#marketplace" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors py-2">
               <Bus className="w-4 h-4 text-blue-400" />
               <span>Chauffeurs Libres</span>
-            </Link>
-            <Link href="/dashboard/superadmin" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+            </a>
+            <a href="#wallets" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors py-2">
               <Wallet className="w-4 h-4 text-purple-400" />
               <span>Wallets & Séquestre</span>
-            </Link>
+            </a>
           </nav>
 
           <div className="flex items-center space-x-3">
@@ -85,11 +85,11 @@ export default function HomePage() {
               <span>Accès Guichet</span>
             </Link>
 
-            {/* Bouton d'ouverture du menu Sidebar */}
+            {/* Bouton Menu Sidebar */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2.5 rounded-xl border border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800 hover:text-emerald-400 transition-all focus:outline-none"
-              title="Menu de navigation des espaces"
+              title="Menu de navigation"
             >
               {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -97,7 +97,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Menu Sidebar / Drawer Coulissant en Surimpression (À Gauche) */}
+      {/* Menu Sidebar / Drawer Coulissant (À Gauche) */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div 
@@ -165,8 +165,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Hero Section */}
-      <section className="pt-20 pb-28 px-6 text-center max-w-5xl mx-auto">
+      {/* Hero Section & Search Widget */}
+      <section id="search" className="pt-20 pb-28 px-6 text-center max-w-5xl mx-auto scroll-mt-28">
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-slate-900 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-8 animate-pulse">
           <Shield className="w-4 h-4" />
           <span>Plateforme Officielle de Mobilité Panafricaine & Paiement Séquestre</span>
@@ -183,7 +183,7 @@ export default function HomePage() {
           Fini les heures d'attente incertaines en gare routière. Réservez votre place exacte, payez en toute sécurité par Wave ou Orange Money, et suivez votre bus en direct.
         </p>
 
-        {/* Search Widget (Glassmorphism) lié au Dashboard Client */}
+        {/* Search Widget */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-xl max-w-4xl mx-auto text-left">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
@@ -239,14 +239,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Feature Grid */}
-      <section className="py-20 bg-slate-900/30 border-y border-slate-800/80 px-6">
+      {/* Feature Grid - Transporteurs GIE */}
+      <section id="features" className="py-20 bg-slate-900/30 border-y border-slate-800/80 px-6 scroll-mt-28">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1 bg-teal-500/10 border border-teal-500/30 px-3 py-1 rounded-full text-teal-400 text-xs font-semibold mb-4">
+              <Building2 className="w-3.5 h-3.5" /> Espace Transporteurs & Flotte GIE
+            </div>
             <h2 className="text-3xl font-extrabold tracking-tight mb-4">
-              L'écosystème complet pour voyageurs & transporteurs
+              L'écosystème complet pour gestionnaires de gares et GIE
             </h2>
-            <p className="text-slate-400 text-sm">Une infrastructure robuste pensée pour le contexte africain.</p>
+            <p className="text-slate-400 text-sm">Supervisez tous vos départs, encaissez en toute sécurité et gérez vos chauffeurs.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -274,11 +277,60 @@ export default function HomePage() {
               <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Users className="w-6 h-6 text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Marketplace Chauffeurs Libres</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Gestion de Flotte & Remplissage</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Chauffeurs de taxis 7 places et bus indépendants certifiés (KYC). Publiez vos trajets et recevez vos fonds instantanément.
+                Tableau de bord de suivi GPS en direct, manifeste des passagers synchronisé et verrous de sièges concurrentiels en gare.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marketplace Chauffeurs Libres */}
+      <section id="marketplace" className="py-20 px-6 max-w-7xl mx-auto scroll-mt-28">
+        <div className="bg-gradient-to-r from-slate-900 via-slate-800/80 to-slate-900 border border-slate-800 rounded-3xl p-10 md:p-14 relative overflow-hidden backdrop-blur-xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-1 bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-full text-blue-400 text-xs font-semibold mb-6">
+              <Bus className="w-3.5 h-3.5" /> Chauffeurs Taxis 7 places & Indépendants
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6 leading-tight">
+              Rejoignez la première Marketplace Panafricaine de Chauffeurs Libres
+            </h2>
+            <p className="text-slate-300 text-base mb-8 leading-relaxed">
+              Vous possédez un véhicule et êtes en règle (KYC biométrique, visite technique valide) ? Publiez vos départs instantanément, remplissez votre véhicule sans passer par les intermédiaires de gare et recevez vos paiements sur Wave en 3 secondes.
+            </p>
+            <Link 
+              href="/dashboard/driver" 
+              className="px-8 py-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold text-slate-950 inline-flex items-center gap-3 transition-transform hover:scale-105 shadow-xl shadow-blue-500/20"
+            >
+              <Bus className="w-5 h-5 text-slate-950" />
+              <span>Ouvrir mon Cockpit Chauffeur</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Wallets & Séquestre Escrow */}
+      <section id="wallets" className="py-20 bg-slate-900/40 border-t border-slate-800/80 px-6 scroll-mt-28">
+        <div className="max-w-7xl mx-auto text-center max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-1 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-full text-purple-400 text-xs font-semibold mb-4">
+            <Wallet className="w-3.5 h-3.5" /> Sécurité & Transparence Financière
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6">
+            Paiements 100% Séquestrés (Escrow)
+          </h2>
+          <p className="text-slate-400 text-base mb-10 leading-relaxed">
+            Grâce à notre intégration bancaire poussée, les fonds versés par les voyageurs restent protégés sur un compte virtuel de transit. Dès le scan d'arrivée en gare, la répartition s'effectue automatiquement entre le GIE (92%), les taxes d'État (2%) et la plateforme (5%).
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link 
+              href="/dashboard/superadmin" 
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 font-bold text-white shadow-xl shadow-purple-500/20 hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <ShieldAlert className="w-5 h-5" />
+              <span>Supervision Financière Globale</span>
+            </Link>
           </div>
         </div>
       </section>
