@@ -6,6 +6,7 @@ import { TripsModule } from './modules/trips/trips.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
     BookingsModule,
     WalletsModule,
     CompaniesModule,
+    FinanceModule,
   ],
   controllers: [],
   providers: [],
