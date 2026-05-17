@@ -207,6 +207,11 @@ export default function HomePage() {
           L'infrastructure digitale unifiée connectant voyageurs, flottes GIE et chauffeurs libres. Vos paiements par Wave ou OM sont protégés sur compte séquestre jusqu'à destination.
         </p>
 
+        {/* Vitrine Interactive de la Flotte & Options de Transport */}
+        <div className="mb-16 text-left">
+          <VehicleShowcase />
+        </div>
+
         {/* Cockpit de Recherche Épuré */}
         <div className="bg-[#101728]/90 border border-slate-800/80 rounded-3xl shadow-xl max-w-4xl mx-auto text-left overflow-hidden">
           {/* Onglets du Cockpit */}
@@ -340,9 +345,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Vitrine Interactive de la Flotte & Options de Transport */}
-      <VehicleShowcase />
 
       {/* Section 1 : Séquestre & Transparence Financière (Escrow Hold) */}
       <section id="escrow" className="py-24 px-6 max-w-6xl mx-auto scroll-mt-28">
