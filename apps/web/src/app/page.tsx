@@ -41,9 +41,18 @@ export default function HomePage() {
       {/* Topbar / Header */}
       <header className="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          {/* Section Gauche : Logo + Menu Navigation */}
-          <div className="flex items-center space-x-10">
-            <Link href="/" className="flex items-center space-x-3 group shrink-0">
+          {/* Section Gauche : Bouton Menu + Logo */}
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2.5 rounded-xl border border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800 hover:text-emerald-400 transition-all focus:outline-none flex items-center gap-2 text-sm font-semibold shadow-md"
+              title="Ouvrir le menu de navigation"
+            >
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5 text-emerald-400" />}
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+
+            <Link href="/" className="flex items-center space-x-3 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
                 <Bus className="w-6 h-6 text-slate-950" />
               </div>
@@ -51,28 +60,29 @@ export default function HomePage() {
                 Aller<span className="text-emerald-400">-</span>Retour
               </span>
             </Link>
-
-            {/* Navigation Topbar Ancrée à Gauche */}
-            <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-slate-300">
-              <Link href="/dashboard/client" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
-                <User className="w-4 h-4 text-emerald-400" />
-                <span>Rechercher un Trajet</span>
-              </Link>
-              <Link href="/dashboard/carrier" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
-                <Building2 className="w-4 h-4 text-teal-400" />
-                <span>Transporteurs / GIE</span>
-              </Link>
-              <Link href="/dashboard/driver" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
-                <Bus className="w-4 h-4 text-blue-400" />
-                <span>Chauffeurs Libres</span>
-              </Link>
-              <Link href="/dashboard/superadmin" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
-                <Wallet className="w-4 h-4 text-purple-400" />
-                <span>Wallets & Séquestre</span>
-              </Link>
-            </nav>
           </div>
 
+          {/* Navigation Topbar Active au centre */}
+          <nav className="hidden xl:flex items-center space-x-8 text-sm font-medium text-slate-300">
+            <Link href="/dashboard/client" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+              <User className="w-4 h-4 text-emerald-400" />
+              <span>Rechercher un Trajet</span>
+            </Link>
+            <Link href="/dashboard/carrier" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+              <Building2 className="w-4 h-4 text-teal-400" />
+              <span>Transporteurs / GIE</span>
+            </Link>
+            <Link href="/dashboard/driver" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+              <Bus className="w-4 h-4 text-blue-400" />
+              <span>Chauffeurs Libres</span>
+            </Link>
+            <Link href="/dashboard/superadmin" className="hover:text-emerald-400 flex items-center gap-1.5 transition-colors">
+              <Wallet className="w-4 h-4 text-purple-400" />
+              <span>Wallets & Séquestre</span>
+            </Link>
+          </nav>
+
+          {/* Boutons d'Action à Droite */}
           <div className="flex items-center space-x-3">
             <Link 
               href="/dashboard/client" 
@@ -87,15 +97,6 @@ export default function HomePage() {
               <TicketCheck className="w-4 h-4" />
               <span>Accès Guichet</span>
             </Link>
-
-            {/* Bouton d'ouverture du menu Sidebar */}
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2.5 rounded-xl border border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800 hover:text-emerald-400 transition-all focus:outline-none"
-              title="Menu de navigation des espaces"
-            >
-              {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
         </div>
       </header>
