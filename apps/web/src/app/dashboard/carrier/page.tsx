@@ -19,43 +19,43 @@ export default function CarrierDashboard() {
       </div>
 
       {/* Grid Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl overflow-hidden">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Trésorerie GIE (XOF)</span>
-            <DollarSign className="w-5 h-5 text-emerald-400" />
+            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Trésorerie GIE (XOF)</span>
+            <DollarSign className="w-5 h-5 text-emerald-400 shrink-0" />
           </div>
-          <h2 className="text-3xl font-black text-white">4 850 000 XOF</h2>
-          <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center gap-1">
-            <TrendingUp className="w-3.5 h-3.5" /> +14.5% vs mois précédent
+          <h2 className="text-xl xl:text-2xl font-black text-white tracking-tight truncate">4 850 000 XOF</h2>
+          <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center gap-1 truncate">
+            <TrendingUp className="w-3.5 h-3.5 shrink-0" /> +14.5% vs mois précédent
           </p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl overflow-hidden">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Fonds en Séquestre</span>
-            <ShieldAlert className="w-5 h-5 text-amber-400" />
+            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Fonds en Séquestre</span>
+            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0" />
           </div>
-          <h2 className="text-3xl font-bold text-white">1 240 000 XOF</h2>
-          <p className="text-xs text-amber-400 mt-2">Déblocage auto à l'arrivée en gare</p>
+          <h2 className="text-xl xl:text-2xl font-bold text-white tracking-tight truncate">1 240 000 XOF</h2>
+          <p className="text-xs text-amber-400 mt-2 truncate">Déblocage auto à l'arrivée en gare</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl overflow-hidden">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Véhicules Actifs</span>
-            <Bus className="w-5 h-5 text-blue-400" />
+            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Véhicules Actifs</span>
+            <Bus className="w-5 h-5 text-blue-400 shrink-0" />
           </div>
-          <h2 className="text-3xl font-bold text-white">24 / 28 Bus</h2>
-          <p className="text-xs text-slate-400 mt-2">4 en révision technique</p>
+          <h2 className="text-xl xl:text-2xl font-bold text-white tracking-tight truncate">24 / 28 Bus</h2>
+          <p className="text-xs text-slate-400 mt-2 truncate">4 en révision technique</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl overflow-hidden">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Billets Vendus (Aujourd'hui)</span>
-            <Users className="w-5 h-5 text-purple-400" />
+            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Billets Vendus (Aujourd'hui)</span>
+            <Users className="w-5 h-5 text-purple-400 shrink-0" />
           </div>
-          <h2 className="text-3xl font-bold text-white">842 Billets</h2>
-          <p className="text-xs text-emerald-400 mt-2 font-semibold">Taux de remplissage : 92%</p>
+          <h2 className="text-xl xl:text-2xl font-bold text-white tracking-tight truncate">842 Billets</h2>
+          <p className="text-xs text-emerald-400 mt-2 font-semibold truncate">Taux de remplissage : 92%</p>
         </div>
       </div>
 

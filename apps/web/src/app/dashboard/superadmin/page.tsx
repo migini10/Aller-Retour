@@ -21,29 +21,29 @@ export default function SuperAdminDashboard() {
       </div>
 
       {/* Financial Settlement Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-amber-500">
-          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Total en Séquestre (Escrow)</span>
-          <h2 className="text-3xl font-black text-amber-400 mt-2">14 250 000 XOF</h2>
-          <p className="text-xs text-slate-400 mt-1">Garantie sur 1 840 trajets en cours</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-amber-500 overflow-hidden">
+          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Total en Séquestre (Escrow)</span>
+          <h2 className="text-xl xl:text-2xl font-black text-amber-400 mt-2 tracking-tight truncate">14 250 000 XOF</h2>
+          <p className="text-xs text-slate-400 mt-1 truncate">Garantie sur 1 840 trajets en cours</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-emerald-500">
-          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Trésorerie Aller-Retour (5-8%)</span>
-          <h2 className="text-3xl font-black text-emerald-400 mt-2">2 480 000 XOF</h2>
-          <p className="text-xs text-emerald-400 mt-1 font-semibold">Commissions nettes encaissées</p>
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-emerald-500 overflow-hidden">
+          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Trésorerie Aller-Retour (5-8%)</span>
+          <h2 className="text-xl xl:text-2xl font-black text-emerald-400 mt-2 tracking-tight truncate">2 480 000 XOF</h2>
+          <p className="text-xs text-emerald-400 mt-1 font-semibold truncate">Commissions nettes encaissées</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-blue-500">
-          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Taxes d'État & Redevances (2-5%)</span>
-          <h2 className="text-3xl font-black text-blue-400 mt-2">840 000 XOF</h2>
-          <p className="text-xs text-slate-400 mt-1">Prêt pour virement Trésor Public</p>
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-blue-500 overflow-hidden">
+          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Taxes d'État & Redevances (2-5%)</span>
+          <h2 className="text-xl xl:text-2xl font-black text-blue-400 mt-2 tracking-tight truncate">840 000 XOF</h2>
+          <p className="text-xs text-slate-400 mt-1 truncate">Prêt pour virement Trésor Public</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-purple-500">
-          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Frais Mobile Money (Wave/OM)</span>
-          <h2 className="text-3xl font-black text-purple-400 mt-2">285 000 XOF</h2>
-          <p className="text-xs text-slate-400 mt-1">1% prélevé automatiquement</p>
+        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl border-l-4 border-l-purple-500 overflow-hidden">
+          <span className="text-slate-400 font-medium text-xs uppercase tracking-wider block truncate">Frais Mobile Money (Wave/OM)</span>
+          <h2 className="text-xl xl:text-2xl font-black text-purple-400 mt-2 tracking-tight truncate">285 000 XOF</h2>
+          <p className="text-xs text-slate-400 mt-1 truncate">1% prélevé automatiquement</p>
         </div>
       </div>
 
