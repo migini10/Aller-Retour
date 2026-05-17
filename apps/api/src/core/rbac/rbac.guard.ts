@@ -1,0 +1,79 @@
+import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from './roles.decorator';
+import { PERMISSIONS_KEY } from './permissions.decorator';
+import { UserRole } from '@aller-retour/database';
+import { AuthenticatedRequest } from '../tenant/tenant.guard';
+
+// Définition de la carte des permissions par rôle
+const RolePermissions: Record<UserRole, string[]> = {
+  SUPER_ADMIN: ['*'], // Accès total sans restriction
+  TENANT_ADMIN: [
+    'companies:read', 'companies:update',
+    'vehicles:create', 'vehicles:read', 'vehicles:update',
+    'drivers:read', 'drivers:assign',
+    'routes:manage', 'trips:schedule', 'trips:manifest_download',
+    'bookings:read', 'bookings:scan', 'wallets:read', 'wallets:withdraw'
+  ],
+  DISPATCHER: [
+    'trips:manifest_download', 'bookings:create', 'bookings:scan', 'vehicles:inspect'
+  ],
+  DRIVER: [
+    'trips:manifest_download', 'bookings:scan', 'wallets:read', 'wallets:withdraw', 'trips:marketplace_publish'
+  ],
+  PASSENGER: [
+    'bookings:create', 'bookings:read_self', 'wallets:read', 'wallets:deposit', 'wallets:withdraw'
+  ]
+};
+
+@Injectable()
+export class RbacGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!requiredRoles && !requiredPermissions) {
+      return true; // Endpoint public ou protégé par d'autres guards
+    }
+
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.user;
+
+    if (!user) {
+      throw new ForbiddenException("Utilisateur non authentifié.");
+    }
+
+    const userRole = user.role as UserRole;
+
+    // 1. Vérification des Rôles
+    if (requiredRoles && requiredRoles.length > 0) {
+      const hasRole = requiredRoles.includes(userRole) || userRole === 'SUPER_ADMIN';
+      if (!hasRole) {
+        throw new ForbiddenException(`Accès refusé. Rôle requis: ${requiredRoles.join(', ')}.`);
+      }
+    }
+
+    // 2. Vérification des Permissions Unitaires
+    if (requiredPermissions && requiredPermissions.length > 0) {
+      if (userRole === 'SUPER_ADMIN') return true;
+
+      const userPerms = RolePermissions[userRole] || [];
+      const hasPermission = requiredPermissions.every(perm => userPerms.includes(perm));
+
+      if (!hasPermission) {
+        throw new ForbiddenException(`Accès refusé. Permission requise: ${requiredPermissions.join(', ')}.`);
+      }
+    }
+
+    return true;
+  }
+}
