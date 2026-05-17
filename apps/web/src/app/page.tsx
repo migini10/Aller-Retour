@@ -21,10 +21,8 @@ import {
   ExternalLink,
   CheckCircle2,
   TrendingUp,
-  Clock,
   Lock,
   Zap,
-  Award,
   Star,
   Check,
   ChevronRight,
@@ -49,117 +47,106 @@ export default function HomePage() {
   ];
 
   const popularRoutes = [
-    { from: 'Dakar', to: 'Touba', price: '4 500 FCFA', duration: '2h45', time: '08:00, 14:30' },
-    { from: 'Dakar', to: 'Saint-Louis', price: '5 000 FCFA', duration: '3h30', time: '07:30, 15:00' },
-    { from: 'Thiès', to: 'Ziguinchor', price: '9 000 FCFA', duration: '8h00', time: '21:00 (Bus Nuit)' },
-    { from: 'Touba', to: 'Tambacounda', price: '7 500 FCFA', duration: '5h30', time: '06:00 Express' },
+    { from: 'Dakar', to: 'Touba', price: '4 500 FCFA' },
+    { from: 'Dakar', to: 'Saint-Louis', price: '5 000 FCFA' },
+    { from: 'Thiès', to: 'Ziguinchor', price: '9 000 FCFA' },
+    { from: 'Touba', to: 'Tambacounda', price: '7 500 FCFA' },
   ];
 
   return (
-    <div className="relative overflow-hidden flex-grow min-h-screen bg-slate-950 text-slate-100 font-sans">
-      {/* Arrière-plan Premium avec effets de lumière radiaux */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Topbar / En-tête Premium */}
-      <header className="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
+    <div className="relative overflow-hidden flex-grow min-h-screen bg-[#0B0F19] text-slate-100 font-sans selection:bg-emerald-600 selection:text-white">
+      {/* Topbar / En-tête Premium Épuré */}
+      <header className="border-b border-slate-800/60 bg-[#0B0F19]/90 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-all duration-300 border border-emerald-400/30">
-              <Bus className="w-6 h-6 text-slate-950 font-bold" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
+              <Bus className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                Aller<span className="text-emerald-400 font-extrabold">-</span>Retour
+              <span className="text-xl font-bold tracking-tight text-white">
+                Aller<span className="text-emerald-500 font-extrabold">Retour</span>
               </span>
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">
-                Panafrican Mobility Cloud
+              <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                Mobilité & Escrow
               </span>
             </div>
           </Link>
 
-          {/* Navigation fluide Premium */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-300">
-            <a href="#search" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* Navigation haute épurée */}
+          <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-slate-300">
+            <a href="#search" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
               <span>Réservation</span>
             </a>
-            <a href="#showcase" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <a href="#showcase" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
               <span>Flotte & Confort</span>
             </a>
-            <a href="#features" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <a href="#features" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
               <span>Transporteurs GIE</span>
             </a>
-            <a href="#marketplace" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span>Chauffeurs Libres</span>
+            <a href="#marketplace" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
+              <span>Indépendants</span>
             </a>
-            <a href="#escrow" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span>Séquestre Wave / OM</span>
+            <a href="#escrow" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
+              <span>Sécurité Séquestre</span>
             </a>
           </nav>
 
           <div className="flex items-center space-x-3">
             <Link 
               href="/dashboard/client" 
-              className="hidden sm:inline-flex px-5 py-2.5 rounded-xl border border-slate-700/80 hover:border-slate-500 text-sm font-bold text-white transition-all hover:bg-slate-800/60 shadow-sm"
+              className="hidden sm:inline-flex px-4 py-2 rounded-xl border border-slate-800 hover:border-slate-700 text-sm font-medium text-slate-200 transition-colors bg-slate-900/50 hover:bg-slate-900"
             >
               Espace Voyageur
             </Link>
             <Link 
               href="/dashboard/dispatcher" 
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm shadow-xl shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2"
             >
               <TicketCheck className="w-4 h-4" />
-              <span>Accès Guichet</span>
+              <span>Guichet de Gare</span>
             </Link>
 
-            {/* Bouton Menu pour Sidebar */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 text-white hover:bg-slate-800 hover:text-emerald-400 transition-all focus:outline-none shadow-md"
-              title="Ouvrir le menu de navigation"
+              className="p-2 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-300 hover:text-white hover:bg-slate-900 transition-colors"
+              title="Menu de navigation"
             >
-              {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Menu Sidebar / Drawer Coulissant (À Gauche) */}
+      {/* Menu Sidebar / Drawer Coulissant */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div 
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"
+            className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-md transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 max-w-full flex pr-10 animate-slide-right">
-            <div className="w-screen max-w-md bg-slate-900 border-r border-slate-800 shadow-2xl p-8 flex flex-col justify-between">
+          <div className="absolute inset-y-0 left-0 max-w-full flex pr-10 animate-fade-in">
+            <div className="w-screen max-w-md bg-[#0F1524] border-r border-slate-800/80 p-8 flex flex-col justify-between shadow-2xl">
               <div>
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-800">
+                <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-800/80">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30 border border-emerald-400/30">
-                      <Bus className="w-6 h-6 text-slate-950 font-bold" />
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
+                      <Bus className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div>
-                      <span className="text-xl font-black tracking-tight text-white block">Aller-Retour</span>
-                      <span className="text-xs text-emerald-400 font-medium">Sélecteur de Tableaux de Bord</span>
+                      <span className="text-lg font-bold tracking-tight text-white block">Aller-Retour</span>
+                      <span className="text-xs text-slate-400 font-medium">Sélecteur de Tableaux de Bord</span>
                     </div>
                   </div>
                   <button 
                     onClick={() => setIsSidebarOpen(false)}
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/50"
+                    className="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors border border-slate-700/50"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-6 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> Portails Connectés (Rôles Démo)
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-6">
+                  Portails Disponibles
                 </p>
 
                 <div className="space-y-3">
@@ -170,18 +157,18 @@ export default function HomePage() {
                         key={item.path}
                         href={item.path}
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-start p-4 rounded-2xl border border-slate-800/80 bg-slate-800/30 hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-teal-500/10 hover:border-emerald-500/50 transition-all duration-300 group shadow-sm"
+                        className="flex items-start p-4 rounded-2xl border border-slate-800/60 bg-slate-900/40 hover:bg-slate-900/80 hover:border-slate-700 transition-all group"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-slate-800/90 group-hover:bg-emerald-500/20 border border-slate-700 group-hover:border-emerald-500/30 flex items-center justify-center mr-4 shrink-0 transition-colors shadow-inner">
-                          <IconComponent className="w-6 h-6 text-emerald-400" />
+                        <div className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center mr-4 shrink-0 transition-colors border border-slate-700/50">
+                          <IconComponent className="w-5 h-5 text-emerald-400" />
                         </div>
                         <div className="flex-grow">
                           <div className="flex items-center justify-between">
-                            <h4 className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                            <h4 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
                               <span>{item.name}</span>
                               <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h4>
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 bg-slate-800 border border-slate-700 text-emerald-400 rounded-md">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 bg-slate-800/80 border border-slate-700 text-slate-300 rounded-md">
                               {item.badge}
                             </span>
                           </div>
@@ -194,12 +181,9 @@ export default function HomePage() {
               </div>
 
               <div className="border-t border-slate-800 pt-6 mt-8">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 text-xs text-emerald-400 font-bold">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Mode Démo Panafricain</span>
-                  </div>
-                  <span className="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg">ONLINE</span>
+                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-slate-800 text-xs text-slate-300">
+                  <span>Statut Plateforme</span>
+                  <span className="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-semibold rounded-lg">ONLINE</span>
                 </div>
               </div>
             </div>
@@ -207,42 +191,40 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Hero Section Premium */}
-      <section id="search" className="pt-20 pb-24 px-6 max-w-6xl mx-auto text-center scroll-mt-28 relative">
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-900/90 border border-emerald-500/40 text-emerald-400 text-xs font-bold mb-8 shadow-xl shadow-emerald-500/10 backdrop-blur-md animate-pulse">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>L'infrastructure digitale souveraine du transport inter-urbain en Afrique</span>
+      {/* Hero Section Premium Minimaliste */}
+      <section id="search" className="pt-20 pb-24 px-6 max-w-5xl mx-auto text-center scroll-mt-28">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-300 text-xs font-medium mb-8 shadow-sm">
+          <Shield className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Plateforme Souveraine de Transport Inter-Urbain en Afrique de l'Ouest</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-8 text-white">
-          Réservez. Embarquez par QR. <br />
-          <span className="bg-gradient-to-r from-emerald-400 via-teal-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-            Voyagez sans attente en gare.
-          </span>
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 text-white max-w-4xl mx-auto">
+          Réservez votre billet en gare. <br />
+          <span className="text-emerald-400 font-semibold">Voyagez l'esprit tranquille.</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-14 leading-relaxed font-normal">
-          La première plateforme unifiée connectant passagers, grandes flottes de bus GIE et chauffeurs libres. Vos paiements Wave ou Orange Money sont sécurisés en compte séquestre jusqu'à l'arrivée.
+        <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-14 leading-relaxed font-normal">
+          L'infrastructure digitale unifiée connectant voyageurs, flottes GIE et chauffeurs libres. Vos paiements par Wave ou OM sont protégés sur compte séquestre jusqu'à destination.
         </p>
 
-        {/* Cockpit de Recherche Interactif Premium */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-3xl shadow-2xl backdrop-blur-2xl max-w-5xl mx-auto text-left overflow-hidden border-t-emerald-500/30 border-t-2">
-          {/* Tabs du Cockpit */}
-          <div className="flex border-b border-slate-800 bg-slate-950/50 px-6 pt-4 gap-2 overflow-x-auto">
+        {/* Cockpit de Recherche Épuré */}
+        <div className="bg-[#101728]/90 border border-slate-800/80 rounded-3xl shadow-xl max-w-4xl mx-auto text-left overflow-hidden">
+          {/* Onglets du Cockpit */}
+          <div className="flex border-b border-slate-800/80 bg-[#0B0F19]/60 px-6 pt-3 gap-2 overflow-x-auto">
             {[
               { id: 'bus', label: 'Billets de Bus (GIE)', icon: Bus },
               { id: 'vtc', label: 'Taxis (4 & 7 places) & Covoiturage', icon: Navigation },
-              { id: 'package', label: 'Envoi Colis & Courrier Express', icon: Package },
+              { id: 'package', label: 'Colis & Courrier Express', icon: Package },
             ].map((tab) => {
               const TabIcon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setSearchTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-3.5 rounded-t-2xl font-bold text-sm transition-all border-b-2 ${
+                  className={`flex items-center gap-2 px-5 py-3 rounded-t-xl font-medium text-sm transition-colors border-b-2 ${
                     searchTab === tab.id
-                      ? 'bg-slate-900 border-emerald-400 text-white shadow-lg text-emerald-400'
-                      : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800/40'
+                      ? 'bg-[#101728] border-emerald-500 text-white font-semibold'
+                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
                   }`}
                 >
                   <TabIcon className="w-4 h-4" />
@@ -253,16 +235,16 @@ export default function HomePage() {
           </div>
 
           <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
+                <label className="text-xs font-medium uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
                   <span>Gare de Départ</span>
                 </label>
                 <select 
                   value={departure} 
                   onChange={(e) => setDeparture(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-4 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 shadow-inner transition-colors cursor-pointer"
+                  className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-slate-600 transition-colors cursor-pointer"
                 >
                   <option>Dakar (Baux Maraîchers)</option>
                   <option>Touba (Gare Centrale)</option>
@@ -273,42 +255,41 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                  <MapPin className="w-4 h-4 text-blue-400" />
-                  <span>Destination Cible</span>
+                <label className="text-xs font-medium uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Destination</span>
                 </label>
                 <select 
                   value={destination} 
                   onChange={(e) => setDestination(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-4 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 shadow-inner transition-colors cursor-pointer"
+                  className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-slate-600 transition-colors cursor-pointer"
                 >
                   <option>Touba (Gare Centrale)</option>
                   <option>Saint-Louis</option>
                   <option>Thiès (Gare Routière)</option>
                   <option>Ziguinchor</option>
                   <option>Tambacounda</option>
-                  <option>Kaolack</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                  <Calendar className="w-4 h-4 text-purple-400" />
-                  <span>Date de Voyage</span>
+                <label className="text-xs font-medium uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Date de Départ</span>
                 </label>
                 <input 
                   type="date" 
                   defaultValue="2026-05-18" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-4 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 shadow-inner transition-colors color-scheme-dark cursor-pointer" 
+                  className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-slate-600 transition-colors color-scheme-dark cursor-pointer" 
                 />
               </div>
 
               <div>
                 <Link 
                   href="/dashboard/client" 
-                  className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2.5"
+                  className="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                 >
-                  <span>Rechercher les départs</span>
+                  <span>Rechercher</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -316,18 +297,18 @@ export default function HomePage() {
 
             {/* Popular Routes Quick Badges */}
             <div className="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-amber-400" /> Lignes directes populaires :
+              <span className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-emerald-400" /> Lignes directes populaires :
               </span>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {popularRoutes.map((route, idx) => (
                   <Link 
                     key={idx}
                     href="/dashboard/client"
-                    className="px-3.5 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/80 hover:border-emerald-500/50 text-xs font-semibold text-slate-300 hover:text-white transition-all flex items-center gap-2 group"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#0B0F19] border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                   >
                     <span>{route.from} ➔ {route.to}</span>
-                    <span className="text-emerald-400 font-bold bg-slate-950 px-2 py-0.5 rounded-lg group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+                    <span className="text-emerald-400 font-semibold bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800/80">
                       {route.price}
                     </span>
                   </Link>
@@ -338,32 +319,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Live Stats Bar Premium */}
-      <section className="py-12 border-y border-slate-800/80 bg-slate-900/40 backdrop-blur-md relative z-10 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      {/* Live Stats Bar Épurée */}
+      <section className="py-10 border-y border-slate-800/60 bg-[#0F1524]/60 px-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <h3 className="text-4xl md:text-5xl font-black text-white bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-              1.2M+
-            </h3>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-2">Billets Émis en Gare</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">1.2M+</h3>
+            <p className="text-xs font-medium text-slate-400 mt-1">Billets Émis en Gare</p>
           </div>
           <div>
-            <h3 className="text-4xl md:text-5xl font-black text-white bg-gradient-to-r from-teal-400 to-cyan-300 bg-clip-text text-transparent">
-              28 GIE
-            </h3>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-2">Flottes de Bus Connectées</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">28 GIE</h3>
+            <p className="text-xs font-medium text-slate-400 mt-1">Flottes Partenaires</p>
           </div>
           <div>
-            <h3 className="text-4xl md:text-5xl font-black text-white bg-gradient-to-r from-cyan-400 to-blue-300 bg-clip-text text-transparent">
-              0%
-            </h3>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-2">Frais de Séquestre Bancaire</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">0%</h3>
+            <p className="text-xs font-medium text-slate-400 mt-1">Frais Compte Séquestre</p>
           </div>
           <div>
-            <h3 className="text-4xl md:text-5xl font-black text-white bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              99.8%
-            </h3>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-2">Départs Garantis à l'Heure</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">99.8%</h3>
+            <p className="text-xs font-medium text-slate-400 mt-1">Ponctualité Garantie</p>
           </div>
         </div>
       </section>
@@ -372,174 +345,174 @@ export default function HomePage() {
       <VehicleShowcase />
 
       {/* Section 1 : Séquestre & Transparence Financière (Escrow Hold) */}
-      <section id="escrow" className="py-24 px-6 max-w-7xl mx-auto scroll-mt-28">
+      <section id="escrow" className="py-24 px-6 max-w-6xl mx-auto scroll-mt-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold mb-6">
-              <Lock className="w-4 h-4" /> Technologie de Paiement Séquestre
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-6">
+              <Lock className="w-3.5 h-3.5 text-emerald-400" /> Compte Séquestre
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-6 leading-tight">
-              Vos fonds protégés sur Wave & OM. <br />
-              <span className="text-indigo-400">Paiement libéré à l'arrivée.</span>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-6 leading-tight">
+              Paiements protégés sur Wave & OM. <br />
+              <span className="text-slate-400 font-normal">Fonds débloqués à l'embarquement.</span>
             </h2>
-            <p className="text-slate-300 text-base leading-relaxed mb-8">
-              Dans le modèle traditionnel, l'argent circule en espèces sans garantie en cas d'annulation ou de retard. Aller-Retour sécurise intégralement le montant sur un compte virtuel (Escrow).
+            <p className="text-slate-400 text-base leading-relaxed mb-8">
+              Aller-Retour élimine le risque pour le voyageur et le transporteur en conservant les montants versés sur un compte de transit sécurisé (Escrow) jusqu'à la validation du billet en gare.
             </p>
 
             <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold">1</div>
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#0F1524]/80 border border-slate-800/80">
+                <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-xs">1</div>
                 <div>
-                  <h4 className="font-bold text-white text-base">Verrouillage au scan de réservation</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">Le montant exact (ex: 4 500 FCFA) est réservé sur votre compte Wave ou OM.</p>
+                  <h4 className="font-semibold text-white text-sm">Verrouillage au scan de réservation</h4>
+                  <p className="text-xs text-slate-400 mt-1">Le montant exact (ex: 4 500 FCFA) est mis de côté sur votre compte mobile money.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 font-bold">2</div>
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#0F1524]/80 border border-slate-800/80">
+                <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-xs">2</div>
                 <div>
-                  <h4 className="font-bold text-white text-base">Ventilation atomique instantanée</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">Au scan du guichetier, les fonds sont instantanément scindés : Transporteur (92%), État (2%), SaaS (5%).</p>
+                  <h4 className="font-semibold text-white text-sm">Répartition automatique au guichet</h4>
+                  <p className="text-xs text-slate-400 mt-1">Dès le scan d'embarquement, les fonds sont instantanément scindés : Transporteur (92%), État (2%), SaaS (5%).</p>
                 </div>
               </div>
             </div>
 
             <Link 
               href="/dashboard/superadmin" 
-              className="inline-flex items-center gap-2 text-indigo-400 font-bold hover:text-indigo-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors group"
             >
-              <span>Accéder au dashboard de supervision financière</span>
+              <span>Consulter l'audit financier en temps réel</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {/* Carte de Démonstration Financière */}
-          <div className="bg-gradient-to-tr from-slate-900 via-slate-800 to-indigo-950 p-8 md:p-10 rounded-3xl border border-indigo-500/30 shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="bg-[#101728] p-8 md:p-10 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between pb-6 border-b border-slate-800 mb-6">
               <div className="flex items-center gap-3">
-                <Wallet className="w-8 h-8 text-indigo-400" />
+                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
+                  <Wallet className="w-6 h-6 text-emerald-400" />
+                </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Compte Séquestre Actif</span>
-                  <span className="text-xl font-black text-white">#ESCROW_SN_92834</span>
+                  <span className="text-xs text-slate-400 block font-medium">Contrat Séquestre N°92834</span>
+                  <span className="text-lg font-bold text-white tracking-tight">Dakar ➔ Touba</span>
                 </div>
               </div>
-              <span className="px-3 py-1 rounded-xl bg-indigo-500 text-slate-950 font-black text-xs">SECURE HOLD</span>
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs">ESCROW HOLD</span>
             </div>
 
-            <div className="bg-slate-950/80 rounded-2xl p-6 border border-slate-800/80 mb-6 space-y-4">
+            <div className="bg-[#0B0F19] rounded-2xl p-6 border border-slate-800/80 mb-6 space-y-3.5">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Trajet : Dakar ➔ Touba</span>
-                <span className="font-bold text-white">4 500 FCFA</span>
+                <span className="text-slate-400">Prix du billet de transport</span>
+                <span className="font-semibold text-white">4 500 FCFA</span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400">Frais Wave Mobile Money (1%)</span>
-                <span className="font-bold text-rose-400">- 45 FCFA</span>
+                <span className="font-semibold text-slate-400">- 45 FCFA</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Taxes de Gare & Redevance État (2%)</span>
-                <span className="font-bold text-blue-400">- 90 FCFA</span>
+                <span className="text-slate-400">Redevance État & Gare (2%)</span>
+                <span className="font-semibold text-slate-400">- 90 FCFA</span>
               </div>
-              <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-800 font-bold">
-                <span className="text-emerald-400">Versement Net Transporteur (92%)</span>
-                <span className="text-xl text-emerald-400">4 140 FCFA</span>
+              <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-800/80 font-bold">
+                <span className="text-emerald-400">Net versé au Transporteur (92%)</span>
+                <span className="text-lg text-emerald-400">4 140 FCFA</span>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
-              <p className="text-xs text-emerald-300 font-bold leading-relaxed">
-                Virement instantané exécuté sur le compte Wave du GIE Salam Transport en 2.8 secondes.
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <p className="text-xs text-emerald-300 leading-relaxed font-medium">
+                Virement instantané de 4 140 FCFA exécuté sur le compte marchand du GIE en 2.8 secondes.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 2 : GIE & Transporteurs (Features Grid) */}
-      <section id="features" className="py-24 bg-slate-900/40 border-y border-slate-800/80 px-6 scroll-mt-28">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold mb-6">
-              <Building2 className="w-4 h-4" /> Solutions pour Transporteurs & Gares Routières
+      {/* Section 2 : GIE & Transporteurs */}
+      <section id="features" className="py-24 bg-[#0F1524]/40 border-y border-slate-800/60 px-6 scroll-mt-28">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-4">
+              <Building2 className="w-3.5 h-3.5 text-emerald-400" /> Espace Transporteurs GIE
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-6">
-              L'infrastructure cloud souveraine pour gérer votre flotte de bus.
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+              L'infrastructure moderne pour gérer votre gare routière.
             </h2>
-            <p className="text-slate-300 text-base">
-              Aller-Retour équipe les guichets de gare de terminaux Android POS et offre un suivi de trésorerie en temps réel pour éliminer les coulages d'espèces.
+            <p className="text-slate-400 text-base leading-relaxed">
+              Équipez vos guichetiers de terminaux Android POS et bénéficiez d'une traçabilité financière absolue sur l'ensemble de vos départs.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 group shadow-xl relative overflow-hidden backdrop-blur-xl">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                <TicketCheck className="w-7 h-7 text-emerald-400" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+                <TicketCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-emerald-400 transition-colors">Terminaux POS en Gare</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                Impression de billets thermiques QR instantanée via terminaux Sunmi V2. Scan d'embarquement ultra-rapide par caméra au pied du bus.
+              <h3 className="text-lg font-bold mb-3 text-white">Terminaux POS en Gare</h3>
+              <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
+                Impression instantanée de billets thermiques QR via terminaux portables. Contrôle rapide par caméra lors de l'embarquement.
               </p>
-              <Link href="/dashboard/dispatcher" className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 hover:underline">
-                <span>Tester le guichet de gare</span>
-                <ChevronRight className="w-4 h-4" />
+              <Link href="/dashboard/dispatcher" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
+                <span>Accéder au guichet de gare</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 group shadow-xl relative overflow-hidden backdrop-blur-xl">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 border border-blue-500/30 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                <Smartphone className="w-7 h-7 text-blue-400" />
+            <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+                <Smartphone className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors">Mode Offline SQLite</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                Le manifeste d'embarquement reste synchronisé et fonctionnel même lors de la traversée de zones blanches sans couverture réseau 4G.
+              <h3 className="text-lg font-bold mb-3 text-white">Mode Offline SQLite</h3>
+              <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
+                Le manifeste d'embarquement reste synchronisé et 100% opérationnel même lors de la traversée de zones sans réseau 4G.
               </p>
-              <Link href="/dashboard/driver" className="text-xs font-bold text-blue-400 flex items-center gap-1.5 hover:underline">
-                <span>Voir le cockpit chauffeur</span>
-                <ChevronRight className="w-4 h-4" />
+              <Link href="/dashboard/driver" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
+                <span>Voir l'application chauffeur</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="p-10 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 transition-all duration-300 group shadow-xl relative overflow-hidden backdrop-blur-xl">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500/20 to-indigo-500/20 border border-purple-500/30 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-7 h-7 text-purple-400" />
+            <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+                <TrendingUp className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">Trésorerie & GPS Direct</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                Suivi cartographique des bus en temps réel, calcul du taux de remplissage et versement direct des gains vers le compte GIE.
+              <h3 className="text-lg font-bold mb-3 text-white">Trésorerie & GPS Direct</h3>
+              <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
+                Suivi cartographique des véhicules en direct, gestion du taux de remplissage et reversement instantané vers le compte GIE.
               </p>
-              <Link href="/dashboard/carrier" className="text-xs font-bold text-purple-400 flex items-center gap-1.5 hover:underline">
+              <Link href="/dashboard/carrier" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
                 <span>Ouvrir l'espace GIE</span>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 3 : Chauffeurs Libres (Marketplace) */}
-      <section id="marketplace" className="py-24 px-6 max-w-7xl mx-auto scroll-mt-28">
-        <div className="bg-gradient-to-r from-slate-900 via-blue-950/40 to-slate-900 border border-slate-800 rounded-3xl p-10 md:p-16 relative overflow-hidden shadow-2xl backdrop-blur-xl">
-          <div className="absolute -top-10 -right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="max-w-3xl relative z-10">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 rounded-full text-blue-400 text-xs font-bold mb-6">
-              <Navigation className="w-4 h-4" /> Taxis 4 & 7 Places • Minibus • Particuliers (Covoiturage)
+      {/* Section 3 : Chauffeurs Libres & Particuliers */}
+      <section id="marketplace" className="py-24 px-6 max-w-6xl mx-auto scroll-mt-28">
+        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-10 md:p-14 text-left shadow-xl relative overflow-hidden">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-6">
+              <Bus className="w-3.5 h-3.5 text-emerald-400" /> Taxis 4 & 7 Places • Minibus • Covoiturage
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-              Indépendants & Particuliers : Remplissez votre véhicule sans intermédiaires.
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
+              Indépendants & Particuliers : Remplissez votre véhicule en avance.
             </h2>
-            <p className="text-slate-300 text-lg mb-10 leading-relaxed">
-              Que vous soyez chauffeur de taxi inter-urbain (4 ou 7 places) ou particulier souhaitant partager les frais de route en toute sécurité (Covoiturage vérifié par KYC biométrique CEDEAO) : publiez vos départs, encaissez les réservations à l'avance et transférez vos gains instantanément sur Wave / OM en 3 secondes.
+            <p className="text-slate-400 text-base mb-8 leading-relaxed font-normal">
+              Que vous soyez chauffeur de taxi inter-urbain ou particulier souhaitant partager les frais de route (Covoiturage certifié KYC biométrique CEDEAO) : publiez vos départs, encaissez les réservations et transférez vos gains sur votre mobile en 3 secondes.
             </p>
 
             <div className="flex flex-wrap items-center gap-6">
               <Link 
                 href="/dashboard/driver" 
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-extrabold text-slate-950 shadow-xl shadow-blue-500/25 hover:scale-105 transition-all flex items-center gap-3 text-base"
+                className="px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-white shadow-sm transition-colors flex items-center gap-2.5 text-sm"
               >
-                <Bus className="w-5 h-5 text-slate-950" />
-                <span>Lancer le Cockpit de Navigation</span>
+                <Bus className="w-4 h-4" />
+                <span>Ouvrir mon cockpit de navigation</span>
               </Link>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
                 <Check className="w-4 h-4 text-emerald-400" />
                 <span>Zéro commission fixe • Inscription en 5 min</span>
               </div>
@@ -548,35 +521,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust & Testimonial Section */}
-      <section className="py-20 border-t border-slate-800/80 bg-slate-900/20 px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-1 mb-6 text-amber-400">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-current" />
-            ))}
-          </div>
-          <blockquote className="text-2xl md:text-3xl font-bold text-white mb-8 leading-snug">
-            "Depuis l'adoption d'Aller-Retour dans nos gares routières, le coulage financier a totalement disparu. Nos bus partent pleins et nos passagers n'ont plus peur d'acheter leur billet à l'avance."
-          </blockquote>
-          <div className="font-bold text-white text-base">El Hadji Modou Diop</div>
-          <div className="text-xs text-emerald-400 font-semibold mt-1">Président du GIE Transporteurs Baux Maraîchers de Dakar</div>
-        </div>
-      </section>
-
-      {/* Footer Premium */}
-      <footer className="py-16 px-6 border-t border-slate-900 bg-slate-950 text-slate-500 text-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+      {/* Footer Premium Minimaliste */}
+      <footer className="py-14 px-6 border-t border-slate-800/60 bg-[#0B0F19] text-slate-500 text-xs font-medium">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 font-bold text-slate-950">
+            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-white">
               AR
             </div>
             <div>
-              <span className="font-black text-white text-lg block">Aller-Retour</span>
-              <span className="text-xs text-slate-400">Plateforme Panafricaine de Mobilité SaaS</span>
+              <span className="font-bold text-white text-sm block">Aller-Retour</span>
+              <span className="text-slate-400">Plateforme Panafricaine de Transport SaaS</span>
             </div>
           </div>
-          <p className="text-center md:text-right text-xs leading-relaxed">
+          <p className="text-center md:text-right leading-relaxed text-slate-400">
             © 2026 Aller-Retour. Tous droits réservés. Architecture GitOps Cloud Séquestre propulsée par NestJS, Prisma & Next.js.
           </p>
         </div>

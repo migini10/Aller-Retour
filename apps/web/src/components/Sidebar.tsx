@@ -24,25 +24,25 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, badge: 'Driver' },
-    { name: 'Espace Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
+    { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
     { name: 'Guichet & Contrôle', path: '/dashboard/dispatcher', icon: TicketCheck, badge: 'Gare' },
     { name: 'Super Admin SaaS', path: '/dashboard/superadmin', icon: ShieldAlert, badge: 'Global' },
   ];
 
   return (
-    <aside className="w-72 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 flex flex-col justify-between p-6 h-screen sticky top-0 shadow-2xl">
+    <aside className="w-72 bg-[#0B0F19]/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between p-6 h-screen sticky top-0 font-sans shadow-sm">
       <div>
         {/* Logo & Brand */}
         <Link href="/" className="flex items-center gap-3 mb-8 group">
-          <div className="w-12 h-12 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
-            <Bus className="w-6 h-6 text-slate-950" />
+          <div className="w-10 h-10 bg-emerald-600/20 border border-emerald-500/30 rounded-xl flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
+            <Bus className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent">
-              Aller-Retour
+            <h1 className="text-lg font-bold tracking-tight text-white">
+              Aller<span className="text-emerald-500 font-extrabold">Retour</span>
             </h1>
-            <p className="text-xs text-emerald-400/80 flex items-center gap-1 mt-0.5">
-              <Sparkles className="w-3 h-3" /> Panafrican SaaS
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+              Panafrican SaaS
             </p>
           </div>
         </Link>
@@ -51,7 +51,7 @@ export default function Sidebar() {
         <div className="mb-8">
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-800/80 hover:bg-emerald-500/10 border border-slate-700 hover:border-emerald-500/50 text-xs font-bold text-slate-300 hover:text-white transition-all group shadow-sm"
+            className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition-all group shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:-translate-x-1 transition-transform" />
             <span>Retour à l'accueil principal</span>
@@ -59,9 +59,9 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation Links */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3">
-            Espaces & Rôles (Démo)
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3">
+            Espaces & Rôles
           </p>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -71,18 +71,18 @@ export default function Sidebar() {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-all ${
+                className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
                   isActive
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-lg shadow-emerald-500/25 font-bold'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                    ? 'bg-emerald-600 text-white font-semibold shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-900 hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-slate-950' : 'text-emerald-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span>{item.name}</span>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                  isActive ? 'bg-slate-950 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                  isActive ? 'bg-slate-900 text-emerald-300 border border-emerald-500/30' : 'bg-slate-900 border border-slate-800 text-slate-400'
                 }`}>
                   {item.badge}
                 </span>
@@ -94,18 +94,18 @@ export default function Sidebar() {
 
       {/* Footer Profile & Switch */}
       <div className="border-t border-slate-800/80 pt-6 mt-6">
-        <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur-md">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center font-bold text-white shadow-md">
+            <div className="w-9 h-9 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center font-bold text-emerald-400 text-xs">
               AB
             </div>
             <div>
-              <p className="text-sm font-bold text-white">Abdou Bakhe</p>
-              <p className="text-xs text-emerald-400">Mode Superviseur</p>
+              <p className="text-xs font-bold text-white">Abdou Bakhe</p>
+              <p className="text-[10px] text-slate-400 font-medium">Superviseur</p>
             </div>
           </div>
-          <Link href="/" className="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors">
-            <LogOut className="w-5 h-5" />
+          <Link href="/" className="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-slate-800 transition-colors">
+            <LogOut className="w-4 h-4" />
           </Link>
         </div>
       </div>
