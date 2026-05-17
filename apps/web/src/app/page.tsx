@@ -222,10 +222,10 @@ export default function HomePage() {
         {/* Cockpit de Recherche Interactif Premium */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl shadow-2xl backdrop-blur-2xl max-w-5xl mx-auto text-left overflow-hidden border-t-emerald-500/30 border-t-2">
           {/* Tabs du Cockpit */}
-          <div className="flex border-b border-slate-800 bg-slate-950/50 px-6 pt-4 gap-2">
+          <div className="flex border-b border-slate-800 bg-slate-950/50 px-6 pt-4 gap-2 overflow-x-auto">
             {[
               { id: 'bus', label: 'Billets de Bus (GIE)', icon: Bus },
-              { id: 'vtc', label: 'Taxis 7 Places & Indépendants', icon: Navigation },
+              { id: 'vtc', label: 'Taxis (4 & 7 places) & Covoiturage', icon: Navigation },
               { id: 'package', label: 'Envoi Colis & Courrier Express', icon: Package },
             ].map((tab) => {
               const TabIcon = tab.icon;
@@ -513,13 +513,13 @@ export default function HomePage() {
           <div className="absolute -top-10 -right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-3xl relative z-10">
             <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 rounded-full text-blue-400 text-xs font-bold mb-6">
-              <Bus className="w-4 h-4" /> Marketplace Chauffeurs & Taxis 7 places
+              <Navigation className="w-4 h-4" /> Taxis 4 & 7 Places • Minibus • Particuliers (Covoiturage)
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-              Indépendants : Remplissez votre taxi sans intermédiaires.
+              Indépendants & Particuliers : Remplissez votre véhicule sans intermédiaires.
             </h2>
             <p className="text-slate-300 text-lg mb-10 leading-relaxed">
-              Vous êtes chauffeur avec un véhicule conforme (KYC biométrique CEDEAO validé par nos services) ? Publiez vos horaires de départ, encaissez les réservations en avance et transférez vos gains instantanément sur votre mobile.
+              Que vous soyez chauffeur de taxi inter-urbain (4 ou 7 places) ou particulier souhaitant partager les frais de route en toute sécurité (Covoiturage vérifié par KYC biométrique CEDEAO) : publiez vos départs, encaissez les réservations à l'avance et transférez vos gains instantanément sur Wave / OM en 3 secondes.
             </p>
 
             <div className="flex flex-wrap items-center gap-6">
