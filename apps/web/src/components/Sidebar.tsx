@@ -14,7 +14,8 @@ import {
   MapPin, 
   QrCode, 
   LogOut,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -32,7 +33,7 @@ export default function Sidebar() {
     <aside className="w-72 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 flex flex-col justify-between p-6 h-screen sticky top-0 shadow-2xl">
       <div>
         {/* Logo & Brand */}
-        <Link href="/" className="flex items-center gap-3 mb-10 group">
+        <Link href="/" className="flex items-center gap-3 mb-8 group">
           <div className="w-12 h-12 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
             <Bus className="w-6 h-6 text-slate-950" />
           </div>
@@ -45,6 +46,17 @@ export default function Sidebar() {
             </p>
           </div>
         </Link>
+
+        {/* Bouton Retour à l'accueil principal */}
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-800/80 hover:bg-emerald-500/10 border border-slate-700 hover:border-emerald-500/50 text-xs font-bold text-slate-300 hover:text-white transition-all group shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:-translate-x-1 transition-transform" />
+            <span>Retour à l'accueil principal</span>
+          </Link>
+        </div>
 
         {/* Navigation Links */}
         <div className="space-y-2">
