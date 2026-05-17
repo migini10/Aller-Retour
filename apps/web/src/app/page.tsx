@@ -97,15 +97,15 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Menu Sidebar / Drawer Coulissant en Surimpression */}
+      {/* Menu Sidebar / Drawer Coulissant en Surimpression (À Gauche) */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div 
             className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl p-8 flex flex-col justify-between">
+          <div className="absolute inset-y-0 left-0 max-w-full flex pr-10">
+            <div className="w-screen max-w-md bg-slate-900 border-r border-slate-800 shadow-2xl p-8 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-800">
                   <div className="flex items-center space-x-3">
