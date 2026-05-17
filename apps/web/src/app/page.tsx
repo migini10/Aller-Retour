@@ -32,6 +32,8 @@ import {
   Navigation
 } from 'lucide-react';
 
+import VehicleShowcase from '../components/VehicleShowcase';
+
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTab, setSearchTab] = useState<'bus' | 'package' | 'vtc'>('bus');
@@ -82,6 +84,10 @@ export default function HomePage() {
             <a href="#search" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
               <span>Réservation</span>
+            </a>
+            <a href="#showcase" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span>Flotte & Confort</span>
             </a>
             <a href="#features" className="hover:text-emerald-400 transition-colors py-2 flex items-center gap-1.5 group">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -361,6 +367,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Vitrine Interactive de la Flotte & Options de Transport */}
+      <VehicleShowcase />
 
       {/* Section 1 : Séquestre & Transparence Financière (Escrow Hold) */}
       <section id="escrow" className="py-24 px-6 max-w-7xl mx-auto scroll-mt-28">
