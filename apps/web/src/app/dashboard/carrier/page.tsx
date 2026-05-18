@@ -1,93 +1,96 @@
 'use client';
 
 import React from 'react';
-import { Building2, Bus, Users, TrendingUp, ShieldAlert, DollarSign, Calendar, BarChart3, CheckCircle2 } from 'lucide-react';
+import { Building2, Bus, Users, TrendingUp, ShieldAlert, DollarSign, BarChart3 } from 'lucide-react';
 
 export default function CarrierDashboard() {
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header Banner */}
-      <div className="flex items-center justify-between pb-6 border-b border-slate-800">
-        <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Espace Transporteur / GIE</h1>
-          <p className="text-slate-400 mt-1">Supervision de la flotte, chiffre d'affaires en séquestre et affectation des lignes.</p>
-        </div>
-        <div className="flex items-center gap-3 bg-slate-900 border border-slate-800 px-5 py-2.5 rounded-2xl">
-          <Building2 className="w-5 h-5 text-emerald-400" />
-          <span className="font-bold text-white text-sm">GIE Salam Transport (NINEA: 00489234)</span>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="pb-5 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Espace Transporteur / GIE</h1>
+            <p className="text-slate-400 text-sm mt-1">Supervision de la flotte, chiffre d'affaires en séquestre et affectation des lignes.</p>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl w-fit">
+            <Building2 className="w-4 h-4 text-orange-400 shrink-0" />
+            <span className="font-semibold text-white text-xs">GIE Salam Transport</span>
+          </div>
         </div>
       </div>
 
-      {/* Grid Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Trésorerie GIE</span>
-            <DollarSign className="w-5 h-5 text-emerald-400" />
+      {/* Stats Grid — 2 col mobile, 4 col desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-[#101728] border border-slate-800/80 p-4 sm:p-5 rounded-2xl col-span-2 sm:col-span-1">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs text-slate-400 font-medium">Trésorerie</span>
+            <DollarSign className="w-4 h-4 text-orange-400" />
           </div>
-          <h2 className="text-3xl font-black tracking-tight text-white">4 850 000 <span className="text-lg font-bold text-emerald-400">FCFA</span></h2>
-          <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center gap-1">
-            <TrendingUp className="w-3.5 h-3.5" /> +14.5% vs mois précédent
+          <h2 className="text-xl sm:text-2xl font-bold text-white">4 850 000 <span className="text-sm font-bold text-orange-400">FCFA</span></h2>
+          <p className="text-xs text-orange-400 mt-2 font-semibold flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" /> +14.5% ce mois
           </p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Fonds en Séquestre</span>
-            <ShieldAlert className="w-5 h-5 text-amber-400" />
+        <div className="bg-[#101728] border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs text-slate-400 font-medium">Séquestre</span>
+            <ShieldAlert className="w-4 h-4 text-amber-400" />
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">1 240 000 <span className="text-lg font-bold text-amber-400">FCFA</span></h2>
-          <p className="text-xs text-amber-400 mt-2">Déblocage auto à l'arrivée en gare</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">1 240 000 <span className="text-xs text-amber-400">FCFA</span></h2>
+          <p className="text-xs text-amber-400 mt-2">Déblocage auto à l'arrivée</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Véhicules Actifs</span>
-            <Bus className="w-5 h-5 text-blue-400" />
+        <div className="bg-[#101728] border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs text-slate-400 font-medium">Flotte</span>
+            <Bus className="w-4 h-4 text-blue-400" />
           </div>
-          <h2 className="text-3xl font-bold text-white">24 / 28 Bus</h2>
-          <p className="text-xs text-slate-400 mt-2">4 en révision technique</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">24 / 28</h2>
+          <p className="text-xs text-slate-400 mt-2">4 en révision</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Billets Vendus (Aujourd'hui)</span>
-            <Users className="w-5 h-5 text-purple-400" />
+        <div className="bg-[#101728] border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs text-slate-400 font-medium">Billets Vendus</span>
+            <Users className="w-4 h-4 text-purple-400" />
           </div>
-          <h2 className="text-3xl font-bold text-white">842 Billets</h2>
-          <p className="text-xs text-emerald-400 mt-2 font-semibold">Taux de remplissage : 92%</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">842</h2>
+          <p className="text-xs text-orange-400 mt-2 font-semibold">Remplissage : 92%</p>
         </div>
       </div>
 
       {/* Fleet Monitoring */}
-      <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 backdrop-blur-xl">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-white">Suivi GPS de la Flotte en Direct</h3>
-          <button className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" /> Exporter rapport comptable
+      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <h3 className="text-base font-bold text-white">Suivi GPS de la Flotte en Direct</h3>
+          <button className="bg-orange-500/10 border border-orange-500/30 text-orange-400 font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-2 w-fit">
+            <BarChart3 className="w-4 h-4" /> Exporter rapport
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { id: 'BUS-401', route: 'Dakar ➔ Touba', driver: 'Modou Diagne', status: 'En route (Vitesse: 84 km/h)', fill: '48 / 50' },
-            { id: 'BUS-402', route: 'Dakar ➔ Saint-Louis', driver: 'Ibrahima Fall', status: 'En gare de départ', fill: '50 / 50 (Complet)' },
-            { id: 'BUS-403', route: 'Thiès ➔ Ziguinchor', driver: 'Ousmane Sonko', status: 'Proche arrivée (3 km)', fill: '42 / 45' },
+            { id: 'BUS-401', route: 'Dakar ➔ Touba', driver: 'Modou Diagne', status: 'En route (84 km/h)', fill: '48 / 50', color: 'orange' },
+            { id: 'BUS-402', route: 'Dakar ➔ Saint-Louis', driver: 'Ibrahima Fall', status: 'En gare de départ', fill: '50 / 50 ✓', color: 'blue' },
+            { id: 'BUS-403', route: 'Thiès ➔ Ziguinchor', driver: 'Ousmane Sonko', status: 'Proche arrivée (3 km)', fill: '42 / 45', color: 'teal' },
           ].map((b) => (
-            <div key={b.id} className="bg-slate-800/40 border border-slate-700/60 p-6 rounded-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-              <div className="flex justify-between items-start mb-4">
+            <div key={b.id} className="bg-slate-900/50 border border-slate-700/60 p-4 rounded-xl hover:border-orange-500/40 transition-colors">
+              <div className="flex justify-between items-start mb-3">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30">
                     {b.id}
                   </span>
-                  <h4 className="text-lg font-bold text-white mt-2">{b.route}</h4>
+                  <h4 className="text-sm font-bold text-white mt-2">{b.route}</h4>
                 </div>
-                <Bus className="w-8 h-8 text-slate-600 group-hover:text-emerald-400 transition-colors" />
+                <Bus className="w-6 h-6 text-slate-500" />
               </div>
-              <p className="text-xs text-slate-400 mb-1">Chauffeur assigné : <strong className="text-white">{b.driver}</strong></p>
-              <p className="text-xs text-slate-400 mb-4">Remplissage : <strong className="text-emerald-400">{b.fill}</strong></p>
-              <div className="pt-4 border-t border-slate-700/50 flex justify-between items-center">
+              <p className="text-xs text-slate-400 mb-0.5">Chauffeur : <strong className="text-slate-200">{b.driver}</strong></p>
+              <p className="text-xs text-slate-400 mb-3">Remplissage : <strong className="text-orange-400">{b.fill}</strong></p>
+              <div className="pt-3 border-t border-slate-700/50">
                 <span className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" /> {b.status}
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping shrink-0" />
+                  {b.status}
                 </span>
               </div>
             </div>
