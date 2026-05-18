@@ -7,6 +7,6 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white;
+    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-orange-500 selection:text-white;
   }
 }

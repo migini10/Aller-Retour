@@ -190,10 +190,10 @@ export default function VehicleShowcase() {
   }, [comparedVehicleIds]);
 
   return (
-    <section id="showcase" className="py-24 px-6 max-w-6xl mx-auto scroll-mt-28 font-sans">
+    <section id="showcase" className="py-12 px-6 max-w-6xl mx-auto scroll-mt-28 font-sans">
       <div className="text-center max-w-2xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-4 shadow-sm">
-          <Car className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-xl bg-slate-900 border border-orange-500/20 text-slate-300 text-xs font-medium mb-4 shadow-sm">
+          <Car className="w-3.5 h-3.5 text-orange-500" />
           <span>Flotte & Options de Transport</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight mb-4">
@@ -208,7 +208,7 @@ export default function VehicleShowcase() {
       <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 shadow-xl mb-12">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 mb-6">
           <div className="flex items-center gap-2 font-semibold text-white text-sm">
-            <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+            <SlidersHorizontal className="w-4 h-4 text-orange-500" />
             <span>Filtres en direct ({filteredVehicles.length} véhicules)</span>
           </div>
           {(filterType !== 'all' || filterComfort !== 'all' || filterAcOnly || filterWifiOnly || maxPrice < 15000) && (
@@ -263,7 +263,7 @@ export default function VehicleShowcase() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="text-xs font-medium uppercase tracking-wider text-slate-400">Budget Max</label>
-              <span className="text-xs font-bold text-emerald-400">{maxPrice.toLocaleString('fr-FR')} FCFA</span>
+              <span className="text-xs font-bold text-orange-400">{maxPrice.toLocaleString('fr-FR')} FCFA</span>
             </div>
             <input 
               type="range" 
@@ -272,7 +272,7 @@ export default function VehicleShowcase() {
               step="500"
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-[#0B0F19] rounded-lg appearance-none"
+              className="w-full accent-orange-500 cursor-pointer h-1.5 bg-[#0B0F19] rounded-lg appearance-none"
             />
           </div>
 
@@ -281,7 +281,7 @@ export default function VehicleShowcase() {
               onClick={() => setFilterAcOnly(!filterAcOnly)}
               className={`flex-1 px-4 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
                 filterAcOnly 
-                  ? 'bg-emerald-600 text-white border-emerald-500' 
+                  ? 'bg-orange-600 text-white border-orange-500' 
                   : 'bg-[#0B0F19] border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -293,7 +293,7 @@ export default function VehicleShowcase() {
               onClick={() => setFilterWifiOnly(!filterWifiOnly)}
               className={`flex-1 px-4 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
                 filterWifiOnly 
-                  ? 'bg-emerald-600 text-white border-emerald-500' 
+                  ? 'bg-orange-600 text-white border-orange-500' 
                   : 'bg-[#0B0F19] border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -312,7 +312,7 @@ export default function VehicleShowcase() {
             <div 
               key={vehicle.id} 
               className={`bg-[#101728] border rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col justify-between group ${
-                isCompared ? 'border-emerald-500 ring-1 ring-emerald-500/20' : 'border-slate-800/80 hover:border-slate-700'
+                isCompared ? 'border-orange-500 ring-1 ring-orange-500/20' : 'border-slate-800/80 hover:border-slate-700'
               }`}
             >
               <div>
@@ -332,28 +332,28 @@ export default function VehicleShowcase() {
                   </div>
 
                   <div className="absolute bottom-3 left-3 bg-[#0B0F19]/90 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-800 text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-emerald-400" />
+                    <Users className="w-3.5 h-3.5 text-orange-400" />
                     <span>Capacité : {vehicle.capacity}</span>
                   </div>
                 </div>
 
                 <div className="p-6">
-                  <span className="text-[11px] uppercase font-bold tracking-wider text-emerald-400 block mb-1">
+                  <span className="text-[11px] uppercase font-bold tracking-wider text-orange-400 block mb-1">
                     {vehicle.category}
                   </span>
-                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors mb-4">
+                  <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-4">
                     {vehicle.name}
                   </h3>
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     <span className="px-2.5 py-1 rounded-lg bg-[#0B0F19] text-slate-300 text-xs font-medium flex items-center gap-1.5 border border-slate-800/80">
-                      <Wind className={`w-3.5 h-3.5 ${vehicle.ac ? 'text-emerald-400' : 'text-slate-500'}`} />
+                      <Wind className={`w-3.5 h-3.5 ${vehicle.ac ? 'text-orange-400' : 'text-slate-500'}`} />
                       <span>{vehicle.ac ? 'Climatisé' : 'Standard'}</span>
                     </span>
 
                     {vehicle.wifi && (
                       <span className="px-2.5 py-1 rounded-lg bg-[#0B0F19] text-slate-300 text-xs font-medium flex items-center gap-1.5 border border-slate-800/80">
-                        <Wifi className="w-3.5 h-3.5 text-emerald-400" /> Wi-Fi
+                        <Wifi className="w-3.5 h-3.5 text-orange-400" /> Wi-Fi
                       </span>
                     )}
 
@@ -366,7 +366,7 @@ export default function VehicleShowcase() {
                   <div className="space-y-1.5 py-3 border-y border-slate-800/80 text-xs text-slate-400">
                     {vehicle.features.slice(0, 2).map((feat, idx) => (
                       <div key={idx} className="flex items-center gap-2 font-normal">
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <Check className="w-3.5 h-3.5 text-orange-400" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -380,8 +380,8 @@ export default function VehicleShowcase() {
 
                     <div className="text-right">
                       <span className="text-xs text-slate-400 block">Disponibilité</span>
-                      <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1 justify-end">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-semibold text-orange-400 flex items-center gap-1 justify-end">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                         {vehicle.availableSeats} places libres
                       </span>
                     </div>
@@ -394,11 +394,11 @@ export default function VehicleShowcase() {
                   onClick={() => toggleCompare(vehicle.id)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                     isCompared 
-                      ? 'bg-emerald-600 text-white shadow-sm' 
+                      ? 'bg-orange-600 text-white shadow-sm' 
                       : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'
                   }`}
                 >
-                  <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                  <Layers className="w-3.5 h-3.5 text-orange-400" />
                   <span>{isCompared ? 'Sélectionné' : 'Comparer'}</span>
                 </button>
 
@@ -413,7 +413,7 @@ export default function VehicleShowcase() {
 
                   <Link
                     href="/dashboard/client"
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors flex items-center gap-1 shadow-sm"
+                    className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs transition-colors flex items-center gap-1 shadow-sm"
                   >
                     <span>Réserver</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -430,7 +430,7 @@ export default function VehicleShowcase() {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 animate-fade-in">
           <div className="bg-[#0B0F19]/95 border border-slate-800 shadow-2xl rounded-2xl p-4 backdrop-blur-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400">
+              <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-orange-500">
                 <Layers className="w-4 h-4" />
               </div>
               <div>
@@ -442,7 +442,7 @@ export default function VehicleShowcase() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsCompareModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-colors"
+                className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs shadow-sm transition-colors"
               >
                 Comparer
               </button>
@@ -474,7 +474,7 @@ export default function VehicleShowcase() {
                 <X className="w-4 h-4" />
               </button>
               <div className="absolute bottom-4 left-4 bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl border border-slate-800">
-                <span className="text-xs uppercase font-bold text-emerald-400 block">{selectedModalVehicle.category}</span>
+                <span className="text-xs uppercase font-bold text-orange-400 block">{selectedModalVehicle.category}</span>
                 <h3 className="text-xl font-bold text-white">{selectedModalVehicle.name}</h3>
               </div>
             </div>
@@ -487,7 +487,7 @@ export default function VehicleShowcase() {
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block">Confort</span>
-                  <span className="font-semibold text-emerald-400 text-sm">{selectedModalVehicle.comfort}</span>
+                  <span className="font-semibold text-orange-400 text-sm">{selectedModalVehicle.comfort}</span>
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block">Clim (A/C)</span>
@@ -504,7 +504,7 @@ export default function VehicleShowcase() {
                 <div className="space-y-2">
                   {selectedModalVehicle.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-[#0B0F19]/60 border border-slate-800 text-xs text-slate-200 font-normal">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <ShieldCheck className="w-4 h-4 text-orange-400 shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -522,7 +522,7 @@ export default function VehicleShowcase() {
                 </div>
                 <Link
                   href="/dashboard/client"
-                  className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm"
+                  className="px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm"
                 >
                   <span>Réserver ma place</span>
                   <ArrowRight className="w-4 h-4" />
@@ -539,7 +539,7 @@ export default function VehicleShowcase() {
           <div className="bg-[#101728] border border-slate-800 rounded-3xl max-w-4xl w-full p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center pb-6 border-b border-slate-800 mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-orange-500 flex items-center justify-center font-bold">
                   VS
                 </div>
                 <div>
@@ -564,7 +564,7 @@ export default function VehicleShowcase() {
                       <th key={v.id} className="p-4 w-1/4">
                         <img src={v.img} alt={v.name} className="w-full h-20 object-cover rounded-xl mb-2 border border-slate-800" />
                         <span className="font-bold text-white text-sm block">{v.name}</span>
-                        <span className="text-xs text-emerald-400 font-medium">{v.priceStr}</span>
+                        <span className="text-xs text-orange-400 font-medium">{v.priceStr}</span>
                       </th>
                     ))}
                   </tr>
@@ -581,14 +581,14 @@ export default function VehicleShowcase() {
                   <tr>
                     <td className="p-4 font-medium text-slate-400">Confort</td>
                     {comparedVehicles.map(v => (
-                      <td key={v.id} className="p-4 font-semibold text-emerald-400">{v.comfort}</td>
+                      <td key={v.id} className="p-4 font-semibold text-orange-400">{v.comfort}</td>
                     ))}
                   </tr>
                   <tr>
                     <td className="p-4 font-medium text-slate-400">Climatisation (A/C)</td>
                     {comparedVehicles.map(v => (
                       <td key={v.id} className="p-4">
-                        {v.ac ? <span className="px-2 py-1 bg-slate-900 text-emerald-400 rounded-md border border-slate-800 font-medium">Oui</span> : <span className="text-slate-500 font-medium">Non</span>}
+                        {v.ac ? <span className="px-2 py-1 bg-slate-900 text-orange-400 rounded-md border border-slate-800 font-medium">Oui</span> : <span className="text-slate-500 font-medium">Non</span>}
                       </td>
                     ))}
                   </tr>
@@ -596,7 +596,7 @@ export default function VehicleShowcase() {
                     <td className="p-4 font-medium text-slate-400">Wi-Fi</td>
                     {comparedVehicles.map(v => (
                       <td key={v.id} className="p-4">
-                        {v.wifi ? <span className="px-2 py-1 bg-slate-900 text-emerald-400 rounded-md border border-slate-800 font-medium">Oui</span> : <span className="text-slate-500 font-medium">Non</span>}
+                        {v.wifi ? <span className="px-2 py-1 bg-slate-900 text-orange-400 rounded-md border border-slate-800 font-medium">Oui</span> : <span className="text-slate-500 font-medium">Non</span>}
                       </td>
                     ))}
                   </tr>
@@ -618,7 +618,7 @@ export default function VehicleShowcase() {
                       <td key={v.id} className="p-4">
                         <Link
                           href="/dashboard/client"
-                          className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1 shadow-sm transition-colors"
+                          className="w-full py-2 px-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs flex items-center justify-center gap-1 shadow-sm transition-colors"
                         >
                           <span>Réserver</span>
                           <ArrowRight className="w-3 h-3" />

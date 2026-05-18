@@ -54,17 +54,17 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="relative overflow-hidden flex-grow min-h-screen bg-[#0B0F19] text-slate-100 font-sans selection:bg-emerald-600 selection:text-white">
-      {/* Topbar / En-tête Premium Épuré */}
-      <header className="border-b border-slate-800/60 bg-[#0B0F19]/90 backdrop-blur-xl sticky top-0 z-50">
+    <div className="relative overflow-hidden flex-grow min-h-screen bg-[#0B0F19] text-slate-100 font-sans selection:bg-orange-600 selection:text-white">
+      {/* Topbar / En-tête Premium Fixe avec couleur dominante Orange */}
+      <header className="border-b border-slate-800/60 bg-[#0B0F19]/90 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
-              <Bus className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center group-hover:bg-orange-600/30 transition-colors">
+              <Bus className="w-5 h-5 text-orange-500" />
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-white">
-                Aller<span className="text-emerald-500 font-extrabold">Retour</span>
+                Aller<span className="text-orange-500 font-extrabold">Retour</span>
               </span>
               <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
                 Mobilité & Escrow
@@ -100,15 +100,16 @@ export default function HomePage() {
             </Link>
             <Link 
               href="/dashboard/dispatcher" 
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2"
             >
               <TicketCheck className="w-4 h-4" />
               <span>Guichet de Gare</span>
             </Link>
 
+            {/* Bouton de menu latéral à droite */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-300 hover:text-white hover:bg-slate-900 transition-colors"
+              className="p-2 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:text-white hover:bg-orange-600 transition-colors ml-2"
               title="Menu de navigation"
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -117,24 +118,24 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Menu Sidebar / Drawer Coulissant */}
+      {/* Menu Sidebar / Drawer Coulissant par la DROITE et 100% responsive */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div 
             className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-md transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 max-w-full flex pr-10 animate-fade-in">
-            <div className="w-screen max-w-md bg-[#0F1524] border-r border-slate-800/80 p-8 flex flex-col justify-between shadow-2xl">
+          <div className="absolute inset-y-0 right-0 max-w-full flex pl-10 animate-fade-in">
+            <div className="w-screen max-w-md bg-[#0F1524] border-l border-slate-800/80 p-6 sm:p-8 flex flex-col justify-between shadow-2xl overflow-y-auto">
               <div>
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-800/80">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
-                      <Bus className="w-5 h-5 text-emerald-400" />
+                    <div className="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center">
+                      <Bus className="w-5 h-5 text-orange-500" />
                     </div>
                     <div>
                       <span className="text-lg font-bold tracking-tight text-white block">Aller-Retour</span>
-                      <span className="text-xs text-slate-400 font-medium">Sélecteur de Tableaux de Bord</span>
+                      <span className="text-xs text-orange-400 font-medium">Sélecteur de Portails</span>
                     </div>
                   </div>
                   <button 
@@ -157,14 +158,14 @@ export default function HomePage() {
                         key={item.path}
                         href={item.path}
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-start p-4 rounded-2xl border border-slate-800/60 bg-slate-900/40 hover:bg-slate-900/80 hover:border-slate-700 transition-all group"
+                        className="flex items-start p-4 rounded-2xl border border-slate-800/60 bg-slate-900/40 hover:bg-slate-900/80 hover:border-orange-500/50 transition-all group"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center mr-4 shrink-0 transition-colors border border-slate-700/50">
-                          <IconComponent className="w-5 h-5 text-emerald-400" />
+                        <div className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center mr-4 shrink-0 transition-colors border border-slate-700/50 group-hover:border-orange-500/40 group-hover:bg-orange-500/10">
+                          <IconComponent className="w-5 h-5 text-orange-500" />
                         </div>
                         <div className="flex-grow">
                           <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                            <h4 className="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors flex items-center gap-1.5">
                               <span>{item.name}</span>
                               <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h4>
@@ -183,7 +184,7 @@ export default function HomePage() {
               <div className="border-t border-slate-800 pt-6 mt-8">
                 <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-slate-800 text-xs text-slate-300">
                   <span>Statut Plateforme</span>
-                  <span className="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-semibold rounded-lg">ONLINE</span>
+                  <span className="px-2.5 py-1 bg-orange-500/20 border border-orange-500/40 text-orange-400 font-semibold rounded-lg">ONLINE</span>
                 </div>
               </div>
             </div>
@@ -191,16 +192,16 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Hero Section Premium Minimaliste */}
-      <section id="search" className="pt-20 pb-24 px-6 max-w-5xl mx-auto text-center scroll-mt-28">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-300 text-xs font-medium mb-8 shadow-sm">
-          <Shield className="w-3.5 h-3.5 text-emerald-400" />
+      {/* Hero Section Premium Minimaliste (pt-28 pour compenser le header fixed) */}
+      <section id="search" className="pt-28 pb-16 px-6 max-w-5xl mx-auto text-center scroll-mt-28">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-orange-500/20 text-slate-300 text-xs font-medium mb-8 shadow-sm">
+          <Shield className="w-3.5 h-3.5 text-orange-500" />
           <span>Plateforme Souveraine de Transport Inter-Urbain en Afrique de l'Ouest</span>
         </div>
 
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 text-white max-w-4xl mx-auto">
           Réservez votre billet en gare. <br />
-          <span className="text-emerald-400 font-semibold">Voyagez l'esprit tranquille.</span>
+          <span className="text-orange-500 font-semibold">Voyagez l'esprit tranquille.</span>
         </h1>
 
         <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-14 leading-relaxed font-normal">
@@ -228,7 +229,7 @@ export default function HomePage() {
                   onClick={() => setSearchTab(tab.id as any)}
                   className={`flex items-center gap-2 px-5 py-3 rounded-t-xl font-medium text-sm transition-colors border-b-2 ${
                     searchTab === tab.id
-                      ? 'bg-[#101728] border-emerald-500 text-white font-semibold'
+                      ? 'bg-[#101728] border-orange-500 text-white font-semibold'
                       : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
                   }`}
                 >
@@ -285,14 +286,14 @@ export default function HomePage() {
                 <input 
                   type="date" 
                   defaultValue="2026-05-18" 
-                  className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-slate-600 transition-colors color-scheme-dark cursor-pointer" 
+                  className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-slate-600 transition-colors cursor-pointer" 
                 />
               </div>
 
               <div>
                 <Link 
                   href="/dashboard/client" 
-                  className="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                 >
                   <span>Rechercher</span>
                   <ArrowRight className="w-4 h-4" />
@@ -303,7 +304,7 @@ export default function HomePage() {
             {/* Popular Routes Quick Badges */}
             <div className="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
               <span className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" /> Lignes directes populaires :
+                <Zap className="w-3.5 h-3.5 text-orange-500" /> Lignes directes populaires :
               </span>
               <div className="flex flex-wrap gap-2.5">
                 {popularRoutes.map((route, idx) => (
@@ -313,7 +314,7 @@ export default function HomePage() {
                     className="px-3.5 py-1.5 rounded-xl bg-[#0B0F19] border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                   >
                     <span>{route.from} ➔ {route.to}</span>
-                    <span className="text-emerald-400 font-semibold bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800/80">
+                    <span className="text-orange-400 font-semibold bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800/80">
                       {route.price}
                     </span>
                   </Link>
@@ -350,8 +351,8 @@ export default function HomePage() {
       <section id="escrow" className="py-24 px-6 max-w-6xl mx-auto scroll-mt-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-6">
-              <Lock className="w-3.5 h-3.5 text-emerald-400" /> Compte Séquestre
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-orange-500/20 text-slate-300 text-xs font-medium mb-6">
+              <Lock className="w-3.5 h-3.5 text-orange-500" /> Compte Séquestre
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-6 leading-tight">
               Paiements protégés sur Wave & OM. <br />
@@ -363,14 +364,14 @@ export default function HomePage() {
 
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#0F1524]/80 border border-slate-800/80">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-xs">1</div>
+                <div className="w-8 h-8 rounded-lg bg-orange-600/20 text-orange-400 flex items-center justify-center shrink-0 font-bold text-xs">1</div>
                 <div>
                   <h4 className="font-semibold text-white text-sm">Verrouillage au scan de réservation</h4>
                   <p className="text-xs text-slate-400 mt-1">Le montant exact (ex: 4 500 FCFA) est mis de côté sur votre compte mobile money.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#0F1524]/80 border border-slate-800/80">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-xs">2</div>
+                <div className="w-8 h-8 rounded-lg bg-orange-600/20 text-orange-400 flex items-center justify-center shrink-0 font-bold text-xs">2</div>
                 <div>
                   <h4 className="font-semibold text-white text-sm">Répartition automatique au guichet</h4>
                   <p className="text-xs text-slate-400 mt-1">Dès le scan d'embarquement, les fonds sont instantanément scindés : Transporteur (92%), État (2%), SaaS (5%).</p>
@@ -380,7 +381,7 @@ export default function HomePage() {
 
             <Link 
               href="/dashboard/superadmin" 
-              className="inline-flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-sm font-medium text-orange-400 hover:text-orange-300 transition-colors group"
             >
               <span>Consulter l'audit financier en temps réel</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -392,14 +393,14 @@ export default function HomePage() {
             <div className="flex items-center justify-between pb-6 border-b border-slate-800 mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-                  <Wallet className="w-6 h-6 text-emerald-400" />
+                  <Wallet className="w-6 h-6 text-orange-500" />
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block font-medium">Contrat Séquestre N°92834</span>
                   <span className="text-lg font-bold text-white tracking-tight">Dakar ➔ Touba</span>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs">ESCROW HOLD</span>
+              <span className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 font-semibold text-xs">ESCROW HOLD</span>
             </div>
 
             <div className="bg-[#0B0F19] rounded-2xl p-6 border border-slate-800/80 mb-6 space-y-3.5">
@@ -416,14 +417,14 @@ export default function HomePage() {
                 <span className="font-semibold text-slate-400">- 90 FCFA</span>
               </div>
               <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-800/80 font-bold">
-                <span className="text-emerald-400">Net versé au Transporteur (92%)</span>
-                <span className="text-lg text-emerald-400">4 140 FCFA</span>
+                <span className="text-orange-400">Net versé au Transporteur (92%)</span>
+                <span className="text-lg text-orange-400">4 140 FCFA</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <p className="text-xs text-emerald-300 leading-relaxed font-medium">
+            <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-orange-400 shrink-0" />
+              <p className="text-xs text-orange-300 leading-relaxed font-medium">
                 Virement instantané de 4 140 FCFA exécuté sur le compte marchand du GIE en 2.8 secondes.
               </p>
             </div>
@@ -436,7 +437,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-4">
-              <Building2 className="w-3.5 h-3.5 text-emerald-400" /> Espace Transporteurs GIE
+              <Building2 className="w-3.5 h-3.5 text-orange-500" /> Espace Transporteurs GIE
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
               L'infrastructure moderne pour gérer votre gare routière.
@@ -448,42 +449,42 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-orange-500">
                 <TicketCheck className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold mb-3 text-white">Terminaux POS en Gare</h3>
               <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
                 Impression instantanée de billets thermiques QR via terminaux portables. Contrôle rapide par caméra lors de l'embarquement.
               </p>
-              <Link href="/dashboard/dispatcher" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
+              <Link href="/dashboard/dispatcher" className="text-xs font-semibold text-orange-400 flex items-center gap-1 hover:underline">
                 <span>Accéder au guichet de gare</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-orange-500">
                 <Smartphone className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold mb-3 text-white">Mode Offline SQLite</h3>
               <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
                 Le manifeste d'embarquement reste synchronisé et 100% opérationnel même lors de la traversée de zones sans réseau 4G.
               </p>
-              <Link href="/dashboard/driver" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
+              <Link href="/dashboard/driver" className="text-xs font-semibold text-orange-400 flex items-center gap-1 hover:underline">
                 <span>Voir l'application chauffeur</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="p-8 rounded-3xl bg-[#101728]/80 border border-slate-800/80 hover:border-slate-700 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-emerald-400">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 text-orange-500">
                 <TrendingUp className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold mb-3 text-white">Trésorerie & GPS Direct</h3>
               <p className="text-slate-400 text-xs leading-relaxed mb-6 font-normal">
                 Suivi cartographique des véhicules en direct, gestion du taux de remplissage et reversement instantané vers le compte GIE.
               </p>
-              <Link href="/dashboard/carrier" className="text-xs font-semibold text-emerald-400 flex items-center gap-1 hover:underline">
+              <Link href="/dashboard/carrier" className="text-xs font-semibold text-orange-400 flex items-center gap-1 hover:underline">
                 <span>Ouvrir l'espace GIE</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
@@ -497,7 +498,7 @@ export default function HomePage() {
         <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-10 md:p-14 text-left shadow-xl relative overflow-hidden">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium mb-6">
-              <Bus className="w-3.5 h-3.5 text-emerald-400" /> Taxis 4 & 7 Places • Minibus • Covoiturage
+              <Bus className="w-3.5 h-3.5 text-orange-500" /> Taxis 4 & 7 Places • Minibus • Covoiturage
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
               Indépendants & Particuliers : Remplissez votre véhicule en avance.
@@ -509,13 +510,13 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-6">
               <Link 
                 href="/dashboard/driver" 
-                className="px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-white shadow-sm transition-colors flex items-center gap-2.5 text-sm"
+                className="px-6 py-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 font-semibold text-white shadow-sm transition-colors flex items-center gap-2.5 text-sm"
               >
                 <Bus className="w-4 h-4" />
                 <span>Ouvrir mon cockpit de navigation</span>
               </Link>
               <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                <Check className="w-4 h-4 text-emerald-400" />
+                <Check className="w-4 h-4 text-orange-400" />
                 <span>Zéro commission fixe • Inscription en 5 min</span>
               </div>
             </div>
