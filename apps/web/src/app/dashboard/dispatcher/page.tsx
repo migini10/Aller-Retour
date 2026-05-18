@@ -1,10 +1,54 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TicketCheck, Printer, Camera, Search, UserCheck, CheckCircle2 } from 'lucide-react';
+import { 
+  TicketCheck, Printer, Camera, Search, UserCheck, 
+  CheckCircle2, XCircle, QrCode, X, AlertCircle,
+  MapPin, Phone, CreditCard, User, Clock
+} from 'lucide-react';
+
+type BilletState = 'idle' | 'generating' | 'success';
+type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid';
 
 export default function DispatcherDashboard() {
-  const [phoneSearch, setPhoneSearch] = useState('');
+  const [phone, setPhone] = useState('');
+  const [ligne, setLigne] = useState('Dakar ➔ Touba (08:00 — 4 500 FCFA)');
+  const [billetState, setBilletState] = useState<BilletState>('idle');
+  const [showBilletModal, setShowBilletModal] = useState(false);
+
+  const [scanState, setScanState] = useState<ScanState>('idle');
+  const [scanCode, setScanCode] = useState('');
+  const [showScanModal, setShowScanModal] = useState(false);
+
+  // Génération simulée d'un billet
+  const handleEmettreStep1 = () => {
+    if (!phone) { alert('Veuillez saisir le numéro de téléphone du client.'); return; }
+    setBilletState('generating');
+    setShowBilletModal(true);
+    setTimeout(() => setBilletState('success'), 1800);
+  };
+
+  const resetBillet = () => {
+    setBilletState('idle');
+    setShowBilletModal(false);
+    setPhone('');
+  };
+
+  // Validation simulée d'un scan QR
+  const handleScan = () => {
+    if (!scanCode.trim()) { alert('Veuillez saisir ou coller un code QR.'); return; }
+    setScanState('scanning');
+    setTimeout(() => {
+      // Simuler: code valide si commence par "AR-"
+      setScanState(scanCode.trim().toUpperCase().startsWith('AR-') ? 'valid' : 'invalid');
+    }, 1500);
+  };
+
+  const resetScan = () => {
+    setScanState('idle');
+    setScanCode('');
+    setShowScanModal(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -13,70 +57,299 @@ export default function DispatcherDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Guichet & Contrôle de Gare</h1>
-            <p className="text-slate-400 text-sm mt-1">Terminal de vente POS, impression thermique et scan QR d'embarquement.</p>
+            <p className="text-orange-400/80 text-sm mt-1">Terminal de vente POS, impression thermique et scan QR d'embarquement.</p>
           </div>
-          <button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
+          <button 
+            onClick={() => setShowScanModal(true)}
+            className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
+          >
             <Camera className="w-4 h-4" /> Scanner QR Billet
           </button>
         </div>
       </div>
 
+      {/* Stats rapides */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-[#101728] border border-orange-500/20 rounded-xl p-3 text-center">
+          <p className="text-xl font-bold text-orange-400">142</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Billets émis</p>
+        </div>
+        <div className="bg-[#101728] border border-slate-800/80 rounded-xl p-3 text-center">
+          <p className="text-xl font-bold text-white">48</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Scannés</p>
+        </div>
+        <div className="bg-[#101728] border border-slate-800/80 rounded-xl p-3 text-center">
+          <p className="text-xl font-bold text-amber-400">12</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">En attente</p>
+        </div>
+      </div>
+
       {/* POS Quick Sell & Contrôle */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
         {/* POS Card */}
         <div className="lg:col-span-2 bg-[#101728] border border-slate-800/80 p-5 sm:p-7 rounded-2xl">
           <div className="mb-5">
             <h2 className="text-base sm:text-lg font-bold text-white mb-2">Vente Express au Guichet (POS Android)</h2>
-            <span className="inline-flex items-center gap-1.5 text-xs bg-slate-800 px-3 py-1.5 rounded-lg text-orange-400 font-medium border border-slate-700">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-orange-500/10 px-3 py-1.5 rounded-lg text-orange-400 font-medium border border-orange-500/30">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
               Imprimante Sunmi V2 — Bluetooth connecté
             </span>
           </div>
 
-          {/* Formulaire en colonne unique sur mobile */}
-          <div className="space-y-4 mb-5">
+          <div className="space-y-4 mb-6">
             <div>
-              <label className="text-xs text-slate-400 font-semibold mb-1.5 block">Ligne de Départ</label>
-              <select className="w-full bg-[#0B0F19] border border-slate-700 rounded-xl px-4 py-3 text-white text-sm font-medium focus:border-orange-500 outline-none cursor-pointer">
+              <label className="text-xs text-orange-400 font-semibold mb-1.5 block flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" /> Ligne de Départ
+              </label>
+              <select 
+                value={ligne}
+                onChange={e => setLigne(e.target.value)}
+                className="w-full bg-[#0B0F19] border border-slate-700 hover:border-orange-500/50 rounded-xl px-4 py-3 text-white text-sm font-medium focus:border-orange-500 outline-none cursor-pointer transition-colors"
+              >
                 <option>Dakar ➔ Touba (08:00 — 4 500 FCFA)</option>
                 <option>Dakar ➔ Saint-Louis (09:30 — 5 000 FCFA)</option>
                 <option>Thiès ➔ Ziguinchor (11:00 — 9 000 FCFA)</option>
+                <option>Touba ➔ Tambacounda (06:00 — 7 500 FCFA)</option>
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-400 font-semibold mb-1.5 block">Numéro Téléphone Client</label>
+              <label className="text-xs text-orange-400 font-semibold mb-1.5 block flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5" /> Numéro Téléphone Client
+              </label>
               <div className="relative">
                 <input 
                   type="tel"
                   placeholder="Ex: 77 123 45 67" 
-                  value={phoneSearch}
-                  onChange={e => setPhoneSearch(e.target.value)}
-                  className="w-full bg-[#0B0F19] border border-slate-700 rounded-xl px-4 py-3 text-white text-sm font-medium focus:border-orange-500 outline-none pl-10"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  className="w-full bg-[#0B0F19] border border-slate-700 hover:border-orange-500/50 rounded-xl px-4 py-3 text-white text-sm font-medium focus:border-orange-500 outline-none pl-10 transition-colors"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <Search className="w-4 h-4 text-orange-400 absolute left-3.5 top-3.5" />
               </div>
             </div>
           </div>
 
-          <button className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
+          <button 
+            onClick={handleEmettreStep1}
+            className="w-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
+          >
             <Printer className="w-4 h-4" /> Émettre Billet & Imprimer QR Thermique
           </button>
         </div>
 
         {/* Contrôle d'Embarquement */}
         <div className="bg-[#101728] border border-slate-800/80 p-5 sm:p-7 rounded-2xl flex flex-col justify-center items-center text-center">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+          <div className="w-14 h-14 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-center justify-center mb-4">
             <UserCheck className="w-7 h-7 text-orange-400" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-white mb-2">Contrôle d'Embarquement</h3>
-          <p className="text-xs text-slate-400 mb-5 leading-relaxed">Pointez la caméra vers le billet du voyageur ou entrez le jeton de sécurité.</p>
-          <div className="w-full bg-orange-500/10 border border-orange-500/30 p-3 rounded-xl text-orange-300 font-semibold text-xs flex items-center justify-center gap-2">
+          <h3 className="text-base font-bold text-white mb-2">Contrôle d'Embarquement</h3>
+          <p className="text-xs text-slate-400 mb-5 leading-relaxed">Scannez le billet QR du voyageur pour valider l'embarquement.</p>
+          <button
+            onClick={() => setShowScanModal(true)}
+            className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <Camera className="w-4 h-4" /> Scanner un billet
+          </button>
+          <div className="w-full bg-orange-500/10 border border-orange-500/30 p-3 rounded-xl text-orange-300 font-semibold text-xs flex items-center justify-center gap-2 mt-4">
             <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0" />
-            <span>Billet Validé : Siège #14 — Dakar ➔ Touba</span>
+            <span>Dernier scan : Siège #14 — Dakar ➔ Touba ✓</span>
           </div>
         </div>
       </div>
+
+      {/* ===== MODAL ÉMISSION BILLET ===== */}
+      {showBilletModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0F19]/85 backdrop-blur-md">
+          <div className="bg-[#101728] border border-orange-500/30 rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden">
+            {/* Header modal */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-800/80 bg-orange-600/10">
+              <div className="flex items-center gap-2">
+                <TicketCheck className="w-5 h-5 text-orange-400" />
+                <span className="font-bold text-white text-sm">Émission de Billet QR</span>
+              </div>
+              <button onClick={resetBillet} className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {billetState === 'generating' && (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 rounded-full border-4 border-orange-500 border-t-transparent animate-spin mx-auto mb-4" />
+                  <p className="text-white font-semibold text-sm">Génération du billet QR en cours...</p>
+                  <p className="text-slate-400 text-xs mt-1">Connexion à l'imprimante Sunmi V2</p>
+                </div>
+              )}
+
+              {billetState === 'success' && (
+                <div>
+                  {/* QR Code affiché */}
+                  <div className="bg-white p-4 rounded-2xl mx-auto w-fit mb-4 shadow-lg">
+                    <QrCode className="w-28 h-28 text-slate-950" />
+                  </div>
+
+                  <div className="space-y-2 mb-5 bg-[#0B0F19] rounded-xl p-4 border border-slate-800">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3 text-orange-400" /> Ligne</span>
+                      <span className="text-white font-semibold text-right max-w-[55%]">{ligne.split('(')[0].trim()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><Phone className="w-3 h-3 text-orange-400" /> Client</span>
+                      <span className="text-white font-semibold">{phone}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><CreditCard className="w-3 h-3 text-orange-400" /> Réf.</span>
+                      <span className="text-orange-400 font-mono font-bold">AR-{Math.random().toString(36).substr(2,8).toUpperCase()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3 text-orange-400" /> Émis le</span>
+                      <span className="text-white font-semibold">{new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 mb-5">
+                    <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0" />
+                    <p className="text-xs text-orange-300 font-semibold">Billet imprimé sur Sunmi V2 avec succès !</p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={handleEmettreStep1}
+                      className="flex-1 bg-slate-900 border border-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-800 transition-colors"
+                    >
+                      Réimprimer
+                    </button>
+                    <button 
+                      onClick={resetBillet}
+                      className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition-colors"
+                    >
+                      Nouveau billet
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MODAL SCAN QR ===== */}
+      {showScanModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0F19]/85 backdrop-blur-md">
+          <div className="bg-[#101728] border border-orange-500/30 rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-slate-800/80 bg-orange-600/10">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-orange-400" />
+                <span className="font-bold text-white text-sm">Scanner un Billet QR</span>
+              </div>
+              <button onClick={resetScan} className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {(scanState === 'idle') && (
+                <div>
+                  {/* Viewfinder simulé */}
+                  <div className="relative bg-[#0B0F19] rounded-2xl h-40 flex items-center justify-center mb-4 border border-slate-800 overflow-hidden">
+                    <div className="absolute inset-4 border-2 border-dashed border-orange-500/50 rounded-xl" />
+                    <div className="absolute top-4 left-4 w-5 h-5 border-t-2 border-l-2 border-orange-500 rounded-tl" />
+                    <div className="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-orange-500 rounded-tr" />
+                    <div className="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-orange-500 rounded-bl" />
+                    <div className="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-orange-500 rounded-br" />
+                    <Camera className="w-10 h-10 text-orange-400/40" />
+                  </div>
+
+                  <p className="text-xs text-slate-400 text-center mb-4">Ou saisissez manuellement le code de référence du billet :</p>
+
+                  <div className="relative mb-4">
+                    <input
+                      type="text"
+                      placeholder="Ex: AR-X7K2P9QA"
+                      value={scanCode}
+                      onChange={e => setScanCode(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleScan()}
+                      className="w-full bg-[#0B0F19] border border-slate-700 hover:border-orange-500/50 rounded-xl px-4 py-3 text-white text-sm font-mono focus:border-orange-500 outline-none transition-colors"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleScan}
+                    className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    <TicketCheck className="w-4 h-4" /> Valider le billet
+                  </button>
+                </div>
+              )}
+
+              {scanState === 'scanning' && (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 rounded-full border-4 border-orange-500 border-t-transparent animate-spin mx-auto mb-4" />
+                  <p className="text-white font-semibold text-sm">Vérification en cours...</p>
+                  <p className="text-slate-400 text-xs mt-1">Consultation de la base de données des billets</p>
+                </div>
+              )}
+
+              {scanState === 'valid' && (
+                <div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-orange-500/20 border-2 border-orange-500 rounded-full mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-orange-400" />
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-white mb-1">Billet VALIDE ✓</h3>
+                  <p className="text-center text-xs text-orange-400 font-semibold mb-5">Embarquement autorisé</p>
+
+                  <div className="space-y-2 bg-[#0B0F19] rounded-xl p-4 border border-slate-800 mb-5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><User className="w-3 h-3 text-orange-400" /> Passager</span>
+                      <span className="text-white font-semibold">Fatou Diop</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3 text-orange-400" /> Ligne</span>
+                      <span className="text-white font-semibold">Dakar ➔ Touba</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400 flex items-center gap-1"><TicketCheck className="w-3 h-3 text-orange-400" /> Siège</span>
+                      <span className="text-orange-400 font-bold">#14 (VIP)</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-400">Réf.</span>
+                      <span className="text-orange-400 font-mono font-bold">{scanCode.toUpperCase()}</span>
+                    </div>
+                  </div>
+
+                  <button onClick={resetScan} className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">
+                    Scanner un autre billet
+                  </button>
+                </div>
+              )}
+
+              {scanState === 'invalid' && (
+                <div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-rose-500/20 border-2 border-rose-500 rounded-full mx-auto mb-4">
+                    <XCircle className="w-8 h-8 text-rose-400" />
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-white mb-1">Billet INVALIDE ✗</h3>
+                  <p className="text-center text-xs text-rose-400 font-semibold mb-5">Embarquement refusé</p>
+
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 mb-5">
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <p className="text-xs text-rose-300">Code <span className="font-mono font-bold">{scanCode.toUpperCase()}</span> introuvable dans la base. Billet expiré, falsifié ou déjà utilisé.</p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button onClick={() => { setScanState('idle'); setScanCode(''); }} className="flex-1 bg-slate-900 border border-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl text-xs hover:bg-slate-800 transition-colors">
+                      Réessayer
+                    </button>
+                    <button onClick={resetScan} className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
+                      Fermer
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
