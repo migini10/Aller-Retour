@@ -8,17 +8,16 @@ import {
   Bus, 
   Building2, 
   TicketCheck, 
-  ShieldAlert, 
-  Wallet, 
-  TrendingUp, 
-  MapPin, 
-  QrCode, 
+  ShieldAlert,
   LogOut,
-  Sparkles,
   ArrowLeft
 } from 'lucide-react';
 
-export default function Sidebar() {
+interface SidebarProps {
+  onLinkClick?: () => void;
+}
+
+export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -30,10 +29,14 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-72 bg-[#0B0F19]/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between p-6 h-screen sticky top-0 font-sans shadow-sm">
+    <aside className="w-72 bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between p-6 h-screen font-sans shadow-sm">
       <div>
-        {/* Logo & Brand */}
-        <Link href="/" className="flex items-center gap-3 mb-8 group">
+        {/* Logo & Brand - caché sur mobile (topbar prend le relais) */}
+        <Link
+          href="/"
+          onClick={onLinkClick}
+          className="hidden lg:flex items-center gap-3 mb-8 group"
+        >
           <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center group-hover:bg-orange-600/30 transition-colors">
             <Bus className="w-5 h-5 text-orange-500" />
           </div>
@@ -47,10 +50,14 @@ export default function Sidebar() {
           </div>
         </Link>
 
-        {/* Bouton Retour à l'accueil principal */}
+        {/* Espace supplémentaire sur mobile pour compenser l'absence du logo */}
+        <div className="h-4 lg:hidden" />
+
+        {/* Bouton Retour à l'accueil */}
         <div className="mb-8">
           <Link
             href="/"
+            onClick={onLinkClick}
             className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 text-xs font-semibold text-slate-300 hover:text-white transition-all group shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 text-orange-500 group-hover:-translate-x-1 transition-transform" />
@@ -71,6 +78,7 @@ export default function Sidebar() {
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={onLinkClick}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
                   isActive
                     ? 'bg-orange-600 text-white font-semibold shadow-sm'
@@ -82,7 +90,9 @@ export default function Sidebar() {
                   <span>{item.name}</span>
                 </div>
                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
-                  isActive ? 'bg-slate-900 text-orange-300 border border-orange-500/30' : 'bg-slate-900 border border-slate-800 text-slate-400'
+                  isActive
+                    ? 'bg-slate-900 text-orange-300 border border-orange-500/30'
+                    : 'bg-slate-900 border border-slate-800 text-slate-400'
                 }`}>
                   {item.badge}
                 </span>
@@ -92,7 +102,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Footer Profile & Switch */}
+      {/* Footer Profile */}
       <div className="border-t border-slate-800/80 pt-6 mt-6">
         <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 shadow-sm">
           <div className="flex items-center gap-3">
@@ -104,7 +114,11 @@ export default function Sidebar() {
               <p className="text-[10px] text-slate-400 font-medium">Superviseur</p>
             </div>
           </div>
-          <Link href="/" className="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-slate-800 transition-colors">
+          <Link
+            href="/"
+            onClick={onLinkClick}
+            className="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+          >
             <LogOut className="w-4 h-4" />
           </Link>
         </div>
