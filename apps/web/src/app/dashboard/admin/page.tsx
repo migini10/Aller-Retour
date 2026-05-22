@@ -78,7 +78,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0">
-          <div className="flex xl:flex-col overflow-x-auto xl:overflow-visible pb-2 xl:pb-0 gap-1.5 xl:gap-1 scrollbar-hide xl:sticky xl:top-24">
+          <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-24 xl:max-h-[calc(100vh-120px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
