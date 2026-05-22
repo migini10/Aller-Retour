@@ -25,7 +25,7 @@ export default function SectionParametres() {
               <div className="w-16 h-16 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-2xl font-bold text-orange-400">AB</div>
               <div>
                 <p className="text-white font-bold">Abdou Bakhe</p>
-                <p className="text-xs text-slate-400">Voyageur Premium</p>
+                <p className="text-xs text-slate-400">Client Allo Dakar</p>
                 <button className="text-xs text-orange-400 hover:text-orange-300 mt-1 transition-colors">Changer photo</button>
               </div>
             </div>

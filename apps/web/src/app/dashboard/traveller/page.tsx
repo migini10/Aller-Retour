@@ -93,7 +93,7 @@ export default function TravellerDashboard() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-600/30 to-orange-400/10 border border-orange-500/30 flex items-center justify-center text-2xl font-bold text-orange-400 shrink-0">AB</div>
               <div>
-                <p className="text-xs text-orange-400 font-semibold uppercase tracking-wider">Voyageur Premium</p>
+                <p className="text-xs text-orange-400 font-semibold uppercase tracking-wider">Client Allo Dakar</p>
                 <h1 className="text-2xl font-bold text-white mt-0.5">Abdou Bakhe</h1>
                 <p className="text-sm text-slate-400 mt-0.5">+221 77 000 00 00 • abdou@example.com</p>
               </div>
