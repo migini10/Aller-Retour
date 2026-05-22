@@ -53,15 +53,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div
               className={`
                 fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out
-                lg:static lg:translate-x-0 lg:z-auto lg:sticky lg:top-0
-                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-              `}
-            >
+                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`
+              }>
+
           <Sidebar onLinkClick={() => setSidebarOpen(false)} />
         </div>
 
         {/* Contenu principal avec padding top sur mobile pour compenser la topbar fixe */}
-        <main className="flex-1 px-5 sm:px-8 lg:px-12 py-6 lg:py-10 overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-10">
+        <main className="flex-1 px-5 sm:px-8 lg:px-12 py-6 lg:py-10 overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-10 lg:ml-72">
           {children}
         </main>
       </div>

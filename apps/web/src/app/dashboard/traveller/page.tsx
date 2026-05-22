@@ -1,269 +1,202 @@
 'use client';
 
-import React from 'react';
-import { useBranding } from '../../../components/BrandingContext';
+import React, { useState } from 'react';
+import {
+  LayoutDashboard, CalendarCheck, Ticket, Navigation,
+  Wallet, Gift, Package, Bell, MessageSquare, Settings,
+  TrendingUp, MapPin, Clock, Star, CreditCard
+} from 'lucide-react';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
-import { Calendar, MapPin, CreditCard, Gift, User, Settings, Mail, Bell, Share2, Download, Loader2, Truck, Tag, Package, CheckCircle, XCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import SectionBillets from './sections/Billets';
+import SectionReservations from './sections/Reservations';
+import SectionWallet from './sections/Wallet';
+import SectionFidelite from './sections/Fidelite';
+import SectionBagages from './sections/Bagages';
+import SectionNotifications from './sections/Notifications';
+import SectionSupport from './sections/Support';
+import SectionParametres from './sections/Parametres';
+import SectionSuiviGPS from './sections/SuiviGPS';
 
-// Dummy data – replace with real API later
-const user = {
-  name: 'Abdou Bakhe',
-  avatar: '/placeholder-profile.png', // placeholder image
-  loyaltyPoints: 1240,
-  wallet: 53900,
-  reservations: 12,
-  activeTickets: 3,
-  completedTrips: 45,
-  notifications: 5,
-};
+const tabs = [
+  { id: 'accueil', label: 'Tableau de bord', icon: LayoutDashboard },
+  { id: 'reservations', label: 'Réservations', icon: CalendarCheck },
+  { id: 'billets', label: 'Mes Billets', icon: Ticket },
+  { id: 'suivi', label: 'Suivi GPS', icon: Navigation },
+  { id: 'wallet', label: 'Wallet', icon: Wallet },
+  { id: 'fidelite', label: 'Fidélité', icon: Gift },
+  { id: 'bagages', label: 'Bagages', icon: Package },
+  { id: 'notifications', label: 'Notifications', icon: Bell, badge: 2 },
+  { id: 'support', label: 'Support', icon: MessageSquare },
+  { id: 'parametres', label: 'Paramètres', icon: Settings },
+];
 
-const upcomingTrip = {
+const stats = [
+  { label: 'Réservations', value: '12', icon: CalendarCheck, color: 'text-orange-400 bg-orange-500/20' },
+  { label: 'Billets actifs', value: '3', icon: Ticket, color: 'text-blue-400 bg-blue-500/20' },
+  { label: 'Voyages effectués', value: '45', icon: TrendingUp, color: 'text-emerald-400 bg-emerald-500/20' },
+  { label: 'Points fidélité', value: '1 240', icon: Star, color: 'text-purple-400 bg-purple-500/20' },
+  { label: 'Portefeuille', value: '53 900 F', icon: CreditCard, color: 'text-amber-400 bg-amber-500/20' },
+];
+
+const prochainVoyage = {
   id: 'AR-74892374',
   from: 'Dakar',
   to: 'Touba',
   date: '2026-06-05',
-  time: '08:00',
-  seat: '#14 (VIP)',
-  company: 'Sénégal Express',
-  vehicle: 'Bus Climatisé',
+  heure: '08:00',
+  siege: '14A VIP',
+  compagnie: 'Sénégal Express',
 };
 
-export default function TravellerPremiumDashboard() {
-  const { branding } = useBranding();
+const notificationsRecentes = [
+  { msg: 'Réservation RES-004 confirmée.', time: 'Il y a 2h', dot: 'bg-orange-400' },
+  { msg: 'Dépôt Wave de 20 000 FCFA reçu.', time: 'Il y a 4h', dot: 'bg-emerald-400' },
+  { msg: 'Retard de 15 min signalé sur AR-74892374.', time: 'Hier', dot: 'bg-amber-400' },
+];
+
+export default function TravellerDashboard() {
+  const [activeTab, setActiveTab] = useState('accueil');
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col items-center p-4 lg:p-8 space-y-8">
-      {/* Header */}
-      <header className="w-full max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <img src={user.avatar} alt="profile" className="w-14 h-14 rounded-full border border-orange-500/30" />
-          <div>
-            <h1 className="text-2xl font-bold">Bienvenue, {user.name}</h1>
-            <p className="text-sm text-slate-400">Votre espace voyageur premium.</p>
-          </div>
+    <div className="space-y-0">
+      {/* Navigation onglets — scrollable horizontalement sur mobile */}
+      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
+        <div className="flex gap-1 overflow-x-auto scrollbar-none py-3">
+          {tabs.map(t => {
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
+                  activeTab === t.id
+                    ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {t.label}
+                {t.badge && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">{t.badge}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
-        <div className="flex gap-2">
-          <button className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-colors">
-            <Settings className="w-4 h-4" />
-            Paramètres
-          </button>
-          <button className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-colors">
-            <Mail className="w-4 h-4" />
-            Support
-          </button>
-        </div>
-      </header>
+      </div>
 
-      {/* Statistiques principales */}
-      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon={<Calendar className="w-6 h-6" />} label="Réservations" value={user.reservations} />
-        <StatCard icon={<Gift className="w-6 h-6" />} label="Points Fidélité" value={user.loyaltyPoints} />
-        <StatCard icon={<CreditCard className="w-6 h-6" />} label="Wallet" value={user.wallet + ' FCFA'} />
-      </section>
-
-      {/* Prochain voyage */}
-      <section className="w-full max-w-5xl bg-[#101728] border border-slate-800 rounded-2xl p-6 shadow-lg">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-orange-400" />
-          Prochain voyage
-        </h2>
-        <div className="flex flex-col lg:flex-row items-center gap-6">
-          <div className="flex-1 space-y-2">
-            <p className="text-sm text-slate-400">ID Billet</p>
-            <p className="text-lg font-bold text-white">{upcomingTrip.id}</p>
-            <p className="text-sm text-slate-400">{upcomingTrip.from} ➔ {upcomingTrip.to}</p>
-            <p className="text-sm text-slate-400">{upcomingTrip.date} • {upcomingTrip.time}</p>
-            <p className="text-sm text-slate-400">Siège: {upcomingTrip.seat}</p>
-            <p className="text-sm text-slate-400">Compagnie: {upcomingTrip.company}</p>
-          </div>
-          <div className="shrink-0">
-            <QRCodeBrandEngine value={upcomingTrip.id} size={160} />
-          </div>
-        </div>
-      </section>
-
-      {/* Billets actifs */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Tag className="w-5 h-5 text-orange-400" />
-          Billets actifs ({user.activeTickets})
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(idx => (
-            <div key={idx} className="bg-[#101728] border border-slate-800/80 rounded-xl p-4 flex flex-col items-center space-y-3">
-              <QRCodeBrandEngine value={`AR-${Math.random().toString(36).substr(2, 8).toUpperCase()}`} size={120} />
-              <p className="text-sm text-slate-400">Billet #{idx}</p>
-              <div className="flex gap-2">
-                <button className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs px-3 py-1 rounded-lg transition-colors">
-                  <Download className="w-3 h-3" /> PDF
-                </button>
-                <button className="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs px-3 py-1 rounded-lg transition-colors">
-                  <Share2 className="w-3 h-3" /> Partager
-                </button>
+      {/* Contenu */}
+      {activeTab === 'accueil' && (
+        <div className="space-y-8">
+          {/* Header profil */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-orange-600/10 via-orange-500/5 to-transparent border border-orange-500/20 rounded-3xl p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-600/30 to-orange-400/10 border border-orange-500/30 flex items-center justify-center text-2xl font-bold text-orange-400 shrink-0">AB</div>
+              <div>
+                <p className="text-xs text-orange-400 font-semibold uppercase tracking-wider">Voyageur Premium</p>
+                <h1 className="text-2xl font-bold text-white mt-0.5">Abdou Bakhe</h1>
+                <p className="text-sm text-slate-400 mt-0.5">+221 77 000 00 00 • abdou@example.com</p>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl">
+              <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+              <span className="text-xs text-white font-bold">Niveau Silver → Gold</span>
+            </div>
+          </div>
 
-      {/* Réservations */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Truck className="w-5 h-5 text-orange-400" />
-          Mes réservations ({user.reservations})
-        </h2>
-        {/* Simple table mockup */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left border border-slate-800/60 rounded-lg">
-            <thead className="bg-[#101728]">
-              <tr className="text-slate-400 text-xs uppercase">
-                <th className="px-3 py-2">ID</th>
-                <th className="px-3 py-2">Itinéraire</th>
-                <th className="px-3 py-2">Date</th>
-                <th className="px-3 py-2">Statut</th>
-                <th className="px-3 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-300">
-              {[1,2,3].map(i => (
-                <tr key={i} className="border-t border-slate-800/30 hover:bg-slate-800/30 transition-colors">
-                  <td className="px-3 py-2">RES-{i}00{i}</td>
-                  <td className="px-3 py-2">Dakar ➔ Touba</td>
-                  <td className="px-3 py-2">2026-06-{5+i}</td>
-                  <td className="px-3 py-2"><span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded text-xs">Confirmé</span></td>
-                  <td className="px-3 py-2 flex gap-1">
-                    <button className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2 py-1 rounded">Voir</button>
-                    <button className="flex items-center gap-1.5 bg-rose-500/20 text-rose-400 px-2 py-1 rounded text-xs">Annuler</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {stats.map(s => {
+              const Icon = s.icon;
+              return (
+                <div key={s.label} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-4 flex flex-col gap-2 hover:border-orange-500/30 transition-colors">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <p className="text-lg font-bold text-white">{s.value}</p>
+                  <p className="text-xs text-slate-400">{s.label}</p>
+                </div>
+              );
+            })}
+          </div>
 
-      {/* Suivi GPS en temps réel (placeholder) */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-orange-400" />
-          Suivi GPS (Live)
-        </h2>
-        <div className="h-64 bg-slate-800/30 rounded-xl flex items-center justify-center">
-          <p className="text-slate-400">[Carte interactive à intégrer – ex. react‑leaflet]</p>
-        </div>
-      </section>
+          {/* Prochain voyage + Notifications */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Prochain voyage */}
+            <div className="bg-[#101728] border border-orange-500/20 rounded-2xl p-6 space-y-4">
+              <p className="text-xs text-orange-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Prochain voyage</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-bold text-white">{prochainVoyage.from}</h3>
+                    <div className="flex-1 border-t border-dashed border-orange-500/40 min-w-[30px]" />
+                    <h3 className="text-xl font-bold text-white">{prochainVoyage.to}</h3>
+                  </div>
+                  <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {prochainVoyage.date} à {prochainVoyage.heure}</p>
+                  <p className="text-xs text-slate-500">Siège {prochainVoyage.siege} • {prochainVoyage.compagnie}</p>
+                  <p className="font-mono text-xs text-orange-400/70">{prochainVoyage.id}</p>
+                </div>
+                <div className="shrink-0">
+                  <QRCodeBrandEngine value={prochainVoyage.id} size={100} />
+                </div>
+              </div>
+              <button onClick={() => setActiveTab('suivi')} className="w-full flex items-center justify-center gap-2 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 text-orange-400 font-semibold text-sm py-2.5 rounded-xl transition-colors">
+                <Navigation className="w-4 h-4" /> Suivre en temps réel
+              </button>
+            </div>
 
-      {/* Wallet & Paiements */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <CreditCard className="w-5 h-5 text-orange-400" />
-          Wallet & Paiements
-        </h2>
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between">
+            {/* Notifications récentes */}
+            <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><Bell className="w-3.5 h-3.5 text-orange-400" /> Notifications récentes</p>
+                <button onClick={() => setActiveTab('notifications')} className="text-xs text-orange-400 hover:text-orange-300 transition-colors">Voir tout</button>
+              </div>
+              <div className="space-y-3">
+                {notificationsRecentes.map((n, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl">
+                    <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${n.dot}`} />
+                    <div>
+                      <p className="text-sm text-white">{n.msg}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{n.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Accès rapides */}
           <div>
-            <p className="text-sm text-slate-400">Solde disponible</p>
-            <p className="text-2xl font-bold text-white">{user.wallet} FCFA</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-3">Accès rapides</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Mes Billets', tab: 'billets', icon: Ticket, c: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+                { label: 'Mon Wallet', tab: 'wallet', icon: Wallet, c: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+                { label: 'Fidélité', tab: 'fidelite', icon: Gift, c: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
+                { label: 'Support', tab: 'support', icon: MessageSquare, c: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
+              ].map(a => {
+                const Icon = a.icon;
+                return (
+                  <button key={a.tab} onClick={() => setActiveTab(a.tab)} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all hover:scale-105 ${a.c}`}>
+                    <Icon className="w-6 h-6" />
+                    <span className="text-xs font-bold">{a.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <button className="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-xl transition-colors">
-            <ArrowRight className="w-4 h-4" />
-            Historique
-          </button>
         </div>
-      </section>
+      )}
 
-      {/* Programme fidélité */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Gift className="w-5 h-5 text-orange-400" />
-          Programme fidélité
-        </h2>
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-slate-400">Points accumulés</p>
-            <p className="text-2xl font-bold text-white">{user.loyaltyPoints}</p>
-          </div>
-          <button className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition-colors">
-            <ArrowRight className="w-4 h-4" />
-            Récompenses
-          </button>
-        </div>
-      </section>
-
-      {/* Gestion bagages */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Package className="w-5 h-5 text-orange-400" />
-          Gestion bagages
-        </h2>
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between">
-          <p className="text-slate-400">Aucun bagage déclaré pour le moment.</p>
-          <button className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition-colors">
-            <Plus className="w-4 h-4" />
-            Ajouter bagage
-          </button>
-        </div>
-      </section>
-
-      {/* Notifications */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Bell className="w-5 h-5 text-orange-400" />
-          Notifications récentes ({user.notifications})
-        </h2>
-        <ul className="space-y-2">
-          {[1,2,3,4,5].map(i => (
-            <li key={i} className="bg-[#101728] border border-slate-800/80 rounded-lg p-3 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-orange-400" />
-              <span className="text-sm text-slate-300">Notification #{i} – Exemple d'information.</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Support */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Mail className="w-5 h-5 text-orange-400" />
-          Support & FAQ
-        </h2>
-        <p className="text-slate-400">Accédez à la messagerie, aux tickets d'incident et à la FAQ via le bouton dans le header.</p>
-      </section>
-
-      {/* Paramètres du compte */}
-      <section className="w-full max-w-5xl space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Settings className="w-5 h-5 text-orange-400" />
-          Paramètres du compte
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition-colors">
-            <User className="w-4 h-4" /> Modifier profil
-          </button>
-          <button className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition-colors">
-            <Lock className="w-4 h-4" /> Sécurité & Mot de passe
-          </button>
-          <button className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition-colors">
-            <Globe className="w-4 h-4" /> Préférences langue/pays
-          </button>
-          <button className="flex items-center gap-2 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/20 px-4 py-2 rounded-xl transition-colors">
-            <Trash2 className="w-4 h-4" /> Supprimer compte
-          </button>
-        </div>
-      </section>
+      {activeTab === 'reservations' && <SectionReservations />}
+      {activeTab === 'billets' && <SectionBillets />}
+      {activeTab === 'suivi' && <SectionSuiviGPS />}
+      {activeTab === 'wallet' && <SectionWallet />}
+      {activeTab === 'fidelite' && <SectionFidelite />}
+      {activeTab === 'bagages' && <SectionBagages />}
+      {activeTab === 'notifications' && <SectionNotifications />}
+      {activeTab === 'support' && <SectionSupport />}
+      {activeTab === 'parametres' && <SectionParametres />}
     </div>
   );
 }
-
-// Reusable stat card component
-function StatCard({ icon, label, value }: { icon: JSX.Element; label: string; value: number | string }) {
-  return (
-    <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3">
-      <div className="p-2 bg-slate-900 rounded-lg">{icon}</div>
-      <div>
-        <p className="text-xs text-slate-400">{label}</p>
-        <p className="text-lg font-bold text-white">{value}</p>
-      </div>
-    </div>
-  );
-}
-
