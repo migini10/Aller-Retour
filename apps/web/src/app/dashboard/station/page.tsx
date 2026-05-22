@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Building2, Ticket, Calendar, Scan, Users, Route, Package, 
   Navigation, Bell, HelpCircle, Settings, LogOut, CheckCircle2
@@ -55,8 +56,8 @@ export default function StationDashboard() {
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
       
       {/* Top Bar : Agent Status (Optimized for POS/Field) */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
-        <div className="py-3 flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 xl:-mt-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
               AF
@@ -71,9 +72,9 @@ export default function StationDashboard() {
             <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" /> En Service
             </span>
-            <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 p-2 rounded-lg transition-colors">
+            <Link href="/" className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 p-2 rounded-lg transition-colors inline-block">
               <LogOut className="w-4 h-4" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>

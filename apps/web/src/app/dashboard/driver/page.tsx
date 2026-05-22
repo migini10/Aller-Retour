@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Bus, LayoutDashboard, Route, QrCode, Users, Wallet, Store, Bell, HelpCircle, Settings, MapPin, Activity
 } from 'lucide-react';
@@ -55,8 +56,8 @@ export default function DriverDashboard() {
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
       
       {/* Top Bar : Status & Profile */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
-        <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 lg:-mt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-emerald-500 overflow-hidden relative">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moussa" alt="Profil" className="w-full h-full object-cover" />

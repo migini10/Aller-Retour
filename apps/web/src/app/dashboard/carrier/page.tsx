@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Building2, LayoutDashboard, Route, Users, Bus, Calendar, MapPin, 
   Wallet, Store, BarChart3, Bell, HelpCircle, Settings
@@ -61,8 +62,8 @@ export default function CarrierDashboard() {
     <div className="space-y-6 max-w-[1400px] mx-auto pb-10">
       
       {/* Top Bar : Profile & ERP Controls */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
-        <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 xl:-mt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-indigo-600/20 border-2 border-indigo-500 overflow-hidden flex items-center justify-center">
               <Building2 className="w-8 h-8 text-indigo-400" />

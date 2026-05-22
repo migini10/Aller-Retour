@@ -56,8 +56,8 @@ export default function AdminDashboard() {
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
       
       {/* Top Bar : Super Admin Identity */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-indigo-500/20 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
-        <div className="py-3 flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 xl:-mt-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px]">
               <div className="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center">
