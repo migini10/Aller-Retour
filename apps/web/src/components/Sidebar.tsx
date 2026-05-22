@@ -30,8 +30,8 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-72 bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between p-6 h-screen font-sans shadow-sm">
-      <div>
+    <aside className="w-72 bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800/80 flex flex-col p-6 h-screen font-sans shadow-sm">
+      <div className="flex-none">
         {/* Logo & Brand - caché sur mobile (topbar prend le relais) */}
         <Link
           href="/"
@@ -65,46 +65,46 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
             <span>Retour à l'accueil principal</span>
           </Link>
         </div>
+      </div>
 
-        {/* Navigation Links */}
-        <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3">
-            Espaces & Rôles
-          </p>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname.startsWith(item.path);
+      {/* Navigation Links (Scrollable) */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide -mx-2 px-2 space-y-1.5">
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">
+          Espaces & Rôles
+        </p>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname.startsWith(item.path);
 
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                onClick={onLinkClick}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
-                  isActive
-                    ? 'bg-orange-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-900 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{item.name}</span>
-                </div>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
-                  isActive
-                    ? 'bg-slate-900 text-orange-300 border border-orange-500/30'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400'
-                }`}>
-                  {item.badge}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              onClick={onLinkClick}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                isActive
+                  ? 'bg-orange-600 text-white font-semibold shadow-sm'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <span>{item.name}</span>
+              </div>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                isActive
+                  ? 'bg-slate-900 text-orange-300 border border-orange-500/30'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400'
+              }`}>
+                {item.badge}
+              </span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Footer Profile */}
-      <div className="border-t border-slate-800/80 pt-6 mt-6">
+      <div className="flex-none border-t border-slate-800/80 pt-6 mt-4">
         <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-xs">
