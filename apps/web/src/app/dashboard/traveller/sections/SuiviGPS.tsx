@@ -1,144 +1,123 @@
 'use client';
 import React from 'react';
-import { MapPin, Navigation, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
-
-const etapes = [
-  { nom: 'Dakar (Gare Routière Pompiers)', heure: '08:00', statut: 'passé' },
-  { nom: 'Thiès', heure: '09:30', statut: 'passé' },
-  { nom: 'Diourbel', heure: '11:00', statut: 'actuel' },
-  { nom: 'Touba (Gare Centrale)', heure: '13:30', statut: 'à venir' },
-];
+import { MapPin, Navigation, Clock, CheckCircle2, AlertTriangle, Phone, MessageSquare, Star } from 'lucide-react';
 
 export default function SectionSuiviGPS() {
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Navigation className="w-5 h-5 text-orange-400" /> Suivi Voyage en Temps Réel</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <Navigation className="w-5 h-5 text-orange-400" /> Suivi du Véhicule
+      </h2>
 
-      {/* Info carte */}
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      {/* Driver & ETA Card */}
+      <div className="bg-gradient-to-br from-orange-600/10 via-[#101728] to-[#101728] border border-orange-500/20 rounded-3xl p-5 space-y-5">
+        <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-slate-400">Trajet</p>
-            <p className="text-sm font-bold text-white mt-0.5">Dakar → Touba</p>
+            <h3 className="text-2xl font-bold text-white">Arrive dans <span className="text-orange-400">3 min</span></h3>
+            <p className="text-sm text-slate-400 mt-1 flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-orange-400" /> Point de prise en charge à 1.2 km
+            </p>
           </div>
-          <div>
-            <p className="text-xs text-slate-400">Position actuelle</p>
-            <p className="text-sm font-bold text-orange-400 mt-0.5 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" /> Diourbel</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-400">Arrivée estimée</p>
-            <p className="text-sm font-bold text-white mt-0.5 flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-orange-400" /> 13:45 (+15 min)</p>
+          <div className="bg-orange-500/10 text-orange-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/20 animate-pulse">
+            EN APPROCHE
           </div>
         </div>
 
-        {/* Alerte retard */}
-        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-          <p className="text-xs text-amber-300 font-semibold">Retard de 15 minutes signalé — embouteillage à Diourbel.</p>
+        {/* Driver Details */}
+        <div className="flex items-center gap-4 bg-[#0a0f18] rounded-2xl p-4 border border-slate-800/80">
+          <div className="w-14 h-14 rounded-full bg-slate-800 overflow-hidden shrink-0 relative">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moussa" alt="Chauffeur" className="w-full h-full object-cover" />
+            <div className="absolute -bottom-1 -right-1 bg-white text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+              4.9 <Star className="w-2.5 h-2.5 fill-slate-900" />
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold truncate">Moussa Ndiaye</p>
+            <p className="text-xs text-slate-400 truncate">Bus Climatisé 50 places • Sénégal Express</p>
+            <div className="mt-1 bg-slate-800 px-2 py-0.5 rounded text-xs font-mono text-slate-300 w-fit">
+              AA-123-BB
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors">
+              <MessageSquare className="w-4 h-4" />
+            </button>
+            <button className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center text-white transition-colors">
+              <Phone className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Carte SVG Premium Animée */}
-      <div className="relative h-72 bg-gradient-to-br from-[#0d1b2a] via-[#0f2233] to-[#0a1520] border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl">
-        {/* Grille de fond style carte */}
+      {/* Carte SVG Premium Animée (Pickup) */}
+      <div className="relative h-80 bg-gradient-to-br from-[#0d1b2a] via-[#0f2233] to-[#0a1520] border border-slate-700/60 rounded-3xl overflow-hidden shadow-xl">
+        {/* Grille de fond style carte urbaine */}
         <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
+            <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
 
-        {/* Carte principale SVG */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 288" preserveAspectRatio="xMidYMid meet">
-          {/* Routes secondaires (fond) */}
-          <path d="M50,80 Q150,100 200,140 Q250,180 280,200" stroke="#1e3a5f" strokeWidth="6" fill="none" strokeLinecap="round"/>
-          <path d="M400,30 Q450,80 480,120 Q510,160 500,220" stroke="#1e3a5f" strokeWidth="5" fill="none" strokeLinecap="round"/>
-          <path d="M600,50 Q650,90 680,150 Q700,190 720,240" stroke="#1e3a5f" strokeWidth="5" fill="none" strokeLinecap="round"/>
-          <path d="M100,240 Q200,220 300,230 Q450,240 550,220 Q650,210 750,230" stroke="#1e3a5f" strokeWidth="4" fill="none" strokeLinecap="round"/>
-
-          {/* Route principale Dakar → Touba */}
-          <path id="mainRoute" d="M80,220 Q180,200 260,170 Q360,130 460,110 Q560,95 660,75 Q720,65 740,60" stroke="#1d4ed8" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.5"/>
-          {/* Route active (orange) */}
-          <path d="M80,220 Q180,200 260,170 Q360,130 460,110 Q560,95 660,75 Q720,65 740,60"
-            stroke="url(#routeGrad)" strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray="12 4"/>
+        {/* Carte urbaine SVG */}
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+          {/* Rues (fond) */}
+          <path d="M-100,100 L900,200" stroke="#1e3a5f" strokeWidth="12" fill="none" />
+          <path d="M-100,300 L900,100" stroke="#1e3a5f" strokeWidth="8" fill="none" />
+          <path d="M300,-100 L400,500" stroke="#1e3a5f" strokeWidth="16" fill="none" />
+          <path d="M600,-100 L500,500" stroke="#1e3a5f" strokeWidth="10" fill="none" />
+          
+          {/* Itinéraire Chauffeur -> Client */}
+          <path id="pickupRoute" d="M300,-50 L350,150 L450,180 L550,220 L650,250" stroke="#1d4ed8" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.4"/>
+          <path d="M300,-50 L350,150 L450,180 L550,220 L650,250" stroke="url(#routeGrad)" strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray="10 6">
+            <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite" />
+          </path>
 
           <defs>
             <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="55%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#475569" />
+              <stop offset="100%" stopColor="#f97316" />
             </linearGradient>
             <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
               <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
 
-          {/* Ville : Dakar (départ) */}
-          <circle cx="80" cy="220" r="10" fill="#22c55e" opacity="0.9" filter="url(#glow)"/>
-          <circle cx="80" cy="220" r="16" fill="#22c55e" opacity="0.2"/>
-          <text x="80" y="248" textAnchor="middle" fill="#86efac" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Dakar</text>
+          {/* Position du client (Point de RDV) */}
+          <g transform="translate(650, 250)">
+            <circle cx="0" cy="0" r="14" fill="#22c55e" opacity="0.3">
+              <animate attributeName="r" values="14;28;14" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="0" r="6" fill="#22c55e" filter="url(#glow)"/>
+            <circle cx="0" cy="0" r="3" fill="#fff" />
+            <path d="M-8,-20 C-8,-25 8,-25 8,-20 L0,-5 Z" fill="#22c55e"/>
+            <rect x="-30" y="-45" width="60" height="20" rx="10" fill="#0f172a" opacity="0.9" />
+            <text x="0" y="-31" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Moi</text>
+          </g>
 
-          {/* Ville : Thiès (passée) */}
-          <circle cx="260" cy="170" r="7" fill="#22c55e" opacity="0.8"/>
-          <circle cx="260" cy="170" r="13" fill="#22c55e" opacity="0.15"/>
-          <text x="260" y="158" textAnchor="middle" fill="#86efac" fontSize="10" fontFamily="sans-serif">Thiès</text>
-
-          {/* Ville : Diourbel (position actuelle) */}
-          <circle cx="460" cy="110" r="9" fill="#f97316" opacity="1" filter="url(#glow)"/>
-          <circle cx="460" cy="110" r="18" fill="#f97316" opacity="0.15">
-            <animate attributeName="r" values="14;24;14" dur="2s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
-          </circle>
-          <text x="460" y="98" textAnchor="middle" fill="#fdba74" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Diourbel ●</text>
-
-          {/* Ville : Touba (destination) */}
-          <circle cx="740" cy="60" r="10" fill="#64748b" opacity="0.7"/>
-          <text x="740" y="48" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Touba</text>
-
-          {/* Véhicule (bus animé) */}
+          {/* Position du véhicule en mouvement le long du chemin */}
           <g filter="url(#glow)">
-            <rect x="445" y="97" width="30" height="16" rx="4" fill="#f97316">
-              <animate attributeName="opacity" values="1;0.7;1" dur="1.5s" repeatCount="indefinite"/>
-            </rect>
-            <rect x="449" y="100" width="7" height="5" rx="1" fill="#fff" opacity="0.8"/>
-            <rect x="459" y="100" width="7" height="5" rx="1" fill="#fff" opacity="0.8"/>
-            <circle cx="451" cy="113" r="2.5" fill="#1e293b"/>
-            <circle cx="468" cy="113" r="2.5" fill="#1e293b"/>
+            <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M300,-50 L350,150 L450,180 L550,220 L650,250" />
+            {/* Icône du bus/voiture vu de haut */}
+            <rect x="-15" y="-8" width="30" height="16" rx="4" fill="#f97316" />
+            <rect x="-10" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
+            <rect x="5" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
           </g>
         </svg>
 
         {/* Overlay infos en bas */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent p-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 text-xs">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold"><span className="w-2 h-2 rounded-full bg-emerald-400" /> Dakar (départ)</span>
-            <span className="flex items-center gap-1.5 text-orange-400 font-semibold"><span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" /> Diourbel (actuel)</span>
-            <span className="flex items-center gap-1.5 text-slate-500 font-semibold"><span className="w-2 h-2 rounded-full bg-slate-500" /> Touba (arrivée)</span>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent pt-12 pb-4 px-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <span className="text-xs font-semibold text-white">Localisation en direct</span>
           </div>
-          <span className="text-xs text-orange-400 font-bold">EN DIRECT</span>
-        </div>
-      </div>
-
-      {/* Étapes */}
-      <div className="space-y-3">
-        <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Progression du trajet</p>
-        <div className="relative">
-          {etapes.map((e, i) => (
-            <div key={i} className="flex items-start gap-4 mb-4 last:mb-0">
-              <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${e.statut === 'passé' ? 'bg-emerald-500/20 text-emerald-400' : e.statut === 'actuel' ? 'bg-orange-500/30 text-orange-400 ring-2 ring-orange-500/50' : 'bg-slate-800 text-slate-600'}`}>
-                  {e.statut === 'passé' ? <CheckCircle2 className="w-4 h-4" /> : e.statut === 'actuel' ? <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" /> : <MapPin className="w-4 h-4" />}
-                </div>
-                {i < etapes.length - 1 && <div className={`w-0.5 h-8 mt-1 ${e.statut === 'passé' ? 'bg-emerald-500/40' : 'bg-slate-800'}`} />}
-              </div>
-              <div className="pt-1">
-                <p className={`text-sm font-semibold ${e.statut === 'passé' ? 'text-slate-400' : e.statut === 'actuel' ? 'text-orange-400' : 'text-slate-500'}`}>{e.nom}</p>
-                <p className="text-xs text-slate-600 mt-0.5">{e.heure}</p>
-              </div>
-            </div>
-          ))}
+          <button className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-full border border-slate-700 transition-colors">
+            <Navigation className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
