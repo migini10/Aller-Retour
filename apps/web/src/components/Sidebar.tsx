@@ -25,8 +25,8 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, badge: 'Driver' },
     { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
-    { name: 'Guichet & Contrôle', path: '/dashboard/dispatcher', icon: TicketCheck, badge: 'Gare' },
-    { name: 'Super Admin SaaS', path: '/dashboard/superadmin', icon: ShieldAlert, badge: 'Global' },
+    { name: 'Guichet & Contrôle', path: '/dashboard/station', icon: TicketCheck, badge: 'Gare' },
+    { name: 'Super Admin SaaS', path: '/dashboard/admin', icon: ShieldAlert, badge: 'Global' },
   ];
 
   return (
