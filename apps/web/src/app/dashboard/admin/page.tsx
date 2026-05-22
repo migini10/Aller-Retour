@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Globe, Users, Building2, ShieldCheck, Wallet, Map, 
   BarChart3, Activity, HelpCircle, Settings, LayoutDashboard, LogOut
@@ -69,9 +70,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <button className="bg-slate-900 border border-slate-700 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-slate-300 p-2 rounded-lg transition-colors">
+          <Link href="/" className="bg-slate-900 border border-slate-700 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-slate-300 p-2 rounded-lg transition-colors inline-block">
             <LogOut className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
 
