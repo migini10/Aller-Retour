@@ -20,7 +20,7 @@ interface SidebarProps {
 export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
-  const navItems = [
+    { name: 'Espace Voyageur Premium', path: '/dashboard/traveller', icon: User, badge: 'Premium' },
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, badge: 'Driver' },
     { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },

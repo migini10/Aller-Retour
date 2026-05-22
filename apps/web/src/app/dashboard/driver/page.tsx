@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Bus, WifiOff, Navigation, Download, Wallet, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 export default function DriverDashboard() {
   const [gpsActive, setGpsActive] = useState(true);
@@ -96,7 +97,7 @@ export default function DriverDashboard() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               <tr className="hover:bg-slate-800/30 transition-colors">
-                <td className="py-3 pl-3 font-bold text-white">#01</td>
+                <td className="py-3 pl-3 font-bold text-white"><QRCodeBrandEngine value="#01" size={48} /></td>
                 <td className="py-3 font-semibold text-slate-200">Fatou Diop</td>
                 <td className="py-3 text-slate-400 text-xs">+221 77 123 45 67</td>
                 <td className="py-3">
@@ -107,7 +108,7 @@ export default function DriverDashboard() {
                 <td className="py-3 text-slate-400 text-xs">12 kg</td>
               </tr>
               <tr className="hover:bg-slate-800/30 transition-colors">
-                <td className="py-3 pl-3 font-bold text-white">#02</td>
+                <td className="py-3 pl-3 font-bold text-white"><QRCodeBrandEngine value="#02" size={48} /></td>
                 <td className="py-3 font-semibold text-slate-200">Mamadou Ndiaye</td>
                 <td className="py-3 text-slate-400 text-xs">+221 78 987 65 43</td>
                 <td className="py-3">
