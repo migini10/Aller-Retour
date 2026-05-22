@@ -5,7 +5,7 @@ import {
   TicketCheck, Printer, Camera, Search, UserCheck, 
   CheckCircle2, XCircle, QrCode, X, AlertCircle,
   MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth,
-  List, LayoutGrid
+  List, LayoutGrid, FilterX
 } from 'lucide-react';
 
 type BilletState = 'idle' | 'generating' | 'success';
@@ -23,6 +23,16 @@ export default function DispatcherDashboard() {
   const [showScanModal, setShowScanModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+
+  // Search & Filters State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Tous');
+  const [filterDate, setFilterDate] = useState('Aujourd\'hui');
+  const [filterType, setFilterType] = useState('Tous');
+
+  const STATUS_OPTIONS = ['Tous', 'Actif', 'Utilisé', 'Annulé'];
+  const DATE_OPTIONS = ['Aujourd\'hui', 'Cette semaine', 'Ce mois'];
+  const TYPE_OPTIONS = ['Tous', 'Bus', 'Taxi', 'Covoiturage'];
 
   // Génération simulée d'un billet
   const handleEmettreStep1 = () => {
@@ -177,7 +187,7 @@ export default function DispatcherDashboard() {
 
       {/* Liste des billets */}
       <div className="pt-4 border-t border-slate-800">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-2">
           <div className="flex items-center gap-3">
              <h2 className="text-lg font-bold text-white flex items-center gap-2">
                <TicketCheck className="w-5 h-5 text-orange-400" /> Liste des billets émis
@@ -191,6 +201,72 @@ export default function DispatcherDashboard() {
              <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
                 <LayoutGrid className="w-4 h-4" />
              </button>
+          </div>
+        </div>
+
+        {/* Search & Filters */}
+        <div className="sticky top-0 z-10 bg-[#0B0F19]/95 backdrop-blur-xl py-3 space-y-3 mb-5 -mx-2 px-2 border-b border-slate-800/80">
+          {/* Search Bar */}
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-orange-400 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Rechercher un billet, téléphone ou trajet..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#101728] border border-slate-800 hover:border-orange-500/50 focus:border-orange-500 transition-all rounded-2xl pl-12 pr-12 py-3.5 text-white text-sm outline-none shadow-sm focus:shadow-[0_0_15px_rgba(234,88,12,0.1)]"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+                 <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Quick Filters */}
+          <div className="flex flex-wrap gap-2 items-center">
+             <div className="flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+                {STATUS_OPTIONS.map(s => (
+                  <button 
+                    key={s} 
+                    onClick={() => setFilterStatus(s)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterStatus === s ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+             </div>
+             <div className="flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+                {DATE_OPTIONS.map(d => (
+                  <button 
+                    key={d} 
+                    onClick={() => setFilterDate(d)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterDate === d ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                  >
+                    {d}
+                  </button>
+                ))}
+             </div>
+             <div className="hidden sm:flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+                {TYPE_OPTIONS.map(t => (
+                  <button 
+                    key={t} 
+                    onClick={() => setFilterType(t)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterType === t ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+             </div>
+
+             {(filterStatus !== 'Tous' || filterDate !== 'Aujourd\'hui' || filterType !== 'Tous' || searchQuery !== '') && (
+               <button 
+                 onClick={() => { setFilterStatus('Tous'); setFilterDate('Aujourd\'hui'); setFilterType('Tous'); setSearchQuery(''); }}
+                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-400 hover:text-rose-400 bg-[#101728] hover:bg-rose-500/10 border border-slate-800/80 hover:border-rose-500/30 rounded-xl transition-all ml-auto shadow-sm"
+               >
+                 <FilterX className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Réinitialiser</span>
+               </button>
+             )}
           </div>
         </div>
 
