@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <div className="h-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col">
       {/* Topbar Mobile-only : fixée en haut, visible uniquement sur petits écrans */}
       {!isSuperAdmin && (
         <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
       )}
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}
         {!isSuperAdmin && sidebarOpen && (
           <div
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* Contenu principal avec padding top sur mobile pour compenser la topbar fixe */}
-        <main className={`flex-1 px-5 sm:px-8 lg:px-12 py-6 lg:py-10 overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-10 ${isSuperAdmin ? '' : 'lg:ml-72'}`}>
+        <main className={`flex-1 px-5 sm:px-8 lg:px-12 py-6 lg:py-10 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-10 ${isSuperAdmin ? '' : 'lg:ml-72'}`}>
           {children}
         </main>
       </div>
