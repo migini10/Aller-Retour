@@ -6,6 +6,7 @@ import Sidebar from '../../components/Sidebar';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { Bus } from 'lucide-react';
+import { BrandingProvider } from '../../components/BrandingContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,7 +18,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <BrandingProvider>
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       {/* Topbar Mobile-only : fixée en haut, visible uniquement sur petits écrans */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
         <Link href="/" className="flex items-center gap-2.5">
@@ -64,5 +66,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
+    </BrandingProvider>
   );
 }

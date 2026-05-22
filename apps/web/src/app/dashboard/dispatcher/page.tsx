@@ -7,6 +7,7 @@ import {
   MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth,
   List, LayoutGrid, FilterX
 } from 'lucide-react';
+import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 type BilletState = 'idle' | 'generating' | 'success';
 type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid';
@@ -275,8 +276,8 @@ export default function DispatcherDashboard() {
                {/* Ticket 1 */}
                <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
                  <div className="flex items-center gap-4">
-                    <div className="bg-white p-2 rounded-lg shrink-0">
-                       <QrCode className="w-10 h-10 text-slate-950" />
+                    <div className="shrink-0">
+                       <QRCodeBrandEngine value="AR-74892374" size={48} />
                     </div>
                     <div>
                        <div className="flex items-center gap-2 mb-1">
@@ -303,8 +304,8 @@ export default function DispatcherDashboard() {
                {/* Ticket 2 */}
                <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
                  <div className="flex items-center gap-4">
-                    <div className="bg-white p-2 rounded-lg shrink-0">
-                       <QrCode className="w-10 h-10 text-slate-950" />
+                    <div className="shrink-0">
+                       <QRCodeBrandEngine value="AR-89347123" size={48} />
                     </div>
                     <div>
                        <div className="flex items-center gap-2 mb-1">
@@ -355,8 +356,8 @@ export default function DispatcherDashboard() {
                          <Building2 className="w-4 h-4 text-slate-500" /> Sénégal Express
                       </p>
                    </div>
-                   <div className="bg-white p-2 sm:p-3 rounded-xl shadow-sm shrink-0">
-                      <QrCode className="w-16 h-16 sm:w-20 sm:h-20 text-slate-950" />
+                   <div className="shrink-0 scale-75 sm:scale-100 origin-top-right">
+                      <QRCodeBrandEngine value="AR-74892374" size={72} />
                    </div>
                 </div>
                 
@@ -424,8 +425,8 @@ export default function DispatcherDashboard() {
                          <Building2 className="w-4 h-4 text-slate-500" /> Sénégal Express
                       </p>
                    </div>
-                   <div className="bg-white p-2 sm:p-3 rounded-xl shadow-sm shrink-0">
-                      <QrCode className="w-16 h-16 sm:w-20 sm:h-20 text-slate-950" />
+                   <div className="shrink-0 scale-75 sm:scale-100 origin-top-right">
+                      <QRCodeBrandEngine value="AR-89347123" size={72} />
                    </div>
                 </div>
                 
@@ -498,8 +499,8 @@ export default function DispatcherDashboard() {
               {billetState === 'success' && (
                 <div>
                   {/* QR Code affiché */}
-                  <div className="bg-white p-4 rounded-2xl mx-auto w-fit mb-4 shadow-lg">
-                    <QrCode className="w-28 h-28 text-slate-950" />
+                  <div className="mx-auto w-fit mb-4">
+                    <QRCodeBrandEngine value={`AR-${Math.random().toString(36).substr(2,8).toUpperCase()}`} size={140} />
                   </div>
 
                   <div className="space-y-2 mb-5 bg-[#0B0F19] rounded-xl p-4 border border-slate-800">

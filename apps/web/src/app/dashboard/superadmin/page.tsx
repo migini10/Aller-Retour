@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
-import { ShieldAlert, Building2, CheckCircle2, XCircle, TrendingUp, DollarSign, Server } from 'lucide-react';
+import { ShieldAlert, Building2, CheckCircle2, XCircle, TrendingUp, DollarSign, Server, Settings2, PaintBucket, ImageIcon, QrCode } from 'lucide-react';
+import { useBranding } from '../../../components/BrandingContext';
+import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 export default function SuperAdminDashboard() {
+  const { branding, setBranding } = useBranding();
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -120,6 +122,111 @@ export default function SuperAdminDashboard() {
                 <XCircle className="w-3.5 h-3.5" /> Rejeter
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Configuration Globale QR Code & Branding */}
+      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 sm:p-6 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-5 border-b border-slate-800/80">
+          <div>
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+               <QrCode className="w-5 h-5 text-orange-400" /> Paramètres QR Code & Branding
+            </h3>
+            <p className="text-xs text-slate-400 mt-1">Configurez l'apparence des QR Codes pour tous les utilisateurs (Guichets, Chauffeurs, Clients).</p>
+          </div>
+          <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">Sauvegarde Automatique</span>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Formulaire de configuration */}
+          <div className="flex-1 space-y-5">
+             <div className="space-y-4 bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                   <ImageIcon className="w-4 h-4 text-orange-400" /> Logo Central
+                </div>
+                <div>
+                   <label className="text-xs text-slate-400 mb-1.5 block">URL du Logo (doit avoir un fond transparent)</label>
+                   <input 
+                      type="text" 
+                      value={branding.logoUrl}
+                      onChange={(e) => setBranding({...branding, logoUrl: e.target.value})}
+                      className="w-full bg-[#0B0F19] border border-slate-700 hover:border-orange-500/50 focus:border-orange-500 transition-colors rounded-xl px-4 py-2.5 text-white text-sm outline-none"
+                   />
+                </div>
+             </div>
+
+             <div className="space-y-4 bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                   <PaintBucket className="w-4 h-4 text-orange-400" /> Styles & Couleurs
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <div>
+                      <label className="text-xs text-slate-400 mb-1.5 block">Couleur Principale (QR)</label>
+                      <div className="flex gap-2">
+                         <input 
+                            type="color" 
+                            value={branding.secondaryColor}
+                            onChange={(e) => setBranding({...branding, secondaryColor: e.target.value})}
+                            className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0"
+                         />
+                         <input 
+                            type="text" 
+                            value={branding.secondaryColor}
+                            onChange={(e) => setBranding({...branding, secondaryColor: e.target.value})}
+                            className="flex-1 bg-[#0B0F19] border border-slate-700 rounded-xl px-3 text-white text-sm outline-none"
+                         />
+                      </div>
+                   </div>
+                   <div>
+                      <label className="text-xs text-slate-400 mb-1.5 block">Style des modules</label>
+                      <select 
+                         value={branding.qrStyle}
+                         onChange={(e) => setBranding({...branding, qrStyle: e.target.value as 'dots' | 'squares'})}
+                         className="w-full bg-[#0B0F19] border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none cursor-pointer"
+                      >
+                         <option value="dots">Dots (Arrondis & Modernes)</option>
+                         <option value="squares">Squares (Carrés classiques)</option>
+                      </select>
+                   </div>
+                   <div>
+                      <label className="text-xs text-slate-400 mb-1.5 block">Arrondi des Angles (Pixels)</label>
+                      <input 
+                         type="range" 
+                         min="0" max="25" 
+                         value={branding.qrEyeRadius}
+                         onChange={(e) => setBranding({...branding, qrEyeRadius: parseInt(e.target.value)})}
+                         className="w-full accent-orange-500"
+                      />
+                      <div className="text-right text-xs text-orange-400 font-mono mt-1">{branding.qrEyeRadius}px</div>
+                   </div>
+                   <div>
+                      <label className="text-xs text-slate-400 mb-1.5 block">Marge (Padding)</label>
+                      <input 
+                         type="range" 
+                         min="5" max="30" 
+                         value={branding.qrPadding}
+                         onChange={(e) => setBranding({...branding, qrPadding: parseInt(e.target.value)})}
+                         className="w-full accent-orange-500"
+                      />
+                      <div className="text-right text-xs text-orange-400 font-mono mt-1">{branding.qrPadding}px</div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Prévisualisation Live */}
+          <div className="lg:w-72 shrink-0">
+             <div className="sticky top-24 bg-slate-900/50 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center text-center">
+                <span className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-6">Prévisualisation Live</span>
+                
+                {/* Engine Instance */}
+                <div className="scale-100 mb-6">
+                   <QRCodeBrandEngine value="PREMIUM-QR-ALLER-RETOUR" size={200} />
+                </div>
+                
+                <p className="text-xs text-slate-400">Ce QR Code apparaîtra avec ces paramètres exacts sur tous les billets, reçus thermiques et écrans partagés de l'application.</p>
+             </div>
           </div>
         </div>
       </div>
