@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { 
   TicketCheck, Printer, Camera, Search, UserCheck, 
   CheckCircle2, XCircle, QrCode, X, AlertCircle,
-  MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth
+  MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth,
+  List, LayoutGrid
 } from 'lucide-react';
 
 type BilletState = 'idle' | 'generating' | 'success';
@@ -21,6 +22,7 @@ export default function DispatcherDashboard() {
   const [scanCode, setScanCode] = useState('');
   const [showScanModal, setShowScanModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   // Génération simulée d'un billet
   const handleEmettreStep1 = () => {
@@ -175,15 +177,84 @@ export default function DispatcherDashboard() {
 
       {/* Liste des billets */}
       <div className="pt-4 border-t border-slate-800">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <TicketCheck className="w-5 h-5 text-orange-400" /> Liste des billets émis
-          </h2>
-          <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">142 Billets aujourd'hui</span>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+          <div className="flex items-center gap-3">
+             <h2 className="text-lg font-bold text-white flex items-center gap-2">
+               <TicketCheck className="w-5 h-5 text-orange-400" /> Liste des billets émis
+             </h2>
+             <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">142 Billets aujourd'hui</span>
+          </div>
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 w-fit">
+             <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                <List className="w-4 h-4" />
+             </button>
+             <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                <LayoutGrid className="w-4 h-4" />
+             </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden relative shadow-lg">
+        {viewMode === 'list' ? (
+             <div className="flex flex-col gap-3">
+               {/* Ticket 1 */}
+               <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
+                 <div className="flex items-center gap-4">
+                    <div className="bg-white p-2 rounded-lg shrink-0">
+                       <QrCode className="w-10 h-10 text-slate-950" />
+                    </div>
+                    <div>
+                       <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white font-bold text-sm sm:text-base">Dakar ➔ Touba</span>
+                          <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-md font-mono border border-orange-500/20">AR-74892374</span>
+                       </div>
+                       <p className="text-xs text-slate-400">18 Mai 2026 • 08:00 • Siège #14 (VIP)</p>
+                       <p className="text-xs text-slate-500 mt-0.5">Sénégal Express • Fatou Diop</p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-2 sm:shrink-0">
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
+                     </button>
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Download className="w-4 h-4" /> <span className="hidden sm:inline">Billet</span>
+                     </button>
+                     <button onClick={() => setShowShareModal(true)} className="flex-1 sm:flex-none p-2 sm:px-3 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex justify-center items-center gap-1.5">
+                        <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
+                     </button>
+                 </div>
+               </div>
+               
+               {/* Ticket 2 */}
+               <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
+                 <div className="flex items-center gap-4">
+                    <div className="bg-white p-2 rounded-lg shrink-0">
+                       <QrCode className="w-10 h-10 text-slate-950" />
+                    </div>
+                    <div>
+                       <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white font-bold text-sm sm:text-base">Dakar ➔ Saint-Louis</span>
+                          <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-md font-mono border border-orange-500/20">AR-89347123</span>
+                       </div>
+                       <p className="text-xs text-slate-400">18 Mai 2026 • 09:30 • Siège #02 (VIP)</p>
+                       <p className="text-xs text-slate-500 mt-0.5">Sénégal Express • Mamadou Ndiaye</p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-2 sm:shrink-0">
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
+                     </button>
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Download className="w-4 h-4" /> <span className="hidden sm:inline">Billet</span>
+                     </button>
+                     <button onClick={() => setShowShareModal(true)} className="flex-1 sm:flex-none p-2 sm:px-3 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex justify-center items-center gap-1.5">
+                        <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
+                     </button>
+                 </div>
+               </div>
+             </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden relative shadow-lg">
              {/* Status Banner */}
              <div className="bg-orange-600 px-4 py-2 text-xs font-semibold text-white flex justify-between items-center">
                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Statut: Confirmé (Escrow)</span>
@@ -320,7 +391,8 @@ export default function DispatcherDashboard() {
                 </div>
              </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ===== MODAL ÉMISSION BILLET ===== */}

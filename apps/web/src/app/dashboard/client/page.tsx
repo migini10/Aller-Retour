@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import { 
   QrCode, Wallet, Award, Package, ArrowUpRight, ArrowDownLeft, Sparkles, CheckCircle2,
-  Share2, Download, Eye, MessageCircle, Mail, Bluetooth, X, MapPin, Calendar, Clock, User, Bus, Building2, CreditCard
+  Share2, Download, Eye, MessageCircle, Mail, Bluetooth, X, MapPin, Calendar, Clock, User, Bus, Building2, CreditCard,
+  List, LayoutGrid
 } from 'lucide-react';
 
 export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<'trips' | 'wallet' | 'miles' | 'luggage'>('trips');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const tabs = [
     { id: 'trips', label: 'Billets QR', icon: QrCode },
@@ -64,12 +66,75 @@ export default function ClientDashboard() {
       {/* Tab Content */}
       {activeTab === 'trips' && (
         <div className="space-y-5 animate-fade-in">
-          <div className="flex justify-between items-center">
-             <h2 className="text-lg font-bold text-white">Liste de mes billets</h2>
-             <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">1 Billet actif</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+             <div className="flex items-center gap-3">
+               <h2 className="text-lg font-bold text-white">Liste de mes billets</h2>
+               <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">1 Billet actif</span>
+             </div>
+             <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 w-fit">
+                <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                   <List className="w-4 h-4" />
+                </button>
+                <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                   <LayoutGrid className="w-4 h-4" />
+                </button>
+             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {viewMode === 'list' ? (
+             <div className="flex flex-col gap-3">
+               {/* Ticket 1 */}
+               <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
+                 <div className="flex items-center gap-4">
+                    <div className="bg-white p-2 rounded-lg shrink-0">
+                       <QrCode className="w-10 h-10 text-slate-950" />
+                    </div>
+                    <div>
+                       <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white font-bold text-sm sm:text-base">Dakar ➔ Touba</span>
+                          <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-md font-mono border border-orange-500/20">AR-74892374</span>
+                       </div>
+                       <p className="text-xs text-slate-400">18 Mai 2026 • 08:00 • Siège #14 (VIP)</p>
+                       <p className="text-xs text-slate-500 mt-0.5">Sénégal Express • Abdoulaye Ndiaye</p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-2 sm:shrink-0">
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
+                     </button>
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Download className="w-4 h-4" /> <span className="hidden sm:inline">Billet</span>
+                     </button>
+                     <button onClick={() => setShowShareModal(true)} className="flex-1 sm:flex-none p-2 sm:px-3 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex justify-center items-center gap-1.5">
+                        <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
+                     </button>
+                 </div>
+               </div>
+               
+               {/* Ticket 2 */}
+               <div className="bg-[#101728]/50 border border-slate-800/50 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 opacity-75 grayscale-[30%]">
+                 <div className="flex items-center gap-4">
+                    <div className="bg-slate-800 p-2 rounded-lg shrink-0 opacity-50">
+                       <QrCode className="w-10 h-10 text-slate-500" />
+                    </div>
+                    <div>
+                       <div className="flex items-center gap-2 mb-1">
+                          <span className="text-slate-300 font-bold text-sm sm:text-base">Touba ➔ Dakar</span>
+                          <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono border border-slate-700">AR-12984756</span>
+                       </div>
+                       <p className="text-xs text-slate-500">10 Mai 2026 • 14:30 • Siège #02 (VIP)</p>
+                       <p className="text-xs text-slate-500 mt-0.5">Sénégal Express • Abdoulaye Ndiaye</p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-2 sm:shrink-0">
+                     <button className="flex-1 sm:flex-none w-full sm:w-auto p-2 px-4 bg-slate-900 border border-slate-800 text-slate-400 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                        <Eye className="w-4 h-4" /> Historique
+                     </button>
+                 </div>
+               </div>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden relative shadow-lg">
                {/* Status Banner */}
                <div className="bg-orange-600 px-4 py-2 text-xs font-semibold text-white flex justify-between items-center">
@@ -173,8 +238,9 @@ export default function ClientDashboard() {
                      </button>
                   </div>
                </div>
+             </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
