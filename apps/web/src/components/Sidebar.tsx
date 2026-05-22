@@ -68,7 +68,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
       </div>
 
       {/* Navigation Links (Scrollable) */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide -mx-2 px-2 space-y-1.5">
+      <div className="flex-1 overflow-y-auto overscroll-contain scrollbar-hide -mx-2 px-2 space-y-1.5">
         <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">
           Espaces & Rôles
         </p>
