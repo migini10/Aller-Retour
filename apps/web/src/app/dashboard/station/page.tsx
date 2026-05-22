@@ -53,11 +53,11 @@ export default function StationDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
+    <div className="pb-10">
       
       {/* Top Bar : Agent Status (Optimized for POS/Field) */}
-      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 xl:-mt-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 py-3 mb-6">
+        <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
               AF
@@ -79,7 +79,7 @@ export default function StationDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-6">
+      <div className="flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0">
           <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-24 xl:max-h-[calc(100vh-120px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">

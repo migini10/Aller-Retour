@@ -59,11 +59,11 @@ export default function CarrierDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto pb-10">
+    <div className="pb-10">
       
       {/* Top Bar : Profile & ERP Controls */}
-      <div className="sticky top-0 z-30 bg-[#101728]/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl px-6 py-3 mb-8 shadow-xl mt-2 xl:-mt-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 py-3 mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-[1400px] mx-auto">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-indigo-600/20 border-2 border-indigo-500 overflow-hidden flex items-center justify-center">
               <Building2 className="w-8 h-8 text-indigo-400" />
@@ -80,7 +80,7 @@ export default function CarrierDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8">
+      <div className="flex flex-col xl:flex-row gap-8 max-w-[1400px] mx-auto">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0">
           <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-32 xl:max-h-[calc(100vh-160px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
