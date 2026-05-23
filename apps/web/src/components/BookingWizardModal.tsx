@@ -86,17 +86,45 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const VILLES_SENEGAL = ['Dakar', 'Thiès', 'Touba', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Diourbel', 'Louga', 'Fatick', 'Kolda', 'Tambacounda'];
   
-  const QUARTIERS_SENEGAL: Record<string, string[]> = {
+  const INITIAL_QUARTIERS: Record<string, string[]> = {
     'Dakar': ['Plateau', 'Médina', 'Fass', 'Point E', 'Almadies', 'Ngor', 'Yoff', 'Parcelles Assainies', 'Keur Massar', 'Rufisque', 'Sacré-Cœur', 'Liberté', 'Ouakam', 'Mermoz', 'Grand Yoff', 'Pikine', 'Guédiawaye', 'Thiaroye', 'Mbao'],
     'Thiès': ['Mbour 1', 'Mbour 2', 'Mbour 3', 'Grand Thiès', 'Randoulène', 'Dixième', 'Som', 'Takhikao'],
     'Touba': ['Darou Khoudoss', 'Darou Minam', 'Darou Marnane', 'Guédé', 'Dianatou', 'Madiyana'],
     'Saint-Louis': ['Île Nord', 'Île Sud', 'Guet Ndar', 'Ndar Toute', 'Sor', 'Pikine', 'Léona'],
   };
 
+  const [quartiersSenegal, setQuartiersSenegal] = useState<Record<string, string[]>>(INITIAL_QUARTIERS);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('custom_quartiers');
+    if (saved) {
+      try {
+        setQuartiersSenegal(JSON.parse(saved));
+      } catch (e) {
+        console.error("Erreur lecture custom_quartiers", e);
+      }
+    }
+  }, []);
+
+  const saveCustomQuartier = (ville: string, quartier: string) => {
+    if (!ville || !quartier) return;
+    
+    setQuartiersSenegal(prev => {
+      const next = { ...prev };
+      if (!next[ville]) next[ville] = [];
+      const exists = next[ville].some(q => q.toLowerCase() === quartier.toLowerCase());
+      if (!exists) {
+        next[ville] = [...next[ville], quartier];
+        localStorage.setItem('custom_quartiers', JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
   const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
   const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
   
-  const selectedCityQuartiers = searchParams.arrivee ? (QUARTIERS_SENEGAL[searchParams.arrivee] || []) : [];
+  const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : [];
   const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
   // S'il n'y a pas de filtre, on montre tous les quartiers de la ville
   const displayQuartiers = searchParams.quartierArrivee ? filteredQuartiers : selectedCityQuartiers;
@@ -157,7 +185,12 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     }, 300);
   };
 
-  const nextStep = () => setStep(s => Math.min(s + 1, 6));
+  const nextStep = () => {
+    if (step === 1 && searchParams.arrivee && searchParams.quartierArrivee) {
+      saveCustomQuartier(searchParams.arrivee, searchParams.quartierArrivee.trim());
+    }
+    setStep(s => Math.min(s + 1, 6));
+  };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   if (!isOpen && !isClosing) return null;
