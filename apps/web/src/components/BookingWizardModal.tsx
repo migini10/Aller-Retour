@@ -240,19 +240,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
           {isAlloDakar && (
             <div className="relative border border-orange-500/30 rounded-xl p-3 bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs text-orange-400 font-bold">Point de départ exact (Obligatoire)</label>
+                <label className="text-xs text-orange-400 font-bold">Adresse de prise en charge (Tapez ou localisez)</label>
                 <button 
                   onClick={handleGeolocate} 
                   disabled={isLocating}
-                  className="text-white hover:text-white font-bold flex items-center gap-1 bg-orange-600 px-3 py-1 rounded-lg disabled:opacity-50 text-xs transition-colors"
+                  className="text-white hover:text-white font-bold flex items-center gap-1 bg-orange-600 px-3 py-1 rounded-lg disabled:opacity-50 text-xs transition-colors shrink-0 ml-2"
                 >
                   <MapPin className="w-3 h-3" />
-                  {isLocating ? 'Localisation...' : 'Me localiser'}
+                  {isLocating ? 'Patientez...' : 'Me localiser'}
                 </button>
               </div>
               <input 
                 type="text" 
-                placeholder="Cliquez sur Me localiser ou tapez l'adresse"
+                placeholder="Tapez l'adresse exacte du passager ou géolocalisez-vous"
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
