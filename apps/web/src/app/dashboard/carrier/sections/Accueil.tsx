@@ -89,9 +89,20 @@ export default function SectionAccueil() {
                   <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shrink-0">
                     <span className="text-xs font-bold text-white">#0{item}</span>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate" title="Dakar ➔ Touba">Dakar ➔ Touba</p>
-                    <p className="text-xs text-slate-400 truncate" title={`Il y a ${item * 5} min`}>Il y a {item * 5} min</p>
+                  <div className="min-w-0 flex flex-col">
+                    <div className="relative group/tooltip">
+                      <p className="text-sm font-bold text-white truncate cursor-default">Dakar ➔ Touba</p>
+                      <div className="absolute -left-2 -top-2 bg-[#101728] border border-orange-500/50 text-white px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left font-bold">
+                        Dakar ➔ Touba
+                      </div>
+                    </div>
+                    
+                    <div className="relative group/tooltip2">
+                      <p className="text-xs text-slate-400 truncate cursor-default">Il y a {item * 5} min</p>
+                      <div className="absolute -left-2 -top-2 bg-[#101728] border border-orange-500/50 text-slate-200 px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip2:opacity-100 group-hover/tooltip2:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left text-xs">
+                        Il y a {item * 5} min
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right shrink-0 whitespace-nowrap">
