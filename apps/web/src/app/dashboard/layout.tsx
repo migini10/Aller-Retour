@@ -5,13 +5,15 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '../../components/Sidebar';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { Bus } from 'lucide-react';
+import { Bus, Ticket } from 'lucide-react';
 import { BrandingProvider } from '../../components/BrandingContext';
+import { useModal } from '../../components/ModalContext';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const { openBookingWizard } = useModal();
 
   const isSuperAdmin = pathname.startsWith('/dashboard/admin');
 
@@ -34,13 +36,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </span>
         </Link>
 
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-600 hover:text-white transition-colors"
-          aria-label="Ouvrir le menu"
-        >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-3">
+          {!isSuperAdmin && (
+            <button
+              onClick={openBookingWizard}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
+            >
+              <Ticket className="w-3.5 h-3.5" />
+              Réserver
+            </button>
+          )}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-600 hover:text-white transition-colors"
+            aria-label="Ouvrir le menu"
+          >
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
