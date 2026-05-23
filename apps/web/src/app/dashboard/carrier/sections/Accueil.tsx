@@ -77,24 +77,24 @@ export default function SectionAccueil() {
         </div>
 
         {/* Dernières réservations */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
+        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-400" /> Réservations Récentes</h3>
-            <button className="text-xs text-indigo-400 font-semibold">Voir tout</button>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-400 shrink-0" /> <span className="truncate">Réservations Récentes</span></h3>
+            <button className="text-xs text-indigo-400 font-semibold shrink-0 ml-2">Voir tout</button>
           </div>
           <div className="space-y-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div key={item} className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shrink-0">
                     <span className="text-xs font-bold text-white">#0{item}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white truncate max-w-[120px]">Dakar ➔ Touba</p>
-                    <p className="text-xs text-slate-400">Il y a {item * 5} min</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-white truncate">Dakar ➔ Touba</p>
+                    <p className="text-xs text-slate-400 truncate">Il y a {item * 5} min</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0 whitespace-nowrap">
                   <p className="text-sm font-bold text-emerald-400">7 000 F</p>
                   <p className="text-xs text-slate-500">2 places</p>
                 </div>
