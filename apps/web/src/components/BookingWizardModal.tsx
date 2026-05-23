@@ -352,9 +352,8 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const renderStep2Results = () => {
     const mockTrips = [
-      { id: 1, company: "Allo Dakar (Covoiturage)", departTime: "08:00", arriveTime: "12:30", price: 5000, type: "Voiture 4 places", seats: 2 },
-      { id: 2, company: "Allo Dakar", departTime: "09:30", arriveTime: "14:00", price: 4500, type: "Voiture 5 places", seats: 4 },
-      { id: 3, company: "Allo Dakar VIP", departTime: "11:00", arriveTime: "15:30", price: 6000, type: "Voiture 4 places", seats: 1 },
+      { id: 1, company: "Allo Dakar Économie", departTime: "08:00", arriveTime: "12:30", price: 4500, type: "Voiture 5 places", seats: 4 },
+      { id: 2, company: "Allo Dakar Confort", departTime: "09:30", arriveTime: "14:00", price: 6000, type: "Voiture 4 places", seats: 2 },
     ];
 
     return (
@@ -406,13 +405,19 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   };
 
   const renderStep3Seats = () => {
-    // Generate a simple car layout (1 front, 3 back)
-    const seats = [
+    const isConfort = selectedTrip?.company === "Allo Dakar Confort";
+    // Generate a simple car layout (1 front, 2 or 3 back depending on type)
+    const seats = isConfort ? [
+      { id: 'Avant Droit', label: 'Avant' },
+      { id: 'Arrière Gauche', label: 'Arr. G' },
+      { id: 'Arrière Droit', label: 'Arr. D' }
+    ] : [
       { id: 'Avant Droit', label: 'Avant' },
       { id: 'Arrière Gauche', label: 'Arr. G' },
       { id: 'Arrière Milieu', label: 'Arr. M' },
       { id: 'Arrière Droit', label: 'Arr. D' }
     ];
+    
     const occupied = ['Avant Droit'];
 
     return (
@@ -458,7 +463,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
             </div>
 
             {/* Back Row */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className={`grid gap-2 ${isConfort ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {seats.slice(1).map(seat => {
                 const isOccupied = occupied.includes(seat.id);
                 const isSelected = selectedSeat === seat.id;
