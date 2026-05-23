@@ -154,6 +154,26 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               </div>
             )}
           </div>
+          <div className="relative border border-orange-500/30 rounded-xl p-3 bg-orange-500/5">
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-xs text-orange-400 font-bold">Point de départ exact (Obligatoire)</label>
+              <button 
+                onClick={handleGeolocate} 
+                disabled={isLocating}
+                className="text-white hover:text-white font-bold flex items-center gap-1 bg-orange-600 px-3 py-1 rounded-lg disabled:opacity-50 text-xs transition-colors"
+              >
+                <MapPin className="w-3 h-3" />
+                {isLocating ? 'Localisation...' : 'Me localiser'}
+              </button>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Cliquez sur Me localiser ou tapez l'adresse"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
+            />
+          </div>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
             <input 
@@ -209,11 +229,12 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         </div>
       </div>
       <button 
+        disabled={!searchParams.depart || !searchParams.arrivee || !pickupLocation}
         onClick={nextStep}
-        className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
+        className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         <Search className="w-5 h-5" />
-        Rechercher un trajet
+        {pickupLocation ? 'Rechercher un trajet' : 'Localisation requise'}
       </button>
     </div>
   );
@@ -393,26 +414,6 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
               value={voyageurInfo.email}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, email: e.target.value})}
-            />
-          </div>
-          <div>
-            <label className="text-xs text-slate-400 font-medium mb-1 flex items-center justify-between">
-              Point de prise en charge (GPS)
-              <button 
-                onClick={handleGeolocate} 
-                disabled={isLocating}
-                className="text-orange-500 hover:text-orange-400 font-bold flex items-center gap-1 bg-orange-500/10 px-2 py-0.5 rounded-md disabled:opacity-50"
-              >
-                <MapPin className="w-3 h-3" />
-                {isLocating ? 'Localisation...' : 'Me localiser'}
-              </button>
-            </label>
-            <input 
-              type="text" 
-              placeholder="Adresse exacte ou point GPS"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
             />
           </div>
           <div>
