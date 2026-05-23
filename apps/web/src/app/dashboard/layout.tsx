@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center gap-3">
           {!isSuperAdmin && (
             <button
-              onClick={openBookingWizard}
+              onClick={() => openBookingWizard(pathname.startsWith('/dashboard/traveller') ? 'allo-dakar' : 'bus')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
             >
               <Ticket className="w-3.5 h-3.5" />

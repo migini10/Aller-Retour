@@ -72,7 +72,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           <button
             onClick={() => {
               if (onLinkClick) onLinkClick();
-              openBookingWizard();
+              openBookingWizard(pathname.startsWith('/dashboard/traveller') ? 'allo-dakar' : 'bus');
             }}
             className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.3)] border border-orange-500/50 group/buybtn"
           >

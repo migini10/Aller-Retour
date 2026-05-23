@@ -126,11 +126,11 @@ export default function TravellerDashboard() {
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button 
-                onClick={openBookingWizard}
+                onClick={() => openBookingWizard('allo-dakar')}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] border border-orange-500/50"
               >
                 <Ticket className="w-5 h-5" />
-                <span>Acheter un billet</span>
+                <span>Nouvelle Demande</span>
               </button>
               <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center justify-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2.5 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer shrink-0">
                 <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
