@@ -376,9 +376,11 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
                       {trip.options}
                     </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.route === 'Autoroute' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
-                      {trip.route === 'Autoroute' ? 'Via Autoroute' : 'Via Nationale'}
-                    </span>
+                    {trip.route === 'Autoroute' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Via Autoroute
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 mt-2">
                     <div className="text-center">
