@@ -88,10 +88,31 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const VILLES_SENEGAL = ['Dakar', 'Thiès', 'Touba', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Diourbel', 'Louga', 'Fatick', 'Kolda', 'Tambacounda'];
   
   const INITIAL_QUARTIERS: Record<string, string[]> = {
-    'Dakar': ['Plateau', 'Médina', 'Fass', 'Point E', 'Almadies', 'Ngor', 'Yoff', 'Parcelles Assainies', 'Keur Massar', 'Rufisque', 'Sacré-Cœur', 'Liberté', 'Ouakam', 'Mermoz', 'Grand Yoff', 'Pikine', 'Guédiawaye', 'Thiaroye', 'Mbao'],
-    'Thiès': ['Mbour 1', 'Mbour 2', 'Mbour 3', 'Grand Thiès', 'Randoulène', 'Dixième', 'Som', 'Takhikao'],
-    'Touba': ['Darou Khoudoss', 'Darou Minam', 'Darou Marnane', 'Guédé', 'Dianatou', 'Madiyana'],
-    'Saint-Louis': ['Île Nord', 'Île Sud', 'Guet Ndar', 'Ndar Toute', 'Sor', 'Pikine', 'Léona'],
+    'Dakar': [
+      'Plateau', 'Médina', 'Fass', 'Point E', 'Fann', 'Amitié', 'Almadies', 'Ngor', 'Yoff', 
+      'Parcelles Assainies', 'Keur Massar', 'Rufisque', 'Sacré-Cœur 1', 'Sacré-Cœur 2', 'Sacré-Cœur 3', 
+      'Liberté 1', 'Liberté 2', 'Liberté 3', 'Liberté 4', 'Liberté 5', 'Liberté 6', 'Ouakam', 'Mermoz', 
+      'Grand Yoff', 'Pikine', 'Guédiawaye', 'Thiaroye', 'Mbao', 'Bargny', 'Diamniadio', 'Sebikotane', 
+      'Hann Maristes', 'Sicap Baobab', 'Sicap Karack', 'Dieuppeul', 'Derklé', 'Castors', 'Grand Dakar', 
+      'Niary Tally', 'Colobane', 'Gueule Tapée', 'HLM', 'Cambérène', 'Yeumbeul', 'Malika', 'Sangalkam', 
+      'Lac Rose', 'Tivaouane Peulh', 'Jaxaay'
+    ],
+    'Thiès': [
+      'Mbour 1', 'Mbour 2', 'Mbour 3', 'Mbour 4', 'Grand Thiès', 'Randoulène', 'Dixième', 'Som', 
+      'Takhikao', 'Cité Lamy', 'Hersent', 'Médina Fall', 'Faly', 'Nguinth', 'Carrières', 'Peytavin', 'Aiglon'
+    ],
+    'Touba': [
+      'Darou Khoudoss', 'Darou Minam', 'Darou Marnane', 'Guédé', 'Dianatou', 'Madiyana', 'Ndamatou', 
+      'Khaïra', 'Darou Salam', 'Touba Mosquée', 'Gouye Mbind', 'Palène', 'Mbar', 'Oumoul Khoura', 'Sam'
+    ],
+    'Saint-Louis': [
+      'Île Nord', 'Île Sud', 'Guet Ndar', 'Ndar Toute', 'Sor', 'Pikine', 'Léona', 'Bango', 'Khor', 
+      'Goxu Mbacc', 'Santhiaba', 'Diamaguène', 'Eaux Claires', 'Balandine'
+    ],
+    'Ziguinchor': ['Bourote', 'Escale', 'Santhiaba', 'Peyrissac', 'Kadior', 'Lyndiane', 'Boucotte', 'Néma', 'Goumel', 'Alwar', 'Kenia', 'Kandé'],
+    'Kaolack': ['Léona', 'Bongré', 'Kasnack', 'Ndangane', 'Sam', 'Passoire', 'Touba Ndorong', 'Thioffac', 'Sara'],
+    'Mbour': ['Grand Mbour', 'Thiocé Est', 'Thiocé Ouest', 'Tefess', 'Santessou', 'Zone Résidentielle', 'Mbour Sérère', 'Gouye Mouride', 'Diamaguène', 'Oncad', 'Liberté'],
+    'Diourbel': ['Escale', 'Keur Cheikh', 'Médina', 'Roukhou', 'Thierno Kandji', 'Ndiodione']
   };
 
   const [quartiersSenegal, setQuartiersSenegal] = useState<Record<string, string[]>>(INITIAL_QUARTIERS);
@@ -127,6 +148,11 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : [];
   const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
   const displayQuartiers = searchParams.quartierArrivee ? filteredQuartiers : selectedCityQuartiers;
+
+  const departCityQuartiers = searchParams.depart ? (quartiersSenegal[searchParams.depart] || []) : [];
+  const filteredPickupQuartiers = departCityQuartiers.filter(q => pickupLocation && q.toLowerCase().includes(pickupLocation.toLowerCase()));
+  const displayPickupQuartiers = pickupLocation ? filteredPickupQuartiers : departCityQuartiers;
+  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
 
   const ticketRef = useRef<HTMLDivElement>(null);
 
@@ -191,8 +217,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const totalSteps = isAlloDakar ? 5 : 6;
 
   const nextStep = () => {
-    if (step === 1 && searchParams.arrivee && searchParams.quartierArrivee) {
-      saveCustomQuartier(searchParams.arrivee, searchParams.quartierArrivee.trim());
+    if (step === 1) {
+      if (searchParams.arrivee && searchParams.quartierArrivee) {
+        saveCustomQuartier(searchParams.arrivee, searchParams.quartierArrivee.trim());
+      }
+      if (searchParams.depart && pickupLocation && !pickupLocation.includes('GPS:')) {
+        saveCustomQuartier(searchParams.depart, pickupLocation.trim());
+      }
     }
     setStep(s => Math.min(s + 1, totalSteps));
   };
@@ -255,8 +286,29 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
                 placeholder="Tapez l'adresse exacte du passager ou géolocalisez-vous"
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
                 value={pickupLocation}
-                onChange={(e) => setPickupLocation(e.target.value)}
+                onFocus={() => setShowPickupSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
+                onChange={(e) => {
+                  setPickupLocation(e.target.value);
+                  setShowPickupSuggestions(true);
+                }}
               />
+              {showPickupSuggestions && displayPickupQuartiers.length > 0 && (
+                <div className="absolute z-50 w-full left-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                  {displayPickupQuartiers.map(quartier => (
+                    <div 
+                      key={quartier} 
+                      className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
+                      onClick={() => {
+                        setPickupLocation(quartier);
+                        setShowPickupSuggestions(false);
+                      }}
+                    >
+                      {quartier}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
