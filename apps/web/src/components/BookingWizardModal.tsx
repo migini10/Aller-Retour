@@ -35,6 +35,17 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     bagages: 1
   });
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleGeolocate = () => {
+    setIsLocating(true);
+    // Simulation of GPS location retrieval
+    setTimeout(() => {
+      setPickupLocation('Sacré-Cœur 3, Dakar (GPS: 14.716677, -17.467686)');
+      setIsLocating(false);
+    }, 1200);
+  };
 
   // Autocomplete states
   const [showDepartSuggestions, setShowDepartSuggestions] = useState(false);
@@ -382,6 +393,26 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
               value={voyageurInfo.email}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, email: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 font-medium mb-1 flex items-center justify-between">
+              Point de prise en charge (GPS)
+              <button 
+                onClick={handleGeolocate} 
+                disabled={isLocating}
+                className="text-orange-500 hover:text-orange-400 font-bold flex items-center gap-1 bg-orange-500/10 px-2 py-0.5 rounded-md disabled:opacity-50"
+              >
+                <MapPin className="w-3 h-3" />
+                {isLocating ? 'Localisation...' : 'Me localiser'}
+              </button>
+            </label>
+            <input 
+              type="text" 
+              placeholder="Adresse exacte ou point GPS"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
             />
           </div>
           <div>
