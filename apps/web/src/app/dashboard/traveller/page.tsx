@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   LayoutDashboard, CalendarCheck, Ticket, Navigation,
   Wallet, Gift, Package, Bell, MessageSquare, Settings,
@@ -60,12 +60,20 @@ export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
   const { openModal } = useModal();
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
       {/* Navigation onglets — Full width background, inner content constrained */}
       <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
         <div className="max-w-[1600px] mx-auto py-3 relative">
-          <div className="flex gap-1 overflow-x-auto scrollbar-none pr-8 sm:pr-0">
+          <div ref={scrollContainerRef} className="flex gap-1 overflow-x-auto scrollbar-none pr-8 sm:pr-0">
             {tabs.map(t => {
               const Icon = t.icon;
               return (
@@ -89,7 +97,13 @@ export default function TravellerDashboard() {
           </div>
           {/* Indicateur de défilement horizontal (mobile) */}
           <div className="sm:hidden absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0B0F19]/95 via-[#0B0F19]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
-            <ChevronRight className="w-5 h-5 text-slate-400 animate-pulse drop-shadow-md" />
+            <button 
+              onClick={scrollRight}
+              className="pointer-events-auto p-2 text-slate-400 hover:text-white transition-colors"
+              aria-label="Faire défiler"
+            >
+              <ChevronRight className="w-5 h-5 animate-pulse drop-shadow-md" />
+            </button>
           </div>
         </div>
       </div>
