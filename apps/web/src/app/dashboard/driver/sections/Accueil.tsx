@@ -8,7 +8,7 @@ export default function SectionAccueil() {
       {/* Welcome Banner */}
       <div className="bg-gradient-to-br from-orange-600/20 via-[#101728] to-[#101728] border border-orange-500/20 rounded-3xl p-6">
         <p className="text-orange-400 font-semibold mb-1">Bonjour, Moussa</p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-white">Prêt pour votre journée ?</h2>
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">Prêt pour votre journée ?</h2>
         <p className="text-sm text-slate-400 mt-2 max-w-lg">Vous avez 1 trajet programmé aujourd'hui. Assurez-vous d'avoir validé tous vos documents.</p>
         
         <div className="mt-6 flex flex-wrap gap-3">

@@ -25,8 +25,8 @@ export default function SectionAccueil() {
               <Globe className="w-8 h-8 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">SaaS Command Center</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">SaaS Command Center</h2>
                 <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border border-emerald-500/30 flex items-center gap-1">
                   <Activity className="w-3 h-3" /> System Stable
                 </span>

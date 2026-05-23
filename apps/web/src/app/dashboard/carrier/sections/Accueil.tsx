@@ -24,7 +24,7 @@ export default function SectionAccueil() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-white">Sénégal Express GIE</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Sénégal Express GIE</h2>
                 <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border border-emerald-500/30">Compte Actif</span>
               </div>
               <p className="text-sm text-slate-400 mt-1">Abonnement SaaS Premium • Renouvellement: 14/12/2026</p>
