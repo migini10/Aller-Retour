@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
-  ChevronLeft, Info, Map
+  ChevronLeft, Info, Map, Banknote
 } from 'lucide-react';
 
 interface BookingWizardModalProps {
@@ -610,6 +610,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
               { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', icon: Smartphone },
               { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-slate-800 text-white border-slate-700', icon: Wallet },
               { id: 'card', name: 'Carte Bancaire', color: 'bg-slate-800 text-white border-slate-700', icon: CreditCard },
+              ...(isAlloDakar ? [{ id: 'cash', name: 'Espèces à l\'arrivée', color: 'bg-emerald-600 text-white border-emerald-500', icon: Banknote }] : [])
             ].map(method => (
               <button
                 key={method.id}
