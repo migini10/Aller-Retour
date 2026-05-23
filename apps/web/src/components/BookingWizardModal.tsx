@@ -352,8 +352,10 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const renderStep2Results = () => {
     const mockTrips = [
-      { id: 1, company: "Allo Dakar Économie", departTime: "08:00", arriveTime: "12:30", price: 3500, type: "Voiture 7 places", seats: 6, options: "Non Climatisé" },
-      { id: 2, company: "Allo Dakar Confort", departTime: "09:30", arriveTime: "14:00", price: 5000, type: "Voiture 5 places", seats: 4, options: "Climatisé" },
+      { id: 1, company: "Allo Dakar Confort", departTime: "08:00", arriveTime: "11:30", price: 6000, type: "Voiture 5 places", seats: 4, options: "Climatisé", route: "Autoroute" },
+      { id: 2, company: "Allo Dakar Confort", departTime: "08:30", arriveTime: "12:00", price: 5500, type: "Voiture 7 places", seats: 6, options: "Climatisé", route: "Autoroute" },
+      { id: 3, company: "Allo Dakar Économie", departTime: "09:00", arriveTime: "13:30", price: 4500, type: "Voiture 5 places", seats: 4, options: "Non Climatisé", route: "Nationale" },
+      { id: 4, company: "Allo Dakar Économie", departTime: "09:30", arriveTime: "14:00", price: 3500, type: "Voiture 7 places", seats: 6, options: "Non Climatisé", route: "Nationale" },
     ];
 
     return (
@@ -368,11 +370,14 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-bold text-white">{trip.company}</span>
                     <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{trip.type}</span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
                       {trip.options}
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.route === 'Autoroute' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
+                      {trip.route === 'Autoroute' ? 'Via Autoroute' : 'Via Nationale'}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 mt-2">
