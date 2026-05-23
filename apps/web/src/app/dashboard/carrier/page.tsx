@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   Building2, LayoutDashboard, Route, Users, Bus, Calendar, MapPin, 
-  Wallet, Store, BarChart3, Bell, HelpCircle, Settings
+  Wallet, Store, BarChart3, Bell, HelpCircle, Settings, ChevronRight
 } from 'lucide-react';
 
 import SectionAccueil from './sections/Accueil';
@@ -59,7 +59,7 @@ export default function CarrierDashboard() {
   };
 
   const renderNavMenu = () => (
-    <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-0 gap-1.5 xl:gap-2 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
+    <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-0 gap-1.5 xl:gap-2 pr-8 xl:pr-0 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
@@ -91,8 +91,12 @@ export default function CarrierDashboard() {
     <div className="flex flex-col h-full w-full overflow-y-auto xl:overflow-hidden scrollbar-hide">
       
       {/* Mobile Navigation Menu (Affiché en haut juste sous le header de layout) */}
-      <div className="xl:hidden shrink-0 sticky top-0 z-50 bg-[#050A15]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 py-3 w-full">
+      <div className="xl:hidden shrink-0 sticky top-0 z-50 bg-[#050A15]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 py-3 w-full relative">
         {renderNavMenu()}
+        {/* Indicateur de défilement horizontal */}
+        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#050A15] via-[#050A15]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
+          <ChevronRight className="w-5 h-5 text-slate-400 animate-pulse drop-shadow-md" />
+        </div>
       </div>
 
       {/* Top Bar : Profile & Global Actions */}

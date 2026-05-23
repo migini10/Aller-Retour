@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import {
   LayoutDashboard, CalendarCheck, Ticket, Navigation,
   Wallet, Gift, Package, Bell, MessageSquare, Settings,
-  TrendingUp, MapPin, Clock, Star, CreditCard
+  TrendingUp, MapPin, Clock, Star, CreditCard, ChevronRight
 } from 'lucide-react';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 import SectionBillets from './sections/Billets';
@@ -64,8 +64,8 @@ export default function TravellerDashboard() {
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
       {/* Navigation onglets — Full width background, inner content constrained */}
       <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
-        <div className="max-w-[1600px] mx-auto py-3">
-          <div className="flex gap-1 overflow-x-auto scrollbar-none">
+        <div className="max-w-[1600px] mx-auto py-3 relative">
+          <div className="flex gap-1 overflow-x-auto scrollbar-none pr-8 sm:pr-0">
             {tabs.map(t => {
               const Icon = t.icon;
               return (
@@ -86,6 +86,10 @@ export default function TravellerDashboard() {
                 </button>
               );
             })}
+          </div>
+          {/* Indicateur de défilement horizontal (mobile) */}
+          <div className="sm:hidden absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0B0F19]/95 via-[#0B0F19]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
+            <ChevronRight className="w-5 h-5 text-slate-400 animate-pulse drop-shadow-md" />
           </div>
         </div>
       </div>
