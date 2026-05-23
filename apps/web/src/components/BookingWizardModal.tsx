@@ -17,10 +17,10 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
 
-  // Form states
   const [searchParams, setSearchParams] = useState({
     depart: '',
     arrivee: '',
+    quartierArrivee: '',
     date: '',
     passagers: 1,
     type: 'bus'
@@ -237,6 +237,18 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               </div>
             )}
           </div>
+          {searchParams.arrivee && (
+            <div className="relative animate-in fade-in slide-in-from-top-2 duration-300">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <input 
+                type="text" 
+                placeholder="Quartier ou point de chute exact"
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
+                value={searchParams.quartierArrivee}
+                onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -261,12 +273,12 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         </div>
       </div>
       <button 
-        disabled={!searchParams.depart || !searchParams.arrivee || !pickupLocation}
+        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation}
         onClick={nextStep}
         className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         <Search className="w-5 h-5" />
-        {pickupLocation ? 'Rechercher un trajet' : 'Localisation requise'}
+        {(searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee) ? 'Rechercher un trajet' : 'Informations incomplètes'}
       </button>
     </div>
   );
