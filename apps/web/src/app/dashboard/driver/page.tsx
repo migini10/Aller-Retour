@@ -81,10 +81,10 @@ export default function DriverDashboard() {
       </div>
 
       {/* Full Height Content Area */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-12 py-6 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-12 py-4 lg:py-6 overflow-hidden">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
-        <div className="lg:w-64 shrink-0 lg:h-full">
-          <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-2 gap-1.5 lg:gap-2 scrollbar-hide lg:h-full lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
+        <div className="lg:w-64 shrink-0 lg:h-full -mx-5 sm:-mx-8 lg:mx-0 px-5 sm:px-8 lg:px-0 sticky top-0 z-20 bg-slate-950/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none border-b border-slate-800 lg:border-none py-2 lg:py-0 mb-2 lg:mb-0">
+          <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-0 gap-1.5 lg:gap-2 scrollbar-hide lg:h-full lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -92,16 +92,16 @@ export default function DriverDashboard() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold shrink-0
+                  className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all whitespace-nowrap text-xs lg:text-sm font-semibold shrink-0 relative
                     ${isActive 
-                      ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' 
-                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
+                      ? 'bg-orange-600 lg:bg-orange-500/10 text-white lg:text-orange-400 border border-orange-500/20 lg:shadow-none shadow-sm shadow-orange-500/20' 
+                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent bg-slate-900/50 lg:bg-transparent'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-orange-400' : 'text-slate-500'}`} />
+                  <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? 'text-white lg:text-orange-400' : 'text-slate-500'}`} />
                   {item.label}
                   {item.badge && (
-                    <span className="ml-auto bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    <span className="lg:ml-auto absolute lg:relative -top-1 -right-1 lg:top-0 lg:right-0 bg-rose-500 lg:bg-orange-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
                       {item.badge}
                     </span>
                   )}
