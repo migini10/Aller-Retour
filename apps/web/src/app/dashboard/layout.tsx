@@ -51,10 +51,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           />
         )}
 
-        {/* Sidebar Desktop : toujours visible sauf sur Super Admin. Mobile : tiroir coulissant */}
+        {/* Sidebar Desktop : miniature w-20, expansible au hover (w-72) */}
         <div
           className={`
-            fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out
+            fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out group
+            w-72 lg:w-20 lg:hover:w-72 overflow-hidden
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
             ${isSuperAdmin ? 'lg:-translate-x-full lg:hidden' : 'lg:translate-x-0'}
           `}
@@ -63,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Contenu principal: un conteneur flex qui ne scrolle pas, pour permettre aux headers d'être vraiment fixes */}
-        <main className={`flex-1 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-72'}`}>
+        <main className={`flex-1 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-20'}`}>
           {children}
         </main>
       </div>
