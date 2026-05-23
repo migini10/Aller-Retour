@@ -85,7 +85,7 @@ export default function DriverDashboard() {
         <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
           {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="lg:w-64 shrink-0">
-          <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-2 gap-1.5 lg:gap-2 scrollbar-hide lg:sticky lg:top-28 lg:max-h-[calc(100vh-140px)] lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
+          <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-2 gap-1.5 lg:gap-2 scrollbar-hide lg:sticky lg:top-0 lg:max-h-[calc(100vh-100px)] lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
