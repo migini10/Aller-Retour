@@ -13,15 +13,15 @@ export default function SectionFlotte() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Bus className="w-5 h-5 text-indigo-400" /> Gestion de la Flotte</h2>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Bus className="w-5 h-5 text-orange-400" /> Gestion de la Flotte</h2>
+        <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nouveau Véhicule
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {flotte.map(v => (
-          <div key={v.id} className="bg-[#101728] border border-slate-800/80 hover:border-indigo-500/30 rounded-2xl p-5 transition-colors flex flex-col justify-between h-full group">
+          <div key={v.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors flex flex-col justify-between h-full group">
             <div>
               <div className="flex items-start justify-between mb-3">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${v.etat === 'Opérationnel' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>

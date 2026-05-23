@@ -13,11 +13,11 @@ export default function SectionDeparts() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-indigo-400" /> Gestion des Départs</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Gestion des Départs</h2>
 
       <div className="flex gap-2 flex-wrap mb-6">
         {['Aujourd\'hui', 'En cours', 'Retards', 'Historique'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
             {t}
           </button>
         ))}
@@ -25,7 +25,7 @@ export default function SectionDeparts() {
 
       <div className="grid grid-cols-1 gap-4">
         {departs.map(d => (
-          <div key={d.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/30 transition-colors">
+          <div key={d.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 hover:border-orange-500/30 transition-colors">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-6">
                 {/* Heure */}
@@ -65,7 +65,7 @@ export default function SectionDeparts() {
 
                 <div className="flex gap-2">
                   <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors">Retard/Alerte</button>
-                  <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1">Gérer <ChevronRight className="w-3 h-3" /></button>
+                  <button className="bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1">Gérer <ChevronRight className="w-3 h-3" /></button>
                 </div>
               </div>
             </div>

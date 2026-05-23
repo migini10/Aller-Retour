@@ -7,7 +7,7 @@ export default function SectionSupport() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><HelpCircle className="w-5 h-5 text-indigo-400" /> Support Central (Niveau 3)</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><HelpCircle className="w-5 h-5 text-orange-400" /> Support Central (Niveau 3)</h2>
           <p className="text-sm text-slate-400 mt-1">Gestion des tickets d'escalade des transporteurs et gares.</p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function SectionSupport() {
                     </span>
                   </td>
                   <td className="py-4 pr-6 text-right">
-                    <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Répondre</button>
+                    <button className="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Répondre</button>
                   </td>
                 </tr>
               ))}

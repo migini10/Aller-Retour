@@ -15,13 +15,13 @@ export default function SectionVente() {
         { num: 4, label: 'Paiement' }
       ].map(s => (
         <React.Fragment key={s.num}>
-          <div className={`flex items-center gap-2 ${step >= s.num ? 'text-indigo-400' : 'text-slate-500'}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 ${step >= s.num ? 'border-indigo-400 bg-indigo-500/10' : 'border-slate-700 bg-slate-800'}`}>
+          <div className={`flex items-center gap-2 ${step >= s.num ? 'text-orange-400' : 'text-slate-500'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 ${step >= s.num ? 'border-orange-400 bg-orange-500/10' : 'border-slate-700 bg-slate-800'}`}>
               {step > s.num ? <CheckCircle2 className="w-5 h-5" /> : s.num}
             </div>
             <span className="text-xs font-bold hidden sm:block">{s.label}</span>
           </div>
-          {s.num < 4 && <div className={`w-12 h-1 rounded-full ${step > s.num ? 'bg-indigo-400' : 'bg-slate-700'}`} />}
+          {s.num < 4 && <div className={`w-12 h-1 rounded-full ${step > s.num ? 'bg-orange-400' : 'bg-slate-700'}`} />}
         </React.Fragment>
       ))}
     </div>
@@ -29,7 +29,7 @@ export default function SectionVente() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Ticket className="w-5 h-5 text-indigo-400" /> Vente au Guichet (POS)</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Ticket className="w-5 h-5 text-orange-400" /> Vente au Guichet (POS)</h2>
 
       <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 lg:p-8">
         {renderStepIndicator()}
@@ -38,7 +38,7 @@ export default function SectionVente() {
           <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
             <div className="relative">
               <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input type="text" placeholder="Rechercher une destination ou un numéro de trajet..." className="w-full bg-slate-900 border-2 border-slate-700 focus:border-indigo-500 rounded-2xl py-4 pl-12 pr-4 text-white outline-none transition-colors text-lg" />
+              <input type="text" placeholder="Rechercher une destination ou un numéro de trajet..." className="w-full bg-slate-900 border-2 border-slate-700 focus:border-orange-500 rounded-2xl py-4 pl-12 pr-4 text-white outline-none transition-colors text-lg" />
             </div>
             
             <div className="space-y-3">
@@ -48,9 +48,9 @@ export default function SectionVente() {
                 { id: 'TRIP-403', dest: 'Saint-Louis', time: '15:00', places: 12, prix: 8500 },
                 { id: 'TRIP-404', dest: 'Thiès', time: '15:15', places: 2, prix: 3000 },
               ].map(t => (
-                <div key={t.id} onClick={() => setStep(2)} className="bg-slate-900 border border-slate-700 hover:border-indigo-500 rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-colors group">
+                <div key={t.id} onClick={() => setStep(2)} className="bg-slate-900 border border-slate-700 hover:border-orange-500 rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-colors group">
                   <div className="flex items-center gap-4">
-                    <div className="bg-indigo-500/20 text-indigo-400 px-3 py-1.5 rounded-lg font-mono font-bold">{t.time}</div>
+                    <div className="bg-orange-500/20 text-orange-400 px-3 py-1.5 rounded-lg font-mono font-bold">{t.time}</div>
                     <div>
                       <h4 className="font-bold text-white text-lg">Dakar → {t.dest}</h4>
                       <p className="text-xs text-slate-400 font-mono mt-1">{t.id} • Bus Climatisé</p>
@@ -79,7 +79,7 @@ export default function SectionVente() {
                       <button key={i} disabled={isOccupied} onClick={() => setSelectedSeat(seatId)}
                         className={`w-12 h-12 rounded-t-xl rounded-b-md flex items-center justify-center font-bold text-sm transition-all
                           ${isOccupied ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 
-                            selectedSeat === seatId ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] scale-110' : 
+                            selectedSeat === seatId ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] scale-110' : 
                             'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
                         {seatId}
                       </button>
@@ -102,7 +102,7 @@ export default function SectionVente() {
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setStep(1)} className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors">Retour</button>
-                  <button disabled={!selectedSeat} onClick={() => setStep(3)} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl font-bold transition-colors">Continuer</button>
+                  <button disabled={!selectedSeat} onClick={() => setStep(3)} className="flex-[2] py-3 bg-orange-600 hover:bg-orange-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl font-bold transition-colors">Continuer</button>
                 </div>
               </div>
             </div>
@@ -117,21 +117,21 @@ export default function SectionVente() {
                 <label className="text-sm font-semibold text-slate-400 block mb-2">Numéro de téléphone</label>
                 <div className="relative">
                   <User className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-                  <input type="tel" placeholder="+221 77..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-white outline-none focus:border-indigo-500 transition-colors" />
+                  <input type="tel" placeholder="+221 77..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-white outline-none focus:border-orange-500 transition-colors" />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-400 block mb-2">Nom complet</label>
-                <input type="text" placeholder="Ex: Moussa Diop" className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white outline-none focus:border-indigo-500 transition-colors" />
+                <input type="text" placeholder="Ex: Moussa Diop" className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white outline-none focus:border-orange-500 transition-colors" />
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-400 block mb-2">Pièce d'identité (Optionnel)</label>
-                <input type="text" placeholder="CNI ou Passeport" className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white outline-none focus:border-indigo-500 transition-colors" />
+                <input type="text" placeholder="CNI ou Passeport" className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white outline-none focus:border-orange-500 transition-colors" />
               </div>
             </div>
             <div className="flex gap-2 pt-4 border-t border-slate-800">
               <button onClick={() => setStep(2)} className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors">Retour</button>
-              <button onClick={() => setStep(4)} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors">Passer au Paiement</button>
+              <button onClick={() => setStep(4)} className="flex-[2] py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold transition-colors">Passer au Paiement</button>
             </div>
           </div>
         )}

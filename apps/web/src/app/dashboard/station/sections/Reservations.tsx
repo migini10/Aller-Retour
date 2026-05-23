@@ -12,11 +12,11 @@ export default function SectionReservations() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-indigo-400" /> Gestion des Réservations</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-orange-400" /> Gestion des Réservations</h2>
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="N° billet, nom, téléphone..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-indigo-500" />
+            <input type="text" placeholder="N° billet, nom, téléphone..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
           <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
         </div>
@@ -38,7 +38,7 @@ export default function SectionReservations() {
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {res.map(r => (
                 <tr key={r.id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-4 pl-6 font-mono text-xs text-indigo-400 font-bold">{r.id}</td>
+                  <td className="py-4 pl-6 font-mono text-xs text-orange-400 font-bold">{r.id}</td>
                   <td className="py-4 font-bold text-white">{r.nom}</td>
                   <td className="py-4">
                     <p className="font-bold text-white">{r.trajet}</p>

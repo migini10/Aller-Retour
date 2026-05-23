@@ -7,7 +7,7 @@ export default function SectionFinances() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-indigo-400" /> Wallet Global & Commissions SaaS</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-orange-400" /> Wallet Global & Commissions SaaS</h2>
           <p className="text-sm text-slate-400 mt-1">Supervisez les flux de la plateforme et gérez le PaymentSettlementEngine.</p>
         </div>
         <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
@@ -17,24 +17,24 @@ export default function SectionFinances() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Wallet SaaS */}
-        <div className="bg-gradient-to-br from-indigo-900 to-indigo-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden lg:col-span-1">
+        <div className="bg-gradient-to-br from-orange-900 to-orange-600 rounded-3xl p-6 text-white shadow-xl shadow-orange-500/20 relative overflow-hidden lg:col-span-1">
           <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-          <p className="text-sm font-semibold text-indigo-200 uppercase tracking-wider mb-2">Revenus Net Plateforme (SaaS + Com.)</p>
+          <p className="text-sm font-semibold text-orange-200 uppercase tracking-wider mb-2">Revenus Net Plateforme (SaaS + Com.)</p>
           <div className="flex items-end gap-2">
             <h3 className="text-4xl font-bold text-white">45.2M</h3>
             <span className="text-xl font-bold mb-1">FCFA</span>
           </div>
           <div className="mt-8 space-y-3 relative z-10">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-indigo-200">Abonnements SaaS</span>
+              <span className="text-orange-200">Abonnements SaaS</span>
               <span className="font-bold">12.5M FCFA</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-indigo-200">Commissions Trajets (5%)</span>
+              <span className="text-orange-200">Commissions Trajets (5%)</span>
               <span className="font-bold">28.4M FCFA</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-indigo-200">Frais B2C</span>
+              <span className="text-orange-200">Frais B2C</span>
               <span className="font-bold">4.3M FCFA</span>
             </div>
           </div>

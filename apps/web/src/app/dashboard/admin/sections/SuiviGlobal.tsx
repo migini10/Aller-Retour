@@ -7,7 +7,7 @@ export default function SectionSuiviGlobal() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Map className="w-5 h-5 text-indigo-400" /> Surveillance GPS Multinationale</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Map className="w-5 h-5 text-orange-400" /> Surveillance GPS Multinationale</h2>
           <p className="text-sm text-slate-400 mt-1">Supervision temps réel de tous les véhicules sur la plateforme SaaS.</p>
         </div>
         <div className="flex gap-2">
@@ -61,7 +61,7 @@ export default function SectionSuiviGlobal() {
             </div>
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <span className="text-xs text-slate-400">Trajets en cours</span>
-              <span className="font-bold text-indigo-400">312</span>
+              <span className="font-bold text-orange-400">312</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-400">Alertes GPS</span>

@@ -14,7 +14,7 @@ export default function SectionEmbarquement() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-indigo-400" /> Contrôle d'Embarquement</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Contrôle d'Embarquement</h2>
           <p className="text-sm text-slate-400 mt-1 flex items-center gap-2"><Bus className="w-4 h-4" /> Dakar → Touba (14:30) • Bus 50 places</p>
         </div>
         <div className="flex items-center gap-4 bg-[#101728] border border-slate-800 p-3 rounded-2xl">
@@ -38,7 +38,7 @@ export default function SectionEmbarquement() {
           <h3 className="font-bold text-white text-sm uppercase tracking-wider">Manifeste Passagers</h3>
           <div className="relative w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="Chercher passager, siège..." className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 pl-9 pr-3 text-sm text-white outline-none focus:border-indigo-500" />
+            <input type="text" placeholder="Chercher passager, siège..." className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
         </div>
         
@@ -57,7 +57,7 @@ export default function SectionEmbarquement() {
                 <td className="py-4 pl-6 font-bold text-white text-lg">{p.id}</td>
                 <td className="py-4">
                   <p className="font-bold text-white">{p.nom}</p>
-                  <p className="text-xs text-indigo-400 font-mono mt-0.5">{p.billet}</p>
+                  <p className="text-xs text-orange-400 font-mono mt-0.5">{p.billet}</p>
                 </td>
                 <td className="py-4">
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase border 
@@ -84,7 +84,7 @@ export default function SectionEmbarquement() {
       </div>
 
       <div className="flex justify-end">
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+        <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-[0_0_20px_rgba(79,70,229,0.3)]">
           Clôturer l'embarquement & Autoriser le départ
         </button>
       </div>

@@ -5,7 +5,7 @@ import { Building2, Users, Ticket, ArrowUpRight, TrendingUp, Calendar, CreditCar
 const stats = [
   { label: 'Voyageurs aujourd\'hui', val: '845', trend: '+12%', icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
   { label: 'Billets Vendus (Guichet)', val: '142', trend: '+5%', icon: Ticket, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-  { label: 'Billets Scannés', val: '720', trend: 'Fluide', icon: ShieldCheck, color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' },
+  { label: 'Billets Scannés', val: '720', trend: 'Fluide', icon: ShieldCheck, color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
   { label: 'Recette Guichet', val: '450 000 F', trend: '+8%', icon: CreditCard, color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
 ];
 
@@ -20,11 +20,11 @@ export default function SectionAccueil() {
   return (
     <div className="space-y-6">
       {/* En-tête Gare */}
-      <div className="bg-gradient-to-br from-indigo-900/60 via-[#101728] to-[#101728] border border-indigo-500/20 rounded-3xl p-6">
+      <div className="bg-gradient-to-br from-orange-900/60 via-[#101728] to-[#101728] border border-orange-500/20 rounded-3xl p-6">
         <div className="flex flex-col md:flex-row items-center md:justify-between gap-6 text-center md:text-left">
           <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-              <Building2 className="w-8 h-8 text-indigo-400" />
+            <div className="w-16 h-16 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shrink-0">
+              <Building2 className="w-8 h-8 text-orange-400" />
             </div>
             <div>
               <div className="flex items-center justify-center md:justify-start gap-2">
@@ -63,12 +63,12 @@ export default function SectionAccueil() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Flux de voyageurs (Graphique) */}
         <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 lg:col-span-2">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-6"><BarChart3 className="w-4 h-4 text-indigo-400" /> Flux Voyageurs (Heure par heure)</h3>
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-6"><BarChart3 className="w-4 h-4 text-orange-400" /> Flux Voyageurs (Heure par heure)</h3>
           <div className="h-48 flex items-end justify-between gap-2 px-2">
             {[20, 35, 60, 90, 100, 85, 40, 20, 10].map((h, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group">
                 <div className="w-full bg-slate-800 rounded-t-sm relative flex items-end justify-center h-40">
-                  <div className="w-full bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-sm transition-all duration-500" style={{ height: `${h}%` }}></div>
+                  <div className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500" style={{ height: `${h}%` }}></div>
                 </div>
                 <span className="text-[10px] text-slate-500 font-medium">{i + 8}h</span>
               </div>
@@ -80,7 +80,7 @@ export default function SectionAccueil() {
         <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white flex items-center gap-2"><ArrowUpRight className="w-4 h-4 text-orange-400" /> Départs Imminents</h3>
-            <button className="text-xs text-indigo-400 font-semibold">Voir tout</button>
+            <button className="text-xs text-orange-400 font-semibold">Voir tout</button>
           </div>
           <div className="space-y-4">
             {[

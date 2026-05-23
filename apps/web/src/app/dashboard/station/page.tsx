@@ -59,12 +59,12 @@ export default function StationDashboard() {
       <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
               AF
             </div>
             <div className="hidden sm:block">
               <h1 className="text-sm font-bold text-white leading-none">Amadou Fall</h1>
-              <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mt-1">Guichet Principal</p>
+              <p className="text-[10px] text-orange-400 font-bold uppercase tracking-wider mt-1">Guichet Principal</p>
             </div>
           </div>
 
@@ -98,16 +98,16 @@ export default function StationDashboard() {
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold
                     ${isActive 
-                      ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]' 
+                      ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]' 
                       : isPrimaryAction 
-                        ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 mb-1'
+                        ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 mb-1'
                         : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : isPrimaryAction ? 'text-indigo-400' : 'text-slate-500'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : isPrimaryAction ? 'text-orange-400' : 'text-slate-500'}`} />
                   {item.label}
                   {item.badge && (
-                    <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white text-indigo-600' : 'bg-indigo-600 text-white'}`}>
+                    <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white text-orange-600' : 'bg-orange-600 text-white'}`}>
                       {item.badge}
                     </span>
                   )}

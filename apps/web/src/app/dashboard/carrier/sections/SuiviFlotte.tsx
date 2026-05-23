@@ -6,7 +6,7 @@ export default function SectionSuiviFlotte() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Navigation className="w-5 h-5 text-indigo-400" /> Suivi de Flotte Temps Réel</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Navigation className="w-5 h-5 text-orange-400" /> Suivi de Flotte Temps Réel</h2>
         <div className="flex gap-2">
           <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
             <SignalHigh className="w-3.5 h-3.5" /> WebSocket Connecté

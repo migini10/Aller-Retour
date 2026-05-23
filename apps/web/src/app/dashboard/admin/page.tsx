@@ -59,14 +59,14 @@ export default function AdminDashboard() {
       <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-purple-600 p-[1px]">
               <div className="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center">
-                <Globe className="w-5 h-5 text-indigo-400" />
+                <Globe className="w-5 h-5 text-orange-400" />
               </div>
             </div>
             <div>
               <h1 className="text-sm font-bold text-white leading-none">Abdou Bakhe</h1>
-              <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mt-1">SaaS Owner / Super Admin</p>
+              <p className="text-[10px] text-orange-400 font-bold uppercase tracking-wider mt-1">SaaS Owner / Super Admin</p>
             </div>
           </div>
 
@@ -92,14 +92,14 @@ export default function AdminDashboard() {
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold
                     ${isActive 
-                      ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)] border border-indigo-400/30' 
+                      ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)] border border-orange-400/30' 
                       : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
                     }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                   {item.label}
                   {item.badge && (
-                    <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white text-indigo-600' : 'bg-rose-500 text-white'}`}>
+                    <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white text-orange-600' : 'bg-rose-500 text-white'}`}>
                       {item.badge}
                     </span>
                   )}

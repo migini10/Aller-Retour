@@ -6,7 +6,7 @@ export default function SectionSuivi() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><MapPin className="w-5 h-5 text-indigo-400" /> Centre de Contrôle GPS (Gare)</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><MapPin className="w-5 h-5 text-orange-400" /> Centre de Contrôle GPS (Gare)</h2>
         <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
           <SignalHigh className="w-3.5 h-3.5" /> Synchronisé en direct
         </span>
@@ -15,11 +15,11 @@ export default function SectionSuivi() {
       <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[600px]">
         {/* Simple Map Placeholder with radar effect */}
         <div className="absolute inset-0 bg-slate-950">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-indigo-500/20 rounded-full animate-ping opacity-20"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-indigo-500/40 rounded-full"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-indigo-500/60 rounded-full bg-indigo-500/5"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
-          <p className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-6 font-bold text-indigo-400 text-xs">Gare Baux Maraîchers</p>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-orange-500/20 rounded-full animate-ping opacity-20"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-orange-500/40 rounded-full"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-orange-500/60 rounded-full bg-orange-500/5"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
+          <p className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-6 font-bold text-orange-400 text-xs">Gare Baux Maraîchers</p>
         </div>
 
         {/* Vehicules entrants/sortants */}

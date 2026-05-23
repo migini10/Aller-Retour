@@ -7,7 +7,7 @@ export default function SectionAnalytics() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-indigo-400" /> Analytics Plateforme (SaaS)</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-orange-400" /> Analytics Plateforme (SaaS)</h2>
           <p className="text-sm text-slate-400 mt-1">Analyse des données d'usage pour la prise de décision.</p>
         </div>
         <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">

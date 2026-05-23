@@ -13,7 +13,7 @@ export default function SectionNotifications() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Bell className="w-5 h-5 text-indigo-400" /> Notifications Gare</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Bell className="w-5 h-5 text-orange-400" /> Notifications Gare</h2>
         <button className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"><CheckCircle2 className="w-3.5 h-3.5" /> Tout marquer lu</button>
       </div>
 
@@ -26,7 +26,7 @@ export default function SectionNotifications() {
                      'bg-blue-500/20 text-blue-400 border-blue-500/30';
                      
           return (
-            <div key={n.id} className={`bg-[#101728] border ${n.isNew ? 'border-indigo-500/40' : 'border-slate-800'} rounded-2xl p-4 flex gap-4 transition-colors`}>
+            <div key={n.id} className={`bg-[#101728] border ${n.isNew ? 'border-orange-500/40' : 'border-slate-800'} rounded-2xl p-4 flex gap-4 transition-colors`}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${bg}`}>
                 <Icon className="w-6 h-6" />
               </div>
@@ -34,7 +34,7 @@ export default function SectionNotifications() {
                 <div className="flex justify-between items-start">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     {n.title}
-                    {n.isNew && <span className="w-2 h-2 rounded-full bg-indigo-500" />}
+                    {n.isNew && <span className="w-2 h-2 rounded-full bg-orange-500" />}
                   </h3>
                   <span className="text-xs text-slate-500">{n.time}</span>
                 </div>

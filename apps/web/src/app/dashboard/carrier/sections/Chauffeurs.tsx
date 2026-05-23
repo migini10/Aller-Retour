@@ -20,12 +20,12 @@ export default function SectionChauffeurs() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-indigo-400" /> Flotte de Chauffeurs</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Flotte de Chauffeurs</h2>
         <div className="flex gap-2">
           <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
             <Filter className="w-4 h-4" /> Filtrer
           </button>
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+          <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
             <UserPlus className="w-4 h-4" /> Ajouter
           </button>
         </div>
@@ -33,7 +33,7 @@ export default function SectionChauffeurs() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[#101728] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400"><Users className="w-6 h-6" /></div>
+          <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400"><Users className="w-6 h-6" /></div>
           <div><p className="text-2xl font-bold text-white">45</p><p className="text-xs text-slate-400">Total Chauffeurs</p></div>
         </div>
         <div className="bg-[#101728] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">

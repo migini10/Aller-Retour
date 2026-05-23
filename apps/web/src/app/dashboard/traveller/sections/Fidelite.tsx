@@ -18,7 +18,7 @@ export default function SectionFidelite() {
       <h2 className="text-lg font-bold text-white flex items-center gap-2"><Gift className="w-5 h-5 text-orange-400" /> Programme Fidélité</h2>
 
       {/* Carte points */}
-      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-600 rounded-3xl p-6 text-white shadow-xl shadow-purple-500/20">
+      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-orange-600 rounded-3xl p-6 text-white shadow-xl shadow-purple-500/20">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-sm opacity-80">Mes points fidélité</p>

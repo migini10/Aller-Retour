@@ -5,7 +5,7 @@ import { BarChart3, TrendingUp, Users, MapPin } from 'lucide-react';
 export default function SectionAnalytics() {
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-indigo-400" /> Analytics & Performances</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-orange-400" /> Analytics & Performances</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Lignes Populaires */}
@@ -23,7 +23,7 @@ export default function SectionAnalytics() {
                   <span className="font-bold text-emerald-400">{r.rev}</span>
                 </div>
                 <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full" style={{ width: `${r.val}%` }}></div>
+                  <div className="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style={{ width: `${r.val}%` }}></div>
                 </div>
               </div>
             ))}
@@ -35,9 +35,9 @@ export default function SectionAnalytics() {
           <h3 className="font-bold text-white mb-6 flex items-center gap-2"><Users className="w-4 h-4 text-emerald-400" /> Taux de Remplissage</h3>
           <div className="flex items-center justify-center h-40 relative">
             {/* Simple CSS Circle logic simulation */}
-            <svg viewBox="0 0 36 36" className="w-40 h-40 text-indigo-500">
+            <svg viewBox="0 0 36 36" className="w-40 h-40 text-orange-500">
               <path className="text-slate-800" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path className="text-indigo-500" strokeWidth="3" strokeDasharray="86, 100" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-orange-500" strokeWidth="3" strokeDasharray="86, 100" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
               <span className="text-3xl font-bold text-white">86%</span>

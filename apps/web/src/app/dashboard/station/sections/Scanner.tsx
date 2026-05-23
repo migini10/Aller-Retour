@@ -7,25 +7,25 @@ export default function SectionScanner() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><QrCode className="w-5 h-5 text-indigo-400" /> Scan & Contrôle de Billet</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><QrCode className="w-5 h-5 text-orange-400" /> Scan & Contrôle de Billet</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Caméra & Scanner (Vue Opérateur) */}
         <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden">
           <div className="absolute inset-0 bg-slate-900" />
           
-          <div className="relative z-10 w-72 h-72 rounded-3xl overflow-hidden border-2 border-indigo-500/50 shadow-[0_0_0_9999px_rgba(15,23,42,0.9)]">
+          <div className="relative z-10 w-72 h-72 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-[0_0_0_9999px_rgba(15,23,42,0.9)]">
             <div className="w-full h-full bg-slate-800 flex items-center justify-center">
               <Scan className="w-16 h-16 text-slate-600 animate-pulse" />
             </div>
             {/* Ligne de scan dynamique */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 shadow-[0_0_15px_3px_#6366f1] animate-scan" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-orange-500 shadow-[0_0_15px_3px_#6366f1] animate-scan" />
             
             {/* Corners */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-3xl" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-3xl" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-indigo-500 rounded-bl-3xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-3xl" />
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-orange-500 rounded-tl-3xl" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-orange-500 rounded-tr-3xl" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-orange-500 rounded-bl-3xl" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-orange-500 rounded-br-3xl" />
           </div>
 
           <p className="relative z-10 mt-8 font-bold text-white text-lg">Présentez le billet physique ou digital</p>
@@ -63,7 +63,7 @@ export default function SectionScanner() {
                   <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>
                   <div>
                     <p className="font-bold text-white text-lg">Mamadou Ndiaye</p>
-                    <p className="text-sm text-indigo-400 font-mono font-bold">AR-74892374</p>
+                    <p className="text-sm text-orange-400 font-mono font-bold">AR-74892374</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

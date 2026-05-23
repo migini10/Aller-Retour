@@ -13,7 +13,7 @@ export default function SectionReservations() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-indigo-400" /> Réservations & Billets</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-orange-400" /> Réservations & Billets</h2>
         <div className="flex gap-2">
           <div className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-500" />

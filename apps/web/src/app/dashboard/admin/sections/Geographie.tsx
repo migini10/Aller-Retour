@@ -14,18 +14,18 @@ export default function SectionGeographie() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Globe className="w-5 h-5 text-indigo-400" /> Expansion & Pays (Afrique)</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Globe className="w-5 h-5 text-orange-400" /> Expansion & Pays (Afrique)</h2>
           <p className="text-sm text-slate-400 mt-1">Gérez le déploiement de la plateforme, les devises et les taxes par pays.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Ajouter un pays
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {pays.map(p => (
-          <div key={p.code} className="bg-[#101728] border border-slate-800/80 hover:border-indigo-500/30 rounded-3xl p-5 transition-colors relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-bl-full pointer-events-none"></div>
+          <div key={p.code} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-3xl p-5 transition-colors relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-bl-full pointer-events-none"></div>
             
             <div className="flex justify-between items-start mb-6">
               <span className="text-4xl">{p.flag}</span>
@@ -51,7 +51,7 @@ export default function SectionGeographie() {
       </div>
 
       <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6">
-        <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Settings className="w-4 h-4 text-indigo-400" /> Configuration Régionale (Sénégal)</h3>
+        <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Settings className="w-4 h-4 text-orange-400" /> Configuration Régionale (Sénégal)</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">

@@ -5,13 +5,13 @@ import { Building2, FileText, CheckCircle2, MapPin, Briefcase } from 'lucide-rea
 export default function SectionEntreprise() {
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-5 h-5 text-indigo-400" /> Profil Entreprise / GIE</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Building2 className="w-5 h-5 text-orange-400" /> Profil Entreprise / GIE</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Informations Générales */}
         <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6 lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white flex items-center gap-2"><Briefcase className="w-4 h-4 text-indigo-400" /> Informations Légales</h3>
+            <h3 className="font-bold text-white flex items-center gap-2"><Briefcase className="w-4 h-4 text-orange-400" /> Informations Légales</h3>
             <button className="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">Modifier</button>
           </div>
           

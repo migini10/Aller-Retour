@@ -65,8 +65,8 @@ export default function CarrierDashboard() {
       <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-[1400px] mx-auto w-full">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-indigo-600/20 border-2 border-indigo-500 overflow-hidden flex items-center justify-center">
-              <Building2 className="w-8 h-8 text-indigo-400" />
+            <div className="w-14 h-14 rounded-xl bg-orange-600/20 border-2 border-orange-500 overflow-hidden flex items-center justify-center">
+              <Building2 className="w-8 h-8 text-orange-400" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Sénégal Express GIE</h1>
@@ -95,14 +95,14 @@ export default function CarrierDashboard() {
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold
                     ${isActive 
-                      ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.1)]' 
+                      ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-[0_0_15px_rgba(99,102,241,0.1)]' 
                       : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-orange-400' : 'text-slate-500'}`} />
                   {item.label}
                   {item.badge && (
-                    <span className="ml-auto bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    <span className="ml-auto bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
                       {item.badge}
                     </span>
                   )}

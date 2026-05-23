@@ -13,15 +13,15 @@ export default function SectionFinances() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-indigo-400" /> Finances & Comptabilité</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-orange-400" /> Finances & Comptabilité</h2>
         <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Download className="w-4 h-4" /> Exporter CSV
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-indigo-900 to-[#101728] border border-indigo-500/20 rounded-3xl p-6 md:col-span-2">
-          <p className="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-2">Chiffre d'Affaires Mensuel</p>
+        <div className="bg-gradient-to-br from-orange-900 to-[#101728] border border-orange-500/20 rounded-3xl p-6 md:col-span-2">
+          <p className="text-sm font-semibold text-orange-300 uppercase tracking-wider mb-2">Chiffre d'Affaires Mensuel</p>
           <div className="flex items-end gap-4">
             <h3 className="text-4xl sm:text-5xl font-bold text-white">4 850 000 <span className="text-2xl">FCFA</span></h3>
             <span className="mb-2 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><TrendingUp className="w-3 h-3" /> +15%</span>
@@ -39,8 +39,8 @@ export default function SectionFinances() {
         </div>
 
         <div className="bg-[#101728] border border-slate-800 rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-4">
-          <div className="w-20 h-20 rounded-full bg-slate-900 border-[8px] border-indigo-500 flex items-center justify-center">
-            <PieChart className="w-6 h-6 text-indigo-400" />
+          <div className="w-20 h-20 rounded-full bg-slate-900 border-[8px] border-orange-500 flex items-center justify-center">
+            <PieChart className="w-6 h-6 text-orange-400" />
           </div>
           <div>
             <h4 className="font-bold text-white text-lg">Répartition</h4>

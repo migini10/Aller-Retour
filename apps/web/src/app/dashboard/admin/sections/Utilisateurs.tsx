@@ -16,13 +16,13 @@ export default function SectionUtilisateurs() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-indigo-400" /> Gestion des Utilisateurs</h2>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Gestion des Utilisateurs</h2>
           <p className="text-sm text-slate-400 mt-1">Vue globale sur les voyageurs, chauffeurs, et personnels.</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="Rechercher email, nom, tel..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-indigo-500" />
+            <input type="text" placeholder="Rechercher email, nom, tel..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
           <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
         </div>
@@ -30,7 +30,7 @@ export default function SectionUtilisateurs() {
 
       <div className="flex gap-2 flex-wrap">
         {['Tous', 'Voyageurs', 'Chauffeurs', 'Administrateurs', 'Bannis/Suspendus'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? (t === 'Bannis/Suspendus' ? 'bg-rose-600 text-white' : 'bg-indigo-600 text-white') : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? (t === 'Bannis/Suspendus' ? 'bg-rose-600 text-white' : 'bg-orange-600 text-white') : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
             {t}
           </button>
         ))}
@@ -63,7 +63,7 @@ export default function SectionUtilisateurs() {
                     </div>
                   </td>
                   <td className="py-4">
-                    <p className="text-xs font-bold text-indigo-400 mb-0.5">{u.role}</p>
+                    <p className="text-xs font-bold text-orange-400 mb-0.5">{u.role}</p>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">{u.tenant}</p>
                   </td>
                   <td className="py-4 text-xs font-medium text-slate-300">

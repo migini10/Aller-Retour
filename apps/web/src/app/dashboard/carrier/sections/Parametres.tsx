@@ -5,14 +5,14 @@ import { Settings, Shield, Users, Globe, Building2 } from 'lucide-react';
 export default function SectionParametres() {
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-400" /> Paramètres Entreprise</h2>
+      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-orange-400" /> Paramètres Entreprise</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Equipe et Rôles */}
         <div className="bg-[#101728] border border-slate-800 rounded-3xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-4 h-4 text-indigo-400" /> Équipe & Rôles</h3>
-            <button className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors">Ajouter Membre</button>
+            <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-4 h-4 text-orange-400" /> Équipe & Rôles</h3>
+            <button className="text-xs bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 rounded-lg transition-colors">Ajouter Membre</button>
           </div>
           <div className="space-y-4">
             {[
@@ -34,7 +34,7 @@ export default function SectionParametres() {
         {/* Préférences Générales */}
         <div className="space-y-6">
           <div className="bg-[#101728] border border-slate-800 rounded-3xl p-6">
-            <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Globe className="w-4 h-4 text-indigo-400" /> Préférences</h3>
+            <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Globe className="w-4 h-4 text-orange-400" /> Préférences</h3>
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-slate-500 font-semibold mb-1 block">Devise par défaut</label>

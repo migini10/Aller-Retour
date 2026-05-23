@@ -701,12 +701,12 @@ export default function DispatcherDashboard() {
                       <p className="text-xs text-slate-400">Envoyer le QR code par courriel</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-4 p-4 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors group">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                <button className="w-full flex items-center gap-4 p-4 rounded-2xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 transition-colors group">
+                  <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
                       <Bluetooth className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                      <p className="font-bold text-white group-hover:text-indigo-400 transition-colors">Bluetooth / AirDrop</p>
+                      <p className="font-bold text-white group-hover:text-orange-400 transition-colors">Bluetooth / AirDrop</p>
                       <p className="text-xs text-slate-400">Partager à proximité</p>
                   </div>
                 </button>

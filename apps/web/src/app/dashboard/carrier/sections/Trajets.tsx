@@ -14,15 +14,15 @@ export default function SectionTrajets() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-indigo-400" /> Planification Trajets</h2>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Planification Trajets</h2>
+        <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nouveau Trajet
         </button>
       </div>
 
       <div className="flex gap-2 flex-wrap mb-6">
         {['Actifs', 'Brouillons', 'Historique', 'Modèles'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
             {t}
           </button>
         ))}
@@ -30,7 +30,7 @@ export default function SectionTrajets() {
 
       <div className="space-y-4">
         {trajets.map(t => (
-          <div key={t.id} className="bg-[#101728] border border-slate-800/80 hover:border-indigo-500/30 rounded-2xl p-5 transition-colors space-y-4">
+          <div key={t.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex-1 space-y-3">
                 <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export default function SectionTrajets() {
                   <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {t.resv}/{t.places} Réservés</span>
                   <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" /> {t.prix} FCFA/place</span>
                   <span className="flex items-center gap-1.5"><Bus className="w-3.5 h-3.5" /> {t.vehicule}</span>
-                  <span className="flex items-center gap-1.5 text-indigo-400 font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> {t.chauffeur}</span>
+                  <span className="flex items-center gap-1.5 text-orange-400 font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> {t.chauffeur}</span>
                 </div>
               </div>
 

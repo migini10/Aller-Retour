@@ -13,11 +13,11 @@ export default function SectionAccueil() {
   return (
     <div className="space-y-6">
       {/* En-tête Entreprise */}
-      <div className="bg-gradient-to-br from-indigo-900/40 via-[#101728] to-[#101728] border border-indigo-500/20 rounded-3xl p-6">
+      <div className="bg-gradient-to-br from-orange-900/40 via-[#101728] to-[#101728] border border-orange-500/20 rounded-3xl p-6">
         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-              <Building2 className="w-8 h-8 text-indigo-400" />
+            <div className="w-16 h-16 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shrink-0">
+              <Building2 className="w-8 h-8 text-orange-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -28,7 +28,7 @@ export default function SectionAccueil() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center gap-2">
+            <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center gap-2">
               <Route className="w-4 h-4" /> Créer un trajet
             </button>
           </div>
@@ -58,7 +58,7 @@ export default function SectionAccueil() {
         {/* Graphique d'évolution (Mockup SVG) */}
         <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2"><BarChart3 className="w-4 h-4 text-indigo-400" /> Évolution des Revenus (7 jours)</h3>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-400" /> Évolution des Revenus (7 jours)</h3>
             <select className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 outline-none">
               <option>Cette semaine</option>
               <option>Ce mois</option>
@@ -68,7 +68,7 @@ export default function SectionAccueil() {
             {[40, 65, 45, 80, 55, 90, 75].map((h, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group">
                 <div className="w-full bg-slate-800 rounded-t-sm relative flex items-end justify-center h-40">
-                  <div className="w-full bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-sm transition-all duration-500 group-hover:opacity-80" style={{ height: `${h}%` }}></div>
+                  <div className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500 group-hover:opacity-80" style={{ height: `${h}%` }}></div>
                 </div>
                 <span className="text-xs text-slate-500 font-medium">J{i+1}</span>
               </div>
@@ -80,7 +80,7 @@ export default function SectionAccueil() {
         <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-400 shrink-0" /> <span className="truncate">Réservations Récentes</span></h3>
-            <button className="text-xs text-indigo-400 font-semibold shrink-0 ml-2">Voir tout</button>
+            <button className="text-xs text-orange-400 font-semibold shrink-0 ml-2">Voir tout</button>
           </div>
           <div className="space-y-4">
             {[1, 2, 3, 4].map((item) => (
