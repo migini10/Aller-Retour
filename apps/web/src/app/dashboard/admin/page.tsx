@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full overflow-y-auto xl:overflow-hidden scrollbar-hide">
       
       {/* Top Bar Fixe : Super Admin Identity */}
       <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Full Height Content Area */}
-      <div className="flex-1 flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-[1600px] mx-auto w-full px-5 sm:px-8 xl:px-12 py-4 xl:py-6 overflow-hidden">
+      <div className="flex-1 flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-[1600px] mx-auto w-full px-5 sm:px-8 xl:px-12 py-4 xl:py-6 overflow-visible xl:overflow-hidden">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0 xl:h-full -mx-5 sm:-mx-8 xl:mx-0 px-5 sm:px-8 xl:px-0 sticky top-0 z-20 bg-slate-950/95 xl:bg-transparent backdrop-blur-xl xl:backdrop-blur-none border-b border-slate-800 xl:border-none py-2 xl:py-0 mb-2 xl:mb-0">
           <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-0 gap-1.5 xl:gap-2 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Contenu Principal (Scrolle indépendamment) */}
-        <div className="flex-1 min-w-0 h-full overflow-y-auto overscroll-contain pb-10 scrollbar-hide pr-2">
+        <div className="flex-1 min-w-0 xl:h-full overflow-visible xl:overflow-y-auto overscroll-contain pb-10 scrollbar-hide xl:pr-2">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {renderContent()}
           </div>

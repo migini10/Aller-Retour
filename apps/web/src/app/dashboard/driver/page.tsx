@@ -53,10 +53,10 @@ export default function DriverDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full overflow-y-auto lg:overflow-hidden scrollbar-hide">
       
-      {/* Top Bar Fixe : Status & Profile */}
-      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+      {/* Top Bar : Status & Profile (Scrolle sur mobile, fixe sur desktop via le layout) */}
+      <div className="flex-none z-40 bg-[#0B0F19] border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-emerald-500 overflow-hidden relative">
@@ -81,7 +81,7 @@ export default function DriverDashboard() {
       </div>
 
       {/* Full Height Content Area */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-12 py-4 lg:py-6 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-12 py-4 lg:py-6 overflow-visible lg:overflow-hidden">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="lg:w-64 shrink-0 lg:h-full -mx-5 sm:-mx-8 lg:mx-0 px-5 sm:px-8 lg:px-0 sticky top-0 z-20 bg-slate-950/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none border-b border-slate-800 lg:border-none py-2 lg:py-0 mb-2 lg:mb-0">
           <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-0 gap-1.5 lg:gap-2 scrollbar-hide lg:h-full lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
@@ -111,8 +111,8 @@ export default function DriverDashboard() {
           </div>
         </div>
 
-        {/* Contenu Principal (Scrolle indépendamment) */}
-        <div className="flex-1 min-w-0 h-full overflow-y-auto overscroll-contain pb-10 scrollbar-hide pr-2">
+        {/* Contenu Principal (Scrolle indépendamment sur desktop, scrolle avec la page sur mobile) */}
+        <div className="flex-1 min-w-0 lg:h-full overflow-visible lg:overflow-y-auto overscroll-contain pb-10 scrollbar-hide lg:pr-2">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {renderContent()}
           </div>
