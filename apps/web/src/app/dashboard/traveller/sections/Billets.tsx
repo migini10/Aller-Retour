@@ -33,7 +33,7 @@ export default function SectionBillets() {
           className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(234,88,12,0.3)] transition-all flex items-center gap-2"
         >
           <QrCode className="w-4 h-4 hidden sm:block" />
-          Nouvelle Demande
+          Trouver une voiture
         </button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
