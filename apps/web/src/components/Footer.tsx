@@ -138,10 +138,10 @@ export default function Footer({ config = defaultFooterConfig }) {
         </div>
 
         {/* Main Footer Content */}
-        <div className="py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 border-b border-slate-800/80">
+        <div className="py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 border-b border-slate-800/80">
           
-          {/* Identity Section (Takes 2 columns on large screens) */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Identity Section */}
+          <div className="lg:col-span-3 space-y-6">
             <Link href="/" className="inline-flex items-center gap-3 group">
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-600/20 group-hover:scale-105 transition-transform">
                 <Bus className="w-6 h-6 text-white" />
@@ -176,7 +176,7 @@ export default function Footer({ config = defaultFooterConfig }) {
           </div>
 
           {/* Links Columns */}
-          <div className="space-y-4">
+          <div className="lg:col-span-2 space-y-4">
             <h4 className="text-white font-bold tracking-tight">Liens Rapides</h4>
             <ul className="space-y-2.5 text-sm">
               {config.sections.liensRapides.map(link => (
@@ -190,7 +190,7 @@ export default function Footer({ config = defaultFooterConfig }) {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          <div className="lg:col-span-2 space-y-4">
             <h4 className="text-white font-bold tracking-tight">Services</h4>
             <ul className="space-y-2.5 text-sm">
               {config.sections.services.map(link => (
@@ -204,7 +204,7 @@ export default function Footer({ config = defaultFooterConfig }) {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          <div className="lg:col-span-2 space-y-4">
             <h4 className="text-white font-bold tracking-tight">Entreprise & Légal</h4>
             <ul className="space-y-2.5 text-sm mb-6">
               {config.sections.entreprise.map(link => (
@@ -227,7 +227,7 @@ export default function Footer({ config = defaultFooterConfig }) {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          <div className="lg:col-span-3 space-y-4">
             <h4 className="text-white font-bold tracking-tight">Contact & Support</h4>
             <ul className="space-y-3.5 text-sm">
               <li>
