@@ -32,8 +32,11 @@ const navItems = [
   { id: 'parametres', label: 'Paramètres', icon: Settings },
 ];
 
+import { useModal } from '../../../components/ModalContext';
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
+  const { openModal } = useModal();
 
   const renderContent = () => {
     switch(activeTab) {

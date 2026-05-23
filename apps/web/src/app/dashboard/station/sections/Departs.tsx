@@ -7,9 +7,11 @@ const departs = [
   { id: 'TRIP-403', dest: 'Saint-Louis', time: '15:00', realTime: '15:00', bus: 'Minibus Climatisé (DK-456)', chauffeur: 'Amadou Sow', places: 15, statut: 'Prêt' },
   { id: 'TRIP-399', dest: 'Thiès', time: '13:45', realTime: '14:15', bus: 'Taxi 7 Places (TH-789)', chauffeur: 'Ousmane Diop', places: 7, statut: 'En cours', retard: '+30m' },
 ];
+import { useModal } from '../../../../components/ModalContext';
 
 export default function SectionDeparts() {
   const [tab, setTab] = useState('Aujourd\'hui');
+  const { openModal } = useModal();
 
   return (
     <div className="space-y-6">
@@ -64,8 +66,8 @@ export default function SectionDeparts() {
                 </span>
 
                 <div className="flex gap-2">
-                  <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors">Retard/Alerte</button>
-                  <button className="bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1">Gérer <ChevronRight className="w-3 h-3" /></button>
+                  <button onClick={() => openModal('Signaler un Retard', 'Veuillez indiquer le motif et la durée du retard.', 'Signaler')} className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors">Retard/Alerte</button>
+                  <button onClick={() => openModal('Gérer le Départ', 'Finalisez l\'embarquement et générez le manifeste.', 'Valider le départ')} className="bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1">Gérer <ChevronRight className="w-3 h-3" /></button>
                 </div>
               </div>
             </div>

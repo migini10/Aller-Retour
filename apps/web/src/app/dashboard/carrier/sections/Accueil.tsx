@@ -9,7 +9,10 @@ const stats = [
   { label: 'Véhicules en Ligne', val: '32 / 45', trend: 'Stable', icon: Bus, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
 ];
 
+import { useModal } from '../../../../components/ModalContext';
+
 export default function SectionAccueil() {
+  const { openModal } = useModal();
   return (
     <div className="space-y-6">
       {/* En-tête Entreprise */}
@@ -28,7 +31,7 @@ export default function SectionAccueil() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center gap-2">
+            <button onClick={() => openModal('Créer un trajet', 'Renseignez les détails du nouveau trajet.', 'Créer')} className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center gap-2">
               <Route className="w-4 h-4" /> Créer un trajet
             </button>
           </div>

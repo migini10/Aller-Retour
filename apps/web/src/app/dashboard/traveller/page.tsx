@@ -54,8 +54,11 @@ const notificationsRecentes = [
   { msg: 'Retard de 15 min signalé sur AR-74892374.', time: 'Hier', dot: 'bg-amber-400' },
 ];
 
+import { useModal } from '../../../components/ModalContext';
+
 export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
+  const { openModal } = useModal();
 
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
@@ -103,10 +106,10 @@ export default function TravellerDashboard() {
                 <p className="text-sm text-slate-400 mt-0.5">+221 77 000 00 00 • abdou@example.com</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl">
+            <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer">
               <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
               <span className="text-xs text-white font-bold">Niveau Silver → Gold</span>
-            </div>
+            </button>
           </div>
 
           {/* Stats */}

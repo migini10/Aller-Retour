@@ -7,11 +7,13 @@ import {
   List, LayoutGrid, Search, FilterX
 } from 'lucide-react';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
+import { useModal } from '../../../components/ModalContext';
 
 export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<'trips' | 'wallet' | 'miles' | 'luggage'>('trips');
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const { openModal } = useModal();
 
   // Search & Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,7 +50,7 @@ export default function ClientDashboard() {
                 <p className="text-base font-bold text-white">45 000 FCFA</p>
               </div>
             </div>
-            <button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
+            <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave pour recharger votre Wallet.', 'Continuer avec Wave')} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
               <Sparkles className="w-4 h-4" /> Recharger via Wave
             </button>
           </div>

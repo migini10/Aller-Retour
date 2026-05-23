@@ -9,7 +9,10 @@ const stats = [
   { label: 'Billets (Mois)', val: '89.4k', trend: '+18%', icon: Ticket, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
 ];
 
+import { useModal } from '../../../../components/ModalContext';
+
 export default function SectionAccueil() {
+  const { openModal } = useModal();
   return (
     <div className="space-y-6">
       {/* Hero SaaS Control */}
@@ -37,7 +40,7 @@ export default function SectionAccueil() {
               <option>Sénégal (Actif)</option>
               <option>Côte d'Ivoire (Beta)</option>
             </select>
-            <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-orange-500/20">
+            <button onClick={() => openModal('Générer un Rapport', 'Sélectionnez les paramètres du rapport PDF à télécharger.', 'Générer')} className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-5 py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-orange-500/20">
               Générer Rapport
             </button>
           </div>
