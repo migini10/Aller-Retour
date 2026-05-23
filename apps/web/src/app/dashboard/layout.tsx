@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Contenu principal avec padding top sur mobile pour compenser la topbar fixe */}
-        <main className={`flex-1 px-5 sm:px-8 lg:px-12 py-6 lg:py-10 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-10 ${isSuperAdmin ? '' : 'lg:ml-72'}`}>
+        <main className={`flex-1 px-5 sm:px-8 lg:px-12 pb-6 lg:pb-10 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-20 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-72'}`}>
           {children}
         </main>
       </div>
