@@ -58,7 +58,8 @@ export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
 
   return (
-    <div className="space-y-0">
+    <div className="h-full overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-20 scrollbar-hide">
+      <div className="max-w-[1600px] mx-auto space-y-0">
       {/* Navigation onglets — scrollable horizontalement sur mobile */}
       <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
         <div className="flex gap-1 overflow-x-auto scrollbar-none py-3">
@@ -197,6 +198,7 @@ export default function TravellerDashboard() {
       {activeTab === 'notifications' && <SectionNotifications />}
       {activeTab === 'support' && <SectionSupport />}
       {activeTab === 'parametres' && <SectionParametres />}
+      </div>
     </div>
   );
 }
