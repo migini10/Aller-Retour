@@ -148,8 +148,8 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const handleShare = async () => {
     const shareData = {
-      title: 'Mon Billet AllerRetour',
-      text: `J'ai réservé mon billet avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'} à ${selectedTrip?.departTime || '08:00'}. Siège: ${selectedSeat}.`,
+      title: 'Ma Demande AllerRetour',
+      text: `J'ai fait une demande de covoiturage avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.`,
       url: 'https://aller-retour.sn',
     };
     
@@ -158,7 +158,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareData.text);
-        alert('Détails du billet copiés dans le presse-papier !');
+        alert('Détails copiés dans le presse-papier !');
       }
     } catch (err) {
       console.error('Error sharing:', err);
@@ -189,7 +189,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     if (step === 1 && searchParams.arrivee && searchParams.quartierArrivee) {
       saveCustomQuartier(searchParams.arrivee, searchParams.quartierArrivee.trim());
     }
-    setStep(s => Math.min(s + 1, 6));
+    setStep(s => Math.min(s + 1, 5));
   };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
@@ -351,60 +351,41 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   );
 
   const renderStep2Results = () => {
-    const mockTrips = [
-      { id: 1, company: "Allo Dakar Confort", departTime: "08:00", arriveTime: "11:30", price: 6000, type: "Voiture 5 places", seats: 4, options: "Climatisé", route: "Autoroute" },
-      { id: 2, company: "Allo Dakar Confort", departTime: "08:30", arriveTime: "12:00", price: 5500, type: "Voiture 7 places", seats: 6, options: "Climatisé", route: "Autoroute" },
-      { id: 3, company: "Allo Dakar Économie", departTime: "09:00", arriveTime: "13:30", price: 4500, type: "Voiture 5 places", seats: 4, options: "Non Climatisé", route: "Nationale" },
-      { id: 4, company: "Allo Dakar Économie", departTime: "09:30", arriveTime: "14:00", price: 3500, type: "Voiture 7 places", seats: 6, options: "Non Climatisé", route: "Nationale" },
+    const mockServices = [
+      { id: 1, company: "Allo Dakar Confort", price: 6000, type: "Voiture 5 places", options: "Climatisé", route: "Autoroute" },
+      { id: 2, company: "Allo Dakar Confort", price: 5500, type: "Voiture 7 places", options: "Climatisé", route: "Autoroute" },
+      { id: 3, company: "Allo Dakar Économie", price: 4500, type: "Voiture 5 places", options: "Non Climatisé", route: "Nationale" },
+      { id: 4, company: "Allo Dakar Économie", price: 3500, type: "Voiture 7 places", options: "Non Climatisé", route: "Nationale" },
     ];
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-        <h3 className="text-sm font-semibold text-slate-400 px-1">Trajets disponibles pour Dakar → Touba</h3>
+        <h3 className="text-sm font-semibold text-slate-400 px-1">Choix du type de covoiturage</h3>
         <div className="space-y-3">
-          {mockTrips.map(trip => (
+          {mockServices.map(service => (
             <div 
-              key={trip.id} 
-              onClick={() => { setSelectedTrip(trip); nextStep(); }}
+              key={service.id} 
+              onClick={() => { setSelectedTrip(service); nextStep(); }}
               className="bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl cursor-pointer transition-all hover:bg-slate-800/50"
             >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-bold text-white">{trip.company}</span>
-                    <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{trip.type}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
-                      {trip.options}
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-bold text-white">{service.company}</span>
+                  <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${service.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
+                    {service.options}
+                  </span>
+                  {service.route === 'Autoroute' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      Via Autoroute
                     </span>
-                    {trip.route === 'Autoroute' && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Via Autoroute
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 mt-2">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-white leading-none">{trip.departTime}</p>
-                      <p className="text-[10px] text-slate-500 uppercase mt-1">Départ</p>
-                    </div>
-                    <div className="flex-1 flex flex-col items-center">
-                      <p className="text-[10px] text-slate-400 mb-1">4h 30m</p>
-                      <div className="w-full h-[1px] bg-slate-700 relative">
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-500"></div>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-white leading-none">{trip.arriveTime}</p>
-                      <p className="text-[10px] text-slate-500 uppercase mt-1">Arrivée</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold text-orange-500">{trip.price} <span className="text-sm">FCFA</span></p>
-                  <p className={`text-xs mt-1 ${trip.seats < 5 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`}>
-                    {trip.seats} places restantes
-                  </p>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xl font-bold text-orange-500">{service.price} <span className="text-sm text-slate-400 font-normal">FCFA / pers</span></p>
+                <div className="text-orange-500 flex items-center gap-1 text-sm font-bold bg-orange-500/10 px-3 py-1.5 rounded-xl">
+                  Choisir <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </div>
@@ -414,130 +395,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     );
   };
 
-  const renderStep3Seats = () => {
-    const is7Places = selectedTrip?.type?.includes("7 places");
-    
-    // Front row
-    const frontSeats = [
-      { id: 'Avant Droit', label: 'Avant' }
-    ];
-
-    // Middle row (only for 7 places)
-    const middleSeats = is7Places ? [
-      { id: 'Milieu Gauche', label: 'Mil. G' },
-      { id: 'Milieu Centre', label: 'Mil. C' },
-      { id: 'Milieu Droit', label: 'Mil. D' }
-    ] : [];
-
-    // Back row
-    const backSeats = [
-      { id: 'Arrière Gauche', label: 'Arr. G' },
-      { id: 'Arrière Centre', label: 'Arr. C' },
-      { id: 'Arrière Droit', label: 'Arr. D' }
-    ];
-    
-    const occupied = ['Avant Droit'];
-
-    return (
-      <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-4 flex-1 overflow-y-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-white font-bold">Choix du siège</h3>
-            <div className="flex gap-3 text-xs">
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-slate-800 border border-slate-700"></div> Libre</div>
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-orange-600"></div> Sélection</div>
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/50"></div> Occupé</div>
-            </div>
-          </div>
-          
-          {/* Car Layout Simulation */}
-          <div className="max-w-[200px] mx-auto bg-slate-950 border-4 border-slate-800 rounded-[40px] p-4 py-8 relative">
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-2 bg-slate-800 rounded-full"></div>
-            
-            {/* Front Row */}
-            <div className="grid grid-cols-2 gap-4 mt-8 mb-6">
-              <div className="aspect-square rounded-xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center opacity-50 relative overflow-hidden">
-                <span className="text-[10px] text-slate-500 font-bold rotate-90">Volant</span>
-                <div className="absolute inset-0 bg-slate-900/50"></div>
-              </div>
-              {(() => {
-                const seat = frontSeats[0];
-                const isOccupied = occupied.includes(seat.id);
-                const isSelected = selectedSeat === seat.id;
-                return (
-                  <button
-                    key={seat.id}
-                    disabled={isOccupied}
-                    onClick={() => setSelectedSeat(seat.id as any)}
-                    className={`aspect-square rounded-xl flex items-center justify-center text-[10px] font-bold transition-all
-                      ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
-                        isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
-                        'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
-                  >
-                    {seat.label}
-                  </button>
-                );
-              })()}
-            </div>
-
-            {/* Middle Row (7 places only) */}
-            {is7Places && (
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                {middleSeats.map(seat => {
-                  const isOccupied = occupied.includes(seat.id);
-                  const isSelected = selectedSeat === seat.id;
-                  return (
-                    <button
-                      key={seat.id}
-                      disabled={isOccupied}
-                      onClick={() => setSelectedSeat(seat.id as any)}
-                      className={`aspect-[4/5] rounded-xl flex items-center justify-center text-[9px] font-bold transition-all
-                        ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
-                          isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
-                          'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
-                    >
-                      {seat.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Back Row */}
-            <div className="grid grid-cols-3 gap-2">
-              {backSeats.map(seat => {
-                const isOccupied = occupied.includes(seat.id);
-                const isSelected = selectedSeat === seat.id;
-                return (
-                  <button
-                    key={seat.id}
-                    disabled={isOccupied}
-                    onClick={() => setSelectedSeat(seat.id as any)}
-                    className={`aspect-[4/5] rounded-xl flex items-center justify-center text-[9px] font-bold transition-all
-                      ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
-                        isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
-                        'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
-                  >
-                    {seat.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <button 
-          disabled={!selectedSeat}
-          onClick={nextStep}
-          className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
-        >
-          {selectedSeat ? `Confirmer le siège ${selectedSeat}` : 'Veuillez choisir un siège'}
-        </button>
-      </div>
-    );
-  };
-
-  const renderStep4Info = () => (
+  const renderStep3Info = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-emerald-400 text-sm mb-2">
@@ -597,7 +455,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     </div>
   );
 
-  const renderStep5Payment = () => {
+  const renderStep4Payment = () => {
     const basePrice = selectedTrip?.price || 5000;
     const luggageFee = voyageurInfo.bagages > 1 ? (voyageurInfo.bagages - 1) * 1000 : 0;
     const taxes = 250;
@@ -661,42 +519,36 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
     );
   };
 
-  const renderStep6Success = () => (
+  const renderStep5Success = () => (
     <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500">
       <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 relative">
         <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></div>
         <CheckCircle2 className="w-10 h-10 text-emerald-400" />
       </div>
       
-      <h2 className="text-2xl font-bold text-white mb-2 text-center">Paiement Réussi !</h2>
-      <p className="text-slate-400 text-center mb-8 text-sm">Votre billet a été généré et envoyé par WhatsApp et Email.</p>
+      <h2 className="text-2xl font-bold text-white mb-2 text-center">Demande Envoyée !</h2>
+      <p className="text-slate-400 text-center mb-8 text-sm">Votre demande de covoiturage a été diffusée aux chauffeurs à proximité. Vous recevrez une notification dès qu'un chauffeur l'acceptera.</p>
 
-      {/* Ticket UI */}
+      {/* Request Recap UI */}
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
         <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
             <Bus className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
           </h3>
-          <p className="text-slate-400 text-xs mt-1">{selectedTrip?.company}</p>
+          <p className="text-slate-400 text-xs mt-1">Demande en attente : {selectedTrip?.company}</p>
         </div>
         
         <div className="p-6 relative">
-          {/* Ticket perforations */}
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
-          
           <div className="flex justify-between items-end mb-6">
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold">Départ</p>
               <p className="text-xl font-black text-slate-900">{searchParams.depart || 'Dakar'}</p>
-              <p className="text-sm font-bold text-slate-600">{selectedTrip?.departTime}</p>
             </div>
             <ArrowRight className="w-5 h-5 text-orange-500 mb-1" />
             <div className="text-right">
               <p className="text-[10px] text-slate-500 uppercase font-bold">Arrivée</p>
               <p className="text-xl font-black text-slate-900">{searchParams.arrivee || 'Touba'}</p>
-              <p className="text-sm font-bold text-slate-600">{selectedTrip?.arriveTime}</p>
             </div>
           </div>
 
@@ -706,25 +558,25 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               <p className="font-bold text-slate-900 truncate">{voyageurInfo.nom}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-500 uppercase font-bold">Siège</p>
-              <p className="font-bold text-orange-600 text-lg">{selectedSeat}</p>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Places</p>
+              <p className="font-bold text-orange-600 text-lg">{searchParams.passagers}</p>
             </div>
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold">Date</p>
               <p className="font-bold text-slate-900">{searchParams.date || 'Aujourd\'hui'}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-500 uppercase font-bold">Référence</p>
-              <p className="font-bold text-slate-900">AR-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Prix Total</p>
+              <p className="font-bold text-slate-900">{(selectedTrip?.price || 0) * searchParams.passagers} FCFA</p>
             </div>
           </div>
 
           <div className="border-t-2 border-dashed border-slate-200 pt-4 flex justify-center">
             <div className="text-center">
-              <div className="w-32 h-32 bg-slate-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                <QrCode className="w-24 h-24 text-slate-900" />
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-2 mx-auto animate-pulse">
+                <Search className="w-8 h-8 text-orange-500" />
               </div>
-              <p className="text-[10px] text-slate-500">Scanner au moment de l'embarquement</p>
+              <p className="text-[10px] text-slate-500">Recherche de chauffeurs en cours...</p>
             </div>
           </div>
         </div>
@@ -732,7 +584,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
       <div className="grid grid-cols-2 gap-3 w-full mt-6">
         <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-          <Download className="w-4 h-4" /> Billet PNG
+          <Download className="w-4 h-4" /> Récapitulatif
         </button>
         <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
           <Share2 className="w-4 h-4" /> Partager
@@ -750,16 +602,15 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const steps = [
     { id: 1, title: 'Recherche' },
-    { id: 2, title: 'Trajets' },
-    { id: 3, title: 'Siège' },
-    { id: 4, title: 'Infos' },
-    { id: 5, title: 'Paiement' },
-    { id: 6, title: 'Confirmation' },
+    { id: 2, title: 'Offres' },
+    { id: 3, title: 'Infos' },
+    { id: 4, title: 'Paiement' },
+    { id: 5, title: 'Confirmation' },
   ];
 
   return (
     <div className={`fixed inset-0 z-[100] flex items-center justify-center ${isClosing ? 'animate-out fade-out duration-300' : 'animate-in fade-in duration-300'}`}>
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={step < 6 ? handleClose : undefined}></div>
+      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={step < 5 ? handleClose : undefined}></div>
       
       <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#050A15] sm:rounded-[2rem] sm:border border-slate-800/80 flex flex-col shadow-2xl overflow-hidden
         ${isClosing ? 'animate-out slide-out-to-bottom-8 sm:slide-out-to-bottom-0 sm:zoom-out-95 duration-300' : 'animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300'}`}
@@ -767,19 +618,19 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         {/* Header */}
         <div className="flex-none bg-[#0B0F19] border-b border-slate-800/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            {step > 1 && step < 6 && (
+            {step > 1 && step < 5 && (
               <button onClick={prevStep} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
             <div>
-              <h2 className="text-white font-bold leading-none">{step === 6 ? 'Billet Confirmé' : 'Acheter un Billet'}</h2>
-              {step < 6 && (
-                <p className="text-xs text-slate-400 mt-1">Étape {step} sur 5 : {steps[step-1].title}</p>
+              <h2 className="text-white font-bold leading-none">{step === 5 ? 'Demande Envoyée' : 'Nouvelle Demande'}</h2>
+              {step < 5 && (
+                <p className="text-xs text-slate-400 mt-1">Étape {step} sur 4 : {steps[step-1].title}</p>
               )}
             </div>
           </div>
-          {step < 6 && (
+          {step < 5 && (
             <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-slate-900 rounded-full border border-slate-800 transition-colors">
               <X className="w-5 h-5" />
             </button>
@@ -787,11 +638,11 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         </div>
 
         {/* Progress bar */}
-        {step < 6 && (
+        {step < 5 && (
           <div className="h-1 bg-slate-900 w-full flex-none">
             <div 
               className="h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out"
-              style={{ width: `${(step / 5) * 100}%` }}
+              style={{ width: `${(step / 4) * 100}%` }}
             ></div>
           </div>
         )}
@@ -800,10 +651,9 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-hide">
           {step === 1 && renderStep1Search()}
           {step === 2 && renderStep2Results()}
-          {step === 3 && renderStep3Seats()}
-          {step === 4 && renderStep4Info()}
-          {step === 5 && renderStep5Payment()}
-          {step === 6 && renderStep6Success()}
+          {step === 3 && renderStep3Info()}
+          {step === 4 && renderStep4Payment()}
+          {step === 5 && renderStep5Success()}
         </div>
       </div>
     </div>
