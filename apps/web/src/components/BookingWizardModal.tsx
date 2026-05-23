@@ -82,11 +82,24 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   // Autocomplete states
   const [showDepartSuggestions, setShowDepartSuggestions] = useState(false);
   const [showArriveeSuggestions, setShowArriveeSuggestions] = useState(false);
+  const [showQuartierSuggestions, setShowQuartierSuggestions] = useState(false);
 
   const VILLES_SENEGAL = ['Dakar', 'Thiès', 'Touba', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Diourbel', 'Louga', 'Fatick', 'Kolda', 'Tambacounda'];
   
+  const QUARTIERS_SENEGAL: Record<string, string[]> = {
+    'Dakar': ['Plateau', 'Médina', 'Fass', 'Point E', 'Almadies', 'Ngor', 'Yoff', 'Parcelles Assainies', 'Keur Massar', 'Rufisque', 'Sacré-Cœur', 'Liberté', 'Ouakam', 'Mermoz', 'Grand Yoff', 'Pikine', 'Guédiawaye', 'Thiaroye', 'Mbao'],
+    'Thiès': ['Mbour 1', 'Mbour 2', 'Mbour 3', 'Grand Thiès', 'Randoulène', 'Dixième', 'Som', 'Takhikao'],
+    'Touba': ['Darou Khoudoss', 'Darou Minam', 'Darou Marnane', 'Guédé', 'Dianatou', 'Madiyana'],
+    'Saint-Louis': ['Île Nord', 'Île Sud', 'Guet Ndar', 'Ndar Toute', 'Sor', 'Pikine', 'Léona'],
+  };
+
   const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
   const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
+  
+  const selectedCityQuartiers = searchParams.arrivee ? (QUARTIERS_SENEGAL[searchParams.arrivee] || []) : [];
+  const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
+  // S'il n'y a pas de filtre, on montre tous les quartiers de la ville
+  const displayQuartiers = searchParams.quartierArrivee ? filteredQuartiers : selectedCityQuartiers;
 
   const ticketRef = useRef<HTMLDivElement>(null);
 
@@ -245,8 +258,29 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
                 placeholder="Quartier ou point de chute exact"
                 className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
                 value={searchParams.quartierArrivee}
-                onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
+                onFocus={() => setShowQuartierSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
+                onChange={(e) => {
+                  setSearchParams({...searchParams, quartierArrivee: e.target.value});
+                  setShowQuartierSuggestions(true);
+                }}
               />
+              {showQuartierSuggestions && displayQuartiers.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                  {displayQuartiers.map(quartier => (
+                    <div 
+                      key={quartier} 
+                      className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
+                      onClick={() => {
+                        setSearchParams({...searchParams, quartierArrivee: quartier});
+                        setShowQuartierSuggestions(false);
+                      }}
+                    >
+                      {quartier}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
