@@ -80,22 +80,22 @@ export default function CarrierDashboard() {
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-10">
-        <div className="flex flex-col xl:flex-row gap-8 max-w-[1400px] mx-auto">
-          {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
-        <div className="xl:w-64 shrink-0">
-          <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-0 xl:max-h-[calc(100vh-100px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
+      {/* Full Height Content Area */}
+      <div className="flex-1 flex flex-col xl:flex-row gap-8 max-w-[1400px] mx-auto w-full px-5 sm:px-8 lg:px-12 py-6 overflow-hidden">
+        {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
+        <div className="xl:w-64 shrink-0 xl:h-full">
+          <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-semibold shrink-0
                     ${isActive 
-                      ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-[0_0_15px_rgba(99,102,241,0.1)]' 
+                      ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.1)]' 
                       : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
                     }`}
                 >
@@ -112,13 +112,12 @@ export default function CarrierDashboard() {
           </div>
         </div>
 
-        {/* Contenu Principal */}
-        <div className="flex-1 min-w-0">
+        {/* Contenu Principal (Scrolle indépendamment) */}
+        <div className="flex-1 min-w-0 h-full overflow-y-auto overscroll-contain pb-10 scrollbar-hide pr-2">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {renderContent()}
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
