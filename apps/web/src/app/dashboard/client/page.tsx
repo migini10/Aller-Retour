@@ -31,8 +31,8 @@ export default function ClientDashboard() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-20 scrollbar-hide">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="h-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
+      <div className="w-full max-w-[1600px] px-5 sm:px-8 lg:px-12 py-6 pb-24 space-y-6">
       {/* Header */}
       <div className="pb-5 border-b border-slate-800">
         <div className="flex flex-col gap-4">
@@ -94,7 +94,7 @@ export default function ClientDashboard() {
           </div>
           
           {/* Search & Filters */}
-          <div className="sticky top-0 z-10 bg-[#0B0F19]/95 backdrop-blur-xl py-3 space-y-3 mb-5 -mx-2 px-2 border-b border-slate-800/80">
+          <div className="sticky top-0 z-10 bg-[#0B0F19]/95 backdrop-blur-xl py-3 space-y-3 mb-5 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 border-b border-slate-800/80">
             {/* Search Bar */}
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-orange-400 transition-colors" />

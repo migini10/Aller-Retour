@@ -58,33 +58,37 @@ export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-20 scrollbar-hide">
-      <div className="max-w-[1600px] mx-auto space-y-0">
-      {/* Navigation onglets — scrollable horizontalement sur mobile */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 mb-8">
-        <div className="flex gap-1 overflow-x-auto scrollbar-none py-3">
-          {tabs.map(t => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
-                  activeTab === t.id
-                    ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {t.label}
-                {t.badge && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">{t.badge}</span>
-                )}
-              </button>
-            );
-          })}
+    <div className="h-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
+      {/* Navigation onglets — Full width background, inner content constrained */}
+      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
+        <div className="max-w-[1600px] mx-auto py-3">
+          <div className="flex gap-1 overflow-x-auto scrollbar-none">
+            {tabs.map(t => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
+                    activeTab === t.id
+                      ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {t.label}
+                  {t.badge && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">{t.badge}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Main Content Area - Constrained and padded */}
+      <div className="flex-1 w-full max-w-[1600px] mx-auto px-5 sm:px-8 lg:px-12 py-8 pb-24">
 
       {/* Contenu */}
       {activeTab === 'accueil' && (
