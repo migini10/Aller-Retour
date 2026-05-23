@@ -90,8 +90,8 @@ export default function SectionAccueil() {
                     <span className="text-xs font-bold text-white">#0{item}</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate">Dakar ➔ Touba</p>
-                    <p className="text-xs text-slate-400 truncate">Il y a {item * 5} min</p>
+                    <p className="text-sm font-bold text-white truncate" title="Dakar ➔ Touba">Dakar ➔ Touba</p>
+                    <p className="text-xs text-slate-400 truncate" title={`Il y a ${item * 5} min`}>Il y a {item * 5} min</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0 whitespace-nowrap">
