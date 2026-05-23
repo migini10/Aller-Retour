@@ -26,7 +26,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   });
   
   const [selectedTrip, setSelectedTrip] = useState<any>(null);
-  const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
+  const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
   const [voyageurInfo, setVoyageurInfo] = useState({
     nom: 'Abdou Bakhe',
     telephone: '+221 77 123 45 67',
@@ -172,9 +172,9 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const renderStep2Results = () => {
     const mockTrips = [
-      { id: 1, company: "Sénégal Express", departTime: "08:00", arriveTime: "12:30", price: 5000, type: "Bus VIP", seats: 12 },
-      { id: 2, company: "Allo Dakar", departTime: "09:30", arriveTime: "14:00", price: 4500, type: "Minibus", seats: 4 },
-      { id: 3, company: "Confort Voyage", departTime: "11:00", arriveTime: "15:30", price: 6000, type: "Bus Premium", seats: 20 },
+      { id: 1, company: "Allo Dakar (Covoiturage)", departTime: "08:00", arriveTime: "12:30", price: 5000, type: "Voiture 4 places", seats: 2 },
+      { id: 2, company: "Allo Dakar", departTime: "09:30", arriveTime: "14:00", price: 4500, type: "Voiture 5 places", seats: 4 },
+      { id: 3, company: "Allo Dakar VIP", departTime: "11:00", arriveTime: "15:30", price: 6000, type: "Voiture 4 places", seats: 1 },
     ];
 
     return (
@@ -226,10 +226,14 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   };
 
   const renderStep3Seats = () => {
-    // Generate a simple bus layout
-    const rows = 10;
-    const cols = 4;
-    const occupied = [2, 3, 7, 8, 14, 15, 22];
+    // Generate a simple car layout (1 front, 3 back)
+    const seats = [
+      { id: 'Avant Droit', label: 'Avant' },
+      { id: 'Arrière Gauche', label: 'Arr. G' },
+      { id: 'Arrière Milieu', label: 'Arr. M' },
+      { id: 'Arrière Droit', label: 'Arr. D' }
+    ];
+    const occupied = ['Avant Droit'];
 
     return (
       <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
@@ -243,28 +247,52 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
             </div>
           </div>
           
-          {/* Bus Layout Simulation */}
-          <div className="max-w-[200px] mx-auto bg-slate-950 border-4 border-slate-800 rounded-[30px] p-4 py-8 relative">
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-2 bg-slate-800 rounded-full"></div>
-            <div className="grid grid-cols-4 gap-2 mt-4">
-              {Array.from({length: rows * cols}).map((_, i) => {
-                const seatNum = i + 1;
-                const isOccupied = occupied.includes(seatNum);
-                const isSelected = selectedSeat === seatNum;
-                // Create an aisle
-                if (i % 4 === 2) return <div key={`aisle-${i}`} className="w-full"></div>;
-                
+          {/* Car Layout Simulation */}
+          <div className="max-w-[200px] mx-auto bg-slate-950 border-4 border-slate-800 rounded-[40px] p-4 py-8 relative">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-2 bg-slate-800 rounded-full"></div>
+            
+            {/* Front Row */}
+            <div className="grid grid-cols-2 gap-4 mt-8 mb-6">
+              <div className="aspect-square rounded-xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center opacity-50 relative overflow-hidden">
+                <span className="text-[10px] text-slate-500 font-bold rotate-90">Volant</span>
+                <div className="absolute inset-0 bg-slate-900/50"></div>
+              </div>
+              {(() => {
+                const seat = seats[0];
+                const isOccupied = occupied.includes(seat.id);
+                const isSelected = selectedSeat === seat.id;
                 return (
                   <button
-                    key={seatNum}
+                    key={seat.id}
                     disabled={isOccupied}
-                    onClick={() => setSelectedSeat(seatNum)}
-                    className={`aspect-square rounded-md flex items-center justify-center text-[10px] font-bold transition-all
+                    onClick={() => setSelectedSeat(seat.id as any)}
+                    className={`aspect-square rounded-xl flex items-center justify-center text-[10px] font-bold transition-all
                       ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
                         isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
                         'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
                   >
-                    {seatNum}
+                    {seat.label}
+                  </button>
+                );
+              })()}
+            </div>
+
+            {/* Back Row */}
+            <div className="grid grid-cols-3 gap-2">
+              {seats.slice(1).map(seat => {
+                const isOccupied = occupied.includes(seat.id);
+                const isSelected = selectedSeat === seat.id;
+                return (
+                  <button
+                    key={seat.id}
+                    disabled={isOccupied}
+                    onClick={() => setSelectedSeat(seat.id as any)}
+                    className={`aspect-[4/5] rounded-xl flex items-center justify-center text-[9px] font-bold transition-all
+                      ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
+                        isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
+                        'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                  >
+                    {seat.label}
                   </button>
                 );
               })}
