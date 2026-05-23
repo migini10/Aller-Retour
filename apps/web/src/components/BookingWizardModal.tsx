@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
@@ -43,6 +44,42 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   
   const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
   const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
+
+  const ticketRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = async () => {
+    if (ticketRef.current) {
+      try {
+        const canvas = await html2canvas(ticketRef.current, { scale: 2 });
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `Billet-AllerRetour-${searchParams.depart || 'Dakar'}-${searchParams.arrivee || 'Touba'}.png`;
+        link.click();
+      } catch (err) {
+        console.error("Erreur lors de la génération du billet", err);
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Mon Billet AllerRetour',
+      text: `J'ai réservé mon billet avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'} à ${selectedTrip?.departTime || '08:00'}. Siège: ${selectedSeat}.`,
+      url: 'https://aller-retour.sn',
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.text);
+        alert('Détails du billet copiés dans le presse-papier !');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   // Handle closing with animation
   useEffect(() => {
@@ -446,7 +483,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
       <p className="text-slate-400 text-center mb-8 text-sm">Votre billet a été généré et envoyé par WhatsApp et Email.</p>
 
       {/* Ticket UI */}
-      <div className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
+      <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
         <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
             <Bus className="w-5 h-5 text-orange-500" />
@@ -505,10 +542,10 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
       </div>
 
       <div className="grid grid-cols-2 gap-3 w-full mt-6">
-        <button className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-          <Download className="w-4 h-4" /> Billet PDF
+        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+          <Download className="w-4 h-4" /> Billet PNG
         </button>
-        <button className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
           <Share2 className="w-4 h-4" /> Partager
         </button>
       </div>
