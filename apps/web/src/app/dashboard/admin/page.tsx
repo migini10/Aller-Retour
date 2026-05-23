@@ -53,11 +53,11 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="pb-10">
+    <div className="flex flex-col h-full w-full">
       
-      {/* Top Bar : Super Admin Identity */}
-      <div className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 py-3 mb-6">
-        <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
+      {/* Top Bar Fixe : Super Admin Identity */}
+      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+        <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px]">
               <div className="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center">
@@ -76,8 +76,10 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto">
-        {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-10">
+        <div className="flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto">
+          {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0">
           <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-24 xl:max-h-[calc(100vh-120px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
             {navItems.map((item) => {
@@ -107,10 +109,11 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Contenu Principal */}
-        <div className="flex-1 min-w-0">
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {renderContent()}
+          {/* Contenu Principal */}
+          <div className="flex-1 min-w-0 pb-10">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {renderContent()}
+            </div>
           </div>
         </div>
       </div>

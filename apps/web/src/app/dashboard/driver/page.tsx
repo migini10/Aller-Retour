@@ -53,11 +53,11 @@ export default function DriverDashboard() {
   };
 
   return (
-    <div className="pb-10">
+    <div className="flex flex-col h-full w-full">
       
-      {/* Top Bar : Status & Profile */}
-      <div className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 py-3 mb-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
+      {/* Top Bar Fixe : Status & Profile */}
+      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-emerald-500 overflow-hidden relative">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moussa" alt="Profil" className="w-full h-full object-cover" />
@@ -80,8 +80,10 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
-        {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-10">
+        <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+          {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="lg:w-64 shrink-0">
           <div className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-2 gap-1.5 lg:gap-2 scrollbar-hide lg:sticky lg:top-28 lg:max-h-[calc(100vh-140px)] lg:bg-[#101728] lg:border lg:border-slate-800/80 lg:p-4 lg:rounded-3xl">
             {navItems.map((item) => {
@@ -116,6 +118,7 @@ export default function DriverDashboard() {
             {renderContent()}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

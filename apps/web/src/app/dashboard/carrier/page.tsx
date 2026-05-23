@@ -59,11 +59,11 @@ export default function CarrierDashboard() {
   };
 
   return (
-    <div className="pb-10">
+    <div className="flex flex-col h-full w-full">
       
-      {/* Top Bar : Profile & ERP Controls */}
-      <div className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 py-3 mb-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-[1400px] mx-auto">
+      {/* Top Bar Fixe : Profile & ERP Controls */}
+      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-[1400px] mx-auto w-full">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-indigo-600/20 border-2 border-indigo-500 overflow-hidden flex items-center justify-center">
               <Building2 className="w-8 h-8 text-indigo-400" />
@@ -80,8 +80,10 @@ export default function CarrierDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8 max-w-[1400px] mx-auto">
-        {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-8 lg:px-12 py-6 pb-10">
+        <div className="flex flex-col xl:flex-row gap-8 max-w-[1400px] mx-auto">
+          {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0">
           <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:sticky xl:top-32 xl:max-h-[calc(100vh-160px)] xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
             {navItems.map((item) => {
@@ -116,6 +118,7 @@ export default function CarrierDashboard() {
             {renderContent()}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
