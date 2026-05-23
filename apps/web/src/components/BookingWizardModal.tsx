@@ -352,8 +352,8 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
 
   const renderStep2Results = () => {
     const mockTrips = [
-      { id: 1, company: "Allo Dakar Économie", departTime: "08:00", arriveTime: "12:30", price: 4500, type: "Voiture 5 places", seats: 4 },
-      { id: 2, company: "Allo Dakar Confort", departTime: "09:30", arriveTime: "14:00", price: 6000, type: "Voiture 4 places", seats: 2 },
+      { id: 1, company: "Allo Dakar Économie", departTime: "08:00", arriveTime: "12:30", price: 3500, type: "Voiture 7 places", seats: 6, options: "Non Climatisé" },
+      { id: 2, company: "Allo Dakar Confort", departTime: "09:30", arriveTime: "14:00", price: 5000, type: "Voiture 5 places", seats: 4, options: "Climatisé" },
     ];
 
     return (
@@ -371,6 +371,9 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-white">{trip.company}</span>
                     <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{trip.type}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${trip.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
+                      {trip.options}
+                    </span>
                   </div>
                   <div className="flex items-center gap-4 mt-2">
                     <div className="text-center">
@@ -405,16 +408,24 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   };
 
   const renderStep3Seats = () => {
-    const isConfort = selectedTrip?.company === "Allo Dakar Confort";
-    // Generate a simple car layout (1 front, 2 or 3 back depending on type)
-    const seats = isConfort ? [
-      { id: 'Avant Droit', label: 'Avant' },
+    const is7Places = selectedTrip?.type?.includes("7 places");
+    
+    // Front row
+    const frontSeats = [
+      { id: 'Avant Droit', label: 'Avant' }
+    ];
+
+    // Middle row (only for 7 places)
+    const middleSeats = is7Places ? [
+      { id: 'Milieu Gauche', label: 'Mil. G' },
+      { id: 'Milieu Centre', label: 'Mil. C' },
+      { id: 'Milieu Droit', label: 'Mil. D' }
+    ] : [];
+
+    // Back row
+    const backSeats = [
       { id: 'Arrière Gauche', label: 'Arr. G' },
-      { id: 'Arrière Droit', label: 'Arr. D' }
-    ] : [
-      { id: 'Avant Droit', label: 'Avant' },
-      { id: 'Arrière Gauche', label: 'Arr. G' },
-      { id: 'Arrière Milieu', label: 'Arr. M' },
+      { id: 'Arrière Centre', label: 'Arr. C' },
       { id: 'Arrière Droit', label: 'Arr. D' }
     ];
     
@@ -443,7 +454,7 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
                 <div className="absolute inset-0 bg-slate-900/50"></div>
               </div>
               {(() => {
-                const seat = seats[0];
+                const seat = frontSeats[0];
                 const isOccupied = occupied.includes(seat.id);
                 const isSelected = selectedSeat === seat.id;
                 return (
@@ -462,9 +473,32 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               })()}
             </div>
 
+            {/* Middle Row (7 places only) */}
+            {is7Places && (
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {middleSeats.map(seat => {
+                  const isOccupied = occupied.includes(seat.id);
+                  const isSelected = selectedSeat === seat.id;
+                  return (
+                    <button
+                      key={seat.id}
+                      disabled={isOccupied}
+                      onClick={() => setSelectedSeat(seat.id as any)}
+                      className={`aspect-[4/5] rounded-xl flex items-center justify-center text-[9px] font-bold transition-all
+                        ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
+                          isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
+                          'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                    >
+                      {seat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Back Row */}
-            <div className={`grid gap-2 ${isConfort ? 'grid-cols-2' : 'grid-cols-3'}`}>
-              {seats.slice(1).map(seat => {
+            <div className="grid grid-cols-3 gap-2">
+              {backSeats.map(seat => {
                 const isOccupied = occupied.includes(seat.id);
                 const isSelected = selectedSeat === seat.id;
                 return (
