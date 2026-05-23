@@ -202,21 +202,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
   const renderStep1Search = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="flex gap-2 p-1 bg-slate-900 rounded-xl mb-4">
-        <button 
-          onClick={() => setSearchParams({...searchParams, type: 'bus'})}
-          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isAlloDakar ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          Bus
-        </button>
-        <button 
-          onClick={() => setSearchParams({...searchParams, type: 'allo-dakar'})}
-          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isAlloDakar ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          Allo Dakar
-        </button>
-      </div>
-
       <div className="bg-slate-900/50 p-4 sm:p-6 rounded-2xl border border-slate-800">
         <h3 className="text-lg font-bold text-white mb-4">Où allez-vous ?</h3>
         <div className="space-y-3">
