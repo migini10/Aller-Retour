@@ -39,12 +39,44 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   const [isLocating, setIsLocating] = useState(false);
 
   const handleGeolocate = () => {
+    if (!navigator.geolocation) {
+      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      return;
+    }
+
     setIsLocating(true);
-    // Simulation of GPS location retrieval
-    setTimeout(() => {
-      setPickupLocation('Sacré-Cœur 3, Dakar (GPS: 14.716677, -17.467686)');
-      setIsLocating(false);
-    }, 1200);
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
+            headers: { 'Accept-Language': 'fr' }
+          });
+          const data = await response.json();
+          let address = data.display_name;
+          
+          if (address) {
+            // Simplify address a bit
+            const parts = address.split(',').slice(0, 3);
+            address = `${parts.join(', ')} (GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)})`;
+          } else {
+            address = `Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+          }
+          
+          setPickupLocation(address);
+        } catch (error) {
+          setPickupLocation(`Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Erreur de géolocalisation:", error);
+        alert("Impossible de récupérer votre position. Veuillez autoriser l'accès à la localisation.");
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   // Autocomplete states
