@@ -44,8 +44,8 @@ const prochainVoyage = {
   to: 'Touba',
   date: '2026-06-05',
   heure: '08:00',
-  siege: '14A VIP',
-  compagnie: 'Sénégal Express',
+  siege: 'Arrière Droit',
+  compagnie: 'Allo Dakar (Covoiturage)',
 };
 
 const notificationsRecentes = [

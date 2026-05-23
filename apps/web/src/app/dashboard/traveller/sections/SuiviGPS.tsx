@@ -33,9 +33,10 @@ export default function SectionSuiviGPS() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold truncate">Moussa Ndiaye</p>
-            <p className="text-xs text-slate-400 truncate">Bus Climatisé 50 places • Sénégal Express</p>
+            <p className="text-xs text-slate-400 truncate">Voiture Particulière 4 places • Allo Dakar</p>
             <div className="mt-1 bg-slate-800 px-2 py-0.5 rounded text-xs font-mono text-slate-300 w-fit">
-              AA-123-BB
+              DK-7482-BB
+
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
