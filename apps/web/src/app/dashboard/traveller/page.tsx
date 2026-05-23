@@ -58,7 +58,7 @@ export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
+    <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
       {/* Navigation onglets — Full width background, inner content constrained */}
       <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
         <div className="max-w-[1600px] mx-auto py-3">
@@ -94,7 +94,7 @@ export default function TravellerDashboard() {
       {activeTab === 'accueil' && (
         <div className="space-y-8">
           {/* Header profil */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-orange-600/10 via-orange-500/5 to-transparent border border-orange-500/20 rounded-3xl p-6">
+          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-orange-600/10 via-orange-500/5 to-transparent border border-orange-500/20 rounded-3xl p-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-600/30 to-orange-400/10 border border-orange-500/30 flex items-center justify-center text-2xl font-bold text-orange-400 shrink-0">AB</div>
               <div>

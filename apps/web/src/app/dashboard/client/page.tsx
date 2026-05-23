@@ -31,7 +31,7 @@ export default function ClientDashboard() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
+    <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
       <div className="w-full max-w-[1600px] px-5 sm:px-8 lg:px-12 py-6 pb-24 space-y-6">
       {/* Header */}
       <div className="pb-5 border-b border-slate-800">
@@ -40,7 +40,7 @@ export default function ClientDashboard() {
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Espace Voyageur</h1>
             <p className="text-slate-400 text-sm mt-1">Gérez vos billets QR, recharges Wave/OM et Miles de fidélité.</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
             <div className="bg-orange-500/10 border border-orange-500/30 px-4 py-2.5 rounded-xl flex items-center gap-3 shadow-sm">
               <Wallet className="w-5 h-5 text-orange-400 shrink-0" />
               <div>

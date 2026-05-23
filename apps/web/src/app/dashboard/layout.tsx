@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Contenu principal: un conteneur flex qui ne scrolle pas, pour permettre aux headers d'être vraiment fixes */}
-        <main className={`flex-1 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-20'}`}>
+        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-20'}`}>
           {children}
         </main>
       </div>
