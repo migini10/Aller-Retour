@@ -32,6 +32,7 @@ import {
 
 import VehicleShowcase from '../components/VehicleShowcase';
 import { useModal } from '../components/ModalContext';
+import Footer from '../components/Footer';
 
 export default function HomePage() {
   const { openBookingWizard } = useModal();
@@ -532,23 +533,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer Premium Minimaliste */}
-      <footer className="py-14 px-6 border-t border-slate-800/60 bg-[#0B0F19] text-slate-500 text-xs font-medium">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-white">
-              AR
-            </div>
-            <div>
-              <span className="font-bold text-white text-sm block">Aller-Retour</span>
-              <span className="text-slate-400">Plateforme Panafricaine de Transport SaaS</span>
-            </div>
-          </div>
-          <p className="text-center md:text-right leading-relaxed text-slate-400">
-            © 2026 Aller-Retour. Tous droits réservés. Architecture GitOps Cloud Séquestre propulsée par NestJS, Prisma & Next.js.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
