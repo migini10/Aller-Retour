@@ -1,21 +1,25 @@
 'use client';
 import React, { createContext, useContext, useState } from 'react';
 import MockModal from './MockModal';
+import BookingWizardModal from './BookingWizardModal';
 
 interface ModalContextType {
   openModal: (title: string, description?: string, buttonText?: string) => void;
   closeModal: () => void;
+  openBookingWizard: () => void;
 }
 
 const ModalContext = createContext<ModalContextType>({
   openModal: () => {},
   closeModal: () => {},
+  openBookingWizard: () => {},
 });
 
 export const useModal = () => useContext(ModalContext);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({
     title: '',
     description: 'Remplissez les informations ci-dessous pour continuer.',
@@ -33,8 +37,11 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   const closeModal = () => setIsOpen(false);
 
+  const openBookingWizard = () => setIsBookingOpen(true);
+  const closeBookingWizard = () => setIsBookingOpen(false);
+
   return (
-    <ModalContext.Provider value={{ openModal, closeModal }}>
+    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard }}>
       {children}
       <MockModal 
         isOpen={isOpen} 
@@ -42,6 +49,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         title={modalConfig.title} 
         description={modalConfig.description}
         buttonText={modalConfig.buttonText}
+      />
+      <BookingWizardModal 
+        isOpen={isBookingOpen}
+        onClose={closeBookingWizard}
       />
     </ModalContext.Provider>
   );

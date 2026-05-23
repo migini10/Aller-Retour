@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useModal } from './ModalContext';
 import { 
   User, 
   Bus, 
@@ -19,6 +20,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
+  const { openBookingWizard } = useModal();
 
   const navItems = [
     { name: 'Allo Dakar', path: '/dashboard/traveller', icon: User, badge: 'Premium' },
@@ -64,6 +66,20 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
             <ArrowLeft className="w-5 h-5 text-orange-500 shrink-0 group-hover/btn:-translate-x-1 transition-transform" />
             <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Retour à l'accueil</span>
           </Link>
+
+        {/* Quick Action */}
+        <div className="mb-4">
+          <button
+            onClick={() => {
+              if (onLinkClick) onLinkClick();
+              openBookingWizard();
+            }}
+            className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.3)] border border-orange-500/50 group/buybtn"
+          >
+            <TicketCheck className="w-5 h-5 shrink-0 group-hover/buybtn:scale-110 transition-transform" />
+            <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Acheter un billet</span>
+          </button>
+        </div>
         </div>
       </div>
 

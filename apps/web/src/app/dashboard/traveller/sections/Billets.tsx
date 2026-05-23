@@ -18,12 +18,24 @@ const statutStyle: Record<string, string> = {
 const StatutIcon = ({ s }: { s: string }) =>
   s === 'actif' ? <Clock className="w-3 h-3" /> : s === 'utilisé' ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />;
 
+import { useModal } from '../../../../components/ModalContext';
+
 export default function SectionBillets() {
   const [selected, setSelected] = useState<string | null>(null);
+  const { openBookingWizard } = useModal();
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><QrCode className="w-5 h-5 text-orange-400" /> Mes Billets</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><QrCode className="w-5 h-5 text-orange-400" /> Mes Billets</h2>
+        <button 
+          onClick={openBookingWizard}
+          className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(234,88,12,0.3)] transition-all flex items-center gap-2"
+        >
+          <QrCode className="w-4 h-4 hidden sm:block" />
+          Nouveau Billet
+        </button>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {billets.map(b => (
           <div key={b.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">

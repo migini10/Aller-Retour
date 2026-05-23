@@ -1,0 +1,506 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  X, Search, MapPin, Calendar, Users, Bus, ArrowRight, CheckCircle2, 
+  CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
+  ChevronLeft, Info, Map
+} from 'lucide-react';
+
+interface BookingWizardModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function BookingWizardModal({ isOpen, onClose }: BookingWizardModalProps) {
+  const [step, setStep] = useState(1);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Form states
+  const [searchParams, setSearchParams] = useState({
+    depart: '',
+    arrivee: '',
+    date: '',
+    passagers: 1,
+    type: 'bus'
+  });
+  
+  const [selectedTrip, setSelectedTrip] = useState<any>(null);
+  const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
+  const [voyageurInfo, setVoyageurInfo] = useState({
+    nom: 'Abdou Bakhe',
+    telephone: '+221 77 123 45 67',
+    email: 'abdou@example.com',
+    bagages: 1
+  });
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+  // Handle closing with animation
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      setStep(1);
+      setIsClosing(false);
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 300);
+  };
+
+  const nextStep = () => setStep(s => Math.min(s + 1, 6));
+  const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+  if (!isOpen && !isClosing) return null;
+
+  // Render Steps
+  const renderStep1Search = () => (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-slate-900/50 p-4 sm:p-6 rounded-2xl border border-slate-800">
+        <h3 className="text-lg font-bold text-white mb-4">Où allez-vous ?</h3>
+        <div className="space-y-3">
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Ville de départ"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              value={searchParams.depart}
+              onChange={(e) => setSearchParams({...searchParams, depart: e.target.value})}
+            />
+          </div>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
+            <input 
+              type="text" 
+              placeholder="Ville d'arrivée"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              value={searchParams.arrivee}
+              onChange={(e) => setSearchParams({...searchParams, arrivee: e.target.value})}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input 
+                type="date" 
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 text-sm [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                value={searchParams.date}
+                onChange={(e) => setSearchParams({...searchParams, date: e.target.value})}
+              />
+            </div>
+            <div className="relative">
+              <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <select 
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm"
+                value={searchParams.passagers}
+                onChange={(e) => setSearchParams({...searchParams, passagers: parseInt(e.target.value)})}
+              >
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Passager{n > 1 ? 's' : ''}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button 
+        onClick={nextStep}
+        className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
+      >
+        <Search className="w-5 h-5" />
+        Rechercher un trajet
+      </button>
+    </div>
+  );
+
+  const renderStep2Results = () => {
+    const mockTrips = [
+      { id: 1, company: "Sénégal Express", departTime: "08:00", arriveTime: "12:30", price: 5000, type: "Bus VIP", seats: 12 },
+      { id: 2, company: "Allo Dakar", departTime: "09:30", arriveTime: "14:00", price: 4500, type: "Minibus", seats: 4 },
+      { id: 3, company: "Confort Voyage", departTime: "11:00", arriveTime: "15:30", price: 6000, type: "Bus Premium", seats: 20 },
+    ];
+
+    return (
+      <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+        <h3 className="text-sm font-semibold text-slate-400 px-1">Trajets disponibles pour Dakar → Touba</h3>
+        <div className="space-y-3">
+          {mockTrips.map(trip => (
+            <div 
+              key={trip.id} 
+              onClick={() => { setSelectedTrip(trip); nextStep(); }}
+              className="bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl cursor-pointer transition-all hover:bg-slate-800/50"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white">{trip.company}</span>
+                    <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{trip.type}</span>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-white leading-none">{trip.departTime}</p>
+                      <p className="text-[10px] text-slate-500 uppercase mt-1">Départ</p>
+                    </div>
+                    <div className="flex-1 flex flex-col items-center">
+                      <p className="text-[10px] text-slate-400 mb-1">4h 30m</p>
+                      <div className="w-full h-[1px] bg-slate-700 relative">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-white leading-none">{trip.arriveTime}</p>
+                      <p className="text-[10px] text-slate-500 uppercase mt-1">Arrivée</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold text-orange-500">{trip.price} <span className="text-sm">FCFA</span></p>
+                  <p className={`text-xs mt-1 ${trip.seats < 5 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`}>
+                    {trip.seats} places restantes
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderStep3Seats = () => {
+    // Generate a simple bus layout
+    const rows = 10;
+    const cols = 4;
+    const occupied = [2, 3, 7, 8, 14, 15, 22];
+
+    return (
+      <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-4 flex-1 overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-white font-bold">Choix du siège</h3>
+            <div className="flex gap-3 text-xs">
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-slate-800 border border-slate-700"></div> Libre</div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-orange-600"></div> Sélection</div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/50"></div> Occupé</div>
+            </div>
+          </div>
+          
+          {/* Bus Layout Simulation */}
+          <div className="max-w-[200px] mx-auto bg-slate-950 border-4 border-slate-800 rounded-[30px] p-4 py-8 relative">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-2 bg-slate-800 rounded-full"></div>
+            <div className="grid grid-cols-4 gap-2 mt-4">
+              {Array.from({length: rows * cols}).map((_, i) => {
+                const seatNum = i + 1;
+                const isOccupied = occupied.includes(seatNum);
+                const isSelected = selectedSeat === seatNum;
+                // Create an aisle
+                if (i % 4 === 2) return <div key={`aisle-${i}`} className="w-full"></div>;
+                
+                return (
+                  <button
+                    key={seatNum}
+                    disabled={isOccupied}
+                    onClick={() => setSelectedSeat(seatNum)}
+                    className={`aspect-square rounded-md flex items-center justify-center text-[10px] font-bold transition-all
+                      ${isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
+                        isSelected ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
+                        'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                  >
+                    {seatNum}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <button 
+          disabled={!selectedSeat}
+          onClick={nextStep}
+          className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
+        >
+          {selectedSeat ? `Confirmer le siège ${selectedSeat}` : 'Veuillez choisir un siège'}
+        </button>
+      </div>
+    );
+  };
+
+  const renderStep4Info = () => (
+    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
+        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-emerald-400 text-sm mb-2">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <p>Profil connecté détecté. Informations pré-remplies.</p>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs text-slate-400 font-medium mb-1 block">Nom Complet</label>
+            <input 
+              type="text" 
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              value={voyageurInfo.nom}
+              onChange={(e) => setVoyageurInfo({...voyageurInfo, nom: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 font-medium mb-1 block">Téléphone (requis pour billet SMS)</label>
+            <input 
+              type="tel" 
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              value={voyageurInfo.telephone}
+              onChange={(e) => setVoyageurInfo({...voyageurInfo, telephone: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 font-medium mb-1 block">Email (optionnel)</label>
+            <input 
+              type="email" 
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              value={voyageurInfo.email}
+              onChange={(e) => setVoyageurInfo({...voyageurInfo, email: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 font-medium mb-1 block">Nombre de bagages</label>
+            <select 
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none appearance-none"
+              value={voyageurInfo.bagages}
+              onChange={(e) => setVoyageurInfo({...voyageurInfo, bagages: parseInt(e.target.value)})}
+            >
+              <option value={0}>Aucun bagage soute</option>
+              <option value={1}>1 bagage (inclus)</option>
+              <option value={2}>2 bagages (+1000 FCFA)</option>
+              <option value={3}>3 bagages (+2000 FCFA)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <button 
+        onClick={nextStep}
+        className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
+      >
+        Procéder au paiement
+      </button>
+    </div>
+  );
+
+  const renderStep5Payment = () => {
+    const basePrice = selectedTrip?.price || 5000;
+    const luggageFee = voyageurInfo.bagages > 1 ? (voyageurInfo.bagages - 1) * 1000 : 0;
+    const taxes = 250;
+    const total = basePrice + luggageFee + taxes;
+
+    return (
+      <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+          <h3 className="text-white font-bold mb-4">Résumé de la commande</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between text-slate-300">
+              <span>Billet {selectedTrip?.company}</span>
+              <span>{basePrice} FCFA</span>
+            </div>
+            <div className="flex justify-between text-slate-300">
+              <span>Frais de bagages ({voyageurInfo.bagages})</span>
+              <span>{luggageFee} FCFA</span>
+            </div>
+            <div className="flex justify-between text-slate-400 text-xs">
+              <span>Taxes et frais de service</span>
+              <span>{taxes} FCFA</span>
+            </div>
+            <div className="border-t border-slate-800 pt-3 mt-3 flex justify-between items-center">
+              <span className="font-bold text-white">Total à payer</span>
+              <span className="text-xl font-bold text-orange-500">{total} FCFA</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold text-slate-400 px-1 mb-3">Moyen de paiement</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { id: 'wave', name: 'Wave', color: 'bg-blue-600 text-white border-blue-500', icon: Smartphone },
+              { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', icon: Smartphone },
+              { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-slate-800 text-white border-slate-700', icon: Wallet },
+              { id: 'card', name: 'Carte Bancaire', color: 'bg-slate-800 text-white border-slate-700', icon: CreditCard },
+            ].map(method => (
+              <button
+                key={method.id}
+                onClick={() => setPaymentMethod(method.id)}
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                  ${paymentMethod === method.id ? method.color + ' ring-2 ring-white/20' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+              >
+                <method.icon className="w-6 h-6" />
+                <span className="text-xs font-bold">{method.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button 
+          disabled={!paymentMethod}
+          onClick={nextStep}
+          className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2"
+        >
+          <ShieldCheck className="w-5 h-5" />
+          Payer {total} FCFA
+        </button>
+      </div>
+    );
+  };
+
+  const renderStep6Success = () => (
+    <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500">
+      <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 relative">
+        <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></div>
+        <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+      </div>
+      
+      <h2 className="text-2xl font-bold text-white mb-2 text-center">Paiement Réussi !</h2>
+      <p className="text-slate-400 text-center mb-8 text-sm">Votre billet a été généré et envoyé par WhatsApp et Email.</p>
+
+      {/* Ticket UI */}
+      <div className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
+        <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
+          <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
+            <Bus className="w-5 h-5 text-orange-500" />
+            Aller<span className="text-orange-500">Retour</span>
+          </h3>
+          <p className="text-slate-400 text-xs mt-1">{selectedTrip?.company}</p>
+        </div>
+        
+        <div className="p-6 relative">
+          {/* Ticket perforations */}
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
+          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
+          
+          <div className="flex justify-between items-end mb-6">
+            <div>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Départ</p>
+              <p className="text-xl font-black text-slate-900">{searchParams.depart || 'Dakar'}</p>
+              <p className="text-sm font-bold text-slate-600">{selectedTrip?.departTime}</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-orange-500 mb-1" />
+            <div className="text-right">
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Arrivée</p>
+              <p className="text-xl font-black text-slate-900">{searchParams.arrivee || 'Touba'}</p>
+              <p className="text-sm font-bold text-slate-600">{selectedTrip?.arriveTime}</p>
+            </div>
+          </div>
+
+          <div className="border-t-2 border-dashed border-slate-200 py-4 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Passager</p>
+              <p className="font-bold text-slate-900 truncate">{voyageurInfo.nom}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Siège</p>
+              <p className="font-bold text-orange-600 text-lg">{selectedSeat}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Date</p>
+              <p className="font-bold text-slate-900">{searchParams.date || 'Aujourd\'hui'}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Référence</p>
+              <p className="font-bold text-slate-900">AR-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+            </div>
+          </div>
+
+          <div className="border-t-2 border-dashed border-slate-200 pt-4 flex justify-center">
+            <div className="text-center">
+              <div className="w-32 h-32 bg-slate-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                <QrCode className="w-24 h-24 text-slate-900" />
+              </div>
+              <p className="text-[10px] text-slate-500">Scanner au moment de l'embarquement</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 w-full mt-6">
+        <button className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+          <Download className="w-4 h-4" /> Billet PDF
+        </button>
+        <button className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+          <Share2 className="w-4 h-4" /> Partager
+        </button>
+      </div>
+      
+      <button 
+        onClick={handleClose}
+        className="w-full bg-slate-900 border border-slate-800 text-slate-300 font-bold py-4 rounded-xl mt-3 transition-colors hover:bg-slate-800"
+      >
+        Retour à l'accueil
+      </button>
+    </div>
+  );
+
+  const steps = [
+    { id: 1, title: 'Recherche' },
+    { id: 2, title: 'Trajets' },
+    { id: 3, title: 'Siège' },
+    { id: 4, title: 'Infos' },
+    { id: 5, title: 'Paiement' },
+    { id: 6, title: 'Confirmation' },
+  ];
+
+  return (
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center ${isClosing ? 'animate-out fade-out duration-300' : 'animate-in fade-in duration-300'}`}>
+      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={step < 6 ? handleClose : undefined}></div>
+      
+      <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#050A15] sm:rounded-[2rem] sm:border border-slate-800/80 flex flex-col shadow-2xl overflow-hidden
+        ${isClosing ? 'animate-out slide-out-to-bottom-8 sm:slide-out-to-bottom-0 sm:zoom-out-95 duration-300' : 'animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300'}`}
+      >
+        {/* Header */}
+        <div className="flex-none bg-[#0B0F19] border-b border-slate-800/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            {step > 1 && step < 6 && (
+              <button onClick={prevStep} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div>
+              <h2 className="text-white font-bold leading-none">{step === 6 ? 'Billet Confirmé' : 'Acheter un Billet'}</h2>
+              {step < 6 && (
+                <p className="text-xs text-slate-400 mt-1">Étape {step} sur 5 : {steps[step-1].title}</p>
+              )}
+            </div>
+          </div>
+          {step < 6 && (
+            <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-slate-900 rounded-full border border-slate-800 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {step < 6 && (
+          <div className="h-1 bg-slate-900 w-full flex-none">
+            <div 
+              className="h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out"
+              style={{ width: `${(step / 5) * 100}%` }}
+            ></div>
+          </div>
+        )}
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-hide">
+          {step === 1 && renderStep1Search()}
+          {step === 2 && renderStep2Results()}
+          {step === 3 && renderStep3Seats()}
+          {step === 4 && renderStep4Info()}
+          {step === 5 && renderStep5Payment()}
+          {step === 6 && renderStep6Success()}
+        </div>
+      </div>
+    </div>
+  );
+}

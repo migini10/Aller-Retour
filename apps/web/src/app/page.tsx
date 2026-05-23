@@ -31,8 +31,10 @@ import {
 } from 'lucide-react';
 
 import VehicleShowcase from '../components/VehicleShowcase';
+import { useModal } from '../components/ModalContext';
 
 export default function HomePage() {
+  const { openBookingWizard } = useModal();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTab, setSearchTab] = useState<'bus' | 'package' | 'vtc'>('bus');
   const [departure, setDeparture] = useState('Dakar (Baux Maraîchers)');
@@ -98,6 +100,12 @@ export default function HomePage() {
             >
               Espace Voyageur
             </Link>
+            <button 
+              onClick={openBookingWizard}
+              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] border border-orange-500/50"
+            >
+              Acheter un billet
+            </button>
             <Link 
               href="/dashboard/dispatcher" 
               className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2"
@@ -291,13 +299,13 @@ export default function HomePage() {
               </div>
 
               <div>
-                <Link 
-                  href="/dashboard/client" 
+                <button 
+                  onClick={openBookingWizard}
                   className="w-full py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                 >
                   <span>Rechercher</span>
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
               </div>
             </div>
 

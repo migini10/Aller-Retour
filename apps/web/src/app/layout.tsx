@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ModalProvider } from '../components/ModalContext';
 
 export const metadata: Metadata = {
   title: 'Aller-Retour | SaaS & Marketplace Transport Inter-Urbain Afrique',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark">
       <body className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-        {children}
+        <ModalProvider>
+          {children}
+        </ModalProvider>
       </body>
     </html>
   );

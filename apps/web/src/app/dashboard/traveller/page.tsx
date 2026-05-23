@@ -58,7 +58,7 @@ import { useModal } from '../../../components/ModalContext';
 
 export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
-  const { openModal } = useModal();
+  const { openModal, openBookingWizard } = useModal();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -124,10 +124,19 @@ export default function TravellerDashboard() {
                 <p className="text-sm text-slate-400 mt-0.5">+221 77 000 00 00 • abdou@example.com</p>
               </div>
             </div>
-            <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer">
-              <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
-              <span className="text-xs text-white font-bold">Niveau Silver → Gold</span>
-            </button>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button 
+                onClick={openBookingWizard}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] border border-orange-500/50"
+              >
+                <Ticket className="w-5 h-5" />
+                <span>Acheter un billet</span>
+              </button>
+              <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center justify-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2.5 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer shrink-0">
+                <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+                <span className="text-xs text-white font-bold hidden sm:inline">Niveau Silver → Gold</span>
+              </button>
+            </div>
           </div>
 
           {/* Stats */}
