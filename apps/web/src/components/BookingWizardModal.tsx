@@ -35,6 +35,15 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
   });
   const [paymentMethod, setPaymentMethod] = useState('');
 
+  // Autocomplete states
+  const [showDepartSuggestions, setShowDepartSuggestions] = useState(false);
+  const [showArriveeSuggestions, setShowArriveeSuggestions] = useState(false);
+
+  const VILLES_SENEGAL = ['Dakar', 'Thiès', 'Touba', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Diourbel', 'Louga', 'Fatick', 'Kolda', 'Tambacounda'];
+  
+  const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
+  const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
+
   // Handle closing with animation
   useEffect(() => {
     if (isOpen) {
@@ -73,8 +82,29 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               placeholder="Ville de départ"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.depart}
-              onChange={(e) => setSearchParams({...searchParams, depart: e.target.value})}
+              onFocus={() => setShowDepartSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowDepartSuggestions(false), 200)}
+              onChange={(e) => {
+                setSearchParams({...searchParams, depart: e.target.value});
+                setShowDepartSuggestions(true);
+              }}
             />
+            {showDepartSuggestions && searchParams.depart.length > 0 && filteredDepart.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                {filteredDepart.map(ville => (
+                  <div 
+                    key={ville} 
+                    className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
+                    onClick={() => {
+                      setSearchParams({...searchParams, depart: ville});
+                      setShowDepartSuggestions(false);
+                    }}
+                  >
+                    {ville}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
@@ -83,8 +113,29 @@ export default function BookingWizardModal({ isOpen, onClose }: BookingWizardMod
               placeholder="Ville d'arrivée"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.arrivee}
-              onChange={(e) => setSearchParams({...searchParams, arrivee: e.target.value})}
+              onFocus={() => setShowArriveeSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowArriveeSuggestions(false), 200)}
+              onChange={(e) => {
+                setSearchParams({...searchParams, arrivee: e.target.value});
+                setShowArriveeSuggestions(true);
+              }}
             />
+            {showArriveeSuggestions && searchParams.arrivee.length > 0 && filteredArrivee.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                {filteredArrivee.map(ville => (
+                  <div 
+                    key={ville} 
+                    className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
+                    onClick={() => {
+                      setSearchParams({...searchParams, arrivee: ville});
+                      setShowArriveeSuggestions(false);
+                    }}
+                  >
+                    {ville}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="relative">
