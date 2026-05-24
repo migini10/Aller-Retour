@@ -27,33 +27,15 @@ export default function SectionLocalisation() {
         </div>
       </div>
 
-      {/* Carte SVG Interactive Mockup */}
-      <div className="relative h-96 bg-gradient-to-br from-[#0d1b2a] via-[#0f2233] to-[#0a1520] border border-slate-700/60 rounded-3xl overflow-hidden shadow-xl">
-        {/* Grille urbaine */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-          <defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#94a3b8" strokeWidth="0.5"/></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+      {/* Carte Interactive avec Fond Satellite */}
+      <div 
+        className="relative h-96 border border-slate-700/60 rounded-3xl overflow-hidden shadow-xl"
+        style={{ backgroundImage: "url('/dakar-map-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        {/* Overlay sombre pour garder le contraste des éléments UI */}
+        <div className="absolute inset-0 bg-[#0a1520]/60 mix-blend-multiply pointer-events-none" />
 
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
-          {/* Rues (fond) */}
-          <path d="M-100,100 L900,200" stroke="#1e3a5f" strokeWidth="12" fill="none" />
-          <path d="M-100,300 L900,100" stroke="#1e3a5f" strokeWidth="8" fill="none" />
-          <path d="M300,-100 L400,500" stroke="#1e3a5f" strokeWidth="16" fill="none" />
-          <path d="M600,-100 L500,500" stroke="#1e3a5f" strokeWidth="10" fill="none" />
-          <path d="M100,-100 L150,500" stroke="#1e3a5f" strokeWidth="6" fill="none" />
-          <path d="M700,-100 L750,500" stroke="#1e3a5f" strokeWidth="6" fill="none" />
-          <path d="M-100,200 L900,400" stroke="#1e3a5f" strokeWidth="8" fill="none" />
-          
-          {/* Noms des quartiers */}
-          <g fill="#475569" fontSize="18" fontWeight="bold" fontFamily="sans-serif" letterSpacing="2" opacity="0.4">
-            <text x="150" y="80">MÉDINA</text>
-            <text x="500" y="80">PLATEAU</text>
-            <text x="120" y="350">FANN</text>
-            <text x="450" y="320">POINT E</text>
-            <text x="700" y="150">MERMOZ</text>
-            <text x="850" y="350">ALMADIES</text>
-          </g>
           
           {/* Itinéraire Chauffeur -> Client */}
           <path id="pickupRoute" d="M300,-50 L350,150 L450,180 L550,220 L650,250" stroke="#1d4ed8" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.4"/>
