@@ -49,7 +49,10 @@ export default function SectionMissions() {
               
               <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
                 {m.statut === 'à venir' && (
-                  <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold transition-colors">
+                  <button 
+                    onClick={() => window.location.hash = 'localisation'}
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold transition-colors"
+                  >
                     <Play className="w-3.5 h-3.5" /> Démarrer trajet
                   </button>
                 )}

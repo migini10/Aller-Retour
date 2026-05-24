@@ -36,10 +36,18 @@ export default function DriverDashboard() {
   const [status, setStatus] = useState('Disponible');
 
   React.useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && navItems.some(t => t.id === hash)) {
-      setActiveTab(hash);
-    }
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && navItems.some(t => t.id === hash)) {
+        setActiveTab(hash);
+      }
+    };
+    
+    // Initial check
+    handleHashChange();
+    
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleTabChange = (id: string) => {
