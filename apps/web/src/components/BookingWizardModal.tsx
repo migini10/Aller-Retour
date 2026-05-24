@@ -270,7 +270,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
         <h3 className="text-lg font-bold text-white mb-4">Où allez-vous ?</h3>
         <div className="space-y-3">
-          <div className="relative">
+          <div className="relative z-[60]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
               type="text" 
@@ -303,7 +303,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
           </div>
           
           {isAlloDakar && (
-            <div className="relative border border-orange-500/30 rounded-xl p-3 bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
+            <div className="relative z-[50] border border-orange-500/30 rounded-xl p-3 bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-xs text-orange-400 font-bold">Adresse de prise en charge (Tapez ou localisez)</label>
                 <button 
@@ -346,7 +346,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             </div>
           )}
 
-          <div className="relative">
+          <div className="relative z-[40]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
             <input 
               type="text" 
@@ -379,7 +379,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
           </div>
 
           {searchParams.arrivee && (
-            <div className="relative animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="relative z-[30] animate-in fade-in slide-in-from-top-2 duration-300">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input 
                 type="text" 
@@ -412,7 +412,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 relative z-[20]">
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input 
