@@ -96,28 +96,32 @@ export default function SectionBillets() {
     
     try {
       const el = document.getElementById(`capture-ticket-${b.id}`);
-      if (el) {
-        // Give time for the QR code to render
-        await new Promise(r => setTimeout(r, 200));
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            try {
-              const item = new ClipboardItem({ 'image/png': blob });
-              await navigator.clipboard.write([item]);
-            } catch (err) {
-              console.error('Clipboard write failed:', err);
-            }
+      if (!el) throw new Error("Element introuvable");
+      
+      await new Promise(r => setTimeout(r, 200));
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        
+        try {
+          const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: 'Mon billet AllerRetour',
+              text: text,
+              files: [file]
+            });
+          } else {
+             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
           }
+        } catch (shareErr) {
           window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }, 'image/png');
-        return;
-      }
+        }
+      }, 'image/png');
     } catch (err) {
-      console.error('Error generating image:', err);
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
-    
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handlePrint = async (id: string) => {
