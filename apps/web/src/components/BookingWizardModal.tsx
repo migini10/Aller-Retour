@@ -179,12 +179,48 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
       ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
       : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
       
-    const newWindow = window.open('about:blank', '_blank');
-    await downloadTicket();
-    
-    if (newWindow) {
-      newWindow.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    } else {
+    try {
+      if (!ticketRef.current) throw new Error("Ticket introuvable");
+      
+      const newWindow = window.open('about:blank', '_blank');
+      await new Promise(r => setTimeout(r, 400));
+      const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        
+        try {
+          if (window.ClipboardItem) {
+            const item = new ClipboardItem({ "image/png": blob });
+            await navigator.clipboard.write([item]);
+            alert("✅ L'image du billet a été copiée !\n\nIl vous suffit de faire 'Coller' (ou Ctrl+V) directement dans WhatsApp pour l'envoyer.");
+          } else {
+            throw new Error("Clipboard non supporté");
+          }
+        } catch (clipboardErr) {
+          try {
+            const file = new File([blob], `billet-aller-retour.png`, { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: 'Mon billet AllerRetour',
+                text: text,
+                files: [file]
+              });
+              if (newWindow) newWindow.close();
+              return; 
+            }
+          } catch (shareErr) {
+            console.error(shareErr);
+          }
+        }
+        
+        if (newWindow) {
+          newWindow.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        } else {
+          window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+      }, 'image/png');
+    } catch (err) {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
   };
