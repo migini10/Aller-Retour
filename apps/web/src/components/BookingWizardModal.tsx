@@ -176,36 +176,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
   const handleWhatsApp = async () => {
     const text = isAlloDakar 
-      ? `*Ma Demande AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nPassagers: ${searchParams.passagers}\nhttps://aller-retour.sn`
-      : `*Mon Billet AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nHeure: ${selectedTrip?.departTime || '08:00'}\nSiège: ${selectedSeat}\n\nhttps://aller-retour.sn`;
+      ? `🎫 *Ma Demande AllerRetour*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n\n👉 https://aller-retour.sn`
+      : `🎫 *Mon Billet AllerRetour*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n\n👉 https://aller-retour.sn`;
       
-    try {
-      const el = ticketRef.current;
-      if (!el) throw new Error("Element introuvable");
-      
-      await new Promise(r => setTimeout(r, 200));
-      const canvas = await html2canvas(el as HTMLElement, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-      
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        
-        try {
-          const file = new File([blob], `billet-aller-retour.png`, { type: 'image/png' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.clipboard.writeText(text); } catch(e) {}
-            await navigator.share({
-              files: [file]
-            });
-          } else {
-             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-          }
-        } catch (shareErr) {
-          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }
-      }, 'image/png');
-    } catch (err) {
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   useEffect(() => {
