@@ -46,6 +46,7 @@ export default function SectionBillets() {
   }, []);
 
   const handleShare = async (b: any) => {
+    setSelected(b.id);
     try {
       if (navigator.share) {
         await navigator.share({
@@ -61,8 +62,41 @@ export default function SectionBillets() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async (id: string) => {
+    setSelected(id);
+    await new Promise(r => setTimeout(r, 200)); // wait for QR
+    
+    const el = document.getElementById(`ticket-${id}`);
+    if (el) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Impression Billet ${id}</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <style>
+                [data-html2canvas-ignore] { display: none !important; }
+                body { display: flex; justify-content: center; padding: 40px; background: #f8fafc; }
+                .ticket { background: #101728; color: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 400px; }
+              </style>
+            </head>
+            <body>
+              <div class="ticket">
+                ${el.innerHTML}
+              </div>
+              <script>
+                setTimeout(() => {
+                  window.print();
+                  window.close();
+                }, 1000);
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
+    }
   };
 
   const handleDownload = async (id: string) => {
@@ -139,7 +173,7 @@ export default function SectionBillets() {
               <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">
                 <Share2 className="w-3 h-3" /> Partager
               </button>
-              <button onClick={handlePrint} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+              <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer
               </button>
             </div>
