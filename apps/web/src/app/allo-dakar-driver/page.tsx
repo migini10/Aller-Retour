@@ -288,8 +288,7 @@ function AlloCourses() {
             Refuser
           </button>
         </div>
-      
-
+      </div>
     </div>
   );
 }
