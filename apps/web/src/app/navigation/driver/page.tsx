@@ -36,20 +36,68 @@ export default function DriverNavigationApp() {
         </div>
       </div>
 
-      {/* Google Maps Integration iframe */}
-      <div className="flex-1 w-full bg-slate-800">
-        <iframe 
-          width="100%" 
-          height="100%" 
-          style={{ border: 0 }}
-          loading="lazy"
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-          // We use standard maps embed URL with source and destination parameters.
-          // Note: Full turn-by-turn navigation in a web iframe isn't fully supported by Google Maps without user launching the native app, 
-          // but this shows the embedded route map dynamically within our app.
-          src="https://maps.google.com/maps?saddr=Mermoz,+Dakar,+Senegal&daddr=Saint-Louis,+Senegal&output=embed"
-        />
+      {/* Custom Integrated Native Map (Replaces iframe to guarantee NO external links) */}
+      <div 
+        className="flex-1 w-full relative overflow-hidden"
+        style={{ backgroundImage: "url('/dakar-map-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        <div className="absolute inset-0 bg-[#0a1520]/60 mix-blend-multiply pointer-events-none" />
+        
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="routeGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#22c55e" />
+              <stop offset="100%" stopColor="#f97316" />
+            </linearGradient>
+            <filter id="glowMap">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          {/* Route Line */}
+          <path id="mainRoute" d="M200,700 L300,500 L500,450 L700,200 L850,100" stroke="#1e293b" strokeWidth="12" fill="none" strokeLinecap="round" opacity="0.6" />
+          <path d="M200,700 L300,500 L500,450 L700,200 L850,100" stroke="url(#routeGradNav)" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray="16 12">
+             <animate attributeName="stroke-dashoffset" from="28" to="0" dur="1s" repeatCount="indefinite" />
+          </path>
+
+          {/* Destination Point (Saint-Louis) */}
+          <g transform="translate(850, 100)">
+            <circle cx="0" cy="0" r="24" fill="#f97316" opacity="0.2">
+              <animate attributeName="r" values="24;48;24" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.2;0;0.2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="0" r="10" fill="#f97316" filter="url(#glowMap)" />
+            <circle cx="0" cy="0" r="4" fill="#fff" />
+            <rect x="-60" y="-45" width="120" height="24" rx="8" fill="#101728" opacity="0.9" border="1" />
+            <text x="0" y="-29" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">Saint-Louis (Arrivée)</text>
+          </g>
+
+          {/* Current Vehicle Position */}
+          <g filter="url(#glowMap)">
+            <animateMotion dur="15s" repeatCount="indefinite" rotate="auto" path="M200,700 L300,500 L500,450 L700,200 L850,100" />
+            {/* Nav Arrow / Vehicle */}
+            <path d="M-15,-10 L15,0 L-15,10 L-8,0 Z" fill="#22c55e" />
+          </g>
+
+          {/* Next Turn Instruction Bubble on Map */}
+          <g transform="translate(450, 400)">
+            <rect x="-80" y="-30" width="160" height="40" rx="20" fill="#050A15" opacity="0.8" />
+            <path d="M-60,-10 L-50,-20 L-50,-10 Z" fill="#22c55e" />
+            <text x="10" y="-5" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">Dans 500m</text>
+          </g>
+        </svg>
+
+        {/* Floating Turn-by-Turn Instruction */}
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-[#101728]/95 backdrop-blur-xl border border-emerald-500/40 rounded-3xl p-4 shadow-2xl flex items-center gap-4">
+          <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 shrink-0">
+             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
+          </div>
+          <div>
+            <p className="text-3xl font-black text-white">500 m</p>
+            <p className="text-sm text-slate-300 font-bold">Prendre la sortie N2 vers Thiès</p>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Navigation Dashboard (Overlay) */}
