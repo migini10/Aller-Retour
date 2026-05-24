@@ -93,6 +93,30 @@ export default function SectionBillets() {
   const handleWhatsApp = async (b: any) => {
     setSelected(b.id);
     const text = `*Mon billet AllerRetour*\n\nTrajet: ${b.trajet}\nDate: ${b.date} à ${b.heure}\nSiège: ${b.siege}\nRéf: ${b.id}\n\nhttps://aller-retour.sn`;
+    
+    try {
+      const el = document.getElementById(`capture-ticket-${b.id}`);
+      if (el) {
+        // Give time for the QR code to render
+        await new Promise(r => setTimeout(r, 200));
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              await navigator.clipboard.write([item]);
+            } catch (err) {
+              console.error('Clipboard write failed:', err);
+            }
+          }
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }, 'image/png');
+        return;
+      }
+    } catch (err) {
+      console.error('Error generating image:', err);
+    }
+    
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

@@ -179,6 +179,28 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
       ? `*Ma Demande AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nPassagers: ${searchParams.passagers}\nhttps://aller-retour.sn`
       : `*Mon Billet AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nHeure: ${selectedTrip?.departTime || '08:00'}\nSiège: ${selectedSeat}\n\nhttps://aller-retour.sn`;
       
+    try {
+      const el = ticketRef.current;
+      if (el) {
+        await new Promise(r => setTimeout(r, 200));
+        const canvas = await html2canvas(el as HTMLElement, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            try {
+              const item = new ClipboardItem({ 'image/png': blob });
+              await navigator.clipboard.write([item]);
+            } catch (err) {
+              console.error('Clipboard write failed:', err);
+            }
+          }
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }, 'image/png');
+        return;
+      }
+    } catch (err) {
+      console.error('Error generating image:', err);
+    }
+
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
