@@ -55,9 +55,22 @@ const notificationsRecentes = [
 ];
 
 import { useModal } from '../../../components/ModalContext';
+import { useEffect } from 'react';
 
 export default function TravellerDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && tabs.some(t => t.id === hash)) {
+      setActiveTab(hash);
+    }
+  }, []);
+
+  const handleTabChange = (id: string) => {
+    setActiveTab(id);
+    window.location.hash = id;
+  };
   const { openModal, openBookingWizard } = useModal();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -79,7 +92,7 @@ export default function TravellerDashboard() {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setActiveTab(t.id)}
+                  onClick={() => handleTabChange(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
                     activeTab === t.id
                       ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'

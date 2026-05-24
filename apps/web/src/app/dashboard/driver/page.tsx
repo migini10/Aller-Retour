@@ -35,6 +35,18 @@ export default function DriverDashboard() {
   const [activeTab, setActiveTab] = useState('accueil');
   const [status, setStatus] = useState('Disponible');
 
+  React.useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && navItems.some(t => t.id === hash)) {
+      setActiveTab(hash);
+    }
+  }, []);
+
+  const handleTabChange = (id: string) => {
+    setActiveTab(id);
+    window.location.hash = id;
+  };
+
   const renderContent = () => {
     switch(activeTab) {
       case 'accueil': return <SectionAccueil />;
@@ -71,7 +83,7 @@ export default function DriverDashboard() {
         return (
           <button
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => handleTabChange(item.id)}
             className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all whitespace-nowrap text-xs lg:text-sm font-semibold shrink-0 relative
               ${isActive 
                 ? 'bg-orange-600 lg:bg-orange-500/10 text-white lg:text-orange-400 border border-orange-500/20 lg:shadow-none shadow-sm shadow-orange-500/20' 
