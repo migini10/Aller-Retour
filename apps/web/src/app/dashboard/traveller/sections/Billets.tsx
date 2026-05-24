@@ -209,7 +209,7 @@ export default function SectionBillets() {
       </div>
       
       {/* Off-screen ticket for capturing white background image */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, opacity: 0, pointerEvents: 'none' }}>
         {myBillets.map(b => (
           <div id={`capture-ticket-${b.id}`} key={`cap-${b.id}`} className="w-[400px] bg-white rounded-2xl overflow-hidden shadow-2xl">
             <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
@@ -221,22 +221,22 @@ export default function SectionBillets() {
             </div>
             
             <div className="p-6 relative">
-              <div className="flex justify-between items-end mb-6">
-                <div>
+              <div className="flex justify-between items-center mb-6 gap-2">
+                <div className="flex-1">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Départ</p>
-                  <p className="text-xl font-black text-slate-900">{b.trajet.split('→')[0]?.trim() || 'Dakar'}</p>
+                  <p className="text-lg font-black text-slate-900 leading-tight">{b.trajet.split('→')[0]?.trim() || 'Dakar'}</p>
                 </div>
-                <ArrowRight className="w-5 h-5 text-orange-500 mb-1 mx-2" />
-                <div className="text-right">
+                <ArrowRight className="w-5 h-5 text-orange-500 shrink-0" />
+                <div className="flex-1 text-right">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Arrivée</p>
-                  <p className="text-xl font-black text-slate-900">{b.trajet.split('→')[1]?.trim() || 'Touba'}</p>
+                  <p className="text-lg font-black text-slate-900 leading-tight">{b.trajet.split('→')[1]?.trim() || 'Touba'}</p>
                 </div>
               </div>
 
               <div className="border-t-2 border-dashed border-slate-200 py-4 grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Passager</p>
-                  <p className="font-bold text-slate-900 truncate">Abdou Bakhe</p>
+                  <p className="font-bold text-slate-900">Abdou Bakhe</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Siège</p>
