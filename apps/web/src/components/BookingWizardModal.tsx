@@ -41,6 +41,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     email: 'abdou@example.com',
     bagages: 1
   });
+  const [ticketPour, setTicketPour] = useState<'moi' | 'autre'>('moi');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
   const [isLocating, setIsLocating] = useState(false);
@@ -592,14 +593,37 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const renderStep4Info = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
-        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-emerald-400 text-sm mb-2">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <p>Profil connecté détecté. Informations pré-remplies.</p>
+        <div className="flex bg-slate-950 rounded-xl p-1 mb-2">
+          <button
+            onClick={() => {
+              setTicketPour('moi');
+              setVoyageurInfo({...voyageurInfo, nom: 'Abdou Bakhe', telephone: '+221 77 123 45 67', email: 'abdou@example.com'});
+            }}
+            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${ticketPour === 'moi' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            Pour Moi
+          </button>
+          <button
+            onClick={() => {
+              setTicketPour('autre');
+              setVoyageurInfo({...voyageurInfo, nom: '', telephone: '', email: ''});
+            }}
+            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${ticketPour === 'autre' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            Pour un Proche
+          </button>
         </div>
+
+        {ticketPour === 'moi' && (
+          <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-emerald-400 text-sm mb-2">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <p>Profil connecté détecté. Informations pré-remplies.</p>
+          </div>
+        )}
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-slate-400 font-medium mb-1 block">Nom Complet</label>
+            <label className="text-xs text-slate-400 font-medium mb-1 block">{ticketPour === 'moi' ? 'Nom Complet' : 'Nom Complet du Passager'}</label>
             <input 
               type="text" 
               className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
