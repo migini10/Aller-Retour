@@ -240,7 +240,7 @@ export default function SectionBillets() {
               <div className="border-t-2 border-dashed border-slate-200 py-4 grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Passager</p>
-                  <p className="font-bold text-slate-900">Abdou Bakhe</p>
+                  <p className="font-bold text-slate-900 break-words leading-tight">{b.passager || 'Abdou Bakhe'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Siège</p>
