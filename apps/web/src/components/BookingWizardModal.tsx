@@ -453,12 +453,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             {isAlloDakar && (
               <div className="relative animate-in fade-in zoom-in-95 duration-300">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  type="time" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 text-sm [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                <select 
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm"
                   value={searchParams.heure}
                   onChange={(e) => setSearchParams({...searchParams, heure: e.target.value})}
-                />
+                >
+                  <option value="" disabled>Heure de départ</option>
+                  {Array.from({ length: 48 }).map((_, i) => {
+                    const hour = Math.floor(i / 2).toString().padStart(2, '0');
+                    const minute = i % 2 === 0 ? '00' : '30';
+                    const time = `${hour}:${minute}`;
+                    return <option key={time} value={time}>{time}</option>;
+                  })}
+                </select>
               </div>
             )}
 
@@ -876,8 +883,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
               <p className="font-bold text-orange-600 text-lg">{searchParams.passagers}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-500 uppercase font-bold">Date</p>
-              <p className="font-bold text-slate-900">{searchParams.date || 'Aujourd\'hui'}</p>
+              <p className="text-[10px] text-slate-500 uppercase font-bold">Date & Heure</p>
+              <p className="font-bold text-slate-900">{searchParams.date || 'Aujourd\'hui'} à {searchParams.heure || 'Flexible'}</p>
             </div>
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold">Prix Total</p>
