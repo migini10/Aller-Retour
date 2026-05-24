@@ -107,6 +107,13 @@ export default function TravellerDashboard() {
                 </button>
               );
             })}
+            <Link 
+              href="/allo-dakar-client" 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm shadow-emerald-500/20 ml-2"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              Réserver Allo Dakar
+            </Link>
           </div>
           {/* Indicateur de défilement horizontal (mobile) */}
           <div className="sm:hidden absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0B0F19]/95 via-[#0B0F19]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">

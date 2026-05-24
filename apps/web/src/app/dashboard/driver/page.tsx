@@ -108,6 +108,16 @@ export default function DriverDashboard() {
           </button>
         );
       })}
+      
+      <div className="lg:mt-auto lg:pt-4">
+        <Link 
+          href="/allo-dakar-driver" 
+          className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all whitespace-nowrap text-xs lg:text-sm font-bold shrink-0 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-[1.02]"
+        >
+          <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Lancer Allo Dakar
+        </Link>
+      </div>
     </div>
   );
 
