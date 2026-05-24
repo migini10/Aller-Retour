@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 import { useBranding } from './BrandingContext';
 
@@ -15,6 +15,25 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
   // Round corners configuration (TopLeft, TopRight, BottomRight) 
   // Wait, react-qrcode-logo expects single number or array [top-left, top-right, bottom-right] or [outer, inner] depending on version, single number is safest.
   const eyeRadius = branding.qrEyeRadius;
+
+  const [safeLogo, setSafeLogo] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (branding.logoUrl) {
+      if (branding.logoUrl.startsWith('data:')) {
+        setSafeLogo(branding.logoUrl);
+      } else {
+        fetch(branding.logoUrl)
+          .then(r => r.blob())
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onloadend = () => setSafeLogo(reader.result as string);
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => setSafeLogo(undefined));
+      }
+    }
+  }, [branding.logoUrl]);
 
   return (
     <div 
@@ -32,11 +51,11 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
           bgColor="#ffffff"
           qrStyle={branding.qrStyle} // squares or dots
           eyeRadius={eyeRadius} // Rounded corners for finder patterns
-          logoImage={branding.logoUrl}
           logoWidth={size * 0.3} // ~30% of QR size to keep it safe
           logoHeight={size * 0.3}
           logoPaddingStyle="circle"
           logoPadding={3} // Safety margin
+          logoImage={safeLogo}
           ecLevel="H" // High error correction (30%) is MANDATORY for central logo
           removeQrCodeBehindLogo={true}
         />

@@ -51,28 +51,40 @@ export default function SectionBillets() {
       const el = document.getElementById(`capture-ticket-${b.id}`);
       if (el && navigator.share) {
         // Wait for rendering
-        await new Promise(r => setTimeout(r, 200));
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true });
+        await new Promise(r => setTimeout(r, 400));
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
         
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                title: 'Mon billet AllerRetour',
-                text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
-                files: [file]
-              });
-            } else {
-              // Fallback if file sharing is not supported
-              await navigator.share({
-                title: 'Mon billet AllerRetour',
-                text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
-                url: 'https://aller-retour.sn',
-              });
-            }
+        await new Promise<void>((resolve, reject) => {
+          try {
+            canvas.toBlob(async (blob) => {
+              if (blob) {
+                const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
+                try {
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                      title: 'Mon billet AllerRetour',
+                      text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
+                      files: [file]
+                    });
+                  } else {
+                    await navigator.share({
+                      title: 'Mon billet AllerRetour',
+                      text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
+                      url: 'https://aller-retour.sn',
+                    });
+                  }
+                  resolve();
+                } catch (shareErr) {
+                  reject(shareErr);
+                }
+              } else {
+                reject(new Error("Blob is null"));
+              }
+            }, 'image/png');
+          } catch (e) {
+            reject(e);
           }
-        }, 'image/png');
+        });
       }
     } catch (err) {
       console.error('Erreur de partage', err);
@@ -122,9 +134,9 @@ export default function SectionBillets() {
     
     setIsDownloading(id);
     try {
-      await new Promise(r => setTimeout(r, 200)); 
+      await new Promise(r => setTimeout(r, 400)); 
 
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true });
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.href = image;
