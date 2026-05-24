@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
-import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight } from 'lucide-react';
 import { useModal } from '../../../../components/ModalContext';
 import html2canvas from 'html2canvas';
 
@@ -48,14 +48,31 @@ export default function SectionBillets() {
   const handleShare = async (b: any) => {
     setSelected(b.id);
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Mon billet AllerRetour',
-          text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
-          url: 'https://aller-retour.sn',
-        });
-      } else {
-        alert("Le partage n'est pas supporté sur ce navigateur.");
+      const el = document.getElementById(`capture-ticket-${b.id}`);
+      if (el && navigator.share) {
+        // Wait for rendering
+        await new Promise(r => setTimeout(r, 200));
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+        
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: 'Mon billet AllerRetour',
+                text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
+                files: [file]
+              });
+            } else {
+              // Fallback if file sharing is not supported
+              await navigator.share({
+                title: 'Mon billet AllerRetour',
+                text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
+                url: 'https://aller-retour.sn',
+              });
+            }
+          }
+        }, 'image/png');
       }
     } catch (err) {
       console.error('Erreur de partage', err);
@@ -100,29 +117,19 @@ export default function SectionBillets() {
   };
 
   const handleDownload = async (id: string) => {
-    const el = document.getElementById(`ticket-${id}`);
+    const el = document.getElementById(`capture-ticket-${id}`);
     if (!el) return;
     
     setIsDownloading(id);
     try {
-      // Force QR code to be visible for the screenshot
-      const wasSelected = selected === id;
-      if (!wasSelected) {
-        setSelected(id);
-        // Wait for state to update and render
-        await new Promise(r => setTimeout(r, 100)); 
-      }
+      await new Promise(r => setTimeout(r, 200)); 
 
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#101728' });
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.href = image;
       link.download = `Billet-${id}.png`;
       link.click();
-      
-      if (!wasSelected) {
-        setSelected(null);
-      }
     } catch (err) {
       console.error("Erreur lors de la génération du billet", err);
     } finally {
@@ -176,6 +183,66 @@ export default function SectionBillets() {
               <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer
               </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Off-screen ticket for capturing white background image */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+        {myBillets.map(b => (
+          <div id={`capture-ticket-${b.id}`} key={`cap-${b.id}`} className="w-[400px] bg-white rounded-2xl overflow-hidden shadow-2xl">
+            <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
+              <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
+                <Bus className="w-5 h-5 text-orange-500" />
+                Aller<span className="text-orange-500">Retour</span>
+              </h3>
+              <p className="text-slate-400 text-xs mt-1">{b.compagnie}</p>
+            </div>
+            
+            <div className="p-6 relative">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Départ</p>
+                  <p className="text-xl font-black text-slate-900">{b.trajet.split('→')[0]?.trim() || 'Dakar'}</p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-orange-500 mb-1 mx-2" />
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Arrivée</p>
+                  <p className="text-xl font-black text-slate-900">{b.trajet.split('→')[1]?.trim() || 'Touba'}</p>
+                </div>
+              </div>
+
+              <div className="border-t-2 border-dashed border-slate-200 py-4 grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Passager</p>
+                  <p className="font-bold text-slate-900 truncate">Abdou Bakhe</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Siège</p>
+                  <p className="font-bold text-orange-600 text-lg">{b.siege}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Date & Heure</p>
+                  <p className="font-bold text-slate-900">{b.date} • {b.heure}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 uppercase font-bold">Référence</p>
+                  <p className="font-bold text-slate-900">{b.id}</p>
+                </div>
+              </div>
+
+              <div className="border-t-2 border-dashed border-slate-200 pt-4 flex justify-center">
+                <div className="text-center">
+                  <div className="flex justify-center mb-4 mt-2">
+                    <QRCodeBrandEngine 
+                      value={b.id} 
+                      size={120} 
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-500">Scanner au moment de l'embarquement</p>
+                </div>
+              </div>
             </div>
           </div>
         ))}
