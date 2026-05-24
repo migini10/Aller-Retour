@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { 
-  X, Search, MapPin, Calendar, Users, Bus, ArrowRight, CheckCircle2, 
+  X, Search, MapPin, Calendar, Users, User, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
   ChevronLeft, Info, Map, Banknote, MessageCircle
 } from 'lucide-react';
@@ -41,7 +41,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     email: 'abdou@example.com',
     bagages: 1
   });
-  const [ticketPour, setTicketPour] = useState<'moi' | 'autre'>('moi');
+  const [ticketPour, setTicketPour] = useState<'moi' | 'autre' | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
   const [isLocating, setIsLocating] = useState(false);
@@ -590,27 +590,72 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     );
   };
 
-  const renderStep4Info = () => (
+  const renderStep4Info = () => {
+    if (ticketPour === null) {
+      return (
+        <div className="space-y-6 animate-in zoom-in-95 duration-300 py-8">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+            
+            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700">
+              <User className="w-8 h-8 text-orange-500" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-2">Pour qui est ce billet ?</h3>
+            <p className="text-sm text-slate-400 mb-8">Veuillez sélectionner le bénéficiaire du trajet pour continuer.</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                onClick={() => {
+                  setTicketPour('moi');
+                  setVoyageurInfo({...voyageurInfo, nom: 'Abdou Bakhe', telephone: '+221 77 123 45 67', email: 'abdou@example.com'});
+                }}
+                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-700 hover:border-orange-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-full bg-slate-700 group-hover:bg-orange-500/20 flex items-center justify-center transition-colors">
+                  <User className="w-6 h-6 text-slate-300 group-hover:text-orange-500 transition-colors" />
+                </div>
+                <span className="font-bold text-white">C'est pour moi</span>
+                <span className="text-xs text-slate-400">Utiliser mon profil actuel</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setTicketPour('autre');
+                  setVoyageurInfo({...voyageurInfo, nom: '', telephone: '', email: ''});
+                }}
+                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-700 hover:border-orange-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-full bg-slate-700 group-hover:bg-orange-500/20 flex items-center justify-center transition-colors">
+                  <Users className="w-6 h-6 text-slate-300 group-hover:text-orange-500 transition-colors" />
+                </div>
+                <span className="font-bold text-white">Pour un proche</span>
+                <span className="text-xs text-slate-400">Saisir de nouvelles informations</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
-        <div className="flex bg-slate-950 rounded-xl p-1 mb-2">
-          <button
-            onClick={() => {
-              setTicketPour('moi');
-              setVoyageurInfo({...voyageurInfo, nom: 'Abdou Bakhe', telephone: '+221 77 123 45 67', email: 'abdou@example.com'});
-            }}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${ticketPour === 'moi' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
+        <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+              {ticketPour === 'moi' ? <User className="w-5 h-5 text-orange-500" /> : <Users className="w-5 h-5 text-orange-500" />}
+            </div>
+            <div className="text-left">
+              <p className="text-xs text-slate-400 font-medium">Billet destiné à</p>
+              <p className="text-sm font-bold text-white">{ticketPour === 'moi' ? 'Moi-même' : 'Un proche'}</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setTicketPour(null)}
+            className="text-xs font-bold text-orange-500 hover:text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >
-            Pour Moi
-          </button>
-          <button
-            onClick={() => {
-              setTicketPour('autre');
-              setVoyageurInfo({...voyageurInfo, nom: '', telephone: '', email: ''});
-            }}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${ticketPour === 'autre' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            Pour un Proche
+            Modifier
           </button>
         </div>
 
@@ -666,7 +711,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
       </div>
       <button 
         onClick={nextStep}
-        className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
+        disabled={!voyageurInfo.nom || !voyageurInfo.telephone}
+        className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-4 rounded-xl transition-colors"
       >
         Procéder au paiement
       </button>
@@ -991,5 +1037,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
     </div>
-  );
+    );
+  };
 }
