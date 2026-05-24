@@ -98,48 +98,29 @@ export default function SectionBillets() {
       const el = document.getElementById(`capture-ticket-${b.id}`);
       if (!el) throw new Error("Element introuvable");
       
-      const newWindow = window.open('about:blank', '_blank');
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r => setTimeout(r, 200));
       const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
       
       canvas.toBlob(async (blob) => {
         if (!blob) return;
         
-        let copied = false;
         try {
-          if (window.ClipboardItem) {
-            const item = new ClipboardItem({ "image/png": blob });
-            await navigator.clipboard.write([item]);
-            copied = true;
-            alert("✅ L'image du billet a été copiée !\n\nIl vous suffit de faire 'Coller' (ou Ctrl+V) directement dans WhatsApp pour l'envoyer.");
+          const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              text: text,
+              files: [file]
+            });
+            return; 
           } else {
-            throw new Error("Clipboard non supporté");
+             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
           }
-        } catch (clipboardErr) {
-          try {
-            const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                title: 'Mon billet AllerRetour',
-                text: text,
-                files: [file]
-              });
-              if (newWindow) newWindow.close();
-              return; 
-            }
-          } catch (shareErr) {
-            console.error(shareErr);
-          }
-        }
-        
-        if (newWindow) {
-          newWindow.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
-        } else {
-          window.open(`whatsapp://send?text=${encodeURIComponent(text)}`, '_blank');
+        } catch (shareErr) {
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
       }, 'image/png');
     } catch (err) {
-      window.open(`whatsapp://send?text=${encodeURIComponent(text)}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
   };
 
