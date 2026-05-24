@@ -174,12 +174,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     }
   };
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     const text = isAlloDakar 
       ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
       : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
       
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    const newWindow = window.open('about:blank', '_blank');
+    await downloadTicket();
+    
+    if (newWindow) {
+      newWindow.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    } else {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   useEffect(() => {

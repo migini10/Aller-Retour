@@ -90,10 +90,18 @@ export default function SectionBillets() {
     }
   };
 
-  const handleWhatsApp = (b: any) => {
+  const handleWhatsApp = async (b: any) => {
     setSelected(b.id);
     const text = `🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    
+    const newWindow = window.open('about:blank', '_blank');
+    await handleDownload(b.id);
+    
+    if (newWindow) {
+      newWindow.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    } else {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   const handlePrint = async (id: string) => {
