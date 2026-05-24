@@ -719,6 +719,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
       </button>
     </div>
   );
+};
 
   const renderStep5Payment = () => {
     const basePrice = selectedTrip?.price || 5000;
@@ -1038,6 +1039,5 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
     </div>
-    );
-  };
+  );
 }

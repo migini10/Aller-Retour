@@ -139,7 +139,7 @@ export default function TravellerDashboard() {
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button 
-                onClick={() => { alert('Button clicked!'); openBookingWizard('allo-dakar'); }}
+                onClick={() => openBookingWizard('allo-dakar')}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] border border-orange-500/50"
               >
                 <Ticket className="w-5 h-5" />

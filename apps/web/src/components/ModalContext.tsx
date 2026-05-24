@@ -20,7 +20,7 @@ export const useModal = () => useContext(ModalContext);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBookingOpen, setIsBookingOpen] = useState(true);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingType, setBookingType] = useState<'bus' | 'allo-dakar'>('bus');
   const [modalConfig, setModalConfig] = useState({
     title: '',
