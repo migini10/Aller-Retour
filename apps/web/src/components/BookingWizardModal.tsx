@@ -8,6 +8,7 @@ import {
   ChevronLeft, Info, Map, Banknote
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
+import QRCodeBrandEngine from './QRCodeBrandEngine';
 
 interface BookingWizardModalProps {
   isOpen: boolean;
@@ -721,10 +722,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
           <div className="border-t-2 border-dashed border-slate-200 pt-4 flex justify-center">
             <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-2 mx-auto animate-pulse">
-                <Search className="w-8 h-8 text-orange-500" />
+              <div className="flex justify-center mb-4 mt-2">
+                <QRCodeBrandEngine 
+                  value={`ALLORETOUR-DEMANDE-${searchParams.depart}-${searchParams.arrivee}`} 
+                  size={120} 
+                />
               </div>
-              <p className="text-[10px] text-slate-500">Recherche de chauffeurs en cours...</p>
+              <p className="text-[10px] text-slate-500 animate-pulse font-bold text-orange-500">Recherche de chauffeurs en cours...</p>
             </div>
           </div>
         </div>
@@ -807,8 +811,11 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
           <div className="border-t-2 border-dashed border-slate-200 pt-4 flex justify-center">
             <div className="text-center">
-              <div className="w-32 h-32 bg-slate-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                <QrCode className="w-24 h-24 text-slate-900" />
+              <div className="flex justify-center mb-4 mt-2">
+                <QRCodeBrandEngine 
+                  value={`ALLORETOUR-TICKET-AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`} 
+                  size={120} 
+                />
               </div>
               <p className="text-[10px] text-slate-500">Scanner au moment de l'embarquement</p>
             </div>
