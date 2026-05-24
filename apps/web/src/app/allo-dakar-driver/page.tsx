@@ -129,7 +129,7 @@ export default function AlloDakarApp() {
                   {isActive ? 'Vous êtes En Ligne' : 'Vous êtes Hors Ligne'}
                 </h2>
                 <p className="text-sm text-slate-400">
-                  {isActive ? "Réception des courses activée" : "Activez pour recevoir des courses"}
+                  {isActive ? "Réception des trajets inter-urbains activée" : "Activez pour recevoir des trajets inter-urbains"}
                 </p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function AlloDakarApp() {
                </div>
                <div>
                  <p className="text-white font-bold text-2xl mb-2">Passez En Ligne</p>
-                 <p className="text-slate-400 text-sm max-w-sm mx-auto">Appuyez sur le bouton Power en haut pour commencer à recevoir des courses urbaines.</p>
+                 <p className="text-slate-400 text-sm max-w-sm mx-auto">Appuyez sur le bouton Power en haut pour commencer à recevoir des demandes de trajets inter-urbains (Confort & Éco).</p>
                </div>
              </div>
           ) : (
@@ -169,8 +169,8 @@ export default function AlloDakarApp() {
               {activeTab === 'courses' && <AlloCourses />}
               {activeTab === 'carte' && <AlloCarte />}
               {activeTab === 'zones' && <AlloZones />}
-              {activeTab === 'historique' && <p className="text-slate-400 p-4">Historique de vos courses Allo Dakar.</p>}
-              {activeTab === 'revenus' && <p className="text-slate-400 p-4">Vos revenus locaux (Allo Dakar).</p>}
+              {activeTab === 'historique' && <p className="text-slate-400 p-4">Historique de vos trajets inter-urbains Allo Dakar.</p>}
+              {activeTab === 'revenus' && <p className="text-slate-400 p-4">Vos revenus Allo Dakar.</p>}
               {activeTab === 'parametres' && <p className="text-slate-400 p-4">Paramètres de l'application.</p>}
             </div>
           )}
@@ -193,7 +193,7 @@ function AlloDashboard() {
         <p className="text-4xl font-black text-white">12 500 <span className="text-lg text-slate-500">FCFA</span></p>
       </div>
       <div className="bg-[#101728] border border-slate-800 rounded-2xl p-6 shadow-sm">
-        <p className="text-sm text-slate-400 mb-2 font-semibold uppercase tracking-wider">Courses réalisées</p>
+        <p className="text-sm text-slate-400 mb-2 font-semibold uppercase tracking-wider">Trajets réalisés</p>
         <p className="text-4xl font-black text-white">4</p>
       </div>
       <div className="bg-[#101728] border border-slate-800 rounded-2xl p-6 shadow-sm">
@@ -208,7 +208,7 @@ function AlloCourses() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-white text-xl">Nouvelle Demande</h3>
+        <h3 className="font-bold text-white text-xl">Nouvelle Demande Inter-Urbaine</h3>
         <span className="relative flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
@@ -225,13 +225,14 @@ function AlloCourses() {
               <p className="font-black text-white text-2xl">Modou Fall</p>
               <div className="flex items-center gap-2 text-sm font-bold">
                 <span className="text-amber-400 flex items-center bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">⭐ 4.8</span>
-                <span className="text-slate-400 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700">Paiement Espèces</span>
+                <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">Allo Dakar Confort</span>
+                <span className="text-slate-400 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700">Paiement Wave</span>
               </div>
             </div>
           </div>
           <div className="sm:text-right bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
             <p className="text-xs text-emerald-400 uppercase font-bold tracking-widest mb-1">Gain Estimé</p>
-            <p className="text-3xl font-black text-emerald-400">2 500 <span className="text-base">FCFA</span></p>
+            <p className="text-3xl font-black text-emerald-400">28 500 <span className="text-base">FCFA</span></p>
           </div>
         </div>
 
@@ -241,8 +242,8 @@ function AlloCourses() {
               <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
             </div>
             <div>
-              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Récupération • 2 min (800m)</p>
-              <p className="font-bold text-white text-lg">Rond-point Médina</p>
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Départ • Dakar</p>
+              <p className="font-bold text-white text-lg">Mermoz, Dakar</p>
             </div>
           </div>
           <div className="ml-4 w-0.5 h-6 bg-slate-800"></div>
@@ -251,8 +252,8 @@ function AlloCourses() {
               <div className="w-3 h-3 rounded-full bg-orange-500"></div>
             </div>
             <div>
-              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Destination • 15 min (4.2km)</p>
-              <p className="font-bold text-white text-lg">Point E, Piscine Olympique</p>
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Arrivée • Saint-Louis (265 km)</p>
+              <p className="font-bold text-white text-lg">Gare de Sor, Saint-Louis</p>
             </div>
           </div>
         </div>
@@ -298,7 +299,7 @@ function AlloCarte() {
         <div className="absolute top-4 left-4 right-4 flex justify-between pointer-events-none">
           <div className="bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-lg">
             <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm font-bold text-white">Prêt à recevoir des courses</span>
+            <span className="text-sm font-bold text-white">En attente de trajet inter-urbain</span>
           </div>
         </div>
       </div>
@@ -310,12 +311,12 @@ function AlloZones() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">Zones d'Activité</h2>
-        <p className="text-slate-400">Cochez les quartiers dans lesquels vous souhaitez recevoir des courses. Si vous laissez tout vide, vous recevrez des courses partout.</p>
+        <h2 className="text-xl font-bold text-white mb-2">Axes Inter-Urbains Préférés</h2>
+        <p className="text-slate-400">Cochez les villes et régions vers lesquelles vous souhaitez voyager en Confort/Éco. Si vous laissez tout vide, vous recevrez toutes les demandes nationales.</p>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {['Plateau', 'Yoff', 'Médina', 'Parcelles', 'Ouakam', 'Sacré-Cœur', 'Liberté', 'Point E', 'Fann', 'Mermoz', 'Almadies', 'Grand Dakar'].map((zone, i) => (
+        {['Thiès', 'Saint-Louis', 'Touba', 'Mbour', 'Kaolack', 'Saly', 'Ziguinchor', 'Louga', 'Diourbel', 'Fatick', 'Kolda', 'Matam'].map((zone, i) => (
           <button key={zone} className={`p-4 rounded-2xl border-2 transition-all ${i < 3 ? 'bg-orange-600/10 border-orange-500 text-orange-400 shadow-sm shadow-orange-500/10' : 'bg-[#101728] border-slate-800 text-slate-400 hover:border-slate-600 hover:text-white'}`}>
             <span className="block text-center font-bold text-sm">{zone}</span>
           </button>
