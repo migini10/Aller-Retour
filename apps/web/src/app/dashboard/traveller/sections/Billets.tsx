@@ -133,13 +133,13 @@ export default function SectionBillets() {
         }
         
         if (newWindow) {
-          newWindow.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+          newWindow.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
         } else {
-          window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+          window.open(`whatsapp://send?text=${encodeURIComponent(text)}`, '_blank');
         }
       }, 'image/png');
     } catch (err) {
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+      window.open(`whatsapp://send?text=${encodeURIComponent(text)}`, '_blank');
     }
   };
 
