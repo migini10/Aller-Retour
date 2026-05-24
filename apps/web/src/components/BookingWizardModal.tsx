@@ -173,32 +173,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     }
   };
 
-  const handleWhatsApp = async () => {
+  const handleWhatsApp = () => {
     const text = isAlloDakar 
       ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
       : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
       
-    if (ticketRef.current) {
-      try {
-        const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `Billet-AllerRetour.png`;
-            link.click();
-            URL.revokeObjectURL(url);
-          }
-          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }, 'image/png');
-      } catch (err) {
-        console.error(err);
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-      }
-    } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   useEffect(() => {
