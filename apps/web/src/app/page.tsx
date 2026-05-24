@@ -42,7 +42,8 @@ export default function HomePage() {
   const [destination, setDestination] = useState('Touba');
 
   const navDashboards = [
-    { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client', desc: 'Réserver un billet QR, Miles de fidélité & bagages' },
+    { name: 'Allo Dakar', path: '/dashboard/traveller', icon: User, badge: 'Premium', desc: 'Réserver un taxi privé ou covoiturage VIP' },
+    { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client', desc: 'Réserver un billet de bus QR, Miles de fidélité & bagages' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, badge: 'Driver', desc: 'Cockpit GPS, manifeste passagers offline & cashout' },
     { name: 'Transporteur / GIE', path: '/dashboard/carrier', icon: Building2, badge: 'GIE', desc: 'Supervision de la flotte, trésorerie & séquestre' },
     { name: 'Guichet de Gare', path: '/dashboard/dispatcher', icon: TicketCheck, badge: 'POS', desc: 'Vente express au comptoir & scan QR d\'embarquement' },
