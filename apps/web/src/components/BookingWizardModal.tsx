@@ -216,14 +216,20 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     }
     
     if (step === totalSteps - 1) {
+      const isAlloDakar = searchParams.type === 'allo-dakar';
+      let formattedTrajet = `${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}`;
+      if (isAlloDakar && pickupLocation && searchParams.quartierArrivee) {
+        formattedTrajet = `${searchParams.depart} (${pickupLocation}) → ${searchParams.arrivee} (${searchParams.quartierArrivee})`;
+      }
+
       const newTicket = {
         id: `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        trajet: `${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}`,
+        trajet: formattedTrajet,
         date: searchParams.date || new Date().toISOString().split('T')[0],
-        heure: selectedTrip?.departTime || '08:00',
+        heure: selectedTrip?.departTime || (isAlloDakar ? 'Horaire Flexible' : '08:00'),
         siege: isAlloDakar ? `${searchParams.passagers} Place(s)` : selectedSeat || '14A',
         compagnie: selectedTrip?.company || (isAlloDakar ? 'Allo Dakar' : 'Sénégal Express'),
-        vehicule: isAlloDakar ? 'Voiture Privée' : 'Bus',
+        vehicule: selectedTrip?.type || (isAlloDakar ? 'Voiture Privée' : 'Bus'),
         statut: 'actif',
         passager: voyageurInfo.nom || 'Passager Inconnu'
       };
