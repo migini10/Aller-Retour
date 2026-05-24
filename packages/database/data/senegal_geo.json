@@ -1,0 +1,239 @@
+{
+  "country": {
+    "name": "Sénégal",
+    "code": "SN",
+    "currency": "FCFA"
+  },
+  "regions": [
+    {
+      "name": "Dakar",
+      "departments": [
+        {
+          "name": "Dakar",
+          "cities": [
+            {
+              "name": "Dakar",
+              "communes": [
+                {
+                  "name": "Dakar Plateau",
+                  "quarters": [
+                    { "name": "Plateau", "subQuarters": [], "landmarks": [{ "name": "Gare Routière Pompiers", "lat": 14.6750, "lng": -17.4380 }, { "name": "Petersen", "lat": 14.6735, "lng": -17.4360 }] },
+                    { "name": "Médina", "subQuarters": [], "landmarks": [] },
+                    { "name": "Fass", "subQuarters": [], "landmarks": [] },
+                    { "name": "Gueule Tapée", "subQuarters": [], "landmarks": [] },
+                    { "name": "Colobane", "subQuarters": [], "landmarks": [] },
+                    { "name": "Rebeuss", "subQuarters": [], "landmarks": [] },
+                    { "name": "Point E", "subQuarters": [], "landmarks": [] },
+                    { "name": "Amitié 1", "subQuarters": [], "landmarks": [] },
+                    { "name": "Amitié 2", "subQuarters": [], "landmarks": [] },
+                    { "name": "Fann", "subQuarters": [], "landmarks": [] },
+                    { "name": "Fann Résidence", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mermoz", "subQuarters": [], "landmarks": [] }
+                  ]
+                },
+                {
+                  "name": "Grand Dakar",
+                  "quarters": [
+                    { "name": "Biscuiterie", "subQuarters": [], "landmarks": [] },
+                    { "name": "Dieuppeul", "subQuarters": [], "landmarks": [] },
+                    { "name": "Grand Dakar", "subQuarters": [], "landmarks": [] },
+                    { "name": "Derklé", "subQuarters": [], "landmarks": [] },
+                    { "name": "Castors", "subQuarters": [], "landmarks": [] },
+                    { "name": "Baobab", "subQuarters": [], "landmarks": [] },
+                    { "name": "Sicap Baobab", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM 1", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM 2", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM 3", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM 4", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM 5", "subQuarters": [], "landmarks": [] },
+                    { "name": "HLM Grand Yoff", "subQuarters": [], "landmarks": [] },
+                    { "name": "Zone A", "subQuarters": [], "landmarks": [] },
+                    { "name": "Zone B", "subQuarters": [], "landmarks": [] },
+                    { "name": "Liberté 1", "subQuarters": [], "landmarks": [] },
+                    { "name": "Liberté 6", "subQuarters": [], "landmarks": [] },
+                    { "name": "Sacré-Cœur 1", "subQuarters": [], "landmarks": [] },
+                    { "name": "Sacré-Cœur 2", "subQuarters": [], "landmarks": [] },
+                    { "name": "Sacré-Cœur 3", "subQuarters": [], "landmarks": [] },
+                    { "name": "Cité Keur Gorgui", "subQuarters": [], "landmarks": [] }
+                  ]
+                },
+                {
+                  "name": "Parcelles Assainies",
+                  "quarters": [
+                    { 
+                      "name": "Parcelles Assainies", 
+                      "subQuarters": [
+                        { "name": "Unité 1", "landmarks": [] },
+                        { "name": "Unité 2", "landmarks": [] },
+                        { "name": "Unité 26", "landmarks": [] }
+                      ], 
+                      "landmarks": [] 
+                    },
+                    { "name": "Nord Foire", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ouest Foire", "subQuarters": [], "landmarks": [] },
+                    { "name": "Maristes", "subQuarters": [], "landmarks": [] },
+                    { "name": "Patte d’Oie", "subQuarters": [], "landmarks": [] },
+                    { "name": "Patte d’Oie Builders", "subQuarters": [], "landmarks": [] },
+                    { "name": "Cité Mixta", "subQuarters": [], "landmarks": [] },
+                    { "name": "Cambérène", "subQuarters": [], "landmarks": [] },
+                    { "name": "Golf", "subQuarters": [], "landmarks": [] }
+                  ]
+                },
+                {
+                  "name": "Ngor-Almadies-Yoff",
+                  "quarters": [
+                    { "name": "Yoff", "subQuarters": [], "landmarks": [] },
+                    { "name": "Yoff Tonghor", "subQuarters": [], "landmarks": [] },
+                    { "name": "Yoff Apecsy", "subQuarters": [], "landmarks": [] },
+                    { "name": "Yoff Diamalaye", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ngor", "subQuarters": [], "landmarks": [] },
+                    { "name": "Almadies", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mamelles", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ouakam", "subQuarters": [], "landmarks": [] },
+                    { "name": "Virage", "subQuarters": [], "landmarks": [] },
+                    { "name": "Cité Biagui", "subQuarters": [], "landmarks": [] },
+                    { "name": "Cité Avion", "subQuarters": [], "landmarks": [] }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Pikine",
+          "cities": [
+            {
+              "name": "Pikine",
+              "communes": [
+                {
+                  "name": "Pikine Ouest",
+                  "quarters": [
+                    { "name": "Baux Maraîchers", "subQuarters": [], "landmarks": [{ "name": "Gare Routière Baux Maraîchers", "lat": 14.7570, "lng": -17.3870 }] }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        { "name": "Guédiawaye", "cities": [{ "name": "Guédiawaye", "communes": [] }] },
+        { "name": "Rufisque", "cities": [{ "name": "Rufisque", "communes": [] }, { "name": "Diamniadio", "communes": [] }] }
+      ]
+    },
+    {
+      "name": "Diourbel",
+      "departments": [
+        {
+          "name": "Mbacké",
+          "cities": [
+            {
+              "name": "Touba",
+              "communes": [
+                {
+                  "name": "Touba Mosquée",
+                  "quarters": [
+                    { "name": "Touba Centre", "subQuarters": [], "landmarks": [{ "name": "Grande Mosquée Touba", "lat": 14.8624, "lng": -15.8824 }] },
+                    { "name": "Touba Héliport", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Alia", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Al Azhar", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba HLM", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Ndiarème", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Bélel", "subQuarters": [], "landmarks": [{ "name": "Garage Bélel", "lat": 14.87, "lng": -15.87 }] },
+                    { "name": "Touba Guédé", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Madyana", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Ndindy", "subQuarters": [], "landmarks": [] },
+                    { "name": "Touba Extension", "subQuarters": [], "landmarks": [] },
+                    { "name": "Guédé", "subQuarters": [], "landmarks": [] },
+                    { "name": "Guédé Bousso", "subQuarters": [], "landmarks": [] },
+                    { "name": "Keur Niang", "subQuarters": [], "landmarks": [] },
+                    { "name": "Keur Kabb", "subQuarters": [], "landmarks": [] },
+                    { "name": "Keur Serigne", "subQuarters": [], "landmarks": [] },
+                    { "name": "Médinatoul", "subQuarters": [], "landmarks": [] },
+                    { "name": "Medina Fall", "subQuarters": [], "landmarks": [] },
+                    { "name": "Medina Salam", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ndamatou 1", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ndamatou 2", "subQuarters": [], "landmarks": [] },
+                    { "name": "Dianatoul Mahwa", "subQuarters": [], "landmarks": [] },
+                    { "name": "Gouye Mbind", "subQuarters": [], "landmarks": [] },
+                    { "name": "Gouye Mbind Extension", "subQuarters": [], "landmarks": [] },
+                    { "name": "Ndame", "subQuarters": [], "landmarks": [] },
+                    { "name": "Nguiranène", "subQuarters": [], "landmarks": [] },
+                    { "name": "Thiaré", "subQuarters": [], "landmarks": [] },
+                    { "name": "Santhie", "subQuarters": [], "landmarks": [] },
+                    { "name": "Same Lah", "subQuarters": [], "landmarks": [] },
+                    { "name": "Boustanoul", "subQuarters": [], "landmarks": [] },
+                    { "name": "Arifina", "subQuarters": [], "landmarks": [] },
+                    { "name": "Khaïra", "subQuarters": [], "landmarks": [] },
+                    { "name": "Djémoul", "subQuarters": [], "landmarks": [] },
+                    { "name": "Dekk Dakhar", "subQuarters": [], "landmarks": [] }
+                  ]
+                },
+                {
+                  "name": "Darou",
+                  "quarters": [
+                    { "name": "Darou Marnane", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Marnane 2", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Khadim", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Salam", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Karim", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Miname", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Tanzil", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Rahmane", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Wahab", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Fanane", "subQuarters": [], "landmarks": [] },
+                    { "name": "Darou Alimoul Khabir", "subQuarters": [], "landmarks": [] },
+                    { 
+                      "name": "Darou Khoudoss", 
+                      "subQuarters": [
+                        { "name": "Forage Baye Lahad", "landmarks": [] },
+                        { "name": "Keur Baye Lahad", "landmarks": [] },
+                        { "name": "Corniche Forage Baye Lahad", "landmarks": [] },
+                        { "name": "Bélèl", "landmarks": [] },
+                        { "name": "Route Bélèl", "landmarks": [] },
+                        { "name": "Poste Courant Darou Khoudoss", "landmarks": [] },
+                        { "name": "Darou Station", "landmarks": [{ "name": "Gare Darou", "lat": 14.87, "lng": -15.86 }] },
+                        { "name": "Bayti", "landmarks": [] },
+                        { "name": "Route Héliport", "landmarks": [] },
+                        { "name": "Route Guédé", "landmarks": [] },
+                        { "name": "Route Ndamatou", "landmarks": [] },
+                        { "name": "Route Gouye Mbind", "landmarks": [] },
+                        { "name": "Derrière HLM", "landmarks": [] },
+                        { "name": "Route Hizbut Tarqiyyah", "landmarks": [] }
+                      ], 
+                      "landmarks": [
+                        { "name": "Mosquée Darou Khoudoss", "lat": 14.86, "lng": -15.88 },
+                        { "name": "Carrefour Darou Khoudoss", "lat": 14.86, "lng": -15.87 },
+                        { "name": "Université Darou Khoudoss", "lat": 14.85, "lng": -15.86 }
+                      ] 
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Mbacké",
+              "communes": [
+                {
+                  "name": "Mbacké Commune",
+                  "quarters": [
+                    { "name": "Mbacké Centre", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mbacké Khéwar", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mbacké Gare", "subQuarters": [], "landmarks": [{ "name": "Gare Mbacké", "lat": 14.79, "lng": -15.90 }] },
+                    { "name": "Mbacké Escale", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mbacké Médina", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mbacké Darou", "subQuarters": [], "landmarks": [] },
+                    { "name": "Mbacké Gouye Mbind", "subQuarters": [], "landmarks": [] },
+                    { "name": "Marché Ocass", "subQuarters": [], "landmarks": [{ "name": "Gare Marché Ocass", "lat": 14.86, "lng": -15.88 }] }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "name": "Thiès", "departments": [{ "name": "Thiès", "cities": [{ "name": "Thiès", "communes": [{ "name": "Thiès", "quarters": [{ "name": "Centre", "subQuarters": [], "landmarks": [{ "name": "Gare Thiès", "lat": 14.80, "lng": -16.92 }] }] }] }] }] },
+    { "name": "Saint-Louis", "departments": [{ "name": "Saint-Louis", "cities": [{ "name": "Saint-Louis", "communes": [{ "name": "Saint-Louis", "quarters": [{ "name": "Sor", "subQuarters": [], "landmarks": [{ "name": "Gare Saint-Louis", "lat": 16.02, "lng": -16.49 }] }] }] }] }] },
+    { "name": "Kaolack", "departments": [{ "name": "Kaolack", "cities": [{ "name": "Kaolack", "communes": [{ "name": "Kaolack", "quarters": [{ "name": "Nioro", "subQuarters": [], "landmarks": [{ "name": "Gare Kaolack", "lat": 14.13, "lng": -16.06 }] }] }] }] }] },
+    { "name": "Tambacounda", "departments": [{ "name": "Tambacounda", "cities": [{ "name": "Tambacounda", "communes": [{ "name": "Tambacounda", "quarters": [{ "name": "Gare", "subQuarters": [], "landmarks": [{ "name": "Gare Tambacounda", "lat": 13.76, "lng": -13.66 }] }] }] }] }] }
+  ]
+}

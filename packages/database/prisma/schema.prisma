@@ -394,3 +394,93 @@ model Transaction {
   @@index([reference])
   @@map("transactions")
 }
+
+// ==========================================
+// 6. SYSTÈME GÉOGRAPHIQUE NATIONAL (SÉNÉGAL)
+// ==========================================
+
+model GeoCountry {
+  id        String      @id @default(uuid())
+  code      String      @unique // ex: SN
+  name      String      // ex: Sénégal
+  currency  String      @default("FCFA")
+  regions   GeoRegion[]
+
+  @@map("geo_countries")
+}
+
+model GeoRegion {
+  id          String           @id @default(uuid())
+  countryId   String
+  country     GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  name        String           // ex: Dakar, Thiès
+  departments GeoDepartment[]
+
+  @@map("geo_regions")
+}
+
+model GeoDepartment {
+  id        String      @id @default(uuid())
+  regionId  String
+  region    GeoRegion   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  name      String      // ex: Département de Dakar, Pikine
+  cities    GeoCity[]
+
+  @@map("geo_departments")
+}
+
+model GeoCity {
+  id           String        @id @default(uuid())
+  departmentId String
+  department   GeoDepartment @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  name         String        // ex: Dakar, Pikine, Rufisque
+  communes     GeoCommune[]
+
+  @@map("geo_cities")
+}
+
+model GeoCommune {
+  id        String       @id @default(uuid())
+  cityId    String
+  city      GeoCity      @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  name      String       // ex: Plateau, Médina, Touba Mosquée
+  quarters  GeoQuarter[]
+
+  @@map("geo_communes")
+}
+
+model GeoQuarter {
+  id          String           @id @default(uuid())
+  communeId   String
+  commune     GeoCommune       @relation(fields: [communeId], references: [id], onDelete: Cascade)
+  name        String           // ex: HLM 1, Parcelles Assainies, Darou Khoudoss
+  subQuarters GeoSubQuarter[]
+
+  @@map("geo_quarters")
+}
+
+model GeoSubQuarter {
+  id        String        @id @default(uuid())
+  quarterId String
+  quarter   GeoQuarter    @relation(fields: [quarterId], references: [id], onDelete: Cascade)
+  name      String        // ex: Parcelles U1, Forage Baye Lahad
+  landmarks GeoLandmark[]
+
+  @@map("geo_sub_quarters")
+}
+
+model GeoLandmark {
+  id           String         @id @default(uuid())
+  subQuarterId String?
+  subQuarter   GeoSubQuarter? @relation(fields: [subQuarterId], references: [id], onDelete: Cascade)
+  name         String         // ex: Gare Routière Pompiers, Garage Bélel
+  latitude     Float
+  longitude    Float
+  
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([name])
+  @@map("geo_landmarks")
+}
