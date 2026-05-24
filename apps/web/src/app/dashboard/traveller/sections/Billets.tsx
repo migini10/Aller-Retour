@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
-import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight } from 'lucide-react';
+import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight, MessageCircle } from 'lucide-react';
 import { useModal } from '../../../../components/ModalContext';
 import html2canvas from 'html2canvas';
 
@@ -89,6 +89,12 @@ export default function SectionBillets() {
     } catch (err) {
       console.error('Erreur de partage', err);
     }
+  };
+
+  const handleWhatsApp = (b: any) => {
+    setSelected(b.id);
+    const text = encodeURIComponent(`🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   const handlePrint = async (id: string) => {
@@ -189,8 +195,11 @@ export default function SectionBillets() {
               <button onClick={() => handleDownload(b.id)} disabled={isDownloading === b.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors disabled:opacity-50">
                 <Download className="w-3 h-3" /> {isDownloading === b.id ? 'Génération...' : 'Image'}
               </button>
-              <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">
+              <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Share2 className="w-3 h-3" /> Partager
+              </button>
+              <button onClick={() => handleWhatsApp(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1DA851] text-white transition-colors">
+                <MessageCircle className="w-3 h-3" /> WhatsApp
               </button>
               <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer

@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
-  ChevronLeft, Info, Map, Banknote
+  ChevronLeft, Info, Map, Banknote, MessageCircle
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
@@ -173,6 +173,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     } catch (err) {
       console.error('Error sharing:', err);
     }
+  };
+
+  const handleWhatsApp = () => {
+    const text = isAlloDakar 
+      ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
+      : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
+      
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   useEffect(() => {
@@ -757,12 +765,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 w-full mt-6">
-        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-          <Download className="w-4 h-4" /> Récapitulatif
+      <div className="grid grid-cols-3 gap-2 w-full mt-6">
+        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+          <Download className="w-4 h-4" /> Billet
         </button>
-        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Share2 className="w-4 h-4" /> Partager
+        </button>
+        <button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+          <MessageCircle className="w-4 h-4" /> WhatsApp
         </button>
       </div>
       
@@ -846,12 +857,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 w-full mt-6">
-        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-          <Download className="w-4 h-4" /> Billet PNG
+      <div className="grid grid-cols-3 gap-2 w-full mt-6">
+        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+          <Download className="w-4 h-4" /> Billet
         </button>
-        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Share2 className="w-4 h-4" /> Partager
+        </button>
+        <button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+          <MessageCircle className="w-4 h-4" /> WhatsApp
         </button>
       </div>
       
