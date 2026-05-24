@@ -62,8 +62,6 @@ export default function SectionBillets() {
                 try {
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
-                      title: 'Mon billet AllerRetour',
-                      text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
                       files: [file]
                     });
                   } else {
@@ -107,9 +105,8 @@ export default function SectionBillets() {
         try {
           const file = new File([blob], `billet-${b.id}.png`, { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try { await navigator.clipboard.writeText(text); } catch(e) {}
             await navigator.share({
-              title: 'Mon billet AllerRetour',
-              text: text,
               files: [file]
             });
           } else {

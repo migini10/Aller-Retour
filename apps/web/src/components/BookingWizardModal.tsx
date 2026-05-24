@@ -192,9 +192,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         try {
           const file = new File([blob], `billet-aller-retour.png`, { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try { await navigator.clipboard.writeText(text); } catch(e) {}
             await navigator.share({
-              title: isAlloDakar ? 'Demande AllerRetour' : 'Billet AllerRetour',
-              text: text,
               files: [file]
             });
           } else {
