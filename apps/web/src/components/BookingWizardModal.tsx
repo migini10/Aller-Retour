@@ -183,16 +183,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     if (ticketRef.current) {
       try {
         const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-        canvas.toBlob(async (blob) => {
-          if (blob && navigator.clipboard && navigator.clipboard.write) {
-            try {
-              await navigator.clipboard.write([
-                new ClipboardItem({ [blob.type]: blob })
-              ]);
-              alert("🖼️ L'image de votre billet a été copiée !\n\nFaites 'Coller' dans WhatsApp pour l'envoyer avec ce message.");
-            } catch (err) {
-              console.error("Clipboard write failed", err);
-            }
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Billet-AllerRetour.png`;
+            link.click();
+            URL.revokeObjectURL(url);
           }
           window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }, 'image/png');

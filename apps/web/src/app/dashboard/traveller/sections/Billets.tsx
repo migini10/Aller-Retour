@@ -98,20 +98,20 @@ export default function SectionBillets() {
     try {
       const el = document.getElementById(`capture-ticket-${b.id}`);
       if (el) {
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 200));
         const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
         
-        canvas.toBlob(async (blob) => {
-          if (blob && navigator.clipboard && navigator.clipboard.write) {
-            try {
-              await navigator.clipboard.write([
-                new ClipboardItem({ [blob.type]: blob })
-              ]);
-              alert("🖼️ L'image de votre billet a été copiée !\n\nFaites 'Coller' dans WhatsApp pour l'envoyer avec ce message.");
-            } catch (err) {
-              console.error("Clipboard write failed", err);
-            }
+        canvas.toBlob((blob) => {
+          if (blob) {
+            // 1. Download the file so they have it immediately to attach
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Billet-${b.id}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
           }
+          // 2. Open WhatsApp Web
           window.open(`https://wa.me/?text=${text}`, '_blank');
         }, 'image/png');
       } else {
