@@ -92,8 +92,8 @@ export default function SectionBillets() {
 
   const handleWhatsApp = (b: any) => {
     setSelected(b.id);
-    const text = encodeURIComponent(`🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    const text = `🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handlePrint = async (id: string) => {
