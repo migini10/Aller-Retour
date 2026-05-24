@@ -91,10 +91,35 @@ export default function SectionBillets() {
     }
   };
 
-  const handleWhatsApp = (b: any) => {
+  const handleWhatsApp = async (b: any) => {
     setSelected(b.id);
     const text = encodeURIComponent(`🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    
+    try {
+      const el = document.getElementById(`capture-ticket-${b.id}`);
+      if (el) {
+        await new Promise(r => setTimeout(r, 400));
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+        
+        canvas.toBlob(async (blob) => {
+          if (blob && navigator.clipboard && navigator.clipboard.write) {
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({ [blob.type]: blob })
+              ]);
+              alert("🖼️ L'image de votre billet a été copiée !\n\nFaites 'Coller' dans WhatsApp pour l'envoyer avec ce message.");
+            } catch (err) {
+              console.error("Clipboard write failed", err);
+            }
+          }
+          window.open(`https://wa.me/?text=${text}`, '_blank');
+        }, 'image/png');
+      } else {
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+      }
+    } catch (err) {
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
   };
 
   const handlePrint = async (id: string) => {

@@ -175,12 +175,34 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     }
   };
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     const text = isAlloDakar 
       ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
       : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
       
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    if (ticketRef.current) {
+      try {
+        const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+        canvas.toBlob(async (blob) => {
+          if (blob && navigator.clipboard && navigator.clipboard.write) {
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({ [blob.type]: blob })
+              ]);
+              alert("🖼️ L'image de votre billet a été copiée !\n\nFaites 'Coller' dans WhatsApp pour l'envoyer avec ce message.");
+            } catch (err) {
+              console.error("Clipboard write failed", err);
+            }
+          }
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }, 'image/png');
+      } catch (err) {
+        console.error(err);
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   useEffect(() => {
