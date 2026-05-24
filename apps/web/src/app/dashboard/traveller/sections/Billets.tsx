@@ -1,9 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { useModal } from '../../../../components/ModalContext';
 
-const billets = [
+const initialMockBillets = [
   { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '14A VIP', compagnie: 'Sénégal Express', vehicule: 'Bus Climatisé 50 places', statut: 'actif' },
   { id: 'AR-84512987', trajet: 'Dakar → Saint-Louis', date: '2026-05-20', heure: '07:00', siege: '03B', compagnie: 'Dakar Dem Dikk', vehicule: 'Mercedes Sprinter', statut: 'utilisé' },
   { id: 'AR-62019384', trajet: 'Thiès → Ziguinchor', date: '2026-04-15', heure: '06:30', siege: '08C', compagnie: 'Mouride Express', vehicule: 'Bus 35 places', statut: 'annulé' },
@@ -18,11 +19,29 @@ const statutStyle: Record<string, string> = {
 const StatutIcon = ({ s }: { s: string }) =>
   s === 'actif' ? <Clock className="w-3 h-3" /> : s === 'utilisé' ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />;
 
-import { useModal } from '../../../../components/ModalContext';
-
 export default function SectionBillets() {
   const [selected, setSelected] = useState<string | null>(null);
+  const [myBillets, setMyBillets] = useState<any[]>(initialMockBillets);
   const { openBookingWizard } = useModal();
+
+  useEffect(() => {
+    const loadTickets = () => {
+      try {
+        const stored = localStorage.getItem('my_tickets');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Only update if it's different to prevent infinite re-renders or flashing
+          setMyBillets([...parsed, ...initialMockBillets]);
+        }
+      } catch (e) {}
+    };
+    
+    loadTickets();
+    
+    // Poll for new tickets since they are generated in a modal
+    const interval = setInterval(loadTickets, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -37,7 +56,7 @@ export default function SectionBillets() {
         </button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {billets.map(b => (
+        {myBillets.map(b => (
           <div key={b.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">

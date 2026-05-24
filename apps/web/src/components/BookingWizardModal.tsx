@@ -28,6 +28,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     passagers: 1,
     type: initialType
   });
+
+  const [generatedTicket, setGeneratedTicket] = useState<any>(null);
   
   const isAlloDakar = searchParams.type === 'allo-dakar';
 
@@ -204,6 +206,27 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         saveCustomQuartier(searchParams.depart, pickupLocation.trim());
       }
     }
+    
+    if (step === totalSteps - 1) {
+      const newTicket = {
+        id: `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        trajet: `${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}`,
+        date: searchParams.date || new Date().toISOString().split('T')[0],
+        heure: selectedTrip?.departTime || '08:00',
+        siege: isAlloDakar ? `${searchParams.passagers} Place(s)` : selectedSeat || '14A',
+        compagnie: selectedTrip?.company || (isAlloDakar ? 'Allo Dakar' : 'Sénégal Express'),
+        vehicule: isAlloDakar ? 'Voiture Privée' : 'Bus',
+        statut: 'actif'
+      };
+      setGeneratedTicket(newTicket);
+      try {
+        const existing = JSON.parse(localStorage.getItem('my_tickets') || '[]');
+        localStorage.setItem('my_tickets', JSON.stringify([newTicket, ...existing]));
+      } catch (e) {
+        console.error('Could not save ticket', e);
+      }
+    }
+    
     setStep(s => Math.min(s + 1, totalSteps));
   };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
@@ -724,7 +747,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             <div className="text-center">
               <div className="flex justify-center mb-4 mt-2">
                 <QRCodeBrandEngine 
-                  value={`ALLORETOUR-DEMANDE-${searchParams.depart}-${searchParams.arrivee}`} 
+                  value={generatedTicket?.id || `ALLORETOUR-DEMANDE-${searchParams.depart}-${searchParams.arrivee}`} 
                   size={120} 
                 />
               </div>
@@ -805,7 +828,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             </div>
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold">Référence</p>
-              <p className="font-bold text-slate-900">AR-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+              <p className="font-bold text-slate-900">{generatedTicket?.id || 'AR-XXXXXX'}</p>
             </div>
           </div>
 
@@ -813,7 +836,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             <div className="text-center">
               <div className="flex justify-center mb-4 mt-2">
                 <QRCodeBrandEngine 
-                  value={`ALLORETOUR-TICKET-AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`} 
+                  value={generatedTicket?.id || 'ALLORETOUR-TICKET'} 
                   size={120} 
                 />
               </div>
