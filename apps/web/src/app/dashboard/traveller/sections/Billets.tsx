@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useModal } from '../../../../components/ModalContext';
+import html2canvas from 'html2canvas';
 
 const initialMockBillets = [
   { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '14A VIP', compagnie: 'Sénégal Express', vehicule: 'Bus Climatisé 50 places', statut: 'actif' },
@@ -22,6 +23,7 @@ const StatutIcon = ({ s }: { s: string }) =>
 export default function SectionBillets() {
   const [selected, setSelected] = useState<string | null>(null);
   const [myBillets, setMyBillets] = useState<any[]>(initialMockBillets);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const { openBookingWizard } = useModal();
 
   useEffect(() => {
@@ -43,6 +45,57 @@ export default function SectionBillets() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleShare = async (b: any) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Mon billet AllerRetour',
+          text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
+          url: 'https://aller-retour.sn',
+        });
+      } else {
+        alert("Le partage n'est pas supporté sur ce navigateur.");
+      }
+    } catch (err) {
+      console.error('Erreur de partage', err);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = async (id: string) => {
+    const el = document.getElementById(`ticket-${id}`);
+    if (!el) return;
+    
+    setIsDownloading(id);
+    try {
+      // Force QR code to be visible for the screenshot
+      const wasSelected = selected === id;
+      if (!wasSelected) {
+        setSelected(id);
+        // Wait for state to update and render
+        await new Promise(r => setTimeout(r, 100)); 
+      }
+
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#101728' });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Billet-${id}.png`;
+      link.click();
+      
+      if (!wasSelected) {
+        setSelected(null);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la génération du billet", err);
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -57,7 +110,7 @@ export default function SectionBillets() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {myBillets.map(b => (
-          <div key={b.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">
+          <div id={`ticket-${b.id}`} key={b.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <p className="font-mono text-xs text-slate-400">{b.id}</p>
@@ -65,26 +118,28 @@ export default function SectionBillets() {
                 <p className="text-sm text-slate-400">{b.date} • {b.heure} — Siège {b.siege}</p>
                 <p className="text-xs text-slate-500">{b.compagnie} • {b.vehicule}</p>
               </div>
-              <span className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold shrink-0 ${statutStyle[b.statut]}`}>
+              <span className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold shrink-0 ${statutStyle[b.statut] || statutStyle['actif']}`}>
                 <StatutIcon s={b.statut} /> {b.statut}
               </span>
             </div>
             {selected === b.id && (
               <div className="flex justify-center pt-2 border-t border-slate-800">
-                <QRCodeBrandEngine value={b.id} size={160} />
+                <div className="bg-white p-2 rounded-xl">
+                  <QRCodeBrandEngine value={b.id} size={160} />
+                </div>
               </div>
             )}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800" data-html2canvas-ignore>
               <button onClick={() => setSelected(selected === b.id ? null : b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Eye className="w-3 h-3" /> {selected === b.id ? 'Masquer' : 'Voir QR'}
               </button>
-              <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
-                <Download className="w-3 h-3" /> PDF
+              <button onClick={() => handleDownload(b.id)} disabled={isDownloading === b.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors disabled:opacity-50">
+                <Download className="w-3 h-3" /> {isDownloading === b.id ? 'Génération...' : 'Image'}
               </button>
-              <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">
+              <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">
                 <Share2 className="w-3 h-3" /> Partager
               </button>
-              <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+              <button onClick={handlePrint} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer
               </button>
             </div>
