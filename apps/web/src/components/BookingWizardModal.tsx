@@ -121,9 +121,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
   const displayQuartiers = searchParams.quartierArrivee ? filteredQuartiers : selectedCityQuartiers;
 
-  const departCityQuartiers = searchParams.depart ? (quartiersSenegal[searchParams.depart] || []) : [];
+  const allQuartiers = Object.values(quartiersSenegal).flat();
+  const departCityQuartiers = searchParams.depart ? (quartiersSenegal[searchParams.depart] || []) : allQuartiers;
   const filteredPickupQuartiers = departCityQuartiers.filter(q => pickupLocation && q.toLowerCase().includes(pickupLocation.toLowerCase()));
-  const displayPickupQuartiers = pickupLocation ? filteredPickupQuartiers : departCityQuartiers;
+  // If pickupLocation is empty and depart is not set, show nothing. Otherwise, show filtered or all depart quartiers.
+  const displayPickupQuartiers = pickupLocation 
+    ? filteredPickupQuartiers.slice(0, 15) // Limit to 15 to avoid massive dropdowns
+    : (searchParams.depart ? departCityQuartiers : []);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
 
   const ticketRef = useRef<HTMLDivElement>(null);
