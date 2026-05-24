@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { 
-  Bus, LayoutDashboard, Route, QrCode, Users, Wallet, Store, Bell, HelpCircle, Settings, MapPin, Activity, ChevronRight
+  Bus, LayoutDashboard, Route, QrCode, Users, Wallet, Store, Bell, HelpCircle, Settings, MapPin, Activity, ChevronRight, Car
 } from 'lucide-react';
 
 import SectionAccueil from './sections/Accueil';
@@ -16,6 +16,7 @@ import SectionVehicule from './sections/Vehicule';
 import SectionNotifications from './sections/Notifications';
 import SectionSupport from './sections/Support';
 import SectionParametres from './sections/Parametres';
+import SectionAlloDakar from './sections/AlloDakar';
 
 const navItems = [
   { id: 'accueil', label: 'Accueil', icon: LayoutDashboard },
@@ -26,6 +27,7 @@ const navItems = [
   { id: 'revenus', label: 'Revenus', icon: Wallet },
   { id: 'marketplace', label: 'Marketplace', icon: Store },
   { id: 'vehicule', label: 'Véhicule', icon: Bus },
+  { id: 'allo-dakar', label: 'Allo Dakar', icon: Car },
   { id: 'notifications', label: 'Notifications', icon: Bell, badge: '2' },
   { id: 'support', label: 'Support', icon: HelpCircle },
   { id: 'parametres', label: 'Paramètres', icon: Settings },
@@ -65,6 +67,7 @@ export default function DriverDashboard() {
       case 'revenus': return <SectionRevenus />;
       case 'marketplace': return <SectionMarketplace />;
       case 'vehicule': return <SectionVehicule />;
+      case 'allo-dakar': return <SectionAlloDakar />;
       case 'notifications': return <SectionNotifications />;
       case 'support': return <SectionSupport />;
       case 'parametres': return <SectionParametres />;
