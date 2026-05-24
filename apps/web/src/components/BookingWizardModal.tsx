@@ -7,6 +7,7 @@ import {
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
   ChevronLeft, Info, Map, Banknote
 } from 'lucide-react';
+import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 
 interface BookingWizardModalProps {
   isOpen: boolean;
@@ -85,45 +86,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const [showArriveeSuggestions, setShowArriveeSuggestions] = useState(false);
   const [showQuartierSuggestions, setShowQuartierSuggestions] = useState(false);
 
-  const VILLES_SENEGAL = ['Dakar', 'Thiès', 'Touba', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Diourbel', 'Louga', 'Fatick', 'Kolda', 'Tambacounda'];
   
-  const INITIAL_QUARTIERS: Record<string, string[]> = {
-    'Dakar': [
-      'Plateau', 'Médina', 'Fass', 'Point E', 'Fann', 'Amitié', 'Almadies', 'Ngor', 'Yoff', 
-      'Parcelles Assainies', 'Keur Massar', 'Rufisque', 'Sacré-Cœur 1', 'Sacré-Cœur 2', 'Sacré-Cœur 3', 
-      'Liberté 1', 'Liberté 2', 'Liberté 3', 'Liberté 4', 'Liberté 5', 'Liberté 6', 'Ouakam', 'Mermoz', 
-      'Grand Yoff', 'Pikine', 'Guédiawaye', 'Thiaroye', 'Mbao', 'Bargny', 'Diamniadio', 'Sebikotane', 
-      'Hann Maristes', 'Sicap Baobab', 'Sicap Karack', 'Dieuppeul', 'Derklé', 'Castors', 'Grand Dakar', 
-      'Niary Tally', 'Colobane', 'Gueule Tapée', 'HLM', 'Cambérène', 'Yeumbeul', 'Malika', 'Sangalkam', 
-      'Lac Rose', 'Tivaouane Peulh', 'Jaxaay', 'Hann Bel-Air', 'Yarakh', 'HLM Grand Médine', 'Patte d\'Oie', 
-      'Grand Médine', 'Cité Alioune Sow', 'Cité Mixta', 'Cité Fadia', 'Cité Soprim', 'Golf Sud', 
-      'Wakhinane Nimzatt', 'Ndiarème Limamoulaye', 'Médina Gounass', 'Sam Notaire', 'Yeumbeul Nord', 
-      'Yeumbeul Sud', 'Fass Mbao', 'Sicap Mbao', 'Keur Mbaye Fall', 'Zac Mbao', 'Diamaguène', 'Dalifort', 
-      'Thiaroye sur Mer', 'Thiaroye Gare', 'Tivaouane Diacksao', 'Guinaw Rail', 'Rufisque Est', 
-      'Rufisque Ouest', 'Rufisque Nord', 'Niaga', 'Gorée'
-    ],
-    'Thiès': [
-      'Mbour 1', 'Mbour 2', 'Mbour 3', 'Mbour 4', 'Grand Thiès', 'Randoulène', 'Dixième', 'Som', 
-      'Takhikao', 'Cité Lamy', 'Hersent', 'Médina Fall', 'Faly', 'Nguinth', 'Carrières', 'Peytavin', 'Aiglon',
-      'Escale', 'Cité Ousmane Ngom', 'Cité Senghor', 'Thialy', 'Poute', 'Keur Mame El Hadj', 'Silmang', 
-      'Route de Dakar', 'Cité Niakh', 'Ibrahima Sarr', 'Kawsara'
-    ],
-    'Touba': [
-      'Darou Khoudoss', 'Darou Minam', 'Darou Marnane', 'Guédé', 'Dianatou', 'Madiyana', 'Ndamatou', 
-      'Khaïra', 'Darou Salam', 'Touba Mosquée', 'Gouye Mbind', 'Palène', 'Mbar', 'Oumoul Khoura', 'Sam',
-      'Gare Bou Ndaw', 'Darou Tanzil', 'HLM', 'Tindody', 'Alia', 'Darou Rahmane', 'Sourah'
-    ],
-    'Saint-Louis': [
-      'Île Nord', 'Île Sud', 'Guet Ndar', 'Ndar Toute', 'Sor', 'Pikine', 'Léona', 'Bango', 'Khor', 
-      'Goxu Mbacc', 'Santhiaba', 'Diamaguène', 'Eaux Claires', 'Balandine', 'Ndioloffène', 'Darou', 
-      'HLM', 'Cité Niakh', 'Ngallele', 'Boudioudy', 'Lodo'
-    ],
-    'Ziguinchor': ['Bourote', 'Escale', 'Santhiaba', 'Peyrissac', 'Kadior', 'Lyndiane', 'Boucotte', 'Néma', 'Goumel', 'Alwar', 'Kenia', 'Kandé', 'Néma Kadior', 'HLM Néma', 'Cobitte', 'Colobane', 'Grand Dakar', 'Djibock', 'Tilène'],
-    'Kaolack': ['Léona', 'Bongré', 'Kasnack', 'Ndangane', 'Sam', 'Passoire', 'Touba Ndorong', 'Thioffac', 'Sara', 'Medina Baye', 'Dialègne', 'Ngane', 'Gawane', 'Abattoirs', 'Parcelles', 'Cité Senghor', 'Khakhoum', 'Boustane'],
-    'Mbour': ['Grand Mbour', 'Thiocé Est', 'Thiocé Ouest', 'Tefess', 'Santessou', 'Zone Résidentielle', 'Mbour Sérère', 'Gouye Mouride', 'Diamaguène', 'Oncad', 'Liberté', 'Saly Portudal', 'Saly Niakhniakhal', 'Saly Vélingara'],
-    'Diourbel': ['Escale', 'Keur Cheikh', 'Médina', 'Roukhou', 'Thierno Kandji', 'Ndiodione', 'Ndayane', 'Keur Gou Mak', 'Medinatoul']
-  };
-
   const [quartiersSenegal, setQuartiersSenegal] = useState<Record<string, string[]>>(INITIAL_QUARTIERS);
 
   useEffect(() => {
