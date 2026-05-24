@@ -55,12 +55,46 @@ export default function SectionSuiviGPS() {
         {/* Grille de fond style carte urbaine */}
         <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
+
+        {/* Info panel sur la carte (Position détaillée) */}
+        <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-80 bg-[#050A15]/95 backdrop-blur-md border border-slate-700/60 p-4 rounded-2xl shadow-2xl z-10 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] uppercase text-orange-400 font-bold tracking-widest flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" /> Position Actuelle
+            </p>
+            <span className="text-[10px] text-slate-400 font-mono">GPS: 14.6928° N, -17.4467° W</span>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 bg-orange-500/20 p-1.5 rounded-lg border border-orange-500/30 shrink-0">
+                <Navigation className="w-4 h-4 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Avenue Cheikh Anta Diop</p>
+                <p className="text-xs text-slate-400">Quartier Fann, Dakar</p>
+              </div>
+            </div>
+            
+            <div className="h-px bg-gradient-to-r from-transparent via-slate-700/60 to-transparent" />
+            
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 bg-emerald-500/20 p-1.5 rounded-lg border border-emerald-500/30 shrink-0">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Point de rendez-vous</p>
+                <p className="text-xs text-slate-400">Rue 10 x Rue 11, Point E</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Carte urbaine SVG */}
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
@@ -96,8 +130,8 @@ export default function SectionSuiviGPS() {
             <circle cx="0" cy="0" r="6" fill="#22c55e" filter="url(#glow)"/>
             <circle cx="0" cy="0" r="3" fill="#fff" />
             <path d="M-8,-20 C-8,-25 8,-25 8,-20 L0,-5 Z" fill="#22c55e"/>
-            <rect x="-30" y="-45" width="60" height="20" rx="10" fill="#0f172a" opacity="0.9" />
-            <text x="0" y="-31" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Moi</text>
+            <rect x="-35" y="-45" width="70" height="20" rx="10" fill="#0f172a" opacity="0.9" />
+            <text x="0" y="-31" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Point E</text>
           </g>
 
           {/* Position du véhicule en mouvement le long du chemin */}
@@ -114,11 +148,13 @@ export default function SectionSuiviGPS() {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent pt-12 pb-4 px-4 flex items-center justify-between">
           <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-full">
             <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-xs font-semibold text-white">Localisation en direct</span>
+            <span className="text-xs font-semibold text-white">Données GPS chiffrées de bout en bout</span>
           </div>
-          <button className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-full border border-slate-700 transition-colors">
-            <Navigation className="w-4 h-4" />
-          </button>
+          <div className="flex gap-2">
+            <button className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-full border border-slate-700 transition-colors shadow-lg">
+              <Navigation className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
