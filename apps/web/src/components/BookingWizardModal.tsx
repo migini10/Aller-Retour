@@ -168,7 +168,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareData.text);
-        alert('Détails copiés dans le presse-papier !');
       }
     } catch (err) {
       console.error('Error sharing:', err);
