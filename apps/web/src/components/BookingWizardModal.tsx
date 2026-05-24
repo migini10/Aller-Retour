@@ -224,7 +224,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         siege: isAlloDakar ? `${searchParams.passagers} Place(s)` : selectedSeat || '14A',
         compagnie: selectedTrip?.company || (isAlloDakar ? 'Allo Dakar' : 'Sénégal Express'),
         vehicule: isAlloDakar ? 'Voiture Privée' : 'Bus',
-        statut: 'actif'
+        statut: 'actif',
+        passager: voyageurInfo.nom || 'Passager Inconnu'
       };
       setGeneratedTicket(newTicket);
       try {

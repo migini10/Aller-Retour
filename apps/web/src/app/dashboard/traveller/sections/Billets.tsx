@@ -1,14 +1,14 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
-import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight, MessageCircle } from 'lucide-react';
+import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight, MessageCircle, User } from 'lucide-react';
 import { useModal } from '../../../../components/ModalContext';
 import html2canvas from 'html2canvas';
 
 const initialMockBillets = [
-  { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '14A VIP', compagnie: 'Sénégal Express', vehicule: 'Bus Climatisé 50 places', statut: 'actif' },
-  { id: 'AR-84512987', trajet: 'Dakar → Saint-Louis', date: '2026-05-20', heure: '07:00', siege: '03B', compagnie: 'Dakar Dem Dikk', vehicule: 'Mercedes Sprinter', statut: 'utilisé' },
-  { id: 'AR-62019384', trajet: 'Thiès → Ziguinchor', date: '2026-04-15', heure: '06:30', siege: '08C', compagnie: 'Mouride Express', vehicule: 'Bus 35 places', statut: 'annulé' },
+  { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '14A VIP', compagnie: 'Sénégal Express', vehicule: 'Bus Climatisé 50 places', statut: 'actif', passager: 'Abdou Bakhe' },
+  { id: 'AR-84512987', trajet: 'Dakar → Saint-Louis', date: '2026-05-20', heure: '07:00', siege: '03B', compagnie: 'Dakar Dem Dikk', vehicule: 'Mercedes Sprinter', statut: 'utilisé', passager: 'Mamadou Ndiaye' },
+  { id: 'AR-62019384', trajet: 'Thiès → Ziguinchor', date: '2026-04-15', heure: '06:30', siege: '08C', compagnie: 'Mouride Express', vehicule: 'Bus 35 places', statut: 'annulé', passager: 'Fatou Diop' },
 ];
 
 const statutStyle: Record<string, string> = {
@@ -173,6 +173,10 @@ export default function SectionBillets() {
               <div className="space-y-1">
                 <p className="font-mono text-xs text-slate-400">{b.id}</p>
                 <p className="font-bold text-white text-base">{b.trajet}</p>
+                <p className="text-sm text-slate-400 flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="font-medium text-slate-300">{b.passager || 'Abdou Bakhe'}</span>
+                </p>
                 <p className="text-sm text-slate-400">{b.date} • {b.heure} — Siège {b.siege}</p>
                 <p className="text-xs text-slate-500">{b.compagnie} • {b.vehicule}</p>
               </div>
