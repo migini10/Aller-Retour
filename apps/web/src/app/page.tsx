@@ -295,7 +295,7 @@ export default function HomePage() {
 
               <div>
                 <button 
-                  onClick={openBookingWizard}
+                  onClick={() => openBookingWizard(searchTab === 'vtc' ? 'allo-dakar' : 'bus')}
                   className="w-full py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                 >
                   <span>Rechercher</span>
