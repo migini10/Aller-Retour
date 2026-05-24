@@ -177,35 +177,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const handleWhatsApp = async () => {
     const text = isAlloDakar 
       ? `*Ma Demande AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nPassagers: ${searchParams.passagers}\nhttps://aller-retour.sn`
-      : `*Mon Billet AllerRetour*\n\nTrajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\nHeure: ${selectedTrip?.departTime || '08:00'}\nSiège: ${selectedSeat}\nhttps://aller-retour.sn`;
+      : `*Mon Billet AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nHeure: ${selectedTrip?.departTime || '08:00'}\nSiège: ${selectedSeat}\n\nhttps://aller-retour.sn`;
       
-    try {
-      if (!ticketRef.current) throw new Error("Ticket introuvable");
-      
-      await new Promise(r => setTimeout(r, 200));
-      const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-      
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        
-        try {
-          const file = new File([blob], `billet-aller-retour.png`, { type: 'image/png' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              text: text,
-              files: [file]
-            });
-            return; 
-          } else {
-             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-          }
-        } catch (shareErr) {
-          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }
-      }, 'image/png');
-    } catch (err) {
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   useEffect(() => {
