@@ -208,7 +208,7 @@ function AlloCourses() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-white text-xl">Nouvelle Demande Inter-Urbaine</h3>
+        <h3 className="font-bold text-white text-xl">Nouvelle Tournée de Covoiturage</h3>
         <span className="relative flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
@@ -219,54 +219,77 @@ function AlloCourses() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center border-2 border-slate-700">
-              <User className="text-slate-400 w-8 h-8" />
+              <Car className="text-slate-400 w-8 h-8" />
             </div>
             <div>
-              <p className="font-black text-white text-2xl">Modou Fall</p>
+              <p className="font-black text-white text-2xl">Dakar → Saint-Louis</p>
               <div className="flex items-center gap-2 text-sm font-bold">
-                <span className="text-amber-400 flex items-center bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">⭐ 4.8</span>
                 <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">Allo Dakar Confort</span>
-                <span className="text-slate-400 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700">Paiement Wave</span>
+                <span className="text-slate-400 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700">3 Passagers (Domicile)</span>
               </div>
             </div>
           </div>
           <div className="sm:text-right bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
-            <p className="text-xs text-emerald-400 uppercase font-bold tracking-widest mb-1">Gain Estimé</p>
-            <p className="text-3xl font-black text-emerald-400">28 500 <span className="text-base">FCFA</span></p>
+            <p className="text-xs text-emerald-400 uppercase font-bold tracking-widest mb-1">Gain Total</p>
+            <p className="text-3xl font-black text-emerald-400">25 500 <span className="text-base">FCFA</span></p>
           </div>
         </div>
 
         <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-800 space-y-4">
+          <p className="text-sm font-bold text-slate-400 mb-2 border-b border-slate-800 pb-2">Plan de Récupération (Départs)</p>
+          
           <div className="flex items-start gap-4">
             <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <span className="text-emerald-500 font-bold text-xs">1</span>
             </div>
-            <div>
-              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Départ • Dakar</p>
-              <p className="font-bold text-white text-lg">Mermoz, Dakar</p>
+            <div className="flex-1">
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Mermoz, Dakar • 08:00</p>
+              <div className="flex justify-between items-center">
+                <p className="font-bold text-white text-lg">Fatou Diop</p>
+                <span className="text-xs bg-slate-800 px-2 py-1 rounded-lg text-slate-300">1 Place</span>
+              </div>
             </div>
           </div>
-          <div className="ml-4 w-0.5 h-6 bg-slate-800"></div>
+          <div className="ml-4 w-0.5 h-4 bg-slate-800"></div>
+          
           <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0 mt-1">
-              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
+              <span className="text-emerald-500 font-bold text-xs">2</span>
             </div>
-            <div>
-              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Arrivée • Saint-Louis (265 km)</p>
-              <p className="font-bold text-white text-lg">Gare de Sor, Saint-Louis</p>
+            <div className="flex-1">
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Point E, Dakar • 08:20</p>
+              <div className="flex justify-between items-center">
+                <p className="font-bold text-white text-lg">Modou Fall</p>
+                <span className="text-xs bg-slate-800 px-2 py-1 rounded-lg text-slate-300">1 Place</span>
+              </div>
+            </div>
+          </div>
+          <div className="ml-4 w-0.5 h-4 bg-slate-800"></div>
+          
+          <div className="flex items-start gap-4">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
+              <span className="text-emerald-500 font-bold text-xs">3</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Parcelles Assainies U15 • 08:45</p>
+              <div className="flex justify-between items-center">
+                <p className="font-bold text-white text-lg">Awa Ndiaye</p>
+                <span className="text-xs bg-slate-800 px-2 py-1 rounded-lg text-slate-300">1 Place</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg py-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/20">
-            ACCEPTER
+            ACCEPTER LA TOURNÉE
           </button>
           <button className="sm:w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-lg py-4 rounded-2xl transition-colors border border-slate-700">
             Refuser
           </button>
         </div>
-      </div>
+      
+
     </div>
   );
 }
@@ -283,9 +306,7 @@ function AlloCarte() {
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
           {/* Zone de forte demande (Heatmap) */}
           <circle cx="450" cy="200" r="80" fill="#f97316" opacity="0.15" filter="blur(20px)" />
-          <circle cx="450" cy="200" r="40" fill="#f97316" opacity="0.2" filter="blur(10px)" />
-          <text x="450" y="200" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold" opacity="0.8">Forte Demande</text>
-
+          
           {/* Position Chauffeur */}
           <g transform="translate(400, 250)">
             <circle cx="0" cy="0" r="8" fill="#10b981" />
@@ -294,6 +315,24 @@ function AlloCarte() {
               <animate attributeName="opacity" values="0.2;0;0.2" dur="2s" repeatCount="indefinite" />
             </circle>
           </g>
+
+          {/* Points de récupération multiples */}
+          <g transform="translate(300, 200)">
+            <circle cx="0" cy="0" r="6" fill="#fff" />
+            <text x="0" y="-12" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">Mermoz</text>
+          </g>
+          <g transform="translate(350, 150)">
+            <circle cx="0" cy="0" r="6" fill="#fff" />
+            <text x="0" y="-12" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">Point E</text>
+          </g>
+          <g transform="translate(480, 120)">
+            <circle cx="0" cy="0" r="6" fill="#fff" />
+            <text x="0" y="-12" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">Parcelles</text>
+          </g>
+          
+          <path d="M300,200 L350,150 L480,120" stroke="#f97316" strokeWidth="4" fill="none" strokeDasharray="6 6">
+             <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
+          </path>
         </svg>
 
         <div className="absolute top-4 left-4 right-4 flex justify-between pointer-events-none">
