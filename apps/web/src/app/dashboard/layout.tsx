@@ -24,7 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="h-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col">
+      <div className="h-[100dvh] overflow-hidden bg-slate-950 text-slate-100 flex flex-col">
       {/* Topbar Mobile-only : fixée en haut, visible uniquement sur petits écrans */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
         <Link href="/" className="flex items-center gap-2.5">
