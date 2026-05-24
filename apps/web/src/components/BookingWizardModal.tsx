@@ -176,8 +176,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
   const handleWhatsApp = async () => {
     const text = isAlloDakar 
-      ? `🎫 *Ma Demande AllerRetour*\n\n🚕 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n👉 https://aller-retour.sn`
-      : `🎫 *Mon Billet AllerRetour*\n\n🚍 Trajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n👉 https://aller-retour.sn`;
+      ? `*Ma Demande AllerRetour*\n\nDépart: ${searchParams.depart || 'Dakar'}\nArrivée: ${searchParams.arrivee || 'Touba'}\nPassagers: ${searchParams.passagers}\nhttps://aller-retour.sn`
+      : `*Mon Billet AllerRetour*\n\nTrajet: ${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}\nHeure: ${selectedTrip?.departTime || '08:00'}\nSiège: ${selectedSeat}\nhttps://aller-retour.sn`;
       
     try {
       if (!ticketRef.current) throw new Error("Ticket introuvable");

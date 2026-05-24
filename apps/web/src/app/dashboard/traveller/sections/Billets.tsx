@@ -92,7 +92,7 @@ export default function SectionBillets() {
 
   const handleWhatsApp = async (b: any) => {
     setSelected(b.id);
-    const text = `🎫 *Mon billet AllerRetour*\n\n🚍 Trajet: ${b.trajet}\n📅 Date: ${b.date} à ${b.heure}\n💺 Siège: ${b.siege}\n🔖 Réf: ${b.id}\n\n👉 https://aller-retour.sn`;
+    const text = `*Mon billet AllerRetour*\n\nTrajet: ${b.trajet}\nDate: ${b.date} à ${b.heure}\nSiège: ${b.siege}\nRéf: ${b.id}\n\nhttps://aller-retour.sn`;
     
     try {
       const el = document.getElementById(`capture-ticket-${b.id}`);
