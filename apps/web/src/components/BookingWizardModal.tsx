@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, User, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
-  ChevronLeft, Info, Map, Banknote, MessageCircle, Clock
+  ChevronLeft, Info, Map, Banknote, MessageCircle, Clock, ChevronDown
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
@@ -424,10 +424,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
             </div>
             
             {isAlloDakar && (
-              <div className="relative animate-in fade-in zoom-in-95 duration-300">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                 <select 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
                   value={searchParams.heure}
                   onChange={(e) => setSearchParams({...searchParams, heure: e.target.value})}
                 >
@@ -439,18 +439,20 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
                     return <option key={time} value={time}>{time}</option>;
                   })}
                 </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               </div>
             )}
 
             <div className="relative">
-              <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <select 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
                 value={searchParams.passagers}
                 onChange={(e) => setSearchParams({...searchParams, passagers: parseInt(e.target.value)})}
               >
                 {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Passager{n > 1 ? 's' : ''}</option>)}
               </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             </div>
           </div>
         </div>
