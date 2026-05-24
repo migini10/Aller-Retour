@@ -117,11 +117,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
   const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
   const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
-  const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : [];
-  const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
-  const displayQuartiers = searchParams.quartierArrivee ? filteredQuartiers : selectedCityQuartiers;
-
   const allQuartiers = Object.values(quartiersSenegal).flat();
+  const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : allQuartiers;
+  const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
+  const displayQuartiers = searchParams.quartierArrivee 
+    ? filteredQuartiers.slice(0, 15) 
+    : (searchParams.arrivee ? selectedCityQuartiers : []);
+
   const departCityQuartiers = searchParams.depart ? (quartiersSenegal[searchParams.depart] || []) : allQuartiers;
   const filteredPickupQuartiers = departCityQuartiers.filter(q => pickupLocation && q.toLowerCase().includes(pickupLocation.toLowerCase()));
   // If pickupLocation is empty and depart is not set, show nothing. Otherwise, show filtered or all depart quartiers.
