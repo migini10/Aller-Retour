@@ -155,12 +155,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const handleShare = async () => {
     const shareData = isAlloDakar ? {
       title: 'Ma Demande AllerRetour',
-      text: `J'ai fait une demande de covoiturage avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.`,
-      url: 'https://aller-retour.sn',
+      text: `J'ai fait une demande de covoiturage avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.\n👉 https://aller-retour.sn`,
     } : {
       title: 'Mon Billet AllerRetour',
-      text: `J'ai réservé mon billet avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'} à ${selectedTrip?.departTime || '08:00'}. Siège: ${selectedSeat}.`,
-      url: 'https://aller-retour.sn',
+      text: `J'ai réservé mon billet avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'} à ${selectedTrip?.departTime || '08:00'}. Siège: ${selectedSeat}.\n👉 https://aller-retour.sn`,
     };
     
     try {

@@ -69,8 +69,7 @@ export default function SectionBillets() {
                   } else {
                     await navigator.share({
                       title: 'Mon billet AllerRetour',
-                      text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}`,
-                      url: 'https://aller-retour.sn',
+                      text: `Billet ${b.trajet} le ${b.date} à ${b.heure}. Siège: ${b.siege}. Réf: ${b.id}\n👉 https://aller-retour.sn`,
                     });
                   }
                   resolve();
