@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, User, Bus, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
-  ChevronLeft, Info, Map, Banknote, MessageCircle
+  ChevronLeft, Info, Map, Banknote, MessageCircle, Clock
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
@@ -25,6 +25,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     arrivee: '',
     quartierArrivee: '',
     date: '',
+    heure: '',
     passagers: 1,
     type: initialType
   });
@@ -252,7 +253,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         id: `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         trajet: formattedTrajet,
         date: searchParams.date || new Date().toISOString().split('T')[0],
-        heure: selectedTrip?.departTime || (isAlloDakar ? 'Horaire Flexible' : '08:00'),
+        heure: isAlloDakar ? (searchParams.heure || 'Horaire Flexible') : (selectedTrip?.departTime || '08:00'),
         siege: isAlloDakar ? `${searchParams.passagers} Place(s)` : selectedSeat || '14A',
         compagnie: selectedTrip?.company || (isAlloDakar ? 'Allo Dakar' : 'Sénégal Express'),
         vehicule: selectedTrip?.type || (isAlloDakar ? 'Voiture Privée' : 'Bus'),
@@ -448,6 +449,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
                 onChange={(e) => setSearchParams({...searchParams, date: e.target.value})}
               />
             </div>
+            
+            {isAlloDakar && (
+              <div className="relative animate-in fade-in zoom-in-95 duration-300">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                  type="time" 
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 text-sm [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                  value={searchParams.heure}
+                  onChange={(e) => setSearchParams({...searchParams, heure: e.target.value})}
+                />
+              </div>
+            )}
+
             <div className="relative">
               <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <select 
@@ -462,12 +476,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
       <button 
-        disabled={!searchParams.depart || !searchParams.arrivee || (isAlloDakar && (!searchParams.quartierArrivee || !pickupLocation))}
+        disabled={!searchParams.depart || !searchParams.arrivee || (isAlloDakar && (!searchParams.quartierArrivee || !pickupLocation || !searchParams.heure))}
         onClick={nextStep}
         className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         <Search className="w-5 h-5" />
-        {(searchParams.depart && searchParams.arrivee && (!isAlloDakar || (pickupLocation && searchParams.quartierArrivee))) ? 'Rechercher un trajet' : 'Informations incomplètes'}
+        {(searchParams.depart && searchParams.arrivee && (!isAlloDakar || (pickupLocation && searchParams.quartierArrivee && searchParams.heure))) ? 'Rechercher un trajet' : 'Informations incomplètes'}
       </button>
     </div>
   );
