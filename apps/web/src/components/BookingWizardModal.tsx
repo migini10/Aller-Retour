@@ -46,15 +46,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const [pickupLocation, setPickupLocation] = useState('');
   const [isLocating, setIsLocating] = useState(false);
 
-  // Synchronize internal state with props when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setSearchParams(s => ({ ...s, type: initialType }));
-      setStep(1);
-      setTicketPour(null);
-    }
-  }, [isOpen, initialType]);
-
   const handleGeolocate = () => {
     if (!navigator.geolocation) {
       alert("La géolocalisation n'est pas supportée par votre navigateur.");
@@ -196,6 +187,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
       document.body.style.overflow = 'hidden';
       setStep(1);
       setIsClosing(false);
+      setTicketPour(null);
       setSearchParams(s => ({ ...s, type: initialType }));
     } else {
       document.body.style.overflow = 'unset';

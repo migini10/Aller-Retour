@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import MockModal from './MockModal';
 import BookingWizardModal from './BookingWizardModal';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface ModalContextType {
   openModal: (title: string, description?: string, buttonText?: string) => void;
@@ -41,7 +42,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const openBookingWizard = (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent) => {
     const type = typeof typeOrEvent === 'string' ? typeOrEvent : 'bus';
     setBookingType(type);
-    setIsBookingOpen(true);
+    console.log("Setting isBookingOpen to true for type:", type); setIsBookingOpen(true);
   };
   const closeBookingWizard = () => setIsBookingOpen(false);
 
@@ -55,11 +56,13 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         description={modalConfig.description}
         buttonText={modalConfig.buttonText}
       />
-      <BookingWizardModal 
-        isOpen={isBookingOpen}
-        onClose={closeBookingWizard}
-        initialType={bookingType}
-      />
+      <ErrorBoundary>
+        <BookingWizardModal 
+          isOpen={isBookingOpen}
+          onClose={closeBookingWizard}
+          initialType={bookingType}
+        />
+      </ErrorBoundary>
     </ModalContext.Provider>
   );
 }
