@@ -52,7 +52,7 @@ export default function SectionBillets() {
       if (el && navigator.share) {
         // Wait for rendering
         await new Promise(r => setTimeout(r, 200));
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true });
         
         canvas.toBlob(async (blob) => {
           if (blob) {
@@ -124,7 +124,7 @@ export default function SectionBillets() {
     try {
       await new Promise(r => setTimeout(r, 200)); 
 
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true });
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.href = image;
