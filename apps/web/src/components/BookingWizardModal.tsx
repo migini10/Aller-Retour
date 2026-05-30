@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { 
   X, Search, MapPin, Calendar, Users, User, CarFront, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
-  ChevronLeft, Info, Map, Banknote, MessageCircle, Clock, ChevronDown
+  ChevronLeft, Info, Map, Banknote, MessageCircle, Clock, ChevronDown, Loader2
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
@@ -48,6 +48,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [paymentMethod, setPaymentMethod] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [realTrips, setRealTrips] = useState<any[]>([]);
 
   const handleGeolocate = () => {
     if (!navigator.geolocation) {
@@ -213,30 +215,61 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     }
     
     if (step === totalSteps - 1) {
-      const isAlloDakar = searchParams.type === 'allo-dakar';
+      const isAlloDakar = true;
       let formattedTrajet = `${searchParams.depart || 'Dakar'} → ${searchParams.arrivee || 'Touba'}`;
       if (isAlloDakar && pickupLocation && searchParams.quartierArrivee) {
         formattedTrajet = `${searchParams.depart} (${pickupLocation}) → ${searchParams.arrivee} (${searchParams.quartierArrivee})`;
       }
 
-      const newTicket = {
-        id: `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        trajet: formattedTrajet,
-        date: searchParams.date || new Date().toISOString().split('T')[0],
-        heure: searchParams.heure || 'Horaire Flexible',
-        siege: `${searchParams.passagers} Place(s)`,
-        compagnie: selectedTrip?.company || 'Allo Dakar',
-        vehicule: selectedTrip?.type || 'Voiture Privée',
-        statut: 'actif',
-        passager: voyageurInfo.nom || 'Passager Inconnu'
-      };
-      setGeneratedTicket(newTicket);
-      try {
-        const existing = JSON.parse(localStorage.getItem('my_tickets') || '[]');
-        localStorage.setItem('my_tickets', JSON.stringify([newTicket, ...existing]));
-      } catch (e) {
-        console.error('Could not save ticket', e);
-      }
+      (async () => {
+        try {
+          const token = localStorage.getItem('ar_auth_token');
+          let apiData: any = {};
+          
+          if (token && selectedTrip?.id && typeof selectedTrip.id === 'string') {
+            const res = await fetch('http://localhost:3333/api/bookings', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                tripId: selectedTrip.id,
+                seatNumber: 1, // par defaut 1
+                paymentMethod: paymentMethod.toUpperCase() || 'WAVE'
+              })
+            });
+            if (res.ok) {
+              apiData = await res.json();
+            }
+          }
+
+          const newTicket = {
+            id: apiData.id || `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            qrCodeToken: apiData.qrCodeToken || 'TOKEN-FALLBACK',
+            trajet: formattedTrajet,
+            date: searchParams.date || new Date().toISOString().split('T')[0],
+            heure: searchParams.heure || 'Horaire Flexible',
+            siege: `${searchParams.passagers} Place(s)`,
+            compagnie: selectedTrip?.company || 'Allo Dakar',
+            vehicule: selectedTrip?.type || 'Voiture Privée',
+            statut: apiData.status?.toLowerCase() || 'actif',
+            passager: voyageurInfo.nom || 'Passager Inconnu'
+          };
+          
+          setGeneratedTicket(newTicket);
+          try {
+            const existing = JSON.parse(localStorage.getItem('my_tickets') || '[]');
+            localStorage.setItem('my_tickets', JSON.stringify([newTicket, ...existing]));
+          } catch (e) {}
+
+          setStep(s => Math.min(s + 1, totalSteps));
+        } catch (e) {
+          console.error('Erreur API', e);
+          setStep(s => Math.min(s + 1, totalSteps));
+        }
+      })();
+      return;
     }
     
     setStep(s => Math.min(s + 1, totalSteps));
@@ -438,29 +471,50 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         </div>
       </div>
       <button 
-        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.heure}
-        onClick={nextStep}
+        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.heure || isSearching}
+        onClick={async () => {
+          setIsSearching(true);
+          try {
+            const res = await fetch(`http://localhost:3333/api/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}`);
+            const data = await res.json();
+            if (Array.isArray(data)) {
+              setRealTrips(data);
+            }
+          } catch (e) {
+            console.error("Erreur serveur", e);
+          }
+          setIsSearching(false);
+          nextStep();
+        }}
         className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
-        <Search className="w-5 h-5" />
-        {(searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.heure) ? 'Rechercher un trajet' : 'Informations incomplètes'}
+        {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+        {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.heure) ? 'Rechercher un trajet' : 'Informations incomplètes')}
       </button>
     </div>
   );
 
   const renderStep2Results = () => {
-    const mockServices = [
-        { id: 1, company: "Allo Dakar Confort", price: 6000, type: "Voiture 5 places", options: "Climatisé", route: "Autoroute" },
-        { id: 2, company: "Allo Dakar Confort", price: 5500, type: "Voiture 7 places", options: "Climatisé", route: "Autoroute" },
-        { id: 3, company: "Allo Dakar Économie", price: 4500, type: "Voiture 5 places", options: "Non Climatisé", route: "Nationale" },
-        { id: 4, company: "Allo Dakar Économie", price: 3500, type: "Voiture 7 places", options: "Non Climatisé", route: "Nationale" },
-      ];
+    // Si l'API retourne des données, on les utilise, sinon on affiche une liste vide ou un fallback
+    const displayTrips = realTrips.length > 0 ? realTrips.map((t: any) => ({
+      id: t.id,
+      company: t.company?.name || "Allo Dakar Partenaire",
+      price: t.pricePerSeat || 5000,
+      type: t.vehicle?.type || "Voiture",
+      options: "Climatisé", // Fallback info
+      route: "Autoroute"
+    })) : [];
 
       return (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
           <h3 className="text-sm font-semibold text-slate-400 px-1">Choix du type de véhicule Allo Dakar</h3>
           <div className="space-y-3">
-            {mockServices.map(service => (
+            {displayTrips.length === 0 ? (
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center">
+                <p className="text-slate-400 text-sm">Aucun trajet trouvé sur cette liaison en temps réel.</p>
+                <p className="text-xs text-slate-500 mt-2">Veuillez vérifier que le serveur est allumé et la base de données remplie.</p>
+              </div>
+            ) : displayTrips.map((service: any) => (
               <div 
                 key={service.id} 
                 onClick={() => { setSelectedTrip(service); nextStep(); }}
