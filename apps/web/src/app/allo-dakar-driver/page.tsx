@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { 
   Car, Map, Target, Clock, Wallet, Settings, Power, 
-  MapPin, User, ArrowRight, Menu, Bell
+  MapPin, User, ArrowRight, Menu, Navigation
 } from 'lucide-react';
 import Link from 'next/link';
 
