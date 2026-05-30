@@ -39,6 +39,30 @@ export default function SectionMissions() {
     return d.toISOString().split('T')[0];
   };
 
+  const getAvailableDates = () => {
+    const dates = [];
+    const base = new Date();
+    
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(base.getTime());
+      d.setDate(base.getDate() + i);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      const val = d.toISOString().split('T')[0];
+      
+      let label = val;
+      if (i === 0) label = "Aujourd'hui";
+      else if (i === 1) label = "Demain";
+      else {
+        const formatD = new Date(base.getTime());
+        formatD.setDate(base.getDate() + i);
+        label = formatD.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+        label = label.charAt(0).toUpperCase() + label.slice(1);
+      }
+      dates.push({ value: val, label });
+    }
+    return dates;
+  };
+
   const getAvailableHours = () => {
     const hours = [];
     const today = new Date();
@@ -207,11 +231,24 @@ export default function SectionMissions() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Date</label>
-                  <input type="date" min={getTodayStr()} value={formData.date} onChange={e => {
-                    setFormData({...formData, date: e.target.value, heure: ''});
-                  }} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <select 
+                    value={formData.date} 
+                    onChange={e => {
+                      setFormData({...formData, date: e.target.value, heure: ''});
+                    }} 
+                    className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    required
+                  >
+                    <option value="" disabled>Choisir la date</option>
+                    {getAvailableDates().map(d => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
                 </div>
                 <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Heure</label>
