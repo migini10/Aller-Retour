@@ -13,10 +13,10 @@ import QRCodeBrandEngine from './QRCodeBrandEngine';
 interface BookingWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialType?: 'bus' | 'allo-dakar';
+  initialType?: 'allo-dakar';
 }
 
-export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus' }: BookingWizardModalProps) {
+export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar' }: BookingWizardModalProps) {
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -27,12 +27,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
     date: '',
     heure: '',
     passagers: 1,
-    type: initialType
+    type: 'allo-dakar'
   });
 
   const [generatedTicket, setGeneratedTicket] = useState<any>(null);
   
-  const isAlloDakar = searchParams.type === 'allo-dakar';
+  const isAlloDakar = true;
 
   const [selectedTrip, setSelectedTrip] = useState<any>(null);
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
@@ -155,12 +155,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   };
 
   const handleShare = async () => {
-    const shareData = isAlloDakar ? {
-      title: 'Ma Demande AllerRetour',
-      text: `J'ai fait une demande de covoiturage avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.\n👉 https://aller-retour.sn`,
-    } : {
-      title: 'Mon Billet AllerRetour',
-      text: `J'ai réservé mon billet avec AllerRetour ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'} à ${selectedTrip?.departTime || '08:00'}. Siège: ${selectedSeat}.\n👉 https://aller-retour.sn`,
+    const shareData = {
+      title: 'Ma Demande Allo Dakar',
+      text: `J'ai fait une demande de covoiturage Allo Dakar ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.\n👉 https://aller-retour.sn`,
     };
     
     try {
@@ -175,9 +172,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   };
 
   const handleWhatsApp = async () => {
-    const text = isAlloDakar 
-      ? `🎫 *Ma Demande AllerRetour*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n\n👉 https://aller-retour.sn`
-      : `🎫 *Mon Billet AllerRetour*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n📅 Heure: ${selectedTrip?.departTime || '08:00'}\n💺 Siège: ${selectedSeat}\n\n👉 https://aller-retour.sn`;
+    const text = `🎫 *Ma Demande Allo Dakar*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n\n👉 https://aller-retour.sn`;
       
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -226,10 +221,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         id: `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         trajet: formattedTrajet,
         date: searchParams.date || new Date().toISOString().split('T')[0],
-        heure: isAlloDakar ? (searchParams.heure || 'Horaire Flexible') : (selectedTrip?.departTime || '08:00'),
-        siege: isAlloDakar ? `${searchParams.passagers} Place(s)` : selectedSeat || '14A',
-        compagnie: selectedTrip?.company || (isAlloDakar ? 'Allo Dakar' : 'Sénégal Express'),
-        vehicule: selectedTrip?.type || (isAlloDakar ? 'Voiture Privée' : 'Bus'),
+        heure: searchParams.heure || 'Horaire Flexible',
+        siege: `${searchParams.passagers} Place(s)`,
+        compagnie: selectedTrip?.company || 'Allo Dakar',
+        vehicule: selectedTrip?.type || 'Voiture Privée',
         statut: 'actif',
         passager: voyageurInfo.nom || 'Passager Inconnu'
       };
@@ -251,24 +246,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
   const renderStep1Search = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-slate-900/50 p-4 sm:p-6 rounded-2xl border border-slate-800">
-        <div className="flex bg-slate-900 rounded-xl p-1 mb-6">
-          <button 
-            onClick={() => setSearchParams(s => ({...s, type: 'allo-dakar'}))}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isAlloDakar ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            <Star className="w-4 h-4 inline-block mr-1.5 -mt-0.5" />
-            Allo Dakar
-          </button>
-          <button 
-            onClick={() => setSearchParams(s => ({...s, type: 'bus'}))}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isAlloDakar ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            <Bus className="w-4 h-4 inline-block mr-1.5 -mt-0.5" />
-            Gares Routières
-          </button>
-        </div>
-
-        <h3 className="text-lg font-bold text-white mb-4">Où allez-vous ?</h3>
+        <h3 className="text-lg font-bold text-white mb-4">Où allez-vous avec Allo Dakar ?</h3>
         <div className="space-y-3">
           <div className="relative z-[60]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -458,12 +436,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
         </div>
       </div>
       <button 
-        disabled={!searchParams.depart || !searchParams.arrivee || (isAlloDakar && (!searchParams.quartierArrivee || !pickupLocation || !searchParams.heure))}
+        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.heure}
         onClick={nextStep}
         className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         <Search className="w-5 h-5" />
-        {(searchParams.depart && searchParams.arrivee && (!isAlloDakar || (pickupLocation && searchParams.quartierArrivee && searchParams.heure))) ? 'Rechercher un trajet' : 'Informations incomplètes'}
+        {(searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.heure) ? 'Rechercher un trajet' : 'Informations incomplètes'}
       </button>
     </div>
   );
@@ -479,7 +457,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
 
       return (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-          <h3 className="text-sm font-semibold text-slate-400 px-1">Choix du type de covoiturage</h3>
+          <h3 className="text-sm font-semibold text-slate-400 px-1">Choix du type de véhicule Allo Dakar</h3>
           <div className="space-y-3">
             {mockServices.map(service => (
               <div 
@@ -512,59 +490,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'bus
           </div>
         </div>
       );
-    } else {
-      const mockTrips = [
-        { id: 1, company: "Salam Transport", departTime: "08:00", arriveTime: "12:30", price: 4500, type: "Bus Classique", seats: 12 },
-        { id: 2, company: "Ndiambour VIP", departTime: "09:30", arriveTime: "14:00", price: 6000, type: "Bus VIP", seats: 4 },
-      ];
-
-      return (
-        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-          <h3 className="text-sm font-semibold text-slate-400 px-1">Trajets disponibles pour Dakar → Touba</h3>
-          <div className="space-y-3">
-            {mockTrips.map(trip => (
-              <div 
-                key={trip.id} 
-                onClick={() => { setSelectedTrip(trip); nextStep(); }}
-                className="bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl cursor-pointer transition-all hover:bg-slate-800/50"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white">{trip.company}</span>
-                      <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{trip.type}</span>
-                    </div>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-white leading-none">{trip.departTime}</p>
-                        <p className="text-[10px] text-slate-500 uppercase mt-1">Départ</p>
-                      </div>
-                      <div className="flex-1 flex flex-col items-center">
-                        <p className="text-[10px] text-slate-400 mb-1">4h 30m</p>
-                        <div className="w-full h-[1px] bg-slate-700 relative">
-                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-500"></div>
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-white leading-none">{trip.arriveTime}</p>
-                        <p className="text-[10px] text-slate-500 uppercase mt-1">Arrivée</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-orange-500">{trip.price} <span className="text-sm">FCFA</span></p>
-                    <p className={`text-xs mt-1 ${trip.seats < 5 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`}>
-                      {trip.seats} places restantes
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
   };
 
   const renderStep3Seats = () => {

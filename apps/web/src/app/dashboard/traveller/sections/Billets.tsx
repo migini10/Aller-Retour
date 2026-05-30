@@ -1,14 +1,14 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
-import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Bus, ArrowRight, MessageCircle, User } from 'lucide-react';
+import { Download, Share2, Printer, Eye, QrCode, CheckCircle2, Clock, XCircle, Car, ArrowRight, MessageCircle, User } from 'lucide-react';
 import { useModal } from '../../../../components/ModalContext';
 import html2canvas from 'html2canvas';
 
 const initialMockBillets = [
-  { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '14A VIP', compagnie: 'Sénégal Express', vehicule: 'Bus Climatisé 50 places', statut: 'actif', passager: 'Abdou Bakhe' },
-  { id: 'AR-84512987', trajet: 'Dakar → Saint-Louis', date: '2026-05-20', heure: '07:00', siege: '03B', compagnie: 'Dakar Dem Dikk', vehicule: 'Mercedes Sprinter', statut: 'utilisé', passager: 'Mamadou Ndiaye' },
-  { id: 'AR-62019384', trajet: 'Thiès → Ziguinchor', date: '2026-04-15', heure: '06:30', siege: '08C', compagnie: 'Mouride Express', vehicule: 'Bus 35 places', statut: 'annulé', passager: 'Fatou Diop' },
+  { id: 'AR-74892374', trajet: 'Dakar → Touba', date: '2026-06-05', heure: '08:00', siege: '1 Place(s)', compagnie: 'Allo Dakar Confort', vehicule: 'Voiture 5 places', statut: 'actif', passager: 'Abdou Bakhe' },
+  { id: 'AR-84512987', trajet: 'Dakar → Saint-Louis', date: '2026-05-20', heure: '07:00', siege: '2 Place(s)', compagnie: 'Allo Dakar Économie', vehicule: 'Voiture 7 places', statut: 'utilisé', passager: 'Mamadou Ndiaye' },
+  { id: 'AR-62019384', trajet: 'Thiès → Ziguinchor', date: '2026-04-15', heure: '06:30', siege: '1 Place(s)', compagnie: 'Allo Dakar Confort', vehicule: 'Voiture 5 places', statut: 'annulé', passager: 'Fatou Diop' },
 ];
 
 const statutStyle: Record<string, string> = {
@@ -216,7 +216,7 @@ export default function SectionBillets() {
           <div id={`capture-ticket-${b.id}`} key={`cap-${b.id}`} className="w-[400px] bg-white rounded-2xl overflow-hidden shadow-2xl">
             <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
               <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
-                <Bus className="w-5 h-5 text-orange-500" />
+                <Car className="w-5 h-5 text-orange-500" />
                 Aller<span className="text-orange-500">Retour</span>
               </h3>
               <p className="text-slate-400 text-xs mt-1">{b.compagnie}</p>

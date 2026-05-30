@@ -197,9 +197,7 @@ export default function HomePage() {
           {/* Onglets du Cockpit */}
           <div className="flex border-b border-slate-800/80 bg-[#0B0F19]/60 px-6 pt-3 gap-2 overflow-x-auto">
             {[
-              { id: 'bus', label: 'Billets de Bus (GIE)', icon: Bus },
-              { id: 'vtc', label: 'Taxis (4 & 7 places) & Covoiturage', icon: Navigation },
-              { id: 'package', label: 'Colis & Courrier Express', icon: Package },
+              { id: 'vtc', label: 'Allo Dakar (Covoiturage inter-urbain)', icon: Navigation },
             ].map((tab) => {
               const TabIcon = tab.icon;
               return (
@@ -271,7 +269,7 @@ export default function HomePage() {
 
               <div>
                 <button 
-                  onClick={() => openBookingWizard(searchTab === 'vtc' ? 'allo-dakar' : 'bus')}
+                  onClick={() => openBookingWizard('allo-dakar')}
                   className="w-full py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                 >
                   <span>Rechercher</span>
