@@ -123,6 +123,13 @@ export default function SectionMissions() {
       if (res.ok) {
         setIsModalOpen(false);
         setLocalMissions([newMission, ...localMissions]);
+        
+        // Sauvegarde dans le localStorage pour la démo Vercel
+        const stored = localStorage.getItem('demo_trips');
+        const demoTrips = stored ? JSON.parse(stored) : [];
+        demoTrips.push(newMission);
+        localStorage.setItem('demo_trips', JSON.stringify(demoTrips));
+
         alert('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
       } else {
         throw new Error('Erreur serveur');
@@ -133,6 +140,13 @@ export default function SectionMissions() {
       setTimeout(() => {
         setIsModalOpen(false);
         setLocalMissions([newMission, ...localMissions]);
+        
+        // Sauvegarde dans le localStorage pour la démo Vercel
+        const stored = localStorage.getItem('demo_trips');
+        const demoTrips = stored ? JSON.parse(stored) : [];
+        demoTrips.push(newMission);
+        localStorage.setItem('demo_trips', JSON.stringify(demoTrips));
+
         alert('Mode Démo: Le trajet a été virtuellement créé (Le serveur backend NestJS n\'est pas accessible depuis Vercel).');
       }, 800);
     }

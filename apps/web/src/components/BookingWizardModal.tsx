@@ -483,17 +483,45 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           } catch (e) {
             console.error("Erreur serveur", e);
             // SIMULATION MODE DÉMO VERCEL
-            const demoTrip = {
-              id: `DEMO-${Math.floor(Math.random() * 1000)}`,
-              company: { name: "Allo Dakar Partenaire" },
-              pricePerSeat: 5000,
-              vehicle: { type: "Voiture Allo Dakar", capacity: 4 },
-              isAirConditioned: true,
-              takesTollRoad: true,
-              departureTime: new Date(`${searchParams.date}T${searchParams.heure || '14:00'}:00`).toISOString(),
-              availableSeats: 4
-            };
-            setRealTrips([demoTrip]);
+            const stored = localStorage.getItem('demo_trips');
+            let fallbackTrips = [];
+            
+            if (stored) {
+              try {
+                const demoTrips = JSON.parse(stored);
+                const matchingTrips = demoTrips.filter((t: any) => 
+                  t.date === searchParams.date && 
+                  t.trajet.toLowerCase().includes(searchParams.depart.toLowerCase()) && 
+                  t.trajet.toLowerCase().includes(searchParams.arrivee.toLowerCase())
+                );
+                
+                fallbackTrips = matchingTrips.map((t: any) => ({
+                  id: t.id,
+                  company: { name: "Allo Dakar Partenaire" },
+                  pricePerSeat: 5000,
+                  vehicle: { type: t.vehicule, capacity: t.passagers || 4 },
+                  isAirConditioned: t.isAirConditioned,
+                  takesTollRoad: t.takesTollRoad,
+                  departureTime: new Date(`${t.date}T${t.heure}:00`).toISOString(),
+                  availableSeats: t.placesLibres || 4
+                }));
+              } catch(err) {}
+            }
+            
+            if (fallbackTrips.length === 0) {
+              fallbackTrips = [{
+                id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+                company: { name: "Allo Dakar Partenaire" },
+                pricePerSeat: 5000,
+                vehicle: { type: "Voiture Allo Dakar", capacity: 4 },
+                isAirConditioned: true,
+                takesTollRoad: true,
+                departureTime: new Date(`${searchParams.date}T${searchParams.heure || '14:00'}:00`).toISOString(),
+                availableSeats: 4
+              }];
+            }
+            
+            setRealTrips(fallbackTrips);
           }
           setIsSearching(false);
           nextStep();
