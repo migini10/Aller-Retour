@@ -198,6 +198,7 @@ export default function HomePage() {
           <div className="flex border-b border-slate-800/80 bg-[#0B0F19]/60 px-6 pt-3 gap-2 overflow-x-auto">
             {[
               { id: 'vtc', label: 'Allo Dakar (Covoiturage inter-urbain)', icon: Navigation },
+              { id: 'package', label: 'Colis & Courrier Express', icon: Package },
             ].map((tab) => {
               const TabIcon = tab.icon;
               return (
