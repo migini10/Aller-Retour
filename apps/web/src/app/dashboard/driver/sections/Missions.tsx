@@ -33,6 +33,25 @@ export default function SectionMissions() {
     takesTollRoad: true
   });
 
+  const getTodayStr = () => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split('T')[0];
+  };
+
+  const getAvailableHours = () => {
+    const hours = [];
+    const today = new Date();
+    const isToday = formData.date === getTodayStr();
+    const currentHour = today.getHours();
+
+    for (let i = 0; i < 24; i++) {
+      if (isToday && i <= currentHour) continue;
+      hours.push(`${i.toString().padStart(2, '0')}:00`);
+    }
+    return hours;
+  };
+
   const handleCreateTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -190,11 +209,27 @@ export default function SectionMissions() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Date</label>
-                  <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <input type="date" min={getTodayStr()} value={formData.date} onChange={e => {
+                    setFormData({...formData, date: e.target.value, heure: ''});
+                  }} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Heure</label>
-                  <input type="time" value={formData.heure} onChange={e => setFormData({...formData, heure: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <select 
+                    value={formData.heure} 
+                    onChange={e => setFormData({...formData, heure: e.target.value})} 
+                    className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    required
+                    disabled={!formData.date}
+                  >
+                    <option value="" disabled>Choisir l'heure</option>
+                    {getAvailableHours().map(h => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
                 </div>
               </div>
 
