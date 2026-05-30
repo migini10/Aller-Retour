@@ -79,6 +79,8 @@ export class TripsController {
         status: b.status,
       })),
     };
+  }
+
   @Post('create-allo-dakar')
   @ApiOperation({ summary: 'Créer un trajet Allo Dakar par un chauffeur' })
   async createAlloDakarTrip(@Body() body: any) {
