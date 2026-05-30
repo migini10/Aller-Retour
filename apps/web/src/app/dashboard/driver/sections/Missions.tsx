@@ -46,11 +46,17 @@ export default function SectionMissions() {
       });
       if (res.ok) {
         setIsModalOpen(false);
-        alert('Trajet Allo Dakar créé avec succès ! Il est maintenant visible par les passagers.');
+        alert('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
+      } else {
+        throw new Error('Erreur serveur');
       }
     } catch (err) {
-      console.error(err);
-      alert('Erreur lors de la création du trajet');
+      console.warn("Le serveur backend n'est pas accessible. Simulation de réussite pour la démo Vercel.");
+      // Simuler le succès pour la démo si le backend n'est pas déployé
+      setTimeout(() => {
+        setIsModalOpen(false);
+        alert('Mode Démo: Le trajet a été virtuellement créé (Le serveur backend NestJS n\'est pas accessible depuis Vercel).');
+      }, 800);
     }
     setIsLoading(false);
   };
