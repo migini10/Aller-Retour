@@ -10,6 +10,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "start": "cd apps/api && npm run start:prod",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "clean": "turbo run clean && rm -rf node_modules apps/*/node_modules packages/*/node_modules"
