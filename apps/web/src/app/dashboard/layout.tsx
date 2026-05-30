@@ -25,8 +25,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <BrandingProvider>
       <div className="h-[100dvh] overflow-hidden bg-slate-950 text-slate-100 flex flex-col">
-      {/* Topbar Mobile-only : fixée en haut, visible uniquement sur petits écrans */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
+      {/* Topbar Fixe (Mobile & Desktop) */}
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center">
             <Bus className="w-4 h-4 text-orange-500" />
@@ -68,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar Desktop : miniature w-20, expansible au hover (w-72) */}
         <div
           className={`
-            fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out group
+            fixed top-16 bottom-0 left-0 z-40 transform transition-all duration-300 ease-in-out group
             w-72 lg:w-20 lg:hover:w-72 overflow-hidden
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
             ${isSuperAdmin ? 'lg:-translate-x-full lg:hidden' : 'lg:translate-x-0'}
@@ -78,7 +78,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Contenu principal: un conteneur flex qui ne scrolle pas, pour permettre aux headers d'être vraiment fixes */}
-        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-0 ${isSuperAdmin ? '' : 'lg:ml-20'}`}>
+        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pt-16 lg:pt-16 ${isSuperAdmin ? '' : 'lg:ml-20'}`}>
           {children}
         </main>
       </div>
