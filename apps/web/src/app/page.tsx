@@ -76,39 +76,14 @@ export default function HomePage() {
             </div>
           </Link>
 
-          {/* Navigation haute épurée */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-slate-300">
-            <a href="#search" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
-              <span>Réservation</span>
-            </a>
-            <a href="#showcase" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
-              <span>Flotte & Confort</span>
-            </a>
-            <a href="#features" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
-              <span>Transporteurs GIE</span>
-            </a>
-            <a href="#marketplace" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
-              <span>Indépendants</span>
-            </a>
-            <a href="#escrow" className="hover:text-white transition-colors py-2 flex items-center gap-1.5">
-              <span>Sécurité Séquestre</span>
-            </a>
-          </nav>
-
           <div className="flex items-center space-x-3">
-            <Link 
-              href="/dashboard/client" 
-              className="hidden sm:inline-flex px-4 py-2 rounded-xl border border-slate-800 hover:border-slate-700 text-sm font-medium text-slate-200 transition-colors bg-slate-900/50 hover:bg-slate-900"
+            <button
+              onClick={() => openBookingWizard('allo-dakar')}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold transition-colors shadow-sm"
             >
-              Espace Voyageur
-            </Link>
-            <Link 
-              href="/dashboard/dispatcher" 
-              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2"
-            >
-              <TicketCheck className="w-4 h-4" />
-              <span>Guichet de Gare</span>
-            </Link>
+              <Bus className="w-4 h-4" />
+              <span>Allo Dakar</span>
+            </button>
 
             {/* Bouton de menu latéral à droite */}
             <button 
