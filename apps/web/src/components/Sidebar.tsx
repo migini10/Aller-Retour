@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useModal } from './ModalContext';
 import { 
   User, 
-  Bus, 
+  CarFront, 
   Building2, 
   TicketCheck, 
   ShieldAlert,
@@ -25,7 +25,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const navItems = [
     { name: 'Allo Dakar', path: '/dashboard/traveller', icon: User, badge: 'Premium' },
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
-    { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: Bus, badge: 'Driver' },
+    { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver' },
     { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
     { name: 'Guichet & Contrôle', path: '/dashboard/station', icon: TicketCheck, badge: 'Gare' },
     { name: 'Super Admin SaaS', path: '/dashboard/admin', icon: ShieldAlert, badge: 'Global' },
@@ -41,7 +41,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           className="hidden lg:flex items-center gap-3 mb-8 group/logo w-[230px]"
         >
           <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center shrink-0 group-hover/logo:bg-orange-600/30 transition-colors">
-            <Bus className="w-5 h-5 text-orange-500 shrink-0" />
+            <CarFront className="w-5 h-5 text-orange-500 shrink-0" />
           </div>
           <div className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap flex-1">
             <h1 className="text-lg font-bold tracking-tight text-white">

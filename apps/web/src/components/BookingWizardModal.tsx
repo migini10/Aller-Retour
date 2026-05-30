@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { 
-  X, Search, MapPin, Calendar, Users, User, Bus, ArrowRight, CheckCircle2, 
+  X, Search, MapPin, Calendar, Users, User, CarFront, ArrowRight, CheckCircle2, 
   CreditCard, Wallet, Smartphone, ShieldCheck, Ticket, QrCode, Download, Share2, Star,
   ChevronLeft, Info, Map, Banknote, MessageCircle, Clock, ChevronDown
 } from 'lucide-react';
@@ -754,7 +754,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
         <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
-            <Bus className="w-5 h-5 text-orange-500" />
+            <CarFront className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
           </h3>
           <p className="text-slate-400 text-xs mt-1">Demande en attente : {selectedTrip?.company}</p>
@@ -841,7 +841,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
         <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
-            <Bus className="w-5 h-5 text-orange-500" />
+            <CarFront className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
           </h3>
           <p className="text-slate-400 text-xs mt-1">{selectedTrip?.company}</p>

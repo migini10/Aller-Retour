@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '../../components/Sidebar';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { Bus, Ticket } from 'lucide-react';
+import { CarFront, Ticket } from 'lucide-react';
 import { BrandingProvider } from '../../components/BrandingContext';
 import { useModal } from '../../components/ModalContext';
 
@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center">
-            <Bus className="w-4 h-4 text-orange-500" />
+            <CarFront className="w-4 h-4 text-orange-500" />
           </div>
           <span className="text-base font-bold text-white">
             Aller<span className="text-orange-500">Retour</span>
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onClick={() => openBookingWizard('allo-dakar')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
             >
-              <Bus className="w-3.5 h-3.5" />
+              <CarFront className="w-3.5 h-3.5" />
               Allo Dakar
             </button>
           )}
