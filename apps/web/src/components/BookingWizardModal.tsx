@@ -501,8 +501,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       company: t.company?.name || "Allo Dakar Partenaire",
       price: t.pricePerSeat || 5000,
       type: t.vehicle?.type || "Voiture",
-      options: "Climatisé", // Fallback info
-      route: "Autoroute"
+      options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
+      route: t.takesTollRoad !== false ? "Autoroute" : "Nationale",
+      time: new Date(t.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      availableSeats: t.availableSeats || 4
     })) : [];
 
       return (
@@ -520,18 +522,30 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 onClick={() => { setSelectedTrip(service); nextStep(); }}
                 className="bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl cursor-pointer transition-all hover:bg-slate-800/50"
               >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-bold text-white">{service.company}</span>
-                    <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${service.options === 'Climatisé' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-800/50 text-slate-400'}`}>
-                      {service.options}
-                    </span>
-                    {service.route === 'Autoroute' && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Via Autoroute
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-white text-lg bg-orange-500/20 px-2 py-0.5 rounded-lg border border-orange-500/30 text-orange-400">
+                        {service.time}
                       </span>
-                    )}
+                      <span className="font-bold text-white">{service.company}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
+                      <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        {service.availableSeats} places restantes
+                      </span>
+                      {service.options === 'Climatisé' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          ❄️ Climatisé
+                        </span>
+                      )}
+                      {service.route === 'Autoroute' && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          🛣️ Via Autoroute
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-2">
