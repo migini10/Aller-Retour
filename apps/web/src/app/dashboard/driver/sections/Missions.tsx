@@ -33,6 +33,12 @@ export default function SectionMissions() {
     takesTollRoad: true
   });
 
+  const SENEGAL_CITIES = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda', 'Louga', 'Kolda', 'Fatick', 'Kaffrine', 'Matam', 'Sédhiou', 'Kédougou'];
+  const [originSuggestions, setOriginSuggestions] = useState<string[]>([]);
+  const [destSuggestions, setDestSuggestions] = useState<string[]>([]);
+  const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
+  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
+
   const getTodayStr = () => {
     const d = new Date();
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -220,13 +226,63 @@ export default function SectionMissions() {
 
             <form onSubmit={handleCreateTrip} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Départ</label>
-                  <input type="text" value={formData.originCity} onChange={e => setFormData({...formData, originCity: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <input type="text" value={formData.originCity} 
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormData({...formData, originCity: val});
+                      setOriginSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                      setShowOriginSuggestions(true);
+                    }}
+                    onFocus={() => {
+                      setOriginSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(formData.originCity.toLowerCase())));
+                      setShowOriginSuggestions(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
+                    className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
+                  />
+                  {showOriginSuggestions && originSuggestions.length > 0 && (
+                    <ul className="absolute z-50 w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-40 overflow-y-auto shadow-xl custom-scrollbar">
+                      {originSuggestions.map(city => (
+                        <li key={city} onClick={() => {
+                           setFormData({...formData, originCity: city});
+                           setShowOriginSuggestions(false);
+                        }} className="px-4 py-2 hover:bg-orange-500/20 text-slate-300 hover:text-white cursor-pointer text-sm">
+                          {city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Arrivée</label>
-                  <input type="text" value={formData.destinationCity} onChange={e => setFormData({...formData, destinationCity: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <input type="text" value={formData.destinationCity} 
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormData({...formData, destinationCity: val});
+                      setDestSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                      setShowDestSuggestions(true);
+                    }}
+                    onFocus={() => {
+                      setDestSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(formData.destinationCity.toLowerCase())));
+                      setShowDestSuggestions(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
+                    className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
+                  />
+                  {showDestSuggestions && destSuggestions.length > 0 && (
+                    <ul className="absolute z-50 w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-40 overflow-y-auto shadow-xl custom-scrollbar">
+                      {destSuggestions.map(city => (
+                        <li key={city} onClick={() => {
+                           setFormData({...formData, destinationCity: city});
+                           setShowDestSuggestions(false);
+                        }} className="px-4 py-2 hover:bg-orange-500/20 text-slate-300 hover:text-white cursor-pointer text-sm">
+                          {city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
 
