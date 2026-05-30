@@ -27,7 +27,8 @@ export default function SectionMissions() {
     destinationCity: 'Touba',
     date: new Date().toISOString().split('T')[0],
     heure: '14:00',
-    pricePerSeat: 5000
+    pricePerSeat: 5000,
+    placesLibres: 4
   });
 
   const handleCreateTrip = async (e: React.FormEvent) => {
@@ -39,9 +40,10 @@ export default function SectionMissions() {
       trajet: `${formData.originCity} → ${formData.destinationCity}`,
       date: formData.date,
       heure: formData.heure,
-      vehicule: 'Taxi 7 Places',
+      vehicule: 'Voiture Allo Dakar',
       statut: 'programmé',
-      passagers: 0
+      passagers: 0,
+      placesLibres: formData.placesLibres
     };
 
     try {
@@ -53,7 +55,8 @@ export default function SectionMissions() {
           originCity: formData.originCity,
           destinationCity: formData.destinationCity,
           pricePerSeat: formData.pricePerSeat,
-          departureTime: departureTime.toISOString()
+          departureTime: departureTime.toISOString(),
+          placesLibres: formData.placesLibres
         })
       });
       if (res.ok) {
@@ -107,7 +110,10 @@ export default function SectionMissions() {
                 </div>
                 <p className="font-bold text-white text-lg">{m.trajet}</p>
                 <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {m.date} à {m.heure}</p>
-                <p className="text-xs text-slate-500">{m.vehicule} • {m.passagers} passagers prévus</p>
+                <p className="text-xs text-slate-500">
+                  {m.vehicule} • {m.passagers} passagers prévus
+                  {m.placesLibres ? ` • ${m.placesLibres} places offertes` : ''}
+                </p>
               </div>
               
               <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
@@ -177,9 +183,15 @@ export default function SectionMissions() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
+                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Places Libres</label>
+                  <input type="number" min="1" max="6" value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
               </div>
 
               <button 
