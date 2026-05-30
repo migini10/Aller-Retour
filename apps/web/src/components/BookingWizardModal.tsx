@@ -475,13 +475,25 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         onClick={async () => {
           setIsSearching(true);
           try {
-            const res = await fetch(`http://localhost:3333/api/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}`);
+            const res = await fetch(`http://localhost:3333/api/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
             const data = await res.json();
             if (Array.isArray(data)) {
               setRealTrips(data);
             }
           } catch (e) {
             console.error("Erreur serveur", e);
+            // SIMULATION MODE DÉMO VERCEL
+            const demoTrip = {
+              id: `DEMO-${Math.floor(Math.random() * 1000)}`,
+              company: { name: "Allo Dakar Partenaire" },
+              pricePerSeat: 5000,
+              vehicle: { type: "Voiture Allo Dakar", capacity: 4 },
+              isAirConditioned: true,
+              takesTollRoad: true,
+              departureTime: new Date(`${searchParams.date}T${searchParams.heure || '14:00'}:00`).toISOString(),
+              availableSeats: 4
+            };
+            setRealTrips([demoTrip]);
           }
           setIsSearching(false);
           nextStep();
