@@ -447,8 +447,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   );
 
   const renderStep2Results = () => {
-    if (isAlloDakar) {
-      const mockServices = [
+    const mockServices = [
         { id: 1, company: "Allo Dakar Confort", price: 6000, type: "Voiture 5 places", options: "Climatisé", route: "Autoroute" },
         { id: 2, company: "Allo Dakar Confort", price: 5500, type: "Voiture 7 places", options: "Climatisé", route: "Autoroute" },
         { id: 3, company: "Allo Dakar Économie", price: 4500, type: "Voiture 5 places", options: "Non Climatisé", route: "Nationale" },
