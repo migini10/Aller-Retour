@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront } from 'lucide-react';
 
-const missions = [
+const initialMissions = [
   { id: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45 },
   { id: 'TRIP-398', trajet: 'Thiès → Dakar', date: 'Aujourd\'hui', heure: '08:00', vehicule: 'Bus 50 Places', statut: 'terminé', passagers: 48 },
   { id: 'TRIP-405', trajet: 'Dakar → Saint-Louis', date: 'Demain', heure: '07:00', vehicule: 'Bus 50 Places', statut: 'programmé', passagers: 22 },
@@ -19,6 +19,7 @@ const statutStyle: Record<string, string> = {
 
 export default function SectionMissions() {
   const [tab, setTab] = useState('Toutes');
+  const [localMissions, setLocalMissions] = useState(initialMissions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,6 +33,17 @@ export default function SectionMissions() {
   const handleCreateTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    const newMission = {
+      id: `TRIP-${Math.floor(Math.random() * 1000)}`,
+      trajet: `${formData.originCity} → ${formData.destinationCity}`,
+      date: formData.date,
+      heure: formData.heure,
+      vehicule: 'Taxi 7 Places',
+      statut: 'programmé',
+      passagers: 0
+    };
+
     try {
       const departureTime = new Date(`${formData.date}T${formData.heure}`);
       const res = await fetch('http://localhost:3333/api/trips/create-allo-dakar', {
@@ -46,6 +58,7 @@ export default function SectionMissions() {
       });
       if (res.ok) {
         setIsModalOpen(false);
+        setLocalMissions([newMission, ...localMissions]);
         alert('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
       } else {
         throw new Error('Erreur serveur');
@@ -55,6 +68,7 @@ export default function SectionMissions() {
       // Simuler le succès pour la démo si le backend n'est pas déployé
       setTimeout(() => {
         setIsModalOpen(false);
+        setLocalMissions([newMission, ...localMissions]);
         alert('Mode Démo: Le trajet a été virtuellement créé (Le serveur backend NestJS n\'est pas accessible depuis Vercel).');
       }, 800);
     }
@@ -83,7 +97,7 @@ export default function SectionMissions() {
       </div>
 
       <div className="space-y-4">
-        {missions.map(m => (
+        {localMissions.map(m => (
           <div key={m.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1.5">
