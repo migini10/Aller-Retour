@@ -28,7 +28,9 @@ export default function SectionMissions() {
     date: new Date().toISOString().split('T')[0],
     heure: '14:00',
     pricePerSeat: 5000,
-    placesLibres: 4
+    placesLibres: 4,
+    isAirConditioned: true,
+    takesTollRoad: true
   });
 
   const handleCreateTrip = async (e: React.FormEvent) => {
@@ -43,7 +45,9 @@ export default function SectionMissions() {
       vehicule: 'Voiture Allo Dakar',
       statut: 'programmé',
       passagers: 0,
-      placesLibres: formData.placesLibres
+      placesLibres: formData.placesLibres,
+      isAirConditioned: formData.isAirConditioned,
+      takesTollRoad: formData.takesTollRoad
     };
 
     try {
@@ -56,7 +60,9 @@ export default function SectionMissions() {
           destinationCity: formData.destinationCity,
           pricePerSeat: formData.pricePerSeat,
           departureTime: departureTime.toISOString(),
-          placesLibres: formData.placesLibres
+          placesLibres: formData.placesLibres,
+          isAirConditioned: formData.isAirConditioned,
+          takesTollRoad: formData.takesTollRoad
         })
       });
       if (res.ok) {
@@ -114,6 +120,15 @@ export default function SectionMissions() {
                   {m.vehicule} • {m.passagers} passagers prévus
                   {m.placesLibres ? ` • ${m.placesLibres} places offertes` : ''}
                 </p>
+                {/* Options (mock pour les missions statiques si pas défini) */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {(m.isAirConditioned !== false) && (
+                    <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md">❄️ Climatisé</span>
+                  )}
+                  {(m.takesTollRoad !== false) && (
+                    <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md">🛣️ Autoroute</span>
+                  )}
+                </div>
               </div>
               
               <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
@@ -192,6 +207,27 @@ export default function SectionMissions() {
                   <label className="text-xs text-slate-400 font-medium">Places Libres</label>
                   <input type="number" min="1" max="6" value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-6 pt-2">
+                <label className="flex items-center gap-2 text-sm text-slate-300 font-medium cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.isAirConditioned} 
+                    onChange={e => setFormData({...formData, isAirConditioned: e.target.checked})} 
+                    className="w-4 h-4 rounded bg-[#0B0F19] border-slate-700 text-orange-500 focus:ring-orange-500"
+                  />
+                  ❄️ Climatisé
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-300 font-medium cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.takesTollRoad} 
+                    onChange={e => setFormData({...formData, takesTollRoad: e.target.checked})} 
+                    className="w-4 h-4 rounded bg-[#0B0F19] border-slate-700 text-orange-500 focus:ring-orange-500"
+                  />
+                  🛣️ Autoroute
+                </label>
               </div>
 
               <button 
