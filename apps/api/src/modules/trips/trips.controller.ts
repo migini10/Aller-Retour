@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { prisma, TripStatus } from '@aller-retour/database';
 
@@ -79,5 +79,81 @@ export class TripsController {
         status: b.status,
       })),
     };
+  @Post('create-allo-dakar')
+  @ApiOperation({ summary: 'Créer un trajet Allo Dakar par un chauffeur' })
+  async createAlloDakarTrip(@Body() body: any) {
+    // On simule/trouve une entreprise par défaut pour Allo Dakar
+    let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
+    if (!company) {
+      company = await prisma.company.create({
+        data: { name: 'Allo Dakar Partenaire' }
+      });
+    }
+
+    // On simule/trouve le profil chauffeur
+    let driverProfile = await prisma.driverProfile.findFirst();
+    if (!driverProfile) {
+      const defaultUser = await prisma.user.findFirst() || await prisma.user.create({
+        data: { phone: '+221770000000', fullName: 'Chauffeur Demo', role: 'DRIVER', phoneVerified: true }
+      });
+      driverProfile = await prisma.driverProfile.create({
+        data: { userId: defaultUser.id, licenseNumber: 'SN-123456', licenseExpiry: new Date('2030-01-01') }
+      });
+    }
+
+    // Véhicule par défaut
+    let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id } });
+    if (!vehicle) {
+      vehicle = await prisma.vehicle.create({
+        data: { 
+          companyId: company.id, 
+          plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
+          type: 'TAXI_7_PLACES', 
+          capacity: 6,
+          insuranceExpiry: new Date('2030-01-01'),
+          inspectionExpiry: new Date('2030-01-01')
+        }
+      });
+    }
+
+    // Trouver ou créer les gares
+    let origin = await prisma.station.findFirst({ where: { city: body.originCity } });
+    if (!origin) origin = await prisma.station.create({ data: { name: `Gare ${body.originCity}`, city: body.originCity, country: 'SN', latitude: 14.6, longitude: -17.4 } });
+
+    let destination = await prisma.station.findFirst({ where: { city: body.destinationCity } });
+    if (!destination) destination = await prisma.station.create({ data: { name: `Gare ${body.destinationCity}`, city: body.destinationCity, country: 'SN', latitude: 14.7, longitude: -17.3 } });
+
+    // Trouver ou créer la route
+    let route = await prisma.route.findFirst({
+      where: { originStationId: origin.id, destinationStationId: destination.id, companyId: company.id }
+    });
+    if (!route) {
+      route = await prisma.route.create({
+        data: {
+          companyId: company.id,
+          name: `${body.originCity} - ${body.destinationCity}`,
+          originStationId: origin.id,
+          destinationStationId: destination.id,
+          distanceKm: 200,
+          estimatedDurationMins: 180,
+          defaultPrice: body.pricePerSeat || 5000
+        }
+      });
+    }
+
+    const trip = await prisma.trip.create({
+      data: {
+        companyId: company.id,
+        routeId: route.id,
+        vehicleId: vehicle.id,
+        driverId: driverProfile.id,
+        departureTime: body.departureTime ? new Date(body.departureTime) : new Date(),
+        pricePerSeat: body.pricePerSeat || 5000,
+        isMarketplace: true,
+        status: TripStatus.SCHEDULED
+      }
+    });
+
+    return { success: true, trip };
   }
 }

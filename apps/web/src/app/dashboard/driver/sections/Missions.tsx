@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin } from 'lucide-react';
+import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront } from 'lucide-react';
 
 const missions = [
   { id: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45 },
@@ -19,10 +19,53 @@ const statutStyle: Record<string, string> = {
 
 export default function SectionMissions() {
   const [tab, setTab] = useState('Toutes');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    originCity: 'Dakar',
+    destinationCity: 'Touba',
+    date: new Date().toISOString().split('T')[0],
+    heure: '14:00',
+    pricePerSeat: 5000
+  });
+
+  const handleCreateTrip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const departureTime = new Date(`${formData.date}T${formData.heure}`);
+      const res = await fetch('http://localhost:3333/api/trips/create-allo-dakar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originCity: formData.originCity,
+          destinationCity: formData.destinationCity,
+          pricePerSeat: formData.pricePerSeat,
+          departureTime: departureTime.toISOString()
+        })
+      });
+      if (res.ok) {
+        setIsModalOpen(false);
+        alert('Trajet Allo Dakar créé avec succès ! Il est maintenant visible par les passagers.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erreur lors de la création du trajet');
+    }
+    setIsLoading(false);
+  };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Mes Missions & Trajets</h2>
+    <div className="space-y-6 relative">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Mes Missions & Trajets</h2>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2"
+        >
+          <CarFront className="w-4 h-4" /> Proposer un Trajet Allo Dakar
+        </button>
+      </div>
       
       <div className="flex gap-2 flex-wrap">
         {tabs.map(t => (
@@ -74,6 +117,62 @@ export default function SectionMissions() {
           </div>
         ))}
       </div>
+
+      {/* Modal Création Trajet */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-[#050A15] sm:rounded-3xl border border-slate-800/80 shadow-2xl p-6 animate-in zoom-in-95 duration-300">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-900 rounded-full border border-slate-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <CarFront className="w-6 h-6 text-orange-500" /> Nouveau Trajet
+            </h3>
+
+            <form onSubmit={handleCreateTrip} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Départ</label>
+                  <input type="text" value={formData.originCity} onChange={e => setFormData({...formData, originCity: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Arrivée</label>
+                  <input type="text" value={formData.destinationCity} onChange={e => setFormData({...formData, destinationCity: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Date</label>
+                  <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Heure</label>
+                  <input type="time" value={formData.heure} onChange={e => setFormData({...formData, heure: e.target.value})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
+                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full mt-4 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Publier le trajet'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
