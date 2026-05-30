@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
+import { useAuth } from './AuthContext';
 
 interface BookingWizardModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface BookingWizardModalProps {
 export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar' }: BookingWizardModalProps) {
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
+  const { isAuthenticated, openAuthModal, user } = useAuth();
 
   const [searchParams, setSearchParams] = useState({
     depart: '',
@@ -500,7 +502,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     }));
 
     return (
-      <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="space-y-4 h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300">
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-4 flex-1 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-white font-bold">Choix du siège</h3>
@@ -545,6 +547,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   };
 
   const renderStep4Info = () => {
+    const handleContinueInfo = () => {
+      if (!isAuthenticated) {
+        openAuthModal(() => nextStep());
+      } else {
+        nextStep();
+      }
+    };
+
     if (ticketPour === null) {
       return (
         <div className="space-y-6 animate-in zoom-in-95 duration-300 py-8">
@@ -664,7 +674,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         </div>
       </div>
       <button 
-        onClick={nextStep}
+        onClick={handleContinueInfo}
         disabled={!voyageurInfo.nom || !voyageurInfo.telephone}
         className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-4 rounded-xl transition-colors"
       >
