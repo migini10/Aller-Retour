@@ -18,6 +18,12 @@ const statutStyle: Record<string, string> = {
 };
 
 export default function SectionMissions() {
+  const [isMounted, setIsMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [tab, setTab] = useState('Toutes');
   const [localMissions, setLocalMissions] = useState(initialMissions);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -132,6 +138,8 @@ export default function SectionMissions() {
     }
     setIsLoading(false);
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="space-y-6 relative">
