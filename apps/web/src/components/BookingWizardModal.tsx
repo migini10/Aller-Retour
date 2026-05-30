@@ -475,7 +475,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         onClick={async () => {
           setIsSearching(true);
           try {
-            const res = await fetch(`http://localhost:3333/api/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+            const res = await fetch(`${apiUrl}/api/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
             const data = await res.json();
             if (Array.isArray(data)) {
               setRealTrips(data);

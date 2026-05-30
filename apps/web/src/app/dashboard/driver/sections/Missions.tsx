@@ -107,7 +107,8 @@ export default function SectionMissions() {
 
     try {
       const departureTime = new Date(`${formData.date}T${formData.heure}`);
-      const res = await fetch('http://localhost:3333/api/trips/create-allo-dakar', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+      const res = await fetch(`${apiUrl}/api/trips/create-allo-dakar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
