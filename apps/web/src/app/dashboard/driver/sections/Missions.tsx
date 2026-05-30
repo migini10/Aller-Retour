@@ -23,12 +23,12 @@ export default function SectionMissions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    originCity: 'Dakar',
-    destinationCity: 'Touba',
-    date: new Date().toISOString().split('T')[0],
-    heure: '14:00',
-    pricePerSeat: 5000,
-    placesLibres: 4,
+    originCity: '',
+    destinationCity: '',
+    date: '',
+    heure: '',
+    pricePerSeat: '' as number | '',
+    placesLibres: '' as number | '',
     isAirConditioned: true,
     takesTollRoad: true
   });
@@ -201,11 +201,11 @@ export default function SectionMissions() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 5000" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Places Libres</label>
-                  <input type="number" min="1" max="6" value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: parseInt(e.target.value)})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required />
+                  <input type="number" min="1" max="6" value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 4" />
                 </div>
               </div>
 
