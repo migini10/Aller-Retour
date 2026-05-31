@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { Home, Search, Package, User, ArrowRight, TrendingUp, MapPin, Calendar, Clock, Ticket } from 'lucide-react';
+import { Home, Search, Package, User, ArrowRight, TrendingUp, MapPin, Calendar, Clock, Ticket, CarFront } from 'lucide-react';
 import { useModal } from '../components/ModalContext';
 
 export default function HomePage() {
@@ -27,10 +27,12 @@ export default function HomePage() {
         
         {/* En-tête Sombre (Premium Noir & Orange) */}
         <div className="bg-[#0A0A0A] pt-12 pb-24 px-6 relative rounded-b-[40px] border-b border-[#2A2A2A]">
-          {/* Top Bar */}
           <div className="flex justify-between items-center mb-10 mt-4">
-            <div className="bg-[#141414] border border-[#2A2A2A] rounded-xl py-2 px-4 flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-sm flex items-center tracking-tight">
+            <div className="bg-[#141414] border border-[#2A2A2A] rounded-xl py-2 px-3 flex items-center justify-center shadow-lg gap-2">
+              <div className="w-6 h-6 rounded-md bg-orange-600/20 border border-orange-500/30 flex items-center justify-center">
+                <CarFront className="w-3.5 h-3.5 text-orange-500" />
+              </div>
+              <span className="text-white font-black text-sm flex items-center tracking-tight pr-1">
                 Allô<span className="text-orange-500 ml-0.5">Dakar</span>
               </span>
             </div>
