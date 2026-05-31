@@ -12,6 +12,26 @@ export class AuthService {
       throw new BadRequestException("Ce numéro de téléphone est déjà enregistré.");
     }
 
+    if (pin) {
+      if (pin.length !== 6) {
+        throw new BadRequestException("Le code PIN doit comporter exactement 6 chiffres.");
+      }
+      if (/^(\d)\1{5}$/.test(pin)) {
+        throw new BadRequestException("Code PIN trop faible : évitez les chiffres identiques (ex: 000000).");
+      }
+      if (pin === '123456' || pin === '654321' || pin === '012345') {
+        throw new BadRequestException("Code PIN trop faible : évitez les suites logiques.");
+      }
+      // Rejeter les formats de date de naissance (JJ/MM/AA)
+      if (/^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])(\d{2})$/.test(pin)) {
+        throw new BadRequestException("Code PIN trop faible : l'utilisation d'une date de naissance (JJMMAA) est interdite pour votre sécurité.");
+      }
+      // Rejeter les formats commençant par une année de naissance (ex: 1990xx, 2000xx)
+      if (/^(19[5-9]\d|20[0-2]\d)\d{2}$/.test(pin)) {
+        throw new BadRequestException("Code PIN trop faible : l'utilisation d'une année de naissance est interdite.");
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         phone,
