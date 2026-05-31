@@ -107,14 +107,15 @@ export class TripsController {
     }
 
     // Véhicule par défaut pour ce trajet
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id, capacity: body.placesLibres || 4 } });
+    const capacity = body.vehicleCapacity || 5;
+    let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id, capacity: capacity } });
     if (!vehicle) {
       vehicle = await prisma.vehicle.create({
         data: { 
           companyId: company.id, 
           plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
-          type: 'TAXI_7_PLACES', 
-          capacity: body.placesLibres || 4,
+          type: capacity === 7 ? 'TAXI_7_PLACES' : 'VOITURE_5_PLACES', 
+          capacity: capacity,
           insuranceExpiry: new Date('2030-01-01'),
           inspectionExpiry: new Date('2030-01-01')
         }

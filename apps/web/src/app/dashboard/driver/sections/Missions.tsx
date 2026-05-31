@@ -36,6 +36,7 @@ export default function SectionMissions() {
     date: '',
     heure: '',
     pricePerSeat: '' as number | '',
+    vehicleCapacity: '' as number | '',
     placesLibres: '' as number | '',
     isAirConditioned: true,
     takesTollRoad: true
@@ -110,8 +111,14 @@ export default function SectionMissions() {
     setSubmitError('');
     setSubmitSuccess('');
     
-    if (!formData.originCity || !formData.destinationCity || !formData.date || !formData.heure || !formData.pricePerSeat || !formData.placesLibres) {
+    if (!formData.originCity || !formData.destinationCity || !formData.date || !formData.heure || !formData.pricePerSeat || !formData.placesLibres || !formData.vehicleCapacity) {
       setSubmitError('Veuillez remplir tous les champs obligatoires.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.placesLibres >= formData.vehicleCapacity) {
+      setSubmitError('Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).');
       setIsLoading(false);
       return;
     }
@@ -141,6 +148,7 @@ export default function SectionMissions() {
           pricePerSeat: formData.pricePerSeat,
           departureTime: departureTime.toISOString(),
           placesLibres: formData.placesLibres,
+          vehicleCapacity: formData.vehicleCapacity,
           isAirConditioned: formData.isAirConditioned,
           takesTollRoad: formData.takesTollRoad
         })
@@ -421,14 +429,31 @@ export default function SectionMissions() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 5000" />
+                <div className="space-y-1.5 relative">
+                  <label className="text-xs text-slate-400 font-medium">Type de Voiture</label>
+                  <select 
+                    value={formData.vehicleCapacity} 
+                    onChange={e => setFormData({...formData, vehicleCapacity: parseInt(e.target.value)})} 
+                    className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    required
+                  >
+                    <option value="" disabled>Capacité totale</option>
+                    <option value="5">Voiture 5 places</option>
+                    <option value="7">Voiture 7 places</option>
+                  </select>
+                  <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-400 font-medium">Places Libres</label>
-                  <input type="number" min="1" max="6" value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 4" />
+                  <label className="text-xs text-slate-400 font-medium">Places Disponibles</label>
+                  <input type="number" min="1" max={formData.vehicleCapacity ? formData.vehicleCapacity - 1 : 6} value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 4" disabled={!formData.vehicleCapacity} />
                 </div>
+              </div>
+              
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
+                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 5000" />
               </div>
 
               <div className="flex items-center gap-6 pt-2">
