@@ -28,6 +28,8 @@ export default function SectionMissions() {
   const [localMissions, setLocalMissions] = useState(initialMissions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
   const [formData, setFormData] = useState({
     originCity: '',
     destinationCity: '',
@@ -91,11 +93,19 @@ export default function SectionMissions() {
   const handleCreateTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSubmitError('');
+    setSubmitSuccess('');
+    
+    if (!formData.originCity || !formData.destinationCity || !formData.date || !formData.heure || !formData.pricePerSeat || !formData.placesLibres) {
+      setSubmitError('Veuillez remplir tous les champs obligatoires.');
+      setIsLoading(false);
+      return;
+    }
 
     const newMission = {
       id: `TRIP-${Math.floor(Math.random() * 1000)}`,
       trajet: `${formData.originCity} → ${formData.destinationCity}`,
-      date: formData.date,
+      date: formData.date === getTodayStr() ? 'Aujourd\'hui' : formData.date,
       heure: formData.heure,
       vehicule: 'Voiture Allo Dakar',
       statut: 'programmé',
@@ -122,7 +132,7 @@ export default function SectionMissions() {
         })
       });
       if (res.ok) {
-        setIsModalOpen(false);
+        setSubmitSuccess('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
         setLocalMissions([newMission, ...localMissions]);
         
         // Sauvegarde dans le localStorage pour la démo Vercel
@@ -131,14 +141,22 @@ export default function SectionMissions() {
         demoTrips.push(newMission);
         localStorage.setItem('demo_trips', JSON.stringify(demoTrips));
 
-        alert('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setSubmitSuccess('');
+        }, 2000);
       } else {
         const errorText = await res.text();
-        throw new Error(`Erreur serveur: ${errorText}`);
+        throw new Error(`${errorText}`);
       }
     } catch (err: any) {
       console.error("Erreur de connexion au backend:", err);
-      alert(`Erreur: ${err.message || "Impossible de joindre le serveur. Assurez-vous que l'API est en ligne."}`);
+      let errMsg = err.message;
+      try {
+        const parsed = JSON.parse(errMsg);
+        errMsg = parsed.message || parsed.error || errMsg;
+      } catch (e) {}
+      setSubmitError(typeof errMsg === 'string' ? errMsg : "Impossible de joindre le serveur. Assurez-vous que l'API est en ligne.");
     }
     setIsLoading(false);
   };
@@ -235,6 +253,18 @@ export default function SectionMissions() {
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <CarFront className="w-6 h-6 text-orange-500" /> Nouveau Trajet
             </h3>
+
+            {submitError && (
+              <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium">
+                {submitError}
+              </div>
+            )}
+            
+            {submitSuccess && (
+              <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium">
+                {submitSuccess}
+              </div>
+            )}
 
             <form onSubmit={handleCreateTrip} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

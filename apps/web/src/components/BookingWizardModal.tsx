@@ -21,6 +21,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
   const { isAuthenticated, openAuthModal, user } = useAuth();
+  const [globalError, setGlobalError] = useState('');
+  const [globalSuccess, setGlobalSuccess] = useState('');
 
   const [searchParams, setSearchParams] = useState({
     depart: '',
@@ -52,8 +54,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [realTrips, setRealTrips] = useState<any[]>([]);
 
   const handleGeolocate = () => {
+    setGlobalError('');
     if (!navigator.geolocation) {
-      alert("La géolocalisation n'est pas supportée par votre navigateur.");
+      setGlobalError("La géolocalisation n'est pas supportée par votre navigateur.");
       return;
     }
 
@@ -84,7 +87,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       },
       (error) => {
         console.error("Erreur de géolocalisation:", error);
-        alert("Impossible de récupérer votre position. Veuillez autoriser l'accès à la localisation.");
+        setGlobalError("Impossible de récupérer votre position. Veuillez autoriser l'accès à la localisation.");
         setIsLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -484,7 +487,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             }
           } catch (e: any) {
             console.error("Erreur de connexion au serveur", e);
-            alert(`Impossible de joindre l'API en ligne: ${e.message}`);
+            setGlobalError(`Impossible de joindre l'API en ligne: ${e.message}`);
           }
           setIsSearching(false);
           nextStep();
@@ -1057,6 +1060,22 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-hide">
+          {globalError && (
+            <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium relative">
+              <button onClick={() => setGlobalError('')} className="absolute top-2 right-2 p-1 text-rose-500/60 hover:text-rose-500">
+                <X className="w-3 h-3" />
+              </button>
+              {globalError}
+            </div>
+          )}
+          {globalSuccess && (
+            <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium relative">
+              <button onClick={() => setGlobalSuccess('')} className="absolute top-2 right-2 p-1 text-emerald-500/60 hover:text-emerald-500">
+                <X className="w-3 h-3" />
+              </button>
+              {globalSuccess}
+            </div>
+          )}
           {step === 1 && renderStep1Search()}
           {step === 2 && renderStep2Results()}
           
