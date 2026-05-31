@@ -19,9 +19,36 @@ const statutStyle: Record<string, string> = {
 
 export default function SectionReservations() {
   const [tab, setTab] = useState('Toutes');
-  const filtered = tab === 'Toutes' ? reservations : reservations.filter(r =>
+  const [localReservations, setLocalReservations] = useState(reservations);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    const stored = localStorage.getItem('my_tickets');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Map structure from Billets to Reservations
+          const mapped = parsed.map((b: any) => ({
+            id: b.id,
+            trajet: b.trajet,
+            date: b.date,
+            prix: b.prix || '5000 FCFA',
+            statut: b.statut === 'actif' ? 'en cours' : (b.statut === 'annulé' ? 'annulée' : 'passée'),
+            modifiable: b.statut === 'actif'
+          }));
+          setLocalReservations([...mapped, ...reservations]);
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  const filtered = tab === 'Toutes' ? localReservations : localReservations.filter(r =>
     tab === 'En cours' ? r.statut === 'en cours' : tab === 'Passées' ? r.statut === 'passée' : r.statut === 'annulée'
   );
+
+  if (!isMounted) return null;
 
   return (
     <div className="space-y-5">
@@ -62,7 +89,25 @@ export default function SectionReservations() {
                   <Share2 className="w-3 h-3" /> Partager
                 </button>
                 {r.modifiable && (
-                  <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-colors">
+                  <button 
+                    onClick={() => {
+                      if (confirm("Voulez-vous vraiment annuler votre réservation ? Le chauffeur sera alerté.")) {
+                        const updatedLocal = localReservations.map(res => res.id === r.id ? { ...res, statut: 'annulée', modifiable: false } : res);
+                        setLocalReservations(updatedLocal);
+                        
+                        const stored = localStorage.getItem('my_tickets');
+                        if (stored) {
+                          try {
+                            const parsed = JSON.parse(stored);
+                            const updatedStorage = parsed.map((p: any) => p.id === r.id ? { ...p, statut: 'annulé' } : p);
+                            localStorage.setItem('my_tickets', JSON.stringify(updatedStorage));
+                          } catch(e) {}
+                        }
+                        window.dispatchEvent(new CustomEvent('cancel_reservation', { detail: { id: r.id, trajet: r.trajet } }));
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-colors"
+                  >
                     <X className="w-3 h-3" /> Annuler
                   </button>
                 )}
