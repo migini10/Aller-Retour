@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {}
   }, []);
 
-  const API_URL = 'http://localhost:3333/api'; // In prod, this should be env var
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
 
   const saveAuth = (tokenData: string, userData: any) => {
     localStorage.setItem('ar_auth_token', tokenData);

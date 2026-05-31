@@ -227,7 +227,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           let apiData: any = {};
           
           if (token && selectedTrip?.id && typeof selectedTrip.id === 'string') {
-            const res = await fetch('http://localhost:3333/api/bookings', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+            const res = await fetch(`${apiUrl}/v1/bookings`, {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',
