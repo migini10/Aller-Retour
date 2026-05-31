@@ -22,6 +22,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setSidebarOpen(false);
   }, [pathname]);
 
+  if (pathname.startsWith('/dashboard/traveller')) {
+    return (
+      <BrandingProvider>
+        <div className="h-[100dvh] overflow-hidden bg-slate-50 flex flex-col text-slate-900">
+          <main className="flex-1 min-w-0 flex flex-col h-full relative">
+            {children}
+          </main>
+        </div>
+      </BrandingProvider>
+    );
+  }
+
   return (
     <BrandingProvider>
       <div className="h-[100dvh] overflow-hidden bg-black text-slate-100 flex flex-col">

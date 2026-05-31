@@ -1,259 +1,116 @@
 'use client';
 import Link from 'next/link';
-
-import React, { useState, useRef } from 'react';
-import {
-  LayoutDashboard, CalendarCheck, Ticket, Navigation,
-  Wallet, Gift, Package, Bell, MessageSquare, Settings,
-  TrendingUp, MapPin, Clock, Star, CreditCard, ChevronRight
-} from 'lucide-react';
-import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
-import SectionBillets from './sections/Billets';
-import SectionReservations from './sections/Reservations';
-import SectionWallet from './sections/Wallet';
-import SectionFidelite from './sections/Fidelite';
-import SectionBagages from './sections/Bagages';
-import SectionNotifications from './sections/Notifications';
-import SectionSupport from './sections/Support';
-import SectionParametres from './sections/Parametres';
-import SectionSuiviGPS from './sections/SuiviGPS';
-
-const tabs = [
-  { id: 'accueil', label: 'Tableau de bord', icon: LayoutDashboard },
-  { id: 'reservations', label: 'Réservations', icon: CalendarCheck },
-  { id: 'billets', label: 'Mes Billets', icon: Ticket },
-  { id: 'suivi', label: 'Suivi GPS', icon: Navigation },
-  { id: 'wallet', label: 'Wallet', icon: Wallet },
-  { id: 'fidelite', label: 'Fidélité', icon: Gift },
-  { id: 'bagages', label: 'Bagages', icon: Package },
-  { id: 'notifications', label: 'Notifications', icon: Bell, badge: 2 },
-  { id: 'support', label: 'Support', icon: MessageSquare },
-  { id: 'parametres', label: 'Paramètres', icon: Settings },
-];
-
-const stats = [
-  { label: 'Réservations', value: '12', icon: CalendarCheck, color: 'text-orange-400 bg-orange-500/20' },
-  { label: 'Billets actifs', value: '3', icon: Ticket, color: 'text-blue-400 bg-blue-500/20' },
-  { label: 'Voyages effectués', value: '45', icon: TrendingUp, color: 'text-emerald-400 bg-emerald-500/20' },
-  { label: 'Points fidélité', value: '1 240', icon: Star, color: 'text-purple-400 bg-purple-500/20' },
-  { label: 'Portefeuille', value: '53 900 F', icon: CreditCard, color: 'text-amber-400 bg-amber-500/20' },
-];
-
-const prochainVoyage = {
-  id: 'AR-74892374',
-  from: 'Dakar',
-  to: 'Touba',
-  date: '2026-06-05',
-  heure: '08:00',
-  siege: 'Arrière Droit',
-  compagnie: 'Allo Dakar (Covoiturage)',
-};
-
-const notificationsRecentes = [
-  { msg: 'Réservation RES-004 confirmée.', time: 'Il y a 2h', dot: 'bg-orange-400' },
-  { msg: 'Dépôt Wave de 20 000 FCFA reçu.', time: 'Il y a 4h', dot: 'bg-emerald-400' },
-  { msg: 'Retard de 15 min signalé sur AR-74892374.', time: 'Hier', dot: 'bg-amber-400' },
-];
-
+import React, { useState } from 'react';
+import { Home, Search, Package, User, ArrowRight, TrendingUp } from 'lucide-react';
 import { useModal } from '../../../components/ModalContext';
-import { useEffect } from 'react';
 
 export default function TravellerDashboard() {
-  const [activeTab, setActiveTab] = useState('accueil');
-
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && tabs.some(t => t.id === hash)) {
-      setActiveTab(hash);
-    }
-  }, []);
-
-  const handleTabChange = (id: string) => {
-    setActiveTab(id);
-    window.location.hash = id;
-  };
-  const { openModal, openBookingWizard } = useModal();
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-  };
+  const { openBookingWizard } = useModal();
+  const [activeTab, setActiveTab] = useState('Accueil');
 
   return (
-    <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
-      {/* Navigation onglets — Full width background, inner content constrained */}
-      <div className="sticky top-0 z-20 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
-        <div className="max-w-[1600px] mx-auto py-3 relative">
-          <div ref={scrollContainerRef} className="flex gap-1 overflow-x-auto scrollbar-none pr-8 sm:pr-0">
-            {tabs.map(t => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => handleTabChange(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
-                    activeTab === t.id
-                      ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'
-                      : 'text-slate-400 hover:text-white hover:bg-[#222222]'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {t.label}
-                  {t.badge && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">{t.badge}</span>
-                  )}
-                </button>
-              );
-            })}
-            <Link 
-              href="/allo-dakar-client" 
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm shadow-emerald-500/20 ml-2"
-            >
-              <Navigation className="w-3.5 h-3.5" />
-              Réserver Allo Dakar
-            </Link>
-          </div>
-          {/* Indicateur de défilement horizontal (mobile) */}
-          <div className="sm:hidden absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0B0F19]/95 via-[#0B0F19]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
-            <button 
-              onClick={scrollRight}
-              className="pointer-events-auto p-2 text-slate-400 hover:text-white transition-colors"
-              aria-label="Faire défiler"
-            >
-              <ChevronRight className="w-5 h-5 animate-pulse drop-shadow-md" />
+    <div className="flex flex-col h-[100dvh] bg-slate-50 font-sans w-full">
+      
+      {/* Contenu principal défilable */}
+      <div className="flex-1 overflow-y-auto pb-20 w-full">
+        
+        {/* En-tête bleu */}
+        <div className="bg-[#003B73] pt-12 pb-24 px-6 relative rounded-b-[40px] shadow-sm">
+          {/* Top Bar */}
+          <div className="flex justify-between items-center mb-10 mt-4">
+            <div className="bg-white rounded-xl py-1.5 px-4 flex items-center justify-center shadow-sm">
+              <span className="text-[#003B73] font-black text-sm flex items-center tracking-tight">
+                Allô<span className="text-orange-500">Dakar</span>
+              </span>
+            </div>
+            <button className="w-11 h-11 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
+              <User className="w-5 h-5" />
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Main Content Area - Constrained and padded */}
-      <div className="flex-1 w-full max-w-[1600px] mx-auto px-5 sm:px-8 lg:px-12 py-8 pb-24">
-
-      {/* Contenu */}
-      {activeTab === 'accueil' && (
-        <div className="space-y-8">
-          {/* Header profil */}
-          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-orange-600/10 via-orange-500/5 to-transparent border border-orange-500/20 rounded-3xl p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-600/30 to-orange-400/10 border border-orange-500/30 flex items-center justify-center text-2xl font-bold text-orange-400 shrink-0">AB</div>
-              <div>
-                <p className="text-xs text-orange-400 font-semibold uppercase tracking-wider">Client Allo Dakar</p>
-                <h1 className="text-xl sm:text-2xl font-bold text-white mt-0.5 tracking-tight">Abdou Bakhe</h1>
-                <p className="text-sm text-slate-400 mt-0.5">+221 77 000 00 00 • abdou@example.com</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button 
-                onClick={() => openBookingWizard('allo-dakar')}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] border border-orange-500/50"
-              >
-                <Ticket className="w-5 h-5" />
-                <span>Trouver une voiture</span>
-              </button>
-              <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center justify-center gap-2 bg-[#1A1A1A]/60 border border-[#2A2A2A] px-4 py-2.5 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer shrink-0">
-                <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
-                <span className="text-xs text-white font-bold hidden sm:inline">Niveau Silver → Gold</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {stats.map(s => {
-              const Icon = s.icon;
-              return (
-                <div key={s.label} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-4 flex flex-col gap-2 hover:border-orange-500/30 transition-colors">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <p className="text-lg font-bold text-white">{s.value}</p>
-                  <p className="text-xs text-slate-400">{s.label}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Prochain voyage + Notifications */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Prochain voyage */}
-            <div className="bg-[#141414] border border-orange-500/20 rounded-2xl p-6 space-y-4">
-              <p className="text-xs text-orange-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Prochain voyage</p>
-              <div className="flex items-center justify-between gap-4">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-bold text-white">{prochainVoyage.from}</h3>
-                    <div className="flex-1 border-t border-dashed border-orange-500/40 min-w-[30px]" />
-                    <h3 className="text-xl font-bold text-white">{prochainVoyage.to}</h3>
-                  </div>
-                  <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {prochainVoyage.date} à {prochainVoyage.heure}</p>
-                  <p className="text-xs text-slate-500">Siège {prochainVoyage.siege} • {prochainVoyage.compagnie}</p>
-                  <p className="font-mono text-xs text-orange-400/70">{prochainVoyage.id}</p>
-                </div>
-                <div className="shrink-0">
-                  <QRCodeBrandEngine value={prochainVoyage.id} size={100} />
-                </div>
-              </div>
-              <button onClick={() => setActiveTab('suivi')} className="w-full flex items-center justify-center gap-2 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 text-orange-400 font-semibold text-sm py-2.5 rounded-xl transition-colors">
-                <Navigation className="w-4 h-4" /> Suivre en temps réel
-              </button>
-            </div>
-
-            {/* Notifications récentes */}
-            <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><Bell className="w-3.5 h-3.5 text-orange-400" /> Notifications récentes</p>
-                <button onClick={() => setActiveTab('notifications')} className="text-xs text-orange-400 hover:text-orange-300 transition-colors">Voir tout</button>
-              </div>
-              <div className="space-y-3">
-                {notificationsRecentes.map((n, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-[#1A1A1A]/50 rounded-xl">
-                    <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${n.dot}`} />
-                    <div>
-                      <p className="text-sm text-white">{n.msg}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{n.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Accès rapides */}
+          {/* Salutation */}
           <div>
-            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-3">Accès rapides</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: 'Mes Billets', tab: 'billets', icon: Ticket, c: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-                { label: 'Mon Wallet', tab: 'wallet', icon: Wallet, c: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-                { label: 'Fidélité', tab: 'fidelite', icon: Gift, c: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
-                { label: 'Support', tab: 'support', icon: MessageSquare, c: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
-              ].map(a => {
-                const Icon = a.icon;
-                return (
-                  <button key={a.tab} onClick={() => setActiveTab(a.tab)} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all hover:scale-105 ${a.c}`}>
-                    <Icon className="w-6 h-6" />
-                    <span className="text-xs font-bold">{a.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <h1 className="text-white text-3xl font-extrabold mb-1">Bonjour!</h1>
+            <p className="text-blue-100 text-base font-medium">Où souhaitez-vous aller aujourd'hui?</p>
           </div>
         </div>
-      )}
 
-      {activeTab === 'reservations' && <SectionReservations />}
-      {activeTab === 'billets' && <SectionBillets />}
-      {activeTab === 'suivi' && <SectionSuiviGPS />}
-      {activeTab === 'wallet' && <SectionWallet />}
-      {activeTab === 'fidelite' && <SectionFidelite />}
-      {activeTab === 'bagages' && <SectionBagages />}
-      {activeTab === 'notifications' && <SectionNotifications />}
-      {activeTab === 'support' && <SectionSupport />}
-      {activeTab === 'parametres' && <SectionParametres />}
+        {/* Cartes et Actions (Superposées sur le bleu) */}
+        <div className="px-5 -mt-14 space-y-4 relative z-10">
+          
+          {/* Carte Principale: Rechercher un trajet */}
+          <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
+            <button 
+              onClick={() => openBookingWizard('allo-dakar')}
+              className="w-full bg-[#003B73] hover:bg-[#002D59] text-white py-4 rounded-xl font-medium text-base flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-900/10 active:scale-95"
+            >
+              Rechercher un trajet <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Cartes Secondaires: Colis & Conducteur */}
+          <div className="grid grid-cols-2 gap-4">
+            
+            {/* Envoyer un colis */}
+            <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col items-start gap-4 active:scale-95 transition-transform cursor-pointer">
+              <div className="w-12 h-12 rounded-[16px] bg-orange-50 flex items-center justify-center text-orange-500">
+                <Package className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">Envoyer</h3>
+                <p className="text-sm text-slate-500">un colis</p>
+              </div>
+            </div>
+
+            {/* Devenir conducteur */}
+            <Link href="/dashboard/driver" className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col items-start gap-4 active:scale-95 transition-transform cursor-pointer">
+              <div className="w-12 h-12 rounded-[16px] bg-[#E8EEF5] flex items-center justify-center text-[#003B73]">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">Devenir</h3>
+                <p className="text-sm text-slate-500">conducteur</p>
+              </div>
+            </Link>
+
+          </div>
+
+          <div className="py-8">
+            <div className="bg-white rounded-[24px] p-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
+                <Search className="w-8 h-8" />
+              </div>
+              <h2 className="font-bold text-slate-800 mb-1">Aucun trajet récent</h2>
+              <p className="text-slate-500 text-sm">Vos prochains trajets apparaîtront ici.</p>
+            </div>
+          </div>
+
+        </div>
       </div>
+
+      {/* Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-between items-center px-6 py-3 pb-8 z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
+        <button onClick={() => setActiveTab('Accueil')} className={`flex flex-col items-center gap-1 ${activeTab === 'Accueil' ? 'text-[#003B73]' : 'text-slate-400'}`}>
+          <Home className="w-6 h-6" />
+          <span className="text-[11px] font-medium">Accueil</span>
+        </button>
+        
+        <button onClick={() => { setActiveTab('Recherche'); openBookingWizard('allo-dakar'); }} className={`flex flex-col items-center gap-1 ${activeTab === 'Recherche' ? 'text-[#003B73]' : 'text-slate-400'}`}>
+          <Search className="w-6 h-6" />
+          <span className="text-[11px] font-medium">Recherche</span>
+        </button>
+        
+        <button onClick={() => setActiveTab('Colis')} className={`flex flex-col items-center gap-1 ${activeTab === 'Colis' ? 'text-[#003B73]' : 'text-slate-400'}`}>
+          <Package className="w-6 h-6" />
+          <span className="text-[11px] font-medium">Colis</span>
+        </button>
+        
+        <button onClick={() => setActiveTab('Profil')} className={`flex flex-col items-center gap-1 ${activeTab === 'Profil' ? 'text-[#003B73]' : 'text-slate-400'}`}>
+          <User className="w-6 h-6" />
+          <span className="text-[11px] font-medium">Profil</span>
+        </button>
+      </div>
+
     </div>
   );
 }
