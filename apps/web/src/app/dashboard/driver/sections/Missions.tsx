@@ -450,7 +450,7 @@ export default function SectionMissions() {
                     className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
                   />
                   {showOriginSuggestions && originSuggestions.length > 0 && (
-                    <ul className="absolute z-50 w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-40 overflow-y-auto shadow-xl custom-scrollbar">
+                    <ul className="absolute z-[100] w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar">
                       {originSuggestions.map(city => (
                         <li key={city} onClick={() => {
                            setFormData({...formData, originCity: city});
@@ -479,7 +479,7 @@ export default function SectionMissions() {
                     className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
                   />
                   {showDestSuggestions && destSuggestions.length > 0 && (
-                    <ul className="absolute z-50 w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-40 overflow-y-auto shadow-xl custom-scrollbar">
+                    <ul className="absolute z-[100] w-full bg-[#101728] border border-slate-700 rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar">
                       {destSuggestions.map(city => (
                         <li key={city} onClick={() => {
                            setFormData({...formData, destinationCity: city});

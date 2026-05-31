@@ -178,8 +178,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     });
   };
 
-  const filteredDepart = VILLES_SENEGAL.filter(v => searchParams.depart && v.toLowerCase().includes(searchParams.depart.toLowerCase()));
-  const filteredArrivee = VILLES_SENEGAL.filter(v => searchParams.arrivee && v.toLowerCase().includes(searchParams.arrivee.toLowerCase()));
+  const filteredDepart = searchParams.depart ? VILLES_SENEGAL.filter(v => v.toLowerCase().includes(searchParams.depart.toLowerCase())) : VILLES_SENEGAL;
+  const filteredArrivee = searchParams.arrivee ? VILLES_SENEGAL.filter(v => v.toLowerCase().includes(searchParams.arrivee.toLowerCase())) : VILLES_SENEGAL;
   const allQuartiers = Object.values(quartiersSenegal).flat();
   const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : allQuartiers;
   const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
@@ -352,8 +352,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 setShowDepartSuggestions(true);
               }}
             />
-            {showDepartSuggestions && searchParams.depart.length > 0 && filteredDepart.length > 0 && (
-              <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+            {showDepartSuggestions && filteredDepart.length > 0 && (
+              <div className="absolute z-[100] w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
                 {filteredDepart.map(ville => (
                   <div 
                     key={ville} 
@@ -428,8 +428,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 setShowArriveeSuggestions(true);
               }}
             />
-            {showArriveeSuggestions && searchParams.arrivee.length > 0 && filteredArrivee.length > 0 && (
-              <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+            {showArriveeSuggestions && filteredArrivee.length > 0 && (
+              <div className="absolute z-[100] w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
                 {filteredArrivee.map(ville => (
                   <div 
                     key={ville} 
