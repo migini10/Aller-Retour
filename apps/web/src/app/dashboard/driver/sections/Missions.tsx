@@ -79,12 +79,26 @@ export default function SectionMissions() {
   const getAvailableHours = () => {
     const hours = [];
     const today = new Date();
-    const isToday = formData.date === getTodayStr();
-    const currentHour = today.getHours();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    const todayStr = today.toISOString().split('T')[0];
+    const isToday = formData.date === todayStr || formData.date === "Aujourd'hui";
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
 
     for (let i = 0; i < 24; i++) {
-      if (isToday && i <= currentHour) continue;
-      hours.push(`${i.toString().padStart(2, '0')}:00`);
+      if (isToday && i < currentHour) continue; // Skip passed hours
+      
+      const hourStr = i.toString().padStart(2, '0');
+      
+      // Add :00
+      if (!isToday || i > currentHour || currentMinute <= 0) {
+        hours.push(`${hourStr}:00`);
+      }
+      
+      // Add :30
+      if (!isToday || i > currentHour || currentMinute <= 30) {
+        hours.push(`${hourStr}:30`);
+      }
     }
     return hours;
   };

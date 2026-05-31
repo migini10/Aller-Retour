@@ -76,6 +76,33 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     return dates;
   };
 
+  const getAvailableHours = () => {
+    const hours = [];
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    const todayStr = today.toISOString().split('T')[0];
+    const isToday = searchParams.date === todayStr;
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
+
+    for (let i = 0; i < 24; i++) {
+      if (isToday && i < currentHour) continue; // Skip passed hours
+      
+      const hourStr = i.toString().padStart(2, '0');
+      
+      // Add :00
+      if (!isToday || i > currentHour || currentMinute <= 0) {
+        hours.push(`${hourStr}:00`);
+      }
+      
+      // Add :30
+      if (!isToday || i > currentHour || currentMinute <= 30) {
+        hours.push(`${hourStr}:30`);
+      }
+    }
+    return hours;
+  };
+
   const handleGeolocate = () => {
     setGlobalError('');
     if (!navigator.geolocation) {
@@ -477,12 +504,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   onChange={(e) => setSearchParams({...searchParams, heure: e.target.value})}
                 >
                   <option value="" disabled>Heure de départ</option>
-                  {Array.from({ length: 48 }).map((_, i) => {
-                    const hour = Math.floor(i / 2).toString().padStart(2, '0');
-                    const minute = i % 2 === 0 ? '00' : '30';
-                    const time = `${hour}:${minute}`;
-                    return <option key={time} value={time}>{time}</option>;
-                  })}
+                  {getAvailableHours().map((time) => (
+                    <option key={time} value={time}>{time}</option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               </div>
