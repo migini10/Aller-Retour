@@ -82,21 +82,22 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     const todayStr = today.toISOString().split('T')[0];
     const isToday = searchParams.date === todayStr;
+    
     const currentHour = new Date().getHours();
     const currentMinute = new Date().getMinutes();
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
+    const MARGIN_MINUTES = 60; // 1 heure de délai minimum
 
     for (let i = 0; i < 24; i++) {
-      if (isToday && i < currentHour) continue; // Skip passed hours
-      
       const hourStr = i.toString().padStart(2, '0');
       
-      // Add :00
-      if (!isToday || i > currentHour || currentMinute <= 0) {
+      const slot00TotalMinutes = i * 60;
+      if (!isToday || slot00TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
         hours.push(`${hourStr}:00`);
       }
       
-      // Add :30
-      if (!isToday || i > currentHour || currentMinute <= 30) {
+      const slot30TotalMinutes = i * 60 + 30;
+      if (!isToday || slot30TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
         hours.push(`${hourStr}:30`);
       }
     }
