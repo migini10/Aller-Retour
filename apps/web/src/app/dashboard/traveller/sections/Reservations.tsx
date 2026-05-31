@@ -71,14 +71,14 @@ export default function SectionReservations() {
       <div className="flex gap-2 flex-wrap">
         {tabs.map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>
             {t}
           </button>
         ))}
       </div>
       <div className="space-y-3">
         {filtered.map(r => (
-          <div key={r.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors">
+          <div key={r.id} className="bg-[#141414] border border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -89,18 +89,18 @@ export default function SectionReservations() {
                 <p className="text-sm text-slate-400">{r.date} • <span className="text-orange-400 font-semibold">{r.prix}</span></p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                   <Eye className="w-3 h-3" /> Détails
                 </button>
                 {r.modifiable && (
-                  <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+                  <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                     <Edit3 className="w-3 h-3" /> Modifier
                   </button>
                 )}
-                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                   <Download className="w-3 h-3" /> Billet
                 </button>
-                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+                <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                   <Share2 className="w-3 h-3" /> Partager
                 </button>
                 {r.modifiable && (

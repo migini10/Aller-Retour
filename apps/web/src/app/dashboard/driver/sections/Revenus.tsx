@@ -41,7 +41,7 @@ export default function SectionRevenus() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map(s => (
-          <div key={s.type} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
+          <div key={s.type} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">{s.label}</p>
               <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -57,11 +57,11 @@ export default function SectionRevenus() {
           <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold">Historique récent</p>
           <button className="text-xs text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1">Voir tout <ChevronRight className="w-3.5 h-3.5" /></button>
         </div>
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
           {transactions.map(t => (
-            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-800/30 transition-colors">
+            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-[#222222]/30 transition-colors">
               <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.montant > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.montant > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#222222] text-slate-400'}`}>
                   {t.montant > 0 ? <TrendingUp className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                 </div>
                 <div>

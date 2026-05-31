@@ -26,7 +26,7 @@ export default function SectionNotifications() {
                      'bg-orange-500/20 text-orange-400 border-orange-500/30';
                      
           return (
-            <div key={n.id} className={`bg-[#101728] border ${n.isNew ? 'border-orange-500/40' : 'border-slate-800'} rounded-2xl p-4 flex gap-4 transition-colors`}>
+            <div key={n.id} className={`bg-[#141414] border ${n.isNew ? 'border-orange-500/40' : 'border-[#2A2A2A]'} rounded-2xl p-4 flex gap-4 transition-colors`}>
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${bg}`}>
                 <Icon className="w-5 h-5" />
               </div>
@@ -42,7 +42,7 @@ export default function SectionNotifications() {
                 {n.type === 'mission' && n.isNew && (
                   <div className="mt-3 flex gap-2">
                     <button className="text-xs font-bold px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg transition-colors">Voir l'offre</button>
-                    <button className="text-xs font-bold px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Ignorer</button>
+                    <button className="text-xs font-bold px-3 py-1.5 bg-[#222222] text-slate-300 rounded-lg hover:bg-slate-700 transition-colors">Ignorer</button>
                   </div>
                 )}
               </div>

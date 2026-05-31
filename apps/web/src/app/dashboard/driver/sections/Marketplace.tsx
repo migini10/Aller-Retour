@@ -13,7 +13,7 @@ export default function SectionMarketplace() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Store className="w-5 h-5 text-orange-400" /> Marketplace Missions</h2>
-        <div className="flex gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 items-center flex-1 max-w-sm">
+        <div className="flex gap-2 bg-[#1A1A1A] border border-[#333333] rounded-xl px-3 py-2 items-center flex-1 max-w-sm">
           <Search className="w-4 h-4 text-slate-500 shrink-0" />
           <input placeholder="Chercher trajet, ville..." className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-slate-500" />
         </div>
@@ -31,7 +31,7 @@ export default function SectionMarketplace() {
 
       <div className="space-y-4">
         {missionsDispo.map(m => (
-          <div key={m.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors group">
+          <div key={m.id} className="bg-[#141414] border border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors group">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -46,13 +46,13 @@ export default function SectionMarketplace() {
                 </div>
               </div>
 
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-slate-800">
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-[#2A2A2A]">
                 <div className="text-left md:text-right">
                   <p className="text-xs text-slate-500 mb-0.5">Rémunération</p>
                   <p className="text-lg font-bold text-orange-400">{m.remuneration}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
+                  <button className="px-4 py-2 bg-[#222222] hover:bg-slate-700 text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
                   <button className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all flex items-center gap-1">Accepter <ChevronRight className="w-3.5 h-3.5" /></button>
                 </div>
               </div>

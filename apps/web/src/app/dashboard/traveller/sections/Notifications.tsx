@@ -30,7 +30,7 @@ export default function SectionNotifications() {
 
       <div className="flex gap-2 flex-wrap">
         {categories.map(c => (
-          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1 rounded-xl text-xs font-semibold transition-colors ${cat === c ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>{c}</button>
+          <button key={c} onClick={() => setCat(c)} className={`px-3 py-1 rounded-xl text-xs font-semibold transition-colors ${cat === c ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>{c}</button>
         ))}
       </div>
 
@@ -38,7 +38,7 @@ export default function SectionNotifications() {
         {notifs.map(n => {
           const Icon = n.icon;
           return (
-            <div key={n.id} className={`bg-[#101728] border rounded-2xl p-4 flex items-start gap-4 transition-colors ${n.lu ? 'border-slate-800/60 opacity-70' : 'border-orange-500/20 hover:border-orange-500/40'}`}>
+            <div key={n.id} className={`bg-[#141414] border rounded-2xl p-4 flex items-start gap-4 transition-colors ${n.lu ? 'border-[#2A2A2A]/60 opacity-70' : 'border-orange-500/20 hover:border-orange-500/40'}`}>
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.color}`}>
                 <Icon className="w-5 h-5" />
               </div>

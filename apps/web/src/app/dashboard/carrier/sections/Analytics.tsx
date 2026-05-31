@@ -9,7 +9,7 @@ export default function SectionAnalytics() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Lignes Populaires */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6">
           <h3 className="font-bold text-white mb-6 flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-400" /> Top Lignes (Mensuel)</h3>
           <div className="space-y-5">
             {[
@@ -22,7 +22,7 @@ export default function SectionAnalytics() {
                   <span className="font-bold text-slate-200">{r.route}</span>
                   <span className="font-bold text-emerald-400">{r.rev}</span>
                 </div>
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-[#222222] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style={{ width: `${r.val}%` }}></div>
                 </div>
               </div>
@@ -31,7 +31,7 @@ export default function SectionAnalytics() {
         </div>
 
         {/* Performances Taux de Remplissage */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6">
           <h3 className="font-bold text-white mb-6 flex items-center gap-2"><Users className="w-4 h-4 text-emerald-400" /> Taux de Remplissage</h3>
           <div className="flex items-center justify-center h-40 relative">
             {/* Simple CSS Circle logic simulation */}

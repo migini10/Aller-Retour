@@ -56,7 +56,7 @@ export default function StationDashboard() {
     <div className="flex flex-col h-full w-full">
       
       {/* Top Bar Fixe : Agent Status */}
-      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+      <div className="flex-none z-40 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
@@ -72,7 +72,7 @@ export default function StationDashboard() {
             <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/20 flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" /> En Service
             </span>
-            <Link href="/" className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 p-2 rounded-lg transition-colors inline-block">
+            <Link href="/" className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-slate-300 p-2 rounded-lg transition-colors inline-block">
               <LogOut className="w-4 h-4" />
             </Link>
           </div>
@@ -83,7 +83,7 @@ export default function StationDashboard() {
       <div className="flex-1 flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto w-full px-5 sm:px-8 lg:px-12 py-6 overflow-hidden">
         {/* Navigation Sidebar (Desktop) / Top scrollable (Mobile) */}
         <div className="xl:w-64 shrink-0 xl:h-full">
-          <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl">
+          <div className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-2 gap-1.5 xl:gap-2 scrollbar-hide xl:h-full xl:bg-[#141414] xl:border xl:border-[#2A2A2A]/80 xl:p-4 xl:rounded-3xl">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -99,7 +99,7 @@ export default function StationDashboard() {
                       ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.3)]' 
                       : isPrimaryAction 
                         ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 mb-1'
-                        : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
+                        : 'text-slate-400 hover:bg-[#222222]/50 hover:text-slate-200 border border-transparent'
                     }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : isPrimaryAction ? 'text-orange-400' : 'text-slate-500'}`} />

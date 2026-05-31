@@ -14,7 +14,7 @@ export default function SectionFinances() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-orange-400" /> Finances & Comptabilité</h2>
-        <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Download className="w-4 h-4" /> Exporter CSV
         </button>
       </div>
@@ -27,19 +27,19 @@ export default function SectionFinances() {
             <span className="mb-2 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><TrendingUp className="w-3 h-3" /> +15%</span>
           </div>
           <div className="mt-8 grid grid-cols-2 gap-4">
-            <div className="bg-[#0f172a] p-4 rounded-xl border border-slate-800">
+            <div className="bg-[#0f172a] p-4 rounded-xl border border-[#2A2A2A]">
               <p className="text-xs text-slate-400 mb-1">Dépenses (Chauffeurs, Com.)</p>
               <p className="text-xl font-bold text-rose-400">- 850 000 F</p>
             </div>
-            <div className="bg-[#0f172a] p-4 rounded-xl border border-slate-800">
+            <div className="bg-[#0f172a] p-4 rounded-xl border border-[#2A2A2A]">
               <p className="text-xs text-slate-400 mb-1">Bénéfice Net Estimé</p>
               <p className="text-xl font-bold text-emerald-400">4 000 000 F</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#101728] border border-slate-800 rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-4">
-          <div className="w-20 h-20 rounded-full bg-slate-900 border-[8px] border-orange-500 flex items-center justify-center">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-4">
+          <div className="w-20 h-20 rounded-full bg-[#1A1A1A] border-[8px] border-orange-500 flex items-center justify-center">
             <PieChart className="w-6 h-6 text-orange-400" />
           </div>
           <div>
@@ -49,15 +49,15 @@ export default function SectionFinances() {
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-slate-800/80">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-[#2A2A2A]/80">
           <h3 className="font-bold text-white text-sm">Transactions Récentes</h3>
         </div>
         <div className="divide-y divide-slate-800/60">
           {transactions.map(t => (
-            <div key={t.id} className="p-5 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+            <div key={t.id} className="p-5 flex items-center justify-between hover:bg-[#222222]/30 transition-colors">
               <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.type === 'in' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.type === 'in' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#222222] text-slate-400'}`}>
                   {t.type === 'in' ? <DollarSign className="w-5 h-5" /> : <Wallet className="w-5 h-5" />}
                 </div>
                 <div>

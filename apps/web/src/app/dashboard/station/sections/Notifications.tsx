@@ -26,7 +26,7 @@ export default function SectionNotifications() {
                      'bg-blue-500/20 text-blue-400 border-blue-500/30';
                      
           return (
-            <div key={n.id} className={`bg-[#101728] border ${n.isNew ? 'border-orange-500/40' : 'border-slate-800'} rounded-2xl p-4 flex gap-4 transition-colors`}>
+            <div key={n.id} className={`bg-[#141414] border ${n.isNew ? 'border-orange-500/40' : 'border-[#2A2A2A]'} rounded-2xl p-4 flex gap-4 transition-colors`}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${bg}`}>
                 <Icon className="w-6 h-6" />
               </div>
@@ -40,7 +40,7 @@ export default function SectionNotifications() {
                 </div>
                 <p className="text-sm text-slate-400 mt-1">{n.desc}</p>
                 {n.type === 'alert' && n.isNew && (
-                  <button className="mt-3 text-xs bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">Diffuser l'alerte audio (Gare)</button>
+                  <button className="mt-3 text-xs bg-[#222222] hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-lg border border-[#333333] transition-colors">Diffuser l'alerte audio (Gare)</button>
                 )}
               </div>
             </div>

@@ -10,7 +10,7 @@ export default function SectionFinances() {
           <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-orange-400" /> Wallet Global & Commissions SaaS</h2>
           <p className="text-sm text-slate-400 mt-1">Supervisez les flux de la plateforme et gérez le PaymentSettlementEngine.</p>
         </div>
-        <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Download className="w-4 h-4" /> Export Comptable
         </button>
       </div>
@@ -41,11 +41,11 @@ export default function SectionFinances() {
         </div>
 
         {/* Flux Financiers */}
-        <div className="bg-[#101728] border border-slate-800 rounded-3xl p-6 lg:col-span-2">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-3xl p-6 lg:col-span-2">
           <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Activity className="w-4 h-4 text-emerald-400" /> Flux d'Argent Global (30j)</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+            <div className="bg-[#1A1A1A]/50 border border-[#2A2A2A] rounded-2xl p-4">
               <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center mb-3">
                 <ArrowUpRight className="w-4 h-4 text-emerald-400" />
               </div>
@@ -53,7 +53,7 @@ export default function SectionFinances() {
               <p className="text-xl font-bold text-white">568.4M F</p>
             </div>
             
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+            <div className="bg-[#1A1A1A]/50 border border-[#2A2A2A] rounded-2xl p-4">
               <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center mb-3">
                 <ArrowDownRight className="w-4 h-4 text-rose-400" />
               </div>
@@ -61,7 +61,7 @@ export default function SectionFinances() {
               <p className="text-xl font-bold text-white">480.1M F</p>
             </div>
 
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+            <div className="bg-[#1A1A1A]/50 border border-[#2A2A2A] rounded-2xl p-4">
               <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center mb-3">
                 <RefreshCcw className="w-4 h-4 text-amber-400" />
               </div>
@@ -72,8 +72,8 @@ export default function SectionFinances() {
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-slate-800 flex justify-between items-center">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-[#2A2A2A] flex justify-between items-center">
           <h3 className="font-bold text-white text-sm">Règlement Transporteurs (Settlements)</h3>
           <span className="text-xs text-slate-400">Paiements automatiques via API</span>
         </div>
@@ -83,9 +83,9 @@ export default function SectionFinances() {
             { id: 'SET-992', tnt: 'Allo Voyage', mnt: '1,200,000 F', date: 'Aujourd\'hui', status: 'En traitement', methode: 'Wave Business' },
             { id: 'SET-993', tnt: 'Moussa Ndiaye (Indep.)', mnt: '150,000 F', date: 'Hier', status: 'Payé', methode: 'Orange Money' },
           ].map(s => (
-            <div key={s.id} className="p-5 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+            <div key={s.id} className="p-5 flex items-center justify-between hover:bg-[#222222]/30 transition-colors">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[#222222] border border-[#333333] flex items-center justify-center">
                   <DollarSign className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>

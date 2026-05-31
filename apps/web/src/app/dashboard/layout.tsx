@@ -24,9 +24,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="h-[100dvh] overflow-hidden bg-slate-950 text-slate-100 flex flex-col">
+      <div className="h-[100dvh] overflow-hidden bg-black text-slate-100 flex flex-col">
       {/* Topbar Fixe (Mobile & Desktop) */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 flex items-center justify-between px-5 shadow-md">
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center">
             <CarFront className="w-4 h-4 text-orange-500" />
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-[#0B0F19]/70 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-[#0A0A0A]/70 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}

@@ -19,22 +19,22 @@ export default function SectionPassagers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Manifeste Passagers</h2>
-        <span className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300">TRIP-402 • Dakar ➔ Touba</span>
+        <span className="bg-[#1A1A1A] border border-[#333333] px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300">TRIP-402 • Dakar ➔ Touba</span>
       </div>
 
       <div className="flex gap-2 flex-wrap">
         {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>
             {t}
           </button>
         ))}
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[600px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/50 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">Passager</th>
                 <th className="py-4 font-semibold">Siège & Bagage</th>
                 <th className="py-4 font-semibold">Statut</th>
@@ -43,10 +43,10 @@ export default function SectionPassagers() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {passagers.map(p => (
-                <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={p.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-800 overflow-hidden shrink-0 hidden sm:block">
+                      <div className="w-10 h-10 rounded-xl bg-[#222222] overflow-hidden shrink-0 hidden sm:block">
                         <QRCodeBrandEngine value={p.id} size={40} />
                       </div>
                       <div>
@@ -66,10 +66,10 @@ export default function SectionPassagers() {
                   </td>
                   <td className="py-4 pr-6">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-colors" title="Message">
+                      <button className="w-8 h-8 rounded-lg bg-[#222222] hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-colors" title="Message">
                         <MessageSquare className="w-4 h-4" />
                       </button>
-                      <button className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-emerald-400 transition-colors" title="Appeler">
+                      <button className="w-8 h-8 rounded-lg bg-[#222222] hover:bg-slate-700 flex items-center justify-center text-emerald-400 transition-colors" title="Appeler">
                         <Phone className="w-4 h-4" />
                       </button>
                       {p.statut === 'en attente' && (

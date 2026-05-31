@@ -21,14 +21,14 @@ export default function SectionBagages() {
       </div>
 
       {bagages.length === 0 ? (
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-10 text-center text-slate-500">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-10 text-center text-slate-500">
           <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">Aucun bagage déclaré pour le moment.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {bagages.map(b => (
-            <div key={b.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 space-y-4 transition-colors">
+            <div key={b.id} className="bg-[#141414] border border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 space-y-4 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
@@ -43,13 +43,13 @@ export default function SectionBagages() {
                   <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
                     <CheckCircle2 className="w-3 h-3" /> {b.statut}
                   </span>
-                  <button onClick={() => setShowQR(showQR === b.id ? null : b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+                  <button onClick={() => setShowQR(showQR === b.id ? null : b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                     <QrCode className="w-3.5 h-3.5" /> QR Bagage
                   </button>
                 </div>
               </div>
               {showQR === b.id && (
-                <div className="flex justify-center pt-3 border-t border-slate-800">
+                <div className="flex justify-center pt-3 border-t border-[#2A2A2A]">
                   <div className="text-center">
                     <QRCodeBrandEngine value={b.qr} size={150} />
                     <p className="text-xs text-slate-500 mt-2 font-mono">{b.qr}</p>

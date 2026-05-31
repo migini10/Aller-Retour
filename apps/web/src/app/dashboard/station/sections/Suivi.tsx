@@ -12,9 +12,9 @@ export default function SectionSuivi() {
         </span>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[600px]">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[600px]">
         {/* Simple Map Placeholder with radar effect */}
-        <div className="absolute inset-0 bg-slate-950">
+        <div className="absolute inset-0 bg-black">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-orange-500/20 rounded-full animate-ping opacity-20"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-orange-500/40 rounded-full"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-orange-500/60 rounded-full bg-orange-500/5"></div>
@@ -23,7 +23,7 @@ export default function SectionSuivi() {
         </div>
 
         {/* Vehicules entrants/sortants */}
-        <div className="absolute top-1/3 left-1/4 bg-slate-900 border border-emerald-500/30 p-2 rounded-xl flex items-center gap-3 backdrop-blur-sm z-10 animate-pulse">
+        <div className="absolute top-1/3 left-1/4 bg-[#1A1A1A] border border-emerald-500/30 p-2 rounded-xl flex items-center gap-3 backdrop-blur-sm z-10 animate-pulse">
           <Navigation className="w-5 h-5 text-emerald-400" />
           <div>
             <p className="font-bold text-white text-xs">Bus 50 (Retour)</p>
@@ -31,7 +31,7 @@ export default function SectionSuivi() {
           </div>
         </div>
 
-        <div className="absolute top-2/3 right-1/4 bg-slate-900 border border-orange-500/30 p-2 rounded-xl flex items-center gap-3 backdrop-blur-sm z-10">
+        <div className="absolute top-2/3 right-1/4 bg-[#1A1A1A] border border-orange-500/30 p-2 rounded-xl flex items-center gap-3 backdrop-blur-sm z-10">
           <Navigation className="w-5 h-5 text-orange-400 rotate-180" />
           <div>
             <p className="font-bold text-white text-xs">TRIP-402 (Départ)</p>
@@ -40,7 +40,7 @@ export default function SectionSuivi() {
         </div>
 
         {/* Overlay infos */}
-        <div className="absolute bottom-6 left-6 right-6 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-4 rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="absolute bottom-6 left-6 right-6 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 bg-[#1A1A1A]/90 backdrop-blur-xl border border-[#333333] p-4 rounded-2xl w-full max-w-md shadow-2xl">
           <h3 className="font-bold text-white text-sm mb-3">Trafic & Logistique</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>

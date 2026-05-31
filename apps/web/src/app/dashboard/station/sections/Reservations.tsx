@@ -16,17 +16,17 @@ export default function SectionReservations() {
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="N° billet, nom, téléphone..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
+            <input type="text" placeholder="N° billet, nom, téléphone..." className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
-          <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
+          <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[900px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/50 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">N° Billet</th>
                 <th className="py-4 font-semibold">Passager</th>
                 <th className="py-4 font-semibold">Trajet & Date</th>
@@ -37,7 +37,7 @@ export default function SectionReservations() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {res.map(r => (
-                <tr key={r.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={r.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6 font-mono text-xs text-orange-400 font-bold">{r.id}</td>
                   <td className="py-4 font-bold text-white">{r.nom}</td>
                   <td className="py-4">
@@ -52,8 +52,8 @@ export default function SectionReservations() {
                   <td className="py-4 font-semibold text-slate-300 text-xs">{r.paiement}</td>
                   <td className="py-4 pr-6">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded transition-colors" title="Imprimer"><Printer className="w-4 h-4" /></button>
-                      <button className="p-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded transition-colors" title="Modifier/Déplacer"><RefreshCw className="w-4 h-4" /></button>
+                      <button className="p-1.5 bg-[#222222] hover:bg-slate-700 text-white rounded transition-colors" title="Imprimer"><Printer className="w-4 h-4" /></button>
+                      <button className="p-1.5 bg-[#222222] hover:bg-slate-700 text-white rounded transition-colors" title="Modifier/Déplacer"><RefreshCw className="w-4 h-4" /></button>
                       <button className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded transition-colors" title="Annuler"><XCircle className="w-4 h-4" /></button>
                     </div>
                   </td>

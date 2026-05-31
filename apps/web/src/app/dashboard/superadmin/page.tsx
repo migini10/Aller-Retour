@@ -9,7 +9,7 @@ export default function SuperAdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="pb-5 border-b border-slate-800">
+      <div className="pb-5 border-b border-[#2A2A2A]">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
@@ -18,7 +18,7 @@ export default function SuperAdminDashboard() {
             </h1>
             <p className="text-slate-400 text-sm mt-1">Supervision des flux séquestres, audits fiscaux d'État et validation KYC des chauffeurs.</p>
           </div>
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl w-fit">
+          <div className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] px-4 py-2.5 rounded-xl w-fit">
             <Server className="w-4 h-4 text-orange-400 animate-pulse shrink-0" />
             <span className="font-semibold text-white text-xs">Système Nominal • 0% Erreur</span>
           </div>
@@ -27,13 +27,13 @@ export default function SuperAdminDashboard() {
 
       {/* Financial Stats — 2 colonnes mobile, 4 desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#101728] border border-slate-800/80 border-l-4 border-l-amber-500 p-4 sm:p-5 rounded-2xl">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 border-l-4 border-l-amber-500 p-4 sm:p-5 rounded-2xl">
           <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Séquestre Total</span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-2">14 250 000 <span className="text-sm font-bold text-amber-400">FCFA</span></h2>
           <p className="text-xs text-slate-400 mt-1">1 840 trajets en cours</p>
         </div>
 
-        <div className="bg-[#101728] border border-slate-800/80 border-l-4 border-l-orange-500 p-4 sm:p-5 rounded-2xl">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 border-l-4 border-l-orange-500 p-4 sm:p-5 rounded-2xl">
           <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Trésorerie (5-8%)</span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-2">2 480 000 <span className="text-sm font-bold text-orange-400">FCFA</span></h2>
           <p className="text-xs text-orange-400 mt-1 font-semibold flex items-center gap-1">
@@ -41,13 +41,13 @@ export default function SuperAdminDashboard() {
           </p>
         </div>
 
-        <div className="bg-[#101728] border border-slate-800/80 border-l-4 border-l-blue-500 p-4 sm:p-5 rounded-2xl">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 border-l-4 border-l-blue-500 p-4 sm:p-5 rounded-2xl">
           <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Taxes d'État (2-5%)</span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-2">840 000 <span className="text-sm font-bold text-blue-400">FCFA</span></h2>
           <p className="text-xs text-slate-400 mt-1">Prêt → Trésor Public</p>
         </div>
 
-        <div className="bg-[#101728] border border-slate-800/80 border-l-4 border-l-purple-500 p-4 sm:p-5 rounded-2xl">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 border-l-4 border-l-purple-500 p-4 sm:p-5 rounded-2xl">
           <span className="text-slate-400 font-medium text-xs uppercase tracking-wider">Frais Wave/OM (1%)</span>
           <h2 className="text-xl sm:text-2xl font-bold text-white mt-2">285 000 <span className="text-sm font-bold text-purple-400">FCFA</span></h2>
           <p className="text-xs text-slate-400 mt-1">Prélevé automatiquement</p>
@@ -55,7 +55,7 @@ export default function SuperAdminDashboard() {
       </div>
 
       {/* KYC Table — scrollable sur mobile */}
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 sm:p-6">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <h3 className="text-base font-bold text-white">Vérification KYC Biométrique des Chauffeurs</h3>
           <span className="px-3 py-1 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-semibold border border-amber-500/30 w-fit">
@@ -67,7 +67,7 @@ export default function SuperAdminDashboard() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left min-w-[600px]">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 text-xs uppercase">
+              <tr className="border-b border-[#2A2A2A] text-slate-400 text-xs uppercase">
                 <th className="pb-3 pl-3">Chauffeur</th>
                 <th className="pb-3">Véhicule</th>
                 <th className="pb-3">Permis CEDEAO</th>
@@ -76,7 +76,7 @@ export default function SuperAdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
-              <tr className="hover:bg-slate-800/30 transition-colors">
+              <tr className="hover:bg-[#222222]/30 transition-colors">
                 <td className="py-4 pl-3 font-bold text-white">Abdoulaye Ndiaye</td>
                 <td className="py-4 text-slate-300 text-xs">Peugeot Boxer #DK-1284-A</td>
                 <td className="py-4 text-xs"><span className="text-orange-400 font-mono">SN-982347293</span> ✓</td>
@@ -96,7 +96,7 @@ export default function SuperAdminDashboard() {
 
         {/* Version carte mobile */}
         <div className="sm:hidden space-y-4">
-          <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl">
+          <div className="bg-[#1A1A1A]/50 border border-[#2A2A2A] p-4 rounded-xl">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <p className="font-bold text-white text-sm">Abdoulaye Ndiaye</p>
@@ -127,8 +127,8 @@ export default function SuperAdminDashboard() {
       </div>
 
       {/* Configuration Globale QR Code & Branding */}
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 sm:p-6 mb-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-5 border-b border-slate-800/80">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 sm:p-6 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-5 border-b border-[#2A2A2A]/80">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
                <QrCode className="w-5 h-5 text-orange-400" /> Paramètres QR Code & Branding
@@ -141,7 +141,7 @@ export default function SuperAdminDashboard() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Formulaire de configuration */}
           <div className="flex-1 space-y-5">
-             <div className="space-y-4 bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+             <div className="space-y-4 bg-[#1A1A1A]/50 p-5 rounded-2xl border border-[#2A2A2A]">
                 <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
                    <ImageIcon className="w-4 h-4 text-orange-400" /> Logo Central
                 </div>
@@ -151,12 +151,12 @@ export default function SuperAdminDashboard() {
                       type="text" 
                       value={branding.logoUrl}
                       onChange={(e) => setBranding({...branding, logoUrl: e.target.value})}
-                      className="w-full bg-[#0B0F19] border border-slate-700 hover:border-orange-500/50 focus:border-orange-500 transition-colors rounded-xl px-4 py-2.5 text-white text-sm outline-none"
+                      className="w-full bg-[#0A0A0A] border border-[#333333] hover:border-orange-500/50 focus:border-orange-500 transition-colors rounded-xl px-4 py-2.5 text-white text-sm outline-none"
                    />
                 </div>
              </div>
 
-             <div className="space-y-4 bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+             <div className="space-y-4 bg-[#1A1A1A]/50 p-5 rounded-2xl border border-[#2A2A2A]">
                 <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
                    <PaintBucket className="w-4 h-4 text-orange-400" /> Styles & Couleurs
                 </div>
@@ -174,7 +174,7 @@ export default function SuperAdminDashboard() {
                             type="text" 
                             value={branding.secondaryColor}
                             onChange={(e) => setBranding({...branding, secondaryColor: e.target.value})}
-                            className="flex-1 bg-[#0B0F19] border border-slate-700 rounded-xl px-3 text-white text-sm outline-none"
+                            className="flex-1 bg-[#0A0A0A] border border-[#333333] rounded-xl px-3 text-white text-sm outline-none"
                          />
                       </div>
                    </div>
@@ -183,7 +183,7 @@ export default function SuperAdminDashboard() {
                       <select 
                          value={branding.qrStyle}
                          onChange={(e) => setBranding({...branding, qrStyle: e.target.value as 'dots' | 'squares'})}
-                         className="w-full bg-[#0B0F19] border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none cursor-pointer"
+                         className="w-full bg-[#0A0A0A] border border-[#333333] rounded-xl px-4 py-2.5 text-white text-sm outline-none cursor-pointer"
                       >
                          <option value="dots">Dots (Arrondis & Modernes)</option>
                          <option value="squares">Squares (Carrés classiques)</option>
@@ -217,7 +217,7 @@ export default function SuperAdminDashboard() {
 
           {/* Prévisualisation Live */}
           <div className="lg:w-72 shrink-0">
-             <div className="sticky top-24 bg-slate-900/50 p-6 rounded-3xl border border-slate-800 flex flex-col items-center justify-center text-center">
+             <div className="sticky top-24 bg-[#1A1A1A]/50 p-6 rounded-3xl border border-[#2A2A2A] flex flex-col items-center justify-center text-center">
                 <span className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-6">Prévisualisation Live</span>
                 
                 {/* Engine Instance */}

@@ -14,11 +14,11 @@ export default function SectionParametres() {
 
       <div className="flex gap-2 flex-wrap">
         {sections.map(s => (
-          <button key={s} onClick={() => setTab(s)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === s ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>{s}</button>
+          <button key={s} onClick={() => setTab(s)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === s ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>{s}</button>
         ))}
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6">
         {tab === 'Profil' && (
           <div className="space-y-4">
             <div className="flex items-center gap-4 mb-6">
@@ -32,7 +32,7 @@ export default function SectionParametres() {
             {[{ label: 'Nom complet', val: 'Abdou Bakhe' }, { label: 'Email', val: 'abdou@example.com' }, { label: 'Téléphone', val: '+221 77 000 00 00' }, { label: 'Date de naissance', val: '1990-01-01' }].map(f => (
               <div key={f.label}>
                 <label className="text-xs text-slate-400 mb-1 block">{f.label}</label>
-                <input defaultValue={f.val} className="w-full bg-slate-900 border border-slate-700 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-colors" />
+                <input defaultValue={f.val} className="w-full bg-[#1A1A1A] border border-[#333333] focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-colors" />
               </div>
             ))}
             <button className="flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-2">
@@ -48,7 +48,7 @@ export default function SectionParametres() {
               <div key={l}>
                 <label className="text-xs text-slate-400 mb-1 block">{l}</label>
                 <div className="relative">
-                  <input type={showPwd ? 'text' : 'password'} className="w-full bg-slate-900 border border-slate-700 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none pr-10 transition-colors" />
+                  <input type={showPwd ? 'text' : 'password'} className="w-full bg-[#1A1A1A] border border-[#333333] focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none pr-10 transition-colors" />
                   <button onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
                     {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -66,7 +66,7 @@ export default function SectionParametres() {
             <p className="text-sm font-bold text-white flex items-center gap-2"><Globe className="w-4 h-4 text-orange-400" /> Langue & Région</p>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Langue</label>
-              <select className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer">
+              <select className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer">
                 <option>Français</option>
                 <option>Wolof</option>
                 <option>English</option>
@@ -74,7 +74,7 @@ export default function SectionParametres() {
             </div>
             <div>
               <label className="text-xs text-slate-400 mb-1 block">Pays</label>
-              <select className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer">
+              <select className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer">
                 <option>Sénégal</option>
                 <option>Mali</option>
                 <option>Côte d'Ivoire</option>
@@ -90,12 +90,12 @@ export default function SectionParametres() {
           <div className="space-y-4">
             <p className="text-sm font-bold text-white flex items-center gap-2"><CreditCard className="w-4 h-4 text-orange-400" /> Méthodes de paiement enregistrées</p>
             {[{ n: 'Wave', num: '+221 77 *** 45 67', actif: true }, { n: 'Orange Money', num: '+221 78 *** 22 11', actif: false }].map(m => (
-              <div key={m.n} className="flex items-center justify-between p-4 bg-slate-900 border border-slate-800 rounded-xl">
+              <div key={m.n} className="flex items-center justify-between p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl">
                 <div>
                   <p className="text-sm font-semibold text-white">{m.n}</p>
                   <p className="text-xs text-slate-400">{m.num}</p>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-lg font-bold ${m.actif ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}>
+                <span className={`text-xs px-2 py-1 rounded-lg font-bold ${m.actif ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[#222222] text-slate-500 border border-[#333333]'}`}>
                   {m.actif ? 'Principal' : 'Secondaire'}
                 </span>
               </div>

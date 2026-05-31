@@ -35,7 +35,7 @@ export default function SectionAccueil() {
             </div>
           </div>
           <div className="flex gap-3">
-            <select className="bg-slate-900/80 border border-slate-700 text-sm text-white px-4 py-2 rounded-xl outline-none font-semibold">
+            <select className="bg-[#1A1A1A]/80 border border-[#333333] text-sm text-white px-4 py-2 rounded-xl outline-none font-semibold">
               <option>Tous les pays</option>
               <option>Sénégal (Actif)</option>
               <option>Côte d'Ivoire (Beta)</option>
@@ -52,9 +52,9 @@ export default function SectionAccueil() {
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
-            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#101728]/80 backdrop-blur-sm`}>
+            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#141414]/80 backdrop-blur-sm`}>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-900 border border-slate-800">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#1A1A1A] border border-[#2A2A2A]">
                   <Icon className={`w-5 h-5 ${s.color}`} />
                 </div>
                 <span className="text-xs font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 px-2 py-1 rounded"><TrendingUp className="w-3 h-3" /> {s.trend}</span>
@@ -68,7 +68,7 @@ export default function SectionAccueil() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Growth Chart */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6 lg:col-span-2">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-bold text-white flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-400" /> Croissance Utilisateurs & Volume Transactions (YTD)</h3>
             <div className="flex gap-2">
@@ -94,7 +94,7 @@ export default function SectionAccueil() {
 
         {/* System Health / Top Tenants */}
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-[#101728] to-slate-900 border border-slate-800/80 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#101728] to-slate-900 border border-[#2A2A2A]/80 rounded-2xl p-6">
             <h3 className="font-bold text-white flex items-center gap-2 mb-4"><Database className="w-4 h-4 text-emerald-400" /> Santé Infrastructure</h3>
             <div className="space-y-4">
               <div>
@@ -102,33 +102,33 @@ export default function SectionAccueil() {
                   <span className="text-slate-400 font-semibold">Charge Serveur (API)</span>
                   <span className="text-emerald-400 font-bold">24%</span>
                 </div>
-                <div className="w-full h-1.5 bg-slate-800 rounded-full"><div className="w-1/4 h-full bg-emerald-500 rounded-full"></div></div>
+                <div className="w-full h-1.5 bg-[#222222] rounded-full"><div className="w-1/4 h-full bg-emerald-500 rounded-full"></div></div>
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-400 font-semibold">Connexions WebSockets</span>
                   <span className="text-orange-400 font-bold">12,450 actives</span>
                 </div>
-                <div className="w-full h-1.5 bg-slate-800 rounded-full"><div className="w-2/3 h-full bg-orange-500 rounded-full"></div></div>
+                <div className="w-full h-1.5 bg-[#222222] rounded-full"><div className="w-2/3 h-full bg-orange-500 rounded-full"></div></div>
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-400 font-semibold">Latence Moyenne</span>
                   <span className="text-emerald-400 font-bold">42ms</span>
                 </div>
-                <div className="w-full h-1.5 bg-slate-800 rounded-full"><div className="w-[10%] h-full bg-emerald-500 rounded-full"></div></div>
+                <div className="w-full h-1.5 bg-[#222222] rounded-full"><div className="w-[10%] h-full bg-emerald-500 rounded-full"></div></div>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6">
+          <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-orange-400" /> Top Tenants</h3>
               <button className="text-[10px] text-orange-400 font-bold uppercase tracking-wider hover:text-orange-300">Tout voir</button>
             </div>
             <div className="space-y-3">
               {['Sénégal Express', 'Allo Voyage', 'Transport Touba'].map((t, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+                <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-[#222222]/50 transition-colors">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-slate-500 w-4">{i+1}.</span>
                     <span className="text-sm font-semibold text-white">{t}</span>

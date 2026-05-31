@@ -10,14 +10,14 @@ export default function SectionAnalytics() {
           <h2 className="text-lg font-bold text-white flex items-center gap-2"><BarChart3 className="w-5 h-5 text-orange-400" /> Analytics Plateforme (SaaS)</h2>
           <p className="text-sm text-slate-400 mt-1">Analyse des données d'usage pour la prise de décision.</p>
         </div>
-        <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+        <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Download className="w-4 h-4" /> Rapport PDF
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Retention Utilisateur */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-white flex items-center gap-2"><Users className="w-4 h-4 text-emerald-400" /> Rétention Utilisateurs B2C</h3>
             <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded border border-emerald-500/20 font-bold">+5% ce mois</span>
@@ -33,7 +33,7 @@ export default function SectionAnalytics() {
                   <span className="font-semibold text-slate-300">{d.label}</span>
                   <span className="font-bold text-white">{d.val}</span>
                 </div>
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-[#222222] rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${d.perc}%` }}></div>
                 </div>
               </div>
@@ -42,11 +42,11 @@ export default function SectionAnalytics() {
         </div>
 
         {/* Lignes les plus rentables */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6">
           <h3 className="font-bold text-white flex items-center gap-2 mb-6"><Route className="w-4 h-4 text-orange-400" /> Top Axes de Transport (Volume GMV)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-slate-800">
+              <thead className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-[#2A2A2A]">
                 <tr>
                   <th className="py-2">Trajet</th>
                   <th className="py-2">Passagers/Mois</th>

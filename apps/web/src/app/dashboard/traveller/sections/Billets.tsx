@@ -186,7 +186,7 @@ export default function SectionBillets() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {myBillets.map(b => (
-          <div id={`ticket-${b.id}`} key={b.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">
+          <div id={`ticket-${b.id}`} key={b.id} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 space-y-4 hover:border-orange-500/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <p className="font-mono text-xs text-slate-400">{b.id}</p>
@@ -203,26 +203,26 @@ export default function SectionBillets() {
               </span>
             </div>
             {selected === b.id && (
-              <div className="flex justify-center pt-2 border-t border-slate-800">
+              <div className="flex justify-center pt-2 border-t border-[#2A2A2A]">
                 <div className="bg-white p-2 rounded-xl">
                   <QRCodeBrandEngine value={b.id} size={160} />
                 </div>
               </div>
             )}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800" data-html2canvas-ignore>
-              <button onClick={() => setSelected(selected === b.id ? null : b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-[#2A2A2A]" data-html2canvas-ignore>
+              <button onClick={() => setSelected(selected === b.id ? null : b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                 <Eye className="w-3 h-3" /> {selected === b.id ? 'Masquer' : 'Voir QR'}
               </button>
-              <button onClick={() => handleDownload(b.id)} disabled={isDownloading === b.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors disabled:opacity-50">
+              <button onClick={() => handleDownload(b.id)} disabled={isDownloading === b.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors disabled:opacity-50">
                 <Download className="w-3 h-3" /> {isDownloading === b.id ? 'Génération...' : 'Image'}
               </button>
-              <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+              <button onClick={() => handleShare(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                 <Share2 className="w-3 h-3" /> Partager
               </button>
               <button onClick={() => handleWhatsApp(b)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1DA851] text-white transition-colors">
                 <MessageCircle className="w-3 h-3" /> WhatsApp
               </button>
-              <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
+              <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-[#222222] text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer
               </button>
               {b.statut === 'actif' && (
@@ -236,7 +236,7 @@ export default function SectionBillets() {
                       window.dispatchEvent(new CustomEvent('cancel_reservation', { detail: { id: b.id, trajet: b.trajet } }));
                     }
                   }} 
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-rose-500/20 text-rose-500 hover:text-rose-400 transition-colors ml-auto"
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#1A1A1A] hover:bg-rose-500/20 text-rose-500 hover:text-rose-400 transition-colors ml-auto"
                 >
                   <XCircle className="w-3 h-3" /> Annuler
                 </button>
@@ -250,7 +250,7 @@ export default function SectionBillets() {
       <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, opacity: 0, pointerEvents: 'none' }}>
         {myBillets.map(b => (
           <div id={`capture-ticket-${b.id}`} key={`cap-${b.id}`} className="w-[400px] bg-white rounded-2xl overflow-hidden shadow-2xl">
-            <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
+            <div className="bg-[#0A0A0A] p-4 text-center border-b-[3px] border-orange-500">
               <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
                 <Car className="w-5 h-5 text-orange-500" />
                 Aller<span className="text-orange-500">Retour</span>

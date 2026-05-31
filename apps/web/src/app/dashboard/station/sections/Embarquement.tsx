@@ -17,12 +17,12 @@ export default function SectionEmbarquement() {
           <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Contrôle d'Embarquement</h2>
           <p className="text-sm text-slate-400 mt-1 flex items-center gap-2"><Bus className="w-4 h-4" /> Dakar → Touba (14:30) • Bus 50 places</p>
         </div>
-        <div className="flex items-center gap-4 bg-[#101728] border border-slate-800 p-3 rounded-2xl">
-          <div className="text-center px-4 border-r border-slate-800">
+        <div className="flex items-center gap-4 bg-[#141414] border border-[#2A2A2A] p-3 rounded-2xl">
+          <div className="text-center px-4 border-r border-[#2A2A2A]">
             <p className="text-2xl font-bold text-emerald-400">42</p>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Embarqués</p>
           </div>
-          <div className="text-center px-4 border-r border-slate-800">
+          <div className="text-center px-4 border-r border-[#2A2A2A]">
             <p className="text-2xl font-bold text-amber-400">3</p>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">En attente</p>
           </div>
@@ -33,18 +33,18 @@ export default function SectionEmbarquement() {
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
-        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-[#2A2A2A] flex justify-between items-center bg-[#1A1A1A]/50">
           <h3 className="font-bold text-white text-sm uppercase tracking-wider">Manifeste Passagers</h3>
           <div className="relative w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="Chercher passager, siège..." className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
+            <input type="text" placeholder="Chercher passager, siège..." className="w-full bg-[#222222] border border-[#333333] rounded-lg py-1.5 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
         </div>
         
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+            <tr className="bg-[#1A1A1A]/80 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
               <th className="py-3 pl-6 font-semibold w-24">Siège</th>
               <th className="py-3 font-semibold">Passager & Billet</th>
               <th className="py-3 font-semibold">Statut</th>
@@ -53,7 +53,7 @@ export default function SectionEmbarquement() {
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-sm">
             {passagers.map((p, i) => (
-              <tr key={i} className={`hover:bg-slate-800/30 transition-colors ${p.statut === 'Absent' ? 'opacity-50 grayscale' : ''}`}>
+              <tr key={i} className={`hover:bg-[#222222]/30 transition-colors ${p.statut === 'Absent' ? 'opacity-50 grayscale' : ''}`}>
                 <td className="py-4 pl-6 font-bold text-white text-lg">{p.id}</td>
                 <td className="py-4">
                   <p className="font-bold text-white">{p.nom}</p>
@@ -71,7 +71,7 @@ export default function SectionEmbarquement() {
                   {p.statut === 'En attente' && (
                     <div className="flex justify-end gap-2">
                       <button className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg transition-colors" title="Valider Présence"><CheckCircle2 className="w-4 h-4" /></button>
-                      <button className="bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 border border-slate-700 p-2 rounded-lg transition-colors" title="Marquer Absent"><UserX className="w-4 h-4" /></button>
+                      <button className="bg-[#222222] hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 border border-[#333333] p-2 rounded-lg transition-colors" title="Marquer Absent"><UserX className="w-4 h-4" /></button>
                     </div>
                   )}
                   {p.statut === 'Embarqué' && <span className="text-emerald-400 text-xs font-bold flex items-center justify-end gap-1"><CheckCircle2 className="w-4 h-4" /> Contrôlé</span>}

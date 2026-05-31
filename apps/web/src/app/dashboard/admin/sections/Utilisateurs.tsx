@@ -22,25 +22,25 @@ export default function SectionUtilisateurs() {
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="Rechercher email, nom, tel..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
+            <input type="text" placeholder="Rechercher email, nom, tel..." className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
-          <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
+          <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] p-2 rounded-xl text-slate-400 transition-colors"><Filter className="w-4 h-4" /></button>
         </div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
         {['Tous', 'Voyageurs', 'Chauffeurs', 'Administrateurs', 'Bannis/Suspendus'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? (t === 'Bannis/Suspendus' ? 'bg-rose-600 text-white' : 'bg-orange-600 text-white') : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? (t === 'Bannis/Suspendus' ? 'bg-rose-600 text-white' : 'bg-orange-600 text-white') : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>
             {t}
           </button>
         ))}
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[900px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/50 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">Utilisateur</th>
                 <th className="py-4 font-semibold">Rôle & Tenant</th>
                 <th className="py-4 font-semibold">Dernière Connexion</th>
@@ -50,10 +50,10 @@ export default function SectionUtilisateurs() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={u.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#222222] overflow-hidden shrink-0">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.nom}`} alt={u.nom} />
                       </div>
                       <div>
@@ -76,7 +76,7 @@ export default function SectionUtilisateurs() {
                   </td>
                   <td className="py-4 pr-6">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded transition-colors" title="Profil complet"><UserCheck className="w-4 h-4" /></button>
+                      <button className="p-1.5 bg-[#222222] hover:bg-slate-700 text-slate-300 rounded transition-colors" title="Profil complet"><UserCheck className="w-4 h-4" /></button>
                       <button className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded transition-colors" title="Suspendre/Bannir"><UserX className="w-4 h-4" /></button>
                       <button className="p-1.5 text-slate-500 hover:text-white rounded transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                     </div>

@@ -24,8 +24,8 @@ export default function SectionSuiviGPS() {
         </div>
 
         {/* Driver Details */}
-        <div className="flex items-center gap-4 bg-[#0a0f18] rounded-2xl p-4 border border-slate-800/80">
-          <div className="w-14 h-14 rounded-full bg-slate-800 overflow-hidden shrink-0 relative">
+        <div className="flex items-center gap-4 bg-[#0a0f18] rounded-2xl p-4 border border-[#2A2A2A]/80">
+          <div className="w-14 h-14 rounded-full bg-[#222222] overflow-hidden shrink-0 relative">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moussa" alt="Chauffeur" className="w-full h-full object-cover" />
             <div className="absolute -bottom-1 -right-1 bg-white text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
               4.9 <Star className="w-2.5 h-2.5 fill-slate-900" />
@@ -34,13 +34,13 @@ export default function SectionSuiviGPS() {
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold truncate">Moussa Ndiaye</p>
             <p className="text-xs text-slate-400 truncate">Voiture Particulière 4 places • Allo Dakar</p>
-            <div className="mt-1 bg-slate-800 px-2 py-0.5 rounded text-xs font-mono text-slate-300 w-fit">
+            <div className="mt-1 bg-[#222222] px-2 py-0.5 rounded text-xs font-mono text-slate-300 w-fit">
               DK-7482-BB
 
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors">
+            <button className="w-10 h-10 rounded-xl bg-[#222222] hover:bg-slate-700 flex items-center justify-center text-white transition-colors">
               <MessageSquare className="w-4 h-4" />
             </button>
             <button className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center text-white transition-colors">
@@ -52,14 +52,14 @@ export default function SectionSuiviGPS() {
 
       {/* Carte SVG Premium Animée (Pickup) */}
       <div 
-        className="relative h-80 border border-slate-700/60 rounded-3xl overflow-hidden shadow-xl"
+        className="relative h-80 border border-[#333333]/60 rounded-3xl overflow-hidden shadow-xl"
         style={{ backgroundImage: "url('/dakar-map-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         {/* Overlay sombre pour la lisibilité */}
         <div className="absolute inset-0 bg-[#0a1520]/50 mix-blend-multiply pointer-events-none" />
 
         {/* Info panel sur la carte (Position détaillée) */}
-        <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-80 bg-[#050A15]/95 backdrop-blur-md border border-slate-700/60 p-4 rounded-2xl shadow-2xl z-10 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="absolute top-4 left-4 right-4 sm:right-auto sm:w-80 bg-[#000000]/95 backdrop-blur-md border border-[#333333]/60 p-4 rounded-2xl shadow-2xl z-10 animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[10px] uppercase text-orange-400 font-bold tracking-widest flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" /> Position Actuelle
@@ -128,12 +128,12 @@ export default function SectionSuiviGPS() {
 
         {/* Overlay infos en bas */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent pt-12 pb-4 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-2 bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] px-3 py-1.5 rounded-full">
             <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
             <span className="text-xs font-semibold text-white">Données GPS chiffrées de bout en bout</span>
           </div>
           <div className="flex gap-2">
-            <button className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-full border border-slate-700 transition-colors shadow-lg">
+            <button className="bg-[#222222] hover:bg-slate-700 text-white p-2 rounded-full border border-[#333333] transition-colors shadow-lg">
               <Navigation className="w-4 h-4" />
             </button>
           </div>

@@ -16,7 +16,7 @@ export default function SectionSuiviFlotte() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Liste des véhicules actifs */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-4 lg:col-span-1 space-y-4 max-h-[600px] overflow-y-auto">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-4 lg:col-span-1 space-y-4 max-h-[600px] overflow-y-auto">
           <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Véhicules Actifs (3)</h3>
           
           {[
@@ -24,14 +24,14 @@ export default function SectionSuiviFlotte() {
             { id: 'TRIP-405', driver: 'Abdoulaye Sow', route: 'Thiès → Saint-Louis', speed: '75 km/h', status: 'online', delay: '+10 min' },
             { id: 'TRIP-408', driver: 'Cheikh Fall', route: 'Dakar → Mbour', speed: '0 km/h', status: 'offline', delay: null },
           ].map((v, i) => (
-            <div key={i} className="p-3 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800 transition-colors cursor-pointer group">
+            <div key={i} className="p-3 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A]/50 hover:bg-[#222222] transition-colors cursor-pointer group">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-sm text-white">{v.driver}</span>
                 {v.status === 'online' ? <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> : <WifiOff className="w-3 h-3 text-slate-500" />}
               </div>
               <p className="text-xs text-slate-400 mb-2">{v.route}</p>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 font-mono">{v.speed}</span>
+                <span className="text-[10px] bg-[#222222] px-2 py-0.5 rounded text-slate-300 font-mono">{v.speed}</span>
                 {v.delay && <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Retard {v.delay}</span>}
               </div>
             </div>
@@ -39,7 +39,7 @@ export default function SectionSuiviFlotte() {
         </div>
 
         {/* Grande carte premium */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden lg:col-span-3 relative h-[600px]">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden lg:col-span-3 relative h-[600px]">
           {/* Mockup Map */}
           <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
             <defs><pattern id="gridLarge" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#94a3b8" strokeWidth="0.5"/></pattern></defs>
@@ -79,7 +79,7 @@ export default function SectionSuiviFlotte() {
           </svg>
 
           {/* overlay infos */}
-          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700 p-3 rounded-xl max-w-xs">
+          <div className="absolute top-4 left-4 bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] p-3 rounded-xl max-w-xs">
             <h4 className="text-white font-bold text-sm mb-1">Résumé Flotte</h4>
             <div className="flex items-center gap-4 text-xs text-slate-300">
               <span><span className="w-2 h-2 inline-block rounded-full bg-emerald-500 mr-1"/> 2 en route</span>

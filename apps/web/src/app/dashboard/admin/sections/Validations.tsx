@@ -24,16 +24,16 @@ export default function SectionValidations() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Liste des demandes */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden h-[600px] flex flex-col">
-          <div className="p-4 border-b border-slate-800 bg-slate-900/50">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden h-[600px] flex flex-col">
+          <div className="p-4 border-b border-[#2A2A2A] bg-[#1A1A1A]/50">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">File d'attente</h3>
           </div>
           <div className="overflow-y-auto p-4 space-y-3 flex-1">
             {validations.map((v, i) => (
-              <div key={v.id} className={`p-4 rounded-xl border cursor-pointer transition-all ${i === 0 ? 'bg-orange-500/10 border-orange-500/30' : 'bg-slate-900/50 border-slate-800 hover:border-slate-600'}`}>
+              <div key={v.id} className={`p-4 rounded-xl border cursor-pointer transition-all ${i === 0 ? 'bg-orange-500/10 border-orange-500/30' : 'bg-[#1A1A1A]/50 border-[#2A2A2A] hover:border-slate-600'}`}>
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-[10px] font-bold uppercase bg-slate-800 text-slate-300 px-2 py-0.5 rounded">{v.type}</span>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${v.priority === 'Haute' ? 'text-rose-400 bg-rose-500/10' : v.priority === 'Normale' ? 'text-amber-400 bg-amber-500/10' : 'text-slate-400 bg-slate-800'}`}>{v.priority}</span>
+                  <span className="text-[10px] font-bold uppercase bg-[#222222] text-slate-300 px-2 py-0.5 rounded">{v.type}</span>
+                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${v.priority === 'Haute' ? 'text-rose-400 bg-rose-500/10' : v.priority === 'Normale' ? 'text-amber-400 bg-amber-500/10' : 'text-slate-400 bg-[#222222]'}`}>{v.priority}</span>
                 </div>
                 <p className="font-bold text-white text-sm mb-1">{v.subject}</p>
                 <div className="flex justify-between items-center text-xs text-slate-500 font-medium">
@@ -46,7 +46,7 @@ export default function SectionValidations() {
         </div>
 
         {/* Détail d'une demande */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6 flex flex-col h-[600px]">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6 flex flex-col h-[600px]">
           <div className="flex justify-between items-start mb-6">
             <div>
               <span className="text-xs font-bold text-orange-400 uppercase tracking-wider mb-1 block">Création GIE</span>
@@ -57,7 +57,7 @@ export default function SectionValidations() {
           </div>
 
           <div className="flex-1 space-y-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-4">
               <h4 className="text-sm font-bold text-white mb-3">Informations Légales</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div><span className="text-slate-500 block text-xs">NINEA</span><span className="text-white font-mono">009876543 2V2</span></div>
@@ -66,14 +66,14 @@ export default function SectionValidations() {
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-4">
               <h4 className="text-sm font-bold text-white mb-3">Documents Joints</h4>
               <div className="space-y-2">
-                <div className="flex items-center justify-between bg-slate-800 p-2 rounded-lg">
+                <div className="flex items-center justify-between bg-[#222222] p-2 rounded-lg">
                   <div className="flex items-center gap-2 text-sm text-white"><FileText className="w-4 h-4 text-orange-400" /> Statuts_GIE.pdf</div>
                   <button className="text-orange-400 hover:text-orange-300 p-1"><Eye className="w-4 h-4" /></button>
                 </div>
-                <div className="flex items-center justify-between bg-slate-800 p-2 rounded-lg">
+                <div className="flex items-center justify-between bg-[#222222] p-2 rounded-lg">
                   <div className="flex items-center gap-2 text-sm text-white"><FileText className="w-4 h-4 text-orange-400" /> Certificat_NINEA.pdf</div>
                   <button className="text-orange-400 hover:text-orange-300 p-1"><Eye className="w-4 h-4" /></button>
                 </div>
@@ -81,7 +81,7 @@ export default function SectionValidations() {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-800 flex gap-3 mt-auto">
+          <div className="pt-6 border-t border-[#2A2A2A] flex gap-3 mt-auto">
             <button className="flex-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-bold py-3 rounded-xl border border-rose-500/20 transition-colors flex items-center justify-center gap-2">
               <XCircle className="w-5 h-5" /> Rejeter
             </button>

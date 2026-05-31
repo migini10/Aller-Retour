@@ -85,7 +85,7 @@ export default function TravellerDashboard() {
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col">
       {/* Navigation onglets — Full width background, inner content constrained */}
-      <div className="sticky top-0 z-20 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
+      <div className="sticky top-0 z-20 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 w-full px-5 sm:px-8 lg:px-12 shrink-0">
         <div className="max-w-[1600px] mx-auto py-3 relative">
           <div ref={scrollContainerRef} className="flex gap-1 overflow-x-auto scrollbar-none pr-8 sm:pr-0">
             {tabs.map(t => {
@@ -97,7 +97,7 @@ export default function TravellerDashboard() {
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative shrink-0 ${
                     activeTab === t.id
                       ? 'bg-orange-600 text-white shadow-sm shadow-orange-500/20'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      : 'text-slate-400 hover:text-white hover:bg-[#222222]'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -153,7 +153,7 @@ export default function TravellerDashboard() {
                 <Ticket className="w-5 h-5" />
                 <span>Trouver une voiture</span>
               </button>
-              <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center justify-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-2.5 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer shrink-0">
+              <button onClick={() => openModal('Niveau Gold', 'Voulez-vous utiliser 3000 points pour passer au niveau Gold ?', 'Confirmer')} className="flex items-center justify-center gap-2 bg-[#1A1A1A]/60 border border-[#2A2A2A] px-4 py-2.5 rounded-xl hover:border-orange-500/50 transition-colors cursor-pointer shrink-0">
                 <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
                 <span className="text-xs text-white font-bold hidden sm:inline">Niveau Silver → Gold</span>
               </button>
@@ -165,7 +165,7 @@ export default function TravellerDashboard() {
             {stats.map(s => {
               const Icon = s.icon;
               return (
-                <div key={s.label} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-4 flex flex-col gap-2 hover:border-orange-500/30 transition-colors">
+                <div key={s.label} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-4 flex flex-col gap-2 hover:border-orange-500/30 transition-colors">
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -179,7 +179,7 @@ export default function TravellerDashboard() {
           {/* Prochain voyage + Notifications */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Prochain voyage */}
-            <div className="bg-[#101728] border border-orange-500/20 rounded-2xl p-6 space-y-4">
+            <div className="bg-[#141414] border border-orange-500/20 rounded-2xl p-6 space-y-4">
               <p className="text-xs text-orange-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Prochain voyage</p>
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1.5">
@@ -202,14 +202,14 @@ export default function TravellerDashboard() {
             </div>
 
             {/* Notifications récentes */}
-            <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-6 space-y-4">
+            <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5"><Bell className="w-3.5 h-3.5 text-orange-400" /> Notifications récentes</p>
                 <button onClick={() => setActiveTab('notifications')} className="text-xs text-orange-400 hover:text-orange-300 transition-colors">Voir tout</button>
               </div>
               <div className="space-y-3">
                 {notificationsRecentes.map((n, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl">
+                  <div key={i} className="flex items-start gap-3 p-3 bg-[#1A1A1A]/50 rounded-xl">
                     <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${n.dot}`} />
                     <div>
                       <p className="text-sm text-white">{n.msg}</p>

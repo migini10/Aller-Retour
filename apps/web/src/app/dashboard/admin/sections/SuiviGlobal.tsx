@@ -17,7 +17,7 @@ export default function SectionSuiviGlobal() {
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center h-[700px]">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center h-[700px]">
         
         {/* Mockup Map Afrique de l'Ouest */}
         <svg className="absolute inset-0 w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
@@ -51,15 +51,15 @@ export default function SectionSuiviGlobal() {
         </svg>
 
         {/* Overlay Control Panel */}
-        <div className="absolute top-6 right-6 w-80 bg-slate-900/90 backdrop-blur-xl border border-slate-700 rounded-2xl p-5 shadow-2xl z-10">
+        <div className="absolute top-6 right-6 w-80 bg-[#1A1A1A]/90 backdrop-blur-xl border border-[#333333] rounded-2xl p-5 shadow-2xl z-10">
           <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-emerald-400" /> Télémétrie en direct</h3>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-2">
               <span className="text-xs text-slate-400">Véhicules Connectés</span>
               <span className="font-bold text-white">1,245</span>
             </div>
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-2">
               <span className="text-xs text-slate-400">Trajets en cours</span>
               <span className="font-bold text-orange-400">312</span>
             </div>

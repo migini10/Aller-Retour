@@ -11,11 +11,11 @@ export default function SectionScanner() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Caméra & Scanner (Vue Opérateur) */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden">
-          <div className="absolute inset-0 bg-slate-900" />
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden">
+          <div className="absolute inset-0 bg-[#1A1A1A]" />
           
           <div className="relative z-10 w-72 h-72 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-[0_0_0_9999px_rgba(15,23,42,0.9)]">
-            <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+            <div className="w-full h-full bg-[#222222] flex items-center justify-center">
               <Scan className="w-16 h-16 text-slate-600 animate-pulse" />
             </div>
             {/* Ligne de scan dynamique */}
@@ -35,12 +35,12 @@ export default function SectionScanner() {
             <button onClick={() => setScanState('valid')} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-bold border border-emerald-500/30">Test Valide</button>
             <button onClick={() => setScanState('warning')} className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-bold border border-amber-500/30">Test Doublon</button>
             <button onClick={() => setScanState('invalid')} className="px-3 py-1 bg-rose-500/20 text-rose-400 rounded text-xs font-bold border border-rose-500/30">Test Invalide</button>
-            <button onClick={() => setScanState('idle')} className="px-3 py-1 bg-slate-800 text-white rounded text-xs font-bold border border-slate-700">Reset</button>
+            <button onClick={() => setScanState('idle')} className="px-3 py-1 bg-[#222222] text-white rounded text-xs font-bold border border-[#333333]">Reset</button>
           </div>
         </div>
 
         {/* Résultat d'analyse */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-3xl p-6 flex flex-col justify-center">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-3xl p-6 flex flex-col justify-center">
           {scanState === 'idle' && (
             <div className="text-center opacity-50 space-y-4">
               <QrCode className="w-20 h-20 mx-auto text-slate-500" />
@@ -58,9 +58,9 @@ export default function SectionScanner() {
                 <h3 className="text-3xl font-bold text-white">Billet Valide</h3>
                 <p className="text-emerald-400 font-bold mt-1 uppercase tracking-wider text-sm">Accès Autorisé</p>
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center gap-4 border-b border-slate-800 pb-4">
-                  <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>
+              <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-5 space-y-4">
+                <div className="flex items-center gap-4 border-b border-[#2A2A2A] pb-4">
+                  <div className="w-12 h-12 bg-[#222222] rounded-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>
                   <div>
                     <p className="font-bold text-white text-lg">Mamadou Ndiaye</p>
                     <p className="text-sm text-orange-400 font-mono font-bold">AR-74892374</p>
@@ -87,7 +87,7 @@ export default function SectionScanner() {
               </div>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 text-center">
                 <p className="text-amber-200">Ce billet (AR-74892374) a déjà été validé à 14:12 par l'agent Ousmane au guichet principal.</p>
-                <button className="mt-4 w-full bg-slate-900 border border-amber-500/50 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition-colors">Forcer l'autorisation (Admin)</button>
+                <button className="mt-4 w-full bg-[#1A1A1A] border border-amber-500/50 hover:bg-[#222222] text-white font-bold py-3 rounded-xl transition-colors">Forcer l'autorisation (Admin)</button>
               </div>
             </div>
           )}

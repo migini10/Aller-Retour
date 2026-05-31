@@ -335,7 +335,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   const renderStep1Search = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-slate-900/50 p-4 sm:p-6 rounded-2xl border border-slate-800">
+      <div className="bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-[#2A2A2A]">
         <h3 className="text-lg font-bold text-white mb-4">Où allez-vous avec Allo Dakar ?</h3>
         <div className="space-y-3">
           <div className="relative z-[60]">
@@ -343,7 +343,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <input 
               type="text" 
               placeholder="Ville de départ"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.depart}
               onFocus={() => setShowDepartSuggestions(true)}
               onBlur={() => setTimeout(() => setShowDepartSuggestions(false), 200)}
@@ -353,7 +353,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               }}
             />
             {showDepartSuggestions && filteredDepart.length > 0 && (
-              <div className="absolute z-[100] w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
+              <div className="absolute z-[100] w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
                 {filteredDepart.map(ville => (
                   <div 
                     key={ville} 
@@ -386,7 +386,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <input 
                 type="text" 
                 placeholder="Tapez l'adresse exacte du passager ou géolocalisez-vous"
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
+                className="w-full bg-black border border-[#2A2A2A] rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
                 value={pickupLocation}
                 onFocus={() => setShowPickupSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
@@ -396,7 +396,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 }}
               />
               {showPickupSuggestions && displayPickupQuartiers.length > 0 && (
-                <div className="absolute z-50 w-full left-0 mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                <div className="absolute z-50 w-full left-0 mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-40 overflow-y-auto">
                   {displayPickupQuartiers.map(quartier => (
                     <div 
                       key={quartier} 
@@ -419,7 +419,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <input 
               type="text" 
               placeholder="Ville d'arrivée"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.arrivee}
               onFocus={() => setShowArriveeSuggestions(true)}
               onBlur={() => setTimeout(() => setShowArriveeSuggestions(false), 200)}
@@ -429,7 +429,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               }}
             />
             {showArriveeSuggestions && filteredArrivee.length > 0 && (
-              <div className="absolute z-[100] w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
+              <div className="absolute z-[100] w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
                 {filteredArrivee.map(ville => (
                   <div 
                     key={ville} 
@@ -452,7 +452,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <input 
                 type="text" 
                 placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
                 value={searchParams.quartierArrivee}
                 onFocus={() => setShowQuartierSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
@@ -462,7 +462,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 }}
               />
               {showQuartierSuggestions && displayQuartiers.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                <div className="absolute z-50 w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-40 overflow-y-auto">
                   {displayQuartiers.map(quartier => (
                     <div 
                       key={quartier} 
@@ -484,7 +484,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <select 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
+                className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
                 value={searchParams.date}
                 onChange={(e) => setSearchParams({...searchParams, date: e.target.value})}
               >
@@ -501,7 +501,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <div className="relative">
               <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <select 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
+                className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
                 value={searchParams.passagers}
                 onChange={(e) => setSearchParams({...searchParams, passagers: parseInt(e.target.value)})}
               >
@@ -530,7 +530,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           setIsSearching(false);
           nextStep();
         }}
-        className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
+        className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
         {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.date) ? 'Rechercher un trajet' : 'Informations incomplètes')}
@@ -567,7 +567,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <h3 className="text-sm font-semibold text-slate-400 px-1">Choix du type de véhicule Allo Dakar</h3>
           <div className="space-y-3">
             {displayTrips.length === 0 ? (
-              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center">
+              <div className="bg-[#1A1A1A] border border-[#2A2A2A] p-6 rounded-2xl text-center">
                 <p className="text-slate-400 text-sm">Aucun trajet trouvé sur cette liaison en temps réel.</p>
                 <p className="text-xs text-slate-500 mt-2">Veuillez vérifier que le serveur est allumé et la base de données remplie.</p>
               </div>
@@ -584,8 +584,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 }}
                 className={`border p-4 rounded-2xl cursor-pointer transition-all ${
                   service.isTooSoon 
-                  ? 'bg-slate-900/50 border-slate-800/50 opacity-80' 
-                  : 'bg-slate-900 border-slate-800 hover:border-orange-500/50 hover:bg-slate-800/50'
+                  ? 'bg-[#1A1A1A]/50 border-[#2A2A2A]/50 opacity-80' 
+                  : 'bg-[#1A1A1A] border-[#2A2A2A] hover:border-orange-500/50 hover:bg-[#222222]/50'
                 }`}
               >
                 <div className="flex justify-between items-start mb-3">
@@ -593,7 +593,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`font-bold text-lg px-2 py-0.5 rounded-lg border ${
                         service.isTooSoon 
-                        ? 'bg-slate-800 text-slate-400 border-slate-700' 
+                        ? 'bg-[#222222] text-slate-400 border-[#333333]' 
                         : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
                       }`}>
                         {service.time}
@@ -601,7 +601,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                       <span className="font-bold text-white">{service.company}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="bg-slate-800 text-xs text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
+                      <span className="bg-[#222222] text-xs text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
                       <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] px-2 py-0.5 rounded-full font-bold">
                         {service.availableSeats} places restantes
                       </span>
@@ -652,18 +652,18 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
     return (
       <div className="space-y-4 h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-4 flex-1 overflow-y-auto">
+        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-4 sm:p-6 mb-4 flex-1 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-white font-bold">Choix du siège</h3>
             <div className="flex gap-3 text-xs">
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-slate-800 border border-slate-700"></div> Libre</div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-[#222222] border border-[#333333]"></div> Libre</div>
               <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-orange-600"></div> Sélection</div>
               <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/50"></div> Occupé</div>
             </div>
           </div>
           
-          <div className="max-w-[200px] mx-auto bg-slate-950 border-4 border-slate-800 rounded-[40px] p-4 py-8 relative">
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-2 bg-slate-800 rounded-full"></div>
+          <div className="max-w-[200px] mx-auto bg-black border-4 border-[#2A2A2A] rounded-[40px] p-4 py-8 relative">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-2 bg-[#222222] rounded-full"></div>
             
             <div className="grid grid-cols-3 gap-2 mt-8">
               {seats.map((seat, i) => (
@@ -674,7 +674,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold transition-all
                     ${seat.isOccupied ? 'bg-rose-500/10 border border-rose-500/20 text-rose-500/50 cursor-not-allowed' : 
                       selectedSeat === seat.id ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/40 scale-110 z-10' : 
-                      'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'}
+                      'bg-[#222222] border border-[#333333] text-slate-400 hover:bg-slate-700 hover:text-white'}
                     ${(i + 1) % 3 === 2 ? 'mb-4' : ''}`} // Aisle simulation
                 >
                   {seat.label}
@@ -687,7 +687,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         <button 
           disabled={!selectedSeat}
           onClick={nextStep}
-          className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
+          className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors"
         >
           {selectedSeat ? `Confirmer le siège ${selectedSeat}` : 'Veuillez choisir un siège'}
         </button>
@@ -707,10 +707,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     if (ticketPour === null) {
       return (
         <div className="space-y-6 animate-in zoom-in-95 duration-300 py-8">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
             
-            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700">
+            <div className="w-16 h-16 bg-[#222222] rounded-full flex items-center justify-center mx-auto mb-6 border border-[#333333]">
               <User className="w-8 h-8 text-orange-500" />
             </div>
             
@@ -723,7 +723,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   setTicketPour('moi');
                   setVoyageurInfo({...voyageurInfo, nom: 'Abdou Bakhe', telephone: '+221 77 123 45 67', email: 'abdou@example.com'});
                 }}
-                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-700 hover:border-orange-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
+                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-[#333333] hover:border-orange-500 bg-[#222222]/50 hover:bg-[#222222] transition-all group"
               >
                 <div className="w-12 h-12 rounded-full bg-slate-700 group-hover:bg-orange-500/20 flex items-center justify-center transition-colors">
                   <User className="w-6 h-6 text-slate-300 group-hover:text-orange-500 transition-colors" />
@@ -737,7 +737,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   setTicketPour('autre');
                   setVoyageurInfo({...voyageurInfo, nom: '', telephone: '', email: ''});
                 }}
-                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-700 hover:border-orange-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
+                className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-[#333333] hover:border-orange-500 bg-[#222222]/50 hover:bg-[#222222] transition-all group"
               >
                 <div className="w-12 h-12 rounded-full bg-slate-700 group-hover:bg-orange-500/20 flex items-center justify-center transition-colors">
                   <Users className="w-6 h-6 text-slate-300 group-hover:text-orange-500 transition-colors" />
@@ -753,8 +753,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
     return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800 mb-2">
+      <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-4 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between bg-black p-3 rounded-xl border border-[#2A2A2A] mb-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
               {ticketPour === 'moi' ? <User className="w-5 h-5 text-orange-500" /> : <Users className="w-5 h-5 text-orange-500" />}
@@ -784,7 +784,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <label className="text-xs text-slate-400 font-medium mb-1 block">{ticketPour === 'moi' ? 'Nom Complet' : 'Nom Complet du Passager'}</label>
             <input 
               type="text" 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
               value={voyageurInfo.nom}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, nom: e.target.value})}
             />
@@ -793,7 +793,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <label className="text-xs text-slate-400 font-medium mb-1 block">Téléphone (requis pour billet SMS)</label>
             <input 
               type="tel" 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
               value={voyageurInfo.telephone}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, telephone: e.target.value})}
             />
@@ -802,7 +802,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <label className="text-xs text-slate-400 font-medium mb-1 block">Email (optionnel)</label>
             <input 
               type="email" 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none"
               value={voyageurInfo.email}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, email: e.target.value})}
             />
@@ -810,7 +810,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div>
             <label className="text-xs text-slate-400 font-medium mb-1 block">Nombre de bagages</label>
             <select 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none appearance-none"
+              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 px-4 text-white focus:border-orange-500 outline-none appearance-none"
               value={voyageurInfo.bagages}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, bagages: parseInt(e.target.value)})}
             >
@@ -825,7 +825,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       <button 
         onClick={handleContinueInfo}
         disabled={!voyageurInfo.nom || !voyageurInfo.telephone}
-        className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-4 rounded-xl transition-colors"
+        className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-[#222222] disabled:text-slate-500 text-white font-bold py-4 rounded-xl transition-colors"
       >
         Procéder au paiement
       </button>
@@ -841,7 +841,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-4 sm:p-6">
           <h3 className="text-white font-bold mb-4">Résumé de la commande</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-slate-300">
@@ -856,7 +856,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <span>Taxes et frais de service</span>
               <span>{taxes} FCFA</span>
             </div>
-            <div className="border-t border-slate-800 pt-3 mt-3 flex justify-between items-center">
+            <div className="border-t border-[#2A2A2A] pt-3 mt-3 flex justify-between items-center">
               <span className="font-bold text-white">Total à payer</span>
               <span className="text-xl font-bold text-orange-500">{total} FCFA</span>
             </div>
@@ -869,15 +869,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             {[
               { id: 'wave', name: 'Wave', color: 'bg-blue-600 text-white border-blue-500', icon: Smartphone },
               { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', icon: Smartphone },
-              { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-slate-800 text-white border-slate-700', icon: Wallet },
-              { id: 'card', name: 'Carte Bancaire', color: 'bg-slate-800 text-white border-slate-700', icon: CreditCard },
+              { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-[#222222] text-white border-[#333333]', icon: Wallet },
+              { id: 'card', name: 'Carte Bancaire', color: 'bg-[#222222] text-white border-[#333333]', icon: CreditCard },
               ...(isAlloDakar ? [{ id: 'cash', name: 'Espèces à l\'arrivée', color: 'bg-emerald-600 text-white border-emerald-500', icon: Banknote }] : [])
             ].map(method => (
               <button
                 key={method.id}
                 onClick={() => setPaymentMethod(method.id)}
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
-                  ${paymentMethod === method.id ? method.color + ' ring-2 ring-white/20' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  ${paymentMethod === method.id ? method.color + ' ring-2 ring-white/20' : 'bg-[#1A1A1A] border-[#2A2A2A] text-slate-400 hover:border-[#333333]'}`}
               >
                 <method.icon className="w-6 h-6" />
                 <span className="text-xs font-bold">{method.name}</span>
@@ -889,7 +889,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         <button 
           disabled={!paymentMethod}
           onClick={nextStep}
-          className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2"
+          className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2"
         >
           <ShieldCheck className="w-5 h-5" />
           Payer {total} FCFA
@@ -910,7 +910,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
       {/* Request Recap UI */}
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
-        <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
+        <div className="bg-[#0A0A0A] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
             <CarFront className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
@@ -965,10 +965,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       </div>
 
       <div className="grid grid-cols-3 gap-2 w-full mt-6">
-        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+        <button onClick={handleDownload} className="bg-[#222222] hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Download className="w-4 h-4" /> Billet
         </button>
-        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+        <button onClick={handleShare} className="bg-[#222222] hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Share2 className="w-4 h-4" /> Partager
         </button>
         <button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
@@ -978,7 +978,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       
       <button 
         onClick={handleClose}
-        className="w-full bg-slate-900 border border-slate-800 text-slate-300 font-bold py-4 rounded-xl mt-3 transition-colors hover:bg-slate-800"
+        className="w-full bg-[#1A1A1A] border border-[#2A2A2A] text-slate-300 font-bold py-4 rounded-xl mt-3 transition-colors hover:bg-[#222222]"
       >
         Retour à l'accueil
       </button>
@@ -997,7 +997,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
       {/* Ticket UI */}
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
-        <div className="bg-[#0B0F19] p-4 text-center border-b-[3px] border-orange-500">
+        <div className="bg-[#0A0A0A] p-4 text-center border-b-[3px] border-orange-500">
           <h3 className="text-xl font-bold text-white tracking-tight flex justify-center items-center gap-2">
             <CarFront className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
@@ -1006,8 +1006,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         </div>
         
         <div className="p-6 relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#050A15] rounded-full"></div>
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#000000] rounded-full"></div>
+          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#000000] rounded-full"></div>
           
           <div className="flex justify-between items-end mb-6">
             <div>
@@ -1057,10 +1057,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       </div>
 
       <div className="grid grid-cols-3 gap-2 w-full mt-6">
-        <button onClick={handleDownload} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+        <button onClick={handleDownload} className="bg-[#222222] hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Download className="w-4 h-4" /> Billet
         </button>
-        <button onClick={handleShare} className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
+        <button onClick={handleShare} className="bg-[#222222] hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
           <Share2 className="w-4 h-4" /> Partager
         </button>
         <button onClick={handleWhatsApp} className="bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-1 transition-colors text-xs">
@@ -1070,7 +1070,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       
       <button 
         onClick={handleClose}
-        className="w-full bg-slate-900 border border-slate-800 text-slate-300 font-bold py-4 rounded-xl mt-3 transition-colors hover:bg-slate-800"
+        className="w-full bg-[#1A1A1A] border border-[#2A2A2A] text-slate-300 font-bold py-4 rounded-xl mt-3 transition-colors hover:bg-[#222222]"
       >
         Retour à l'accueil
       </button>
@@ -1096,16 +1096,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   return (
     <div className={`fixed inset-0 z-[100] flex items-center justify-center ${isClosing ? 'animate-out fade-out duration-300' : 'animate-in fade-in duration-300'}`}>
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={step < totalSteps ? handleClose : undefined}></div>
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={step < totalSteps ? handleClose : undefined}></div>
       
-      <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#050A15] sm:rounded-[2rem] sm:border border-slate-800/80 flex flex-col shadow-2xl overflow-hidden
+      <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#000000] sm:rounded-[2rem] sm:border border-[#2A2A2A]/80 flex flex-col shadow-2xl overflow-hidden
         ${isClosing ? 'animate-out slide-out-to-bottom-8 sm:slide-out-to-bottom-0 sm:zoom-out-95 duration-300' : 'animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300'}`}
       >
         {/* Header */}
-        <div className="flex-none bg-[#0B0F19] border-b border-slate-800/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex-none bg-[#0A0A0A] border-b border-[#2A2A2A]/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
             {step > 1 && step < totalSteps && (
-              <button onClick={prevStep} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800">
+              <button onClick={prevStep} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-[#222222]">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
@@ -1117,7 +1117,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             </div>
           </div>
           {step < totalSteps && (
-            <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-slate-900 rounded-full border border-slate-800 transition-colors">
+            <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-[#1A1A1A] rounded-full border border-[#2A2A2A] transition-colors">
               <X className="w-5 h-5" />
             </button>
           )}
@@ -1125,7 +1125,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
         {/* Progress bar */}
         {step < totalSteps && (
-          <div className="h-1 bg-slate-900 w-full flex-none">
+          <div className="h-1 bg-[#1A1A1A] w-full flex-none">
             <div 
               className="h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out"
               style={{ width: `${(step / (totalSteps - 1)) * 100}%` }}

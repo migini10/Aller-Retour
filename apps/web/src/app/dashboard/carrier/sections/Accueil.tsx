@@ -43,9 +43,9 @@ export default function SectionAccueil() {
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
-            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#101728]`}>
+            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#141414]`}>
               <div className="flex items-center justify-between mb-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-slate-900/50 border border-slate-700/50`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-[#1A1A1A]/50 border border-[#333333]/50`}>
                   <Icon className={`w-5 h-5 ${s.color}`} />
                 </div>
                 <span className="text-xs font-bold text-emerald-400 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {s.trend}</span>
@@ -59,10 +59,10 @@ export default function SectionAccueil() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Graphique d'évolution (Mockup SVG) */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 lg:col-span-2">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white flex items-center gap-2"><BarChart3 className="w-4 h-4 text-orange-400" /> Évolution des Revenus (7 jours)</h3>
-            <select className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 outline-none">
+            <select className="bg-[#1A1A1A] border border-[#333333] text-xs text-slate-300 rounded-lg px-2 py-1 outline-none">
               <option>Cette semaine</option>
               <option>Ce mois</option>
             </select>
@@ -70,7 +70,7 @@ export default function SectionAccueil() {
           <div className="h-48 flex items-end justify-between gap-2 px-2">
             {[40, 65, 45, 80, 55, 90, 75].map((h, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group">
-                <div className="w-full bg-slate-800 rounded-t-sm relative flex items-end justify-center h-40">
+                <div className="w-full bg-[#222222] rounded-t-sm relative flex items-end justify-center h-40">
                   <div className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500 group-hover:opacity-80" style={{ height: `${h}%` }}></div>
                 </div>
                 <span className="text-xs text-slate-500 font-medium">J{i+1}</span>
@@ -80,7 +80,7 @@ export default function SectionAccueil() {
         </div>
 
         {/* Dernières réservations */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 overflow-hidden">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-400 shrink-0" /> <span className="truncate">Réservations Récentes</span></h3>
             <button className="text-xs text-orange-400 font-semibold shrink-0 ml-2">Voir tout</button>
@@ -89,20 +89,20 @@ export default function SectionAccueil() {
             {[1, 2, 3, 4].map((item) => (
               <div key={item} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#222222] flex items-center justify-center border border-[#333333] shrink-0">
                     <span className="text-xs font-bold text-white">#0{item}</span>
                   </div>
                   <div className="min-w-0 flex flex-col">
                     <div className="relative group/tooltip">
                       <p className="text-sm font-bold text-white truncate cursor-default">Dakar ➔ Touba</p>
-                      <div className="absolute -left-2 -top-2 bg-[#101728] border border-orange-500/50 text-white px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left font-bold">
+                      <div className="absolute -left-2 -top-2 bg-[#141414] border border-orange-500/50 text-white px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left font-bold">
                         Dakar ➔ Touba
                       </div>
                     </div>
                     
                     <div className="relative group/tooltip2">
                       <p className="text-xs text-slate-400 truncate cursor-default">Il y a {item * 5} min</p>
-                      <div className="absolute -left-2 -top-2 bg-[#101728] border border-orange-500/50 text-slate-200 px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip2:opacity-100 group-hover/tooltip2:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left text-xs">
+                      <div className="absolute -left-2 -top-2 bg-[#141414] border border-orange-500/50 text-slate-200 px-3 py-1.5 rounded-lg shadow-2xl opacity-0 group-hover/tooltip2:opacity-100 group-hover/tooltip2:scale-110 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap origin-left text-xs">
                         Il y a {item * 5} min
                       </div>
                     </div>

@@ -13,7 +13,7 @@ const statutColors: Record<string, string> = {
   'En ligne': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   'En trajet': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
   'Disponible': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  'Hors ligne': 'bg-slate-800 text-slate-400 border-slate-700',
+  'Hors ligne': 'bg-[#222222] text-slate-400 border-[#333333]',
 };
 
 export default function SectionChauffeurs() {
@@ -22,7 +22,7 @@ export default function SectionChauffeurs() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /> Flotte de Chauffeurs</h2>
         <div className="flex gap-2">
-          <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+          <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
             <Filter className="w-4 h-4" /> Filtrer
           </button>
           <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
@@ -32,25 +32,25 @@ export default function SectionChauffeurs() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400"><Users className="w-6 h-6" /></div>
           <div><p className="text-2xl font-bold text-white">45</p><p className="text-xs text-slate-400">Total Chauffeurs</p></div>
         </div>
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400"><MapPin className="w-6 h-6" /></div>
           <div><p className="text-2xl font-bold text-white">12</p><p className="text-xs text-slate-400">En Trajet Actif</p></div>
         </div>
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400"><CheckCircle2 className="w-6 h-6" /></div>
           <div><p className="text-2xl font-bold text-white">18</p><p className="text-xs text-slate-400">Disponibles</p></div>
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[800px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/50 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">Chauffeur</th>
                 <th className="py-4 font-semibold">Statut</th>
                 <th className="py-4 font-semibold">Type</th>
@@ -61,10 +61,10 @@ export default function SectionChauffeurs() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {chauffeurs.map(c => (
-                <tr key={c.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={c.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden shrink-0 hidden sm:block">
+                      <div className="w-10 h-10 rounded-full bg-[#222222] overflow-hidden shrink-0 hidden sm:block">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${c.nom}`} alt={c.nom} />
                       </div>
                       <div>
@@ -77,7 +77,7 @@ export default function SectionChauffeurs() {
                     <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-bold border ${statutColors[c.statut]}`}>{c.statut}</span>
                   </td>
                   <td className="py-4">
-                    <span className="text-xs text-slate-300 font-medium bg-slate-800 px-2 py-1 rounded">{c.type}</span>
+                    <span className="text-xs text-slate-300 font-medium bg-[#222222] px-2 py-1 rounded">{c.type}</span>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">

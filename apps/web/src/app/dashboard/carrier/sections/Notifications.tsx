@@ -26,7 +26,7 @@ export default function SectionNotifications() {
                      'bg-orange-500/20 text-orange-400 border-orange-500/30';
                      
           return (
-            <div key={n.id} className={`bg-[#101728] border ${n.isNew ? 'border-orange-500/40' : 'border-slate-800'} rounded-2xl p-4 flex gap-4 transition-colors`}>
+            <div key={n.id} className={`bg-[#141414] border ${n.isNew ? 'border-orange-500/40' : 'border-[#2A2A2A]'} rounded-2xl p-4 flex gap-4 transition-colors`}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${bg}`}>
                 <Icon className="w-6 h-6" />
               </div>

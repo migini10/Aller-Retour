@@ -19,7 +19,7 @@ export default function SectionDeparts() {
 
       <div className="flex gap-2 flex-wrap mb-6">
         {['Aujourd\'hui', 'En cours', 'Retards', 'Historique'].map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}`}>
+          <button key={t} onClick={() => setTab(t)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>
             {t}
           </button>
         ))}
@@ -27,7 +27,7 @@ export default function SectionDeparts() {
 
       <div className="grid grid-cols-1 gap-4">
         {departs.map(d => (
-          <div key={d.id} className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 hover:border-orange-500/30 transition-colors">
+          <div key={d.id} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 hover:border-orange-500/30 transition-colors">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-6">
                 {/* Heure */}
@@ -47,14 +47,14 @@ export default function SectionDeparts() {
                 <div>
                   <h3 className="text-xl font-bold text-white">Dakar → {d.dest}</h3>
                   <div className="flex items-center gap-4 mt-2">
-                    <span className="text-xs text-slate-400 font-mono font-bold bg-slate-800 px-2 py-1 rounded">{d.id}</span>
+                    <span className="text-xs text-slate-400 font-mono font-bold bg-[#222222] px-2 py-1 rounded">{d.id}</span>
                     <span className="text-xs text-slate-400 flex items-center gap-1"><Bus className="w-3.5 h-3.5" /> {d.bus}</span>
                   </div>
                 </div>
               </div>
 
               {/* Statut & Actions */}
-              <div className="flex flex-col items-end gap-3 border-t md:border-none border-slate-800 pt-4 md:pt-0">
+              <div className="flex flex-col items-end gap-3 border-t md:border-none border-[#2A2A2A] pt-4 md:pt-0">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase border 
                   ${d.statut === 'Embarquement' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20 animate-pulse' : 
                     d.statut === 'Prêt' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
@@ -66,7 +66,7 @@ export default function SectionDeparts() {
                 </span>
 
                 <div className="flex gap-2">
-                  <button onClick={() => openModal('Signaler un Retard', 'Veuillez indiquer le motif et la durée du retard.', 'Signaler')} className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors">Retard/Alerte</button>
+                  <button onClick={() => openModal('Signaler un Retard', 'Veuillez indiquer le motif et la durée du retard.', 'Signaler')} className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors">Retard/Alerte</button>
                   <button onClick={() => openModal('Gérer le Départ', 'Finalisez l\'embarquement et générez le manifeste.', 'Valider le départ')} className="bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1">Gérer <ChevronRight className="w-3 h-3" /></button>
                 </div>
               </div>

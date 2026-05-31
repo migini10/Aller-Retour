@@ -36,7 +36,7 @@ export default function ClientDashboard() {
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
       <div className="w-full max-w-[1600px] px-5 sm:px-8 lg:px-12 py-6 pb-24 space-y-6">
       {/* Header */}
-      <div className="pb-5 border-b border-slate-800">
+      <div className="pb-5 border-b border-[#2A2A2A]">
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Espace Voyageur</h1>
@@ -68,7 +68,7 @@ export default function ClientDashboard() {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap shrink-0 transition-all ${
                 activeTab === t.id
                   ? 'bg-orange-600 text-white font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-white bg-slate-900 border border-slate-800'
+                  : 'text-slate-400 hover:text-white bg-[#1A1A1A] border border-[#2A2A2A]'
               }`}
             >
               <Icon className="w-4 h-4" /> {t.label}
@@ -85,18 +85,18 @@ export default function ClientDashboard() {
                <h2 className="text-lg font-bold text-white">Liste de mes billets</h2>
                <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">1 Billet actif</span>
              </div>
-             <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 w-fit">
-                <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+             <div className="flex items-center gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-1 w-fit">
+                <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[#222222] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
                    <List className="w-4 h-4" />
                 </button>
-                <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
+                <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[#222222] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
                    <LayoutGrid className="w-4 h-4" />
                 </button>
              </div>
           </div>
           
           {/* Search & Filters */}
-          <div className="sticky top-0 z-10 bg-[#0B0F19]/95 backdrop-blur-xl py-3 space-y-3 mb-5 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 border-b border-slate-800/80">
+          <div className="sticky top-0 z-10 bg-[#0A0A0A]/95 backdrop-blur-xl py-3 space-y-3 mb-5 -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 border-b border-[#2A2A2A]/80">
             {/* Search Bar */}
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-orange-400 transition-colors" />
@@ -105,10 +105,10 @@ export default function ClientDashboard() {
                 placeholder="Rechercher un billet, téléphone ou trajet..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#101728] border border-slate-800 hover:border-orange-500/50 focus:border-orange-500 transition-all rounded-2xl pl-12 pr-12 py-3.5 text-white text-sm outline-none shadow-sm focus:shadow-[0_0_15px_rgba(234,88,12,0.1)]"
+                className="w-full bg-[#141414] border border-[#2A2A2A] hover:border-orange-500/50 focus:border-orange-500 transition-all rounded-2xl pl-12 pr-12 py-3.5 text-white text-sm outline-none shadow-sm focus:shadow-[0_0_15px_rgba(234,88,12,0.1)]"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+                <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-[#222222] rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
                    <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -116,34 +116,34 @@ export default function ClientDashboard() {
 
             {/* Quick Filters */}
             <div className="flex flex-wrap gap-2 items-center">
-               <div className="flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+               <div className="flex bg-[#141414] rounded-xl p-1 border border-[#2A2A2A]/80 shadow-sm">
                   {STATUS_OPTIONS.map(s => (
                     <button 
                       key={s} 
                       onClick={() => setFilterStatus(s)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterStatus === s ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterStatus === s ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-[#222222]/50'}`}
                     >
                       {s}
                     </button>
                   ))}
                </div>
-               <div className="flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+               <div className="flex bg-[#141414] rounded-xl p-1 border border-[#2A2A2A]/80 shadow-sm">
                   {DATE_OPTIONS.map(d => (
                     <button 
                       key={d} 
                       onClick={() => setFilterDate(d)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterDate === d ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterDate === d ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-[#222222]/50'}`}
                     >
                       {d}
                     </button>
                   ))}
                </div>
-               <div className="hidden sm:flex bg-[#101728] rounded-xl p-1 border border-slate-800/80 shadow-sm">
+               <div className="hidden sm:flex bg-[#141414] rounded-xl p-1 border border-[#2A2A2A]/80 shadow-sm">
                   {TYPE_OPTIONS.map(t => (
                     <button 
                       key={t} 
                       onClick={() => setFilterType(t)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterType === t ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${filterType === t ? 'bg-orange-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-[#222222]/50'}`}
                     >
                       {t}
                     </button>
@@ -153,7 +153,7 @@ export default function ClientDashboard() {
                {(filterStatus !== 'Tous' || filterDate !== 'Aujourd\'hui' || filterType !== 'Tous' || searchQuery !== '') && (
                  <button 
                    onClick={() => { setFilterStatus('Tous'); setFilterDate('Aujourd\'hui'); setFilterType('Tous'); setSearchQuery(''); }}
-                   className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-400 hover:text-rose-400 bg-[#101728] hover:bg-rose-500/10 border border-slate-800/80 hover:border-rose-500/30 rounded-xl transition-all ml-auto shadow-sm"
+                   className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-400 hover:text-rose-400 bg-[#141414] hover:bg-rose-500/10 border border-[#2A2A2A]/80 hover:border-rose-500/30 rounded-xl transition-all ml-auto shadow-sm"
                  >
                    <FilterX className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Réinitialiser</span>
                  </button>
@@ -164,7 +164,7 @@ export default function ClientDashboard() {
           {viewMode === 'list' ? (
              <div className="flex flex-col gap-3">
                {/* Ticket 1 */}
-               <div className="bg-[#101728] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
+               <div className="bg-[#141414] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
                  <div className="flex items-center gap-4">
                     <div className="shrink-0">
                        <QRCodeBrandEngine value="AR-74892374" size={48} />
@@ -179,10 +179,10 @@ export default function ClientDashboard() {
                     </div>
                  </div>
                  <div className="flex items-center gap-2 sm:shrink-0">
-                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
                         <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
                      </button>
-                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                     <button className="flex-1 sm:flex-none p-2 sm:px-3 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-slate-300 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
                         <Download className="w-4 h-4" /> <span className="hidden sm:inline">Billet</span>
                      </button>
                      <button onClick={() => setShowShareModal(true)} className="flex-1 sm:flex-none p-2 sm:px-3 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex justify-center items-center gap-1.5">
@@ -192,7 +192,7 @@ export default function ClientDashboard() {
                </div>
                
                {/* Ticket 2 */}
-               <div className="bg-[#101728]/50 border border-slate-800/50 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 opacity-75 grayscale-[30%]">
+               <div className="bg-[#141414]/50 border border-[#2A2A2A]/50 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 opacity-75 grayscale-[30%]">
                  <div className="flex items-center gap-4">
                     <div className="shrink-0 opacity-50 grayscale">
                        <QRCodeBrandEngine value="AR-12984756" size={48} />
@@ -200,14 +200,14 @@ export default function ClientDashboard() {
                     <div>
                        <div className="flex items-center gap-2 mb-1">
                           <span className="text-slate-300 font-bold text-sm sm:text-base">Touba ➔ Dakar</span>
-                          <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono border border-slate-700">AR-12984756</span>
+                          <span className="text-[10px] bg-[#222222] text-slate-400 px-2 py-0.5 rounded-md font-mono border border-[#333333]">AR-12984756</span>
                        </div>
                        <p className="text-xs text-slate-500">10 Mai 2026 • 14:30 • Siège #02 (VIP)</p>
                        <p className="text-xs text-slate-500 mt-0.5">Sénégal Express • Abdoulaye Ndiaye</p>
                     </div>
                  </div>
                  <div className="flex items-center gap-2 sm:shrink-0">
-                     <button className="flex-1 sm:flex-none w-full sm:w-auto p-2 px-4 bg-slate-900 border border-slate-800 text-slate-400 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
+                     <button className="flex-1 sm:flex-none w-full sm:w-auto p-2 px-4 bg-[#1A1A1A] border border-[#2A2A2A] text-slate-400 rounded-lg text-xs font-medium transition-colors flex justify-center items-center gap-1.5">
                         <Eye className="w-4 h-4" /> Historique
                      </button>
                  </div>
@@ -215,7 +215,7 @@ export default function ClientDashboard() {
              </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden relative shadow-lg">
+            <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden relative shadow-lg">
                {/* Status Banner */}
                <div className="bg-orange-600 px-4 py-2 text-xs font-semibold text-white flex justify-between items-center">
                  <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Statut: Confirmé (Escrow)</span>
@@ -246,7 +246,7 @@ export default function ClientDashboard() {
                   </div>
                   
                   {/* Details Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-3 py-5 border-y border-slate-800/80 mb-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-3 py-5 border-y border-[#2A2A2A]/80 mb-5">
                      <div>
                         <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">N° Billet</p>
                         <p className="text-sm font-semibold text-white">TKT-0014</p>
@@ -273,10 +273,10 @@ export default function ClientDashboard() {
                   
                   {/* Actions */}
                   <div className="flex gap-2">
-                     <button className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
+                     <button className="flex-1 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
                         <Eye className="w-4 h-4" /> Détails
                      </button>
-                     <button className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
+                     <button className="flex-1 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
                         <Download className="w-4 h-4" /> Billet QR
                      </button>
                      <button onClick={() => setShowShareModal(true)} className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 shadow-sm">
@@ -287,8 +287,8 @@ export default function ClientDashboard() {
             </div>
             
             {/* Ticket 2 (historique) */}
-            <div className="bg-[#101728]/50 border border-slate-800/50 rounded-2xl overflow-hidden relative opacity-75 grayscale-[30%]">
-               <div className="bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 flex justify-between items-center">
+            <div className="bg-[#141414]/50 border border-[#2A2A2A]/50 rounded-2xl overflow-hidden relative opacity-75 grayscale-[30%]">
+               <div className="bg-[#222222] px-4 py-2 text-xs font-semibold text-slate-300 flex justify-between items-center">
                  <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Statut: Terminé</span>
                  <span className="font-mono">Réf: AR-12984756</span>
                </div>
@@ -313,7 +313,7 @@ export default function ClientDashboard() {
                   </div>
                   
                   <div className="flex gap-2 mt-4">
-                     <button className="flex-1 bg-slate-900 border border-slate-800 text-slate-400 font-medium py-2 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5">
+                     <button className="flex-1 bg-[#1A1A1A] border border-[#2A2A2A] text-slate-400 font-medium py-2 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5">
                         <Eye className="w-3.5 h-3.5" /> Historique
                      </button>
                   </div>
@@ -326,10 +326,10 @@ export default function ClientDashboard() {
 
       {/* Wallet Tab Content */}
       {activeTab === 'wallet' && (
-        <div className="bg-[#101728] border border-slate-800/80 p-5 sm:p-6 rounded-2xl max-w-2xl animate-fade-in">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 p-5 sm:p-6 rounded-2xl max-w-2xl animate-fade-in">
           <h2 className="text-base font-bold text-white mb-5">Transactions & Séquestre Escrow</h2>
           <div className="space-y-3">
-            <div className="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+            <div className="flex justify-between items-center p-4 bg-[#1A1A1A]/50 rounded-xl border border-[#2A2A2A]">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
                   <ArrowDownLeft className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function ClientDashboard() {
               </div>
               <p className="font-bold text-orange-400 text-sm shrink-0 ml-2">+ 15 000 FCFA</p>
             </div>
-            <div className="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+            <div className="flex justify-between items-center p-4 bg-[#1A1A1A]/50 rounded-xl border border-[#2A2A2A]">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
                   <ArrowUpRight className="w-4 h-4" />
@@ -359,7 +359,7 @@ export default function ClientDashboard() {
 
       {/* Miles Tab Content */}
       {activeTab === 'miles' && (
-        <div className="bg-[#101728] border border-slate-800/80 p-5 sm:p-6 rounded-2xl max-w-sm animate-fade-in">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 p-5 sm:p-6 rounded-2xl max-w-sm animate-fade-in">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-center justify-center">
               <Award className="w-6 h-6 text-orange-400" />
@@ -375,7 +375,7 @@ export default function ClientDashboard() {
 
       {/* Luggage Tab Content */}
       {activeTab === 'luggage' && (
-        <div className="bg-[#101728] border border-slate-800/80 p-5 sm:p-6 rounded-2xl max-w-sm animate-fade-in">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 p-5 sm:p-6 rounded-2xl max-w-sm animate-fade-in">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-center justify-center">
               <Package className="w-6 h-6 text-orange-400" />
@@ -391,13 +391,13 @@ export default function ClientDashboard() {
 
       {/* SHARE MODAL (BOTTOM SHEET ON MOBILE) */}
       {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#0B0F19]/85 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#101728] border-t sm:border border-slate-800/80 rounded-t-3xl sm:rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
-            <div className="p-5 flex justify-between items-center border-b border-slate-800/80">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#0A0A0A]/85 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#141414] border-t sm:border border-[#2A2A2A]/80 rounded-t-3xl sm:rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div className="p-5 flex justify-between items-center border-b border-[#2A2A2A]/80">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <Share2 className="w-5 h-5 text-orange-400" /> Partager le billet
                 </h3>
-                <button onClick={() => setShowShareModal(false)} className="p-1.5 rounded-full bg-slate-900 text-slate-400 hover:text-white transition-colors">
+                <button onClick={() => setShowShareModal(false)} className="p-1.5 rounded-full bg-[#1A1A1A] text-slate-400 hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
             </div>

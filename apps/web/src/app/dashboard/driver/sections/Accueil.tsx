@@ -20,7 +20,7 @@ export default function SectionAccueil() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Prochain Trajet */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 lg:col-span-2">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 lg:col-span-2">
           <h3 className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-4 flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-400" /> Prochain Trajet</h3>
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <div>
@@ -31,7 +31,7 @@ export default function SectionAccueil() {
               </div>
             </div>
             <div className="shrink-0">
-              <button className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors">
+              <button className="w-full sm:w-auto bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors">
                 Gérer le manifeste
               </button>
             </div>
@@ -39,7 +39,7 @@ export default function SectionAccueil() {
         </div>
 
         {/* Résumé du jour */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
           <h3 className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-emerald-400" /> Activité du Jour</h3>
           <div className="space-y-4">
             <div>

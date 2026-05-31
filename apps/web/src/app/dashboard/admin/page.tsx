@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   const renderNavMenu = (isMobile: boolean = false) => (
     <div 
       ref={isMobile ? scrollContainerRef : null}
-      className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-0 gap-1.5 xl:gap-2 pr-8 xl:pr-0 scrollbar-hide xl:h-full xl:bg-[#101728] xl:border xl:border-slate-800/80 xl:p-4 xl:rounded-3xl"
+      className="flex xl:flex-col overflow-x-auto xl:overflow-y-auto overscroll-contain pb-2 xl:pb-0 gap-1.5 xl:gap-2 pr-8 xl:pr-0 scrollbar-hide xl:h-full xl:bg-[#141414] xl:border xl:border-[#2A2A2A]/80 xl:p-4 xl:rounded-3xl"
     >
       {navItems.map((item) => {
         const Icon = item.icon;
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             className={`flex items-center gap-2 xl:gap-3 px-3 xl:px-4 py-2 xl:py-3 rounded-xl transition-all whitespace-nowrap text-xs xl:text-sm font-semibold shrink-0 relative
               ${isActive 
                 ? 'bg-gradient-to-r from-orange-600 to-orange-500 xl:bg-orange-500/10 text-white xl:text-orange-400 border border-orange-500/20 xl:shadow-none shadow-sm shadow-orange-500/20' 
-                : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent bg-slate-900/50 xl:bg-transparent'
+                : 'text-slate-400 hover:bg-[#222222]/50 hover:text-slate-200 border border-transparent bg-[#1A1A1A]/50 xl:bg-transparent'
               }`}
           >
             <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 ${isActive ? 'text-white xl:text-orange-400' : 'text-slate-500'}`} />
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
     <div className="flex flex-col h-full w-full overflow-y-auto xl:overflow-hidden scrollbar-hide">
       
       {/* Mobile Navigation Menu (Affiché en haut juste sous le header de layout) */}
-      <div className="xl:hidden shrink-0 sticky top-0 z-50 bg-[#050A15]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 py-3 w-full relative">
+      <div className="xl:hidden shrink-0 sticky top-0 z-50 bg-[#000000]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 px-5 sm:px-8 py-3 w-full relative">
         {renderNavMenu(true)}
         {/* Indicateur de défilement horizontal */}
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#050A15] via-[#050A15]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
@@ -114,11 +114,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Top Bar Fixe : Super Admin Identity */}
-      <div className="flex-none z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-b border-slate-800/80 px-5 sm:px-8 lg:px-12 py-3">
+      <div className="flex-none z-40 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 px-5 sm:px-8 lg:px-12 py-3">
         <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-purple-600 p-[1px]">
-              <div className="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center">
+              <div className="w-full h-full bg-[#0A0A0A] rounded-[11px] flex items-center justify-center">
                 <Globe className="w-5 h-5 text-orange-400" />
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Link href="/" className="bg-slate-900 border border-slate-700 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-slate-300 p-2 rounded-lg transition-colors inline-block">
+          <Link href="/" className="bg-[#1A1A1A] border border-[#333333] hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 text-slate-300 p-2 rounded-lg transition-colors inline-block">
             <LogOut className="w-4 h-4" />
           </Link>
         </div>

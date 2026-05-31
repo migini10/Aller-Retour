@@ -15,7 +15,7 @@ export default function SectionReservations() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-orange-400" /> Réservations & Billets</h2>
         <div className="flex gap-2">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 flex items-center gap-2">
+          <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl px-3 py-2 flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-500" />
             <select className="bg-transparent border-none outline-none text-xs text-white">
               <option>Toutes les dates</option>
@@ -26,11 +26,11 @@ export default function SectionReservations() {
         </div>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[900px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/50 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">ID Réservation</th>
                 <th className="py-4 font-semibold">Passager</th>
                 <th className="py-4 font-semibold">Trajet & Date</th>
@@ -41,11 +41,11 @@ export default function SectionReservations() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {reservations.map(r => (
-                <tr key={r.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={r.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6 font-mono text-xs text-slate-300 font-bold">{r.id}</td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500"><User className="w-4 h-4" /></div>
+                      <div className="w-8 h-8 rounded-full bg-[#222222] flex items-center justify-center text-slate-500"><User className="w-4 h-4" /></div>
                       <span className="font-bold text-white">{r.passager}</span>
                     </div>
                   </td>
@@ -64,7 +64,7 @@ export default function SectionReservations() {
                   </td>
                   <td className="py-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg transition-colors border border-slate-700 font-semibold">Détails</button>
+                      <button className="text-xs bg-[#222222] hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg transition-colors border border-[#333333] font-semibold">Détails</button>
                       <button className="text-slate-400 hover:text-white p-1.5 rounded-lg transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                     </div>
                   </td>

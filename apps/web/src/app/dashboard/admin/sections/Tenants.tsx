@@ -18,7 +18,7 @@ export default function SectionTenants() {
           <p className="text-sm text-slate-400 mt-1">Gérez les compagnies de transport, GIE et gares partenaires.</p>
         </div>
         <div className="flex gap-2">
-          <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+          <button className="bg-[#1A1A1A] border border-[#333333] hover:bg-[#222222] text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
             <Filter className="w-4 h-4" /> Filtrer
           </button>
           <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
@@ -35,28 +35,28 @@ export default function SectionTenants() {
           { label: 'Enterprise', count: 24, mrr: '3.6M F' },
           { label: 'Institution', count: 5, mrr: 'Contrats' },
         ].map(p => (
-          <div key={p.label} className="bg-[#101728] border border-slate-800 rounded-2xl p-4">
+          <div key={p.label} className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">{p.label}</span>
-              <span className="text-xs bg-slate-900 px-2 py-0.5 rounded text-slate-400 border border-slate-700">{p.count} tenants</span>
+              <span className="text-xs bg-[#1A1A1A] px-2 py-0.5 rounded text-slate-400 border border-[#333333]">{p.count} tenants</span>
             </div>
             <p className="text-lg font-bold text-white">{p.mrr} <span className="text-[10px] text-slate-500 font-normal">MRR</span></p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden">
-        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-[#2A2A2A] flex justify-between items-center bg-[#1A1A1A]/50">
           <div className="relative w-full max-w-sm">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input type="text" placeholder="Rechercher un tenant par nom ou ID..." className="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
+            <input type="text" placeholder="Rechercher un tenant par nom ou ID..." className="w-full bg-[#222222] border border-[#333333] rounded-lg py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-orange-500" />
           </div>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[1000px]">
             <thead>
-              <tr className="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+              <tr className="bg-[#1A1A1A]/80 border-b border-[#2A2A2A] text-slate-400 text-xs uppercase tracking-wider">
                 <th className="py-4 pl-6 font-semibold">Tenant</th>
                 <th className="py-4 font-semibold">Plan SaaS</th>
                 <th className="py-4 font-semibold">Revenu (MRR)</th>
@@ -67,10 +67,10 @@ export default function SectionTenants() {
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm">
               {tenants.map(t => (
-                <tr key={t.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={t.id} className="hover:bg-[#222222]/30 transition-colors">
                   <td className="py-4 pl-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-[#222222] border border-[#333333] flex items-center justify-center shrink-0">
                         <Building2 className="w-5 h-5 text-orange-400" />
                       </div>
                       <div>
@@ -96,8 +96,8 @@ export default function SectionTenants() {
                   </td>
                   <td className="py-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="text-[10px] uppercase font-bold bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded transition-colors border border-slate-700">Gérer</button>
-                      <button className="p-1.5 hover:bg-slate-800 rounded transition-colors text-slate-400"><MoreVertical className="w-4 h-4" /></button>
+                      <button className="text-[10px] uppercase font-bold bg-[#222222] hover:bg-slate-700 text-white px-3 py-1.5 rounded transition-colors border border-[#333333]">Gérer</button>
+                      <button className="p-1.5 hover:bg-[#222222] rounded transition-colors text-slate-400"><MoreVertical className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>

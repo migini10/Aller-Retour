@@ -43,7 +43,7 @@ export default function SectionFidelite() {
       {/* Niveaux */}
       <div className="grid grid-cols-3 gap-3">
         {[{ n: 'Bronze', min: 0, max: 999, col: 'text-amber-700' }, { n: 'Silver', min: 1000, max: 2999, col: 'text-slate-400' }, { n: 'Gold', min: 3000, max: 5000, col: 'text-yellow-400' }].map(l => (
-          <div key={l.n} className={`bg-[#101728] border rounded-xl p-3 text-center ${points >= l.min ? 'border-orange-500/40' : 'border-slate-800'}`}>
+          <div key={l.n} className={`bg-[#141414] border rounded-xl p-3 text-center ${points >= l.min ? 'border-orange-500/40' : 'border-[#2A2A2A]'}`}>
             <p className={`font-bold text-sm ${l.col}`}>{l.n}</p>
             <p className="text-xs text-slate-500 mt-0.5">{l.min}-{l.max} pts</p>
           </div>
@@ -55,7 +55,7 @@ export default function SectionFidelite() {
         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-3">Récompenses disponibles</p>
         <div className="space-y-3">
           {recompenses.map(r => (
-            <div key={r.titre} className="bg-[#101728] border border-slate-800/80 rounded-xl p-4 flex items-center justify-between gap-4">
+            <div key={r.titre} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-xl p-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-orange-500/20 flex items-center justify-center">
                   <Tag className="w-4 h-4 text-orange-400" />
@@ -65,7 +65,7 @@ export default function SectionFidelite() {
                   <p className="text-xs text-orange-400 font-bold mt-0.5">{r.points} points</p>
                 </div>
               </div>
-              <button disabled={points < r.points} className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${points >= r.points ? 'bg-orange-600 hover:bg-orange-500 text-white' : 'bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed'}`}>
+              <button disabled={points < r.points} className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${points >= r.points ? 'bg-orange-600 hover:bg-orange-500 text-white' : 'bg-[#1A1A1A] text-slate-600 border border-[#2A2A2A] cursor-not-allowed'}`}>
                 {points >= r.points ? 'Échanger' : 'Insuffisant'}
               </button>
             </div>

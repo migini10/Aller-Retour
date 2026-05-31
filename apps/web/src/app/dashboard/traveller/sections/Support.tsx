@@ -36,7 +36,7 @@ export default function SectionSupport() {
           </button>
         </div>
         {tickets.map(t => (
-          <div key={t.id} className="bg-[#101728] border border-slate-800/80 rounded-xl p-4 flex items-center justify-between gap-3">
+          <div key={t.id} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-xl p-4 flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-white">{t.sujet}</p>
               <p className="text-xs text-slate-500 mt-0.5">{t.id} • {t.date}</p>
@@ -50,7 +50,7 @@ export default function SectionSupport() {
       <div className="space-y-3">
         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Questions fréquentes</p>
         {faq.map((f, i) => (
-          <div key={i} className="bg-[#101728] border border-slate-800/80 rounded-xl overflow-hidden">
+          <div key={i} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-xl overflow-hidden">
             <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between p-4 text-left">
               <p className="text-sm font-semibold text-white">{f.q}</p>
               {openFaq === i ? <ChevronUp className="w-4 h-4 text-orange-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />}
@@ -65,15 +65,15 @@ export default function SectionSupport() {
       </div>
 
       {/* Chat */}
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 space-y-4">
         <p className="text-sm font-bold text-white flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Chat en direct • Support disponible
         </p>
-        <div className="bg-slate-900/60 rounded-xl p-3 min-h-[80px] flex items-end">
+        <div className="bg-[#1A1A1A]/60 rounded-xl p-3 min-h-[80px] flex items-end">
           <p className="text-xs text-slate-500 italic">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
         </div>
         <div className="flex gap-2">
-          <input value={msg} onChange={e => setMsg(e.target.value)} placeholder="Écrivez votre message..." className="flex-1 bg-slate-900 border border-slate-700 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-slate-600" />
+          <input value={msg} onChange={e => setMsg(e.target.value)} placeholder="Écrivez votre message..." className="flex-1 bg-[#1A1A1A] border border-[#333333] focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-slate-600" />
           <button className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2.5 rounded-xl transition-colors">
             <Send className="w-4 h-4" />
           </button>

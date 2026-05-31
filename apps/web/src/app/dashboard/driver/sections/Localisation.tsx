@@ -26,7 +26,7 @@ export default function SectionLocalisation() {
         </span>
       </div>
 
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Destination</p>
@@ -42,7 +42,7 @@ export default function SectionLocalisation() {
 
       {/* Carte Interactive avec Fond Satellite */}
       <div 
-        className="relative h-96 border border-slate-700/60 rounded-3xl overflow-hidden shadow-xl"
+        className="relative h-96 border border-[#333333]/60 rounded-3xl overflow-hidden shadow-xl"
         style={{ backgroundImage: "url('/dakar-map-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         {/* Intégration Google Maps */}
@@ -66,11 +66,11 @@ export default function SectionLocalisation() {
         <div className="absolute inset-0 bg-[#0a1520]/20 pointer-events-none z-10" />
 
         <div className="absolute top-4 left-4 right-4 flex justify-between pointer-events-none z-20">
-           <div className="bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2">
+           <div className="bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] px-3 py-1.5 rounded-xl flex items-center gap-2">
              <ShieldCheck className="w-4 h-4 text-emerald-400" />
              <span className="text-xs font-semibold text-white">Trajet sécurisé</span>
            </div>
-           <button className="bg-slate-900/80 backdrop-blur border border-slate-700 w-10 h-10 flex items-center justify-center rounded-xl pointer-events-auto hover:bg-slate-800 transition-colors">
+           <button className="bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] w-10 h-10 flex items-center justify-center rounded-xl pointer-events-auto hover:bg-[#222222] transition-colors">
              <AlertTriangle className="w-5 h-5 text-amber-400" />
            </button>
         </div>
@@ -86,7 +86,7 @@ export default function SectionLocalisation() {
           ) : (
             <button 
               onClick={() => setNavKey(k => k + 1)}
-              className="w-12 h-12 bg-slate-900/90 backdrop-blur hover:bg-slate-800 text-orange-400 border border-slate-700 font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
+              className="w-12 h-12 bg-[#1A1A1A]/90 backdrop-blur hover:bg-[#222222] text-orange-400 border border-[#333333] font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
               title="Recentrer sur le client"
             >
               <Navigation className="w-5 h-5" />
@@ -96,7 +96,7 @@ export default function SectionLocalisation() {
       </div>
 
       {/* Actions Client */}
-      <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold text-lg">F</div>
           <div>
@@ -105,7 +105,7 @@ export default function SectionLocalisation() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="w-10 h-10 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl flex items-center justify-center text-white transition-colors"><MessageSquare className="w-4 h-4" /></button>
+          <button className="w-10 h-10 bg-[#222222] hover:bg-slate-700 border border-[#333333] rounded-xl flex items-center justify-center text-white transition-colors"><MessageSquare className="w-4 h-4" /></button>
           <button className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors"><Phone className="w-4 h-4" /></button>
         </div>
       </div>

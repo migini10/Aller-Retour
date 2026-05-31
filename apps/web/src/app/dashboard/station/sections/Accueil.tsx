@@ -34,7 +34,7 @@ export default function SectionAccueil() {
               <p className="text-sm text-slate-400 mt-1">Guichet Principal • Agent: Amadou Fall</p>
             </div>
           </div>
-          <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-2xl px-6 py-3 flex flex-col items-center justify-center min-w-[150px]">
+          <div className="bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] rounded-2xl px-6 py-3 flex flex-col items-center justify-center min-w-[150px]">
             <span className="text-2xl font-mono font-bold text-white tracking-widest">{time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
             <span className="text-xs text-slate-400 font-semibold">{time.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           </div>
@@ -46,9 +46,9 @@ export default function SectionAccueil() {
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
-            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#101728]`}>
+            <div key={i} className={`border rounded-2xl p-5 ${s.bg} bg-[#141414]`}>
               <div className="flex items-center justify-between mb-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-slate-900/50 border border-slate-700/50`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-[#1A1A1A]/50 border border-[#333333]/50`}>
                   <Icon className={`w-5 h-5 ${s.color}`} />
                 </div>
                 <span className="text-xs font-bold text-emerald-400 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {s.trend}</span>
@@ -62,12 +62,12 @@ export default function SectionAccueil() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Flux de voyageurs (Graphique) */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5 lg:col-span-2">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5 lg:col-span-2">
           <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-6"><BarChart3 className="w-4 h-4 text-orange-400" /> Flux Voyageurs (Heure par heure)</h3>
           <div className="h-48 flex items-end justify-between gap-2 px-2">
             {[20, 35, 60, 90, 100, 85, 40, 20, 10].map((h, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group">
-                <div className="w-full bg-slate-800 rounded-t-sm relative flex items-end justify-center h-40">
+                <div className="w-full bg-[#222222] rounded-t-sm relative flex items-end justify-center h-40">
                   <div className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-sm transition-all duration-500" style={{ height: `${h}%` }}></div>
                 </div>
                 <span className="text-[10px] text-slate-500 font-medium">{i + 8}h</span>
@@ -77,7 +77,7 @@ export default function SectionAccueil() {
         </div>
 
         {/* Prochains Départs */}
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl p-5">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white flex items-center gap-2"><ArrowUpRight className="w-4 h-4 text-orange-400" /> Départs Imminents</h3>
             <button className="text-xs text-orange-400 font-semibold">Voir tout</button>
@@ -89,9 +89,9 @@ export default function SectionAccueil() {
               { dest: 'Thiès', time: '15:15', status: 'À l\'heure', color: 'text-emerald-400' },
               { dest: 'Kaolack', time: '15:30', status: 'Retardé', color: 'text-rose-400' },
             ].map((d, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800/60">
+              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-[#1A1A1A]/50 border border-[#2A2A2A]/60">
                 <div className="flex items-center gap-3">
-                  <div className="bg-slate-800 text-slate-300 font-mono text-xs px-2 py-1 rounded">{d.time}</div>
+                  <div className="bg-[#222222] text-slate-300 font-mono text-xs px-2 py-1 rounded">{d.time}</div>
                   <p className="text-sm font-bold text-white">{d.dest}</p>
                 </div>
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${d.color}`}>{d.status}</span>

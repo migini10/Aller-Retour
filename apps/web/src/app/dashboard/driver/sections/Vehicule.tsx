@@ -7,14 +7,14 @@ export default function SectionVehicule() {
     <div className="space-y-6">
       <h2 className="text-lg font-bold text-white flex items-center gap-2"><Bus className="w-5 h-5 text-orange-400" /> Mon Véhicule</h2>
 
-      <div className="bg-gradient-to-br from-[#101728] to-slate-900 border border-slate-800/80 rounded-3xl p-6">
+      <div className="bg-gradient-to-br from-[#101728] to-slate-900 border border-[#2A2A2A]/80 rounded-3xl p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-32 h-32 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center shrink-0">
+          <div className="w-32 h-32 bg-[#222222] rounded-2xl border border-[#333333] flex items-center justify-center shrink-0">
             <Bus className="w-16 h-16 text-slate-500" />
           </div>
           <div className="text-center sm:text-left space-y-2">
             <h3 className="text-2xl font-bold text-white">Toyota Hiace Climatisé</h3>
-            <div className="inline-block bg-slate-800 border border-slate-600 px-4 py-1.5 rounded text-lg font-mono font-bold text-white tracking-widest">
+            <div className="inline-block bg-[#222222] border border-slate-600 px-4 py-1.5 rounded text-lg font-mono font-bold text-white tracking-widest">
               AA-123-BB
             </div>
             <p className="text-sm text-slate-400">Capacité: 15 places • Catégorie: Minibus Inter-Urbain</p>
@@ -26,7 +26,7 @@ export default function SectionVehicule() {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Assurance */}
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-5">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div className="bg-emerald-500/20 p-2 rounded-xl text-emerald-400"><ShieldCheck className="w-5 h-5" /></div>
             <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded-md font-bold uppercase border border-emerald-500/20">Valide</span>
@@ -47,7 +47,7 @@ export default function SectionVehicule() {
         </div>
 
         {/* Permis de conduire */}
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-5">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400"><FileText className="w-5 h-5" /></div>
             <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded-md font-bold uppercase border border-emerald-500/20">Valide</span>
@@ -57,14 +57,14 @@ export default function SectionVehicule() {
         </div>
 
         {/* État du Véhicule */}
-        <div className="bg-[#101728] border border-slate-800 rounded-2xl p-5">
+        <div className="bg-[#141414] border border-[#2A2A2A] rounded-2xl p-5">
           <div className="flex items-start justify-between mb-3">
-            <div className="bg-slate-800 p-2 rounded-xl text-slate-400"><PenTool className="w-5 h-5" /></div>
-            <span className="bg-slate-800 text-slate-400 text-[10px] px-2 py-1 rounded-md font-bold uppercase border border-slate-700">À Renseigner</span>
+            <div className="bg-[#222222] p-2 rounded-xl text-slate-400"><PenTool className="w-5 h-5" /></div>
+            <span className="bg-[#222222] text-slate-400 text-[10px] px-2 py-1 rounded-md font-bold uppercase border border-[#333333]">À Renseigner</span>
           </div>
           <p className="font-bold text-white">Bilan d'état (Check-list)</p>
           <p className="text-xs text-slate-500 mt-1">Dernier bilan: Il y a 5 jours</p>
-          <button className="mt-3 text-xs border border-slate-600 text-slate-300 font-bold px-3 py-1.5 rounded-lg w-full hover:bg-slate-800 transition-colors">Faire un bilan</button>
+          <button className="mt-3 text-xs border border-slate-600 text-slate-300 font-bold px-3 py-1.5 rounded-lg w-full hover:bg-[#222222] transition-colors">Faire un bilan</button>
         </div>
       </div>
     </div>

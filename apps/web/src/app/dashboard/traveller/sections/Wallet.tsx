@@ -52,9 +52,9 @@ export default function SectionWallet() {
       {/* Historique */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-3">Historique des transactions</p>
-        <div className="bg-[#101728] border border-slate-800/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
+        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
           {transactions.map(t => (
-            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-800/30 transition-colors">
+            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-[#222222]/30 transition-colors">
               <div className="flex items-center gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${t.type === 'credit' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
                   {t.type === 'credit' ? <ArrowDownLeft className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
