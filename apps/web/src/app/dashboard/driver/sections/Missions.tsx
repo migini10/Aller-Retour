@@ -263,12 +263,39 @@ export default function SectionMissions() {
         {(() => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
+          const currentHour = new Date().getHours();
+          const currentMinute = new Date().getMinutes();
+          const currentTotalMinutes = currentHour * 60 + currentMinute;
           
           const processedMissions = localMissions.map(m => {
-            if (m.statut === 'programmé' && m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
-              const mDate = new Date(m.date);
-              mDate.setHours(0, 0, 0, 0);
-              if (mDate < today) {
+            if (m.statut === 'programmé' || m.statut === 'à venir') {
+              let isExpired = false;
+              
+              if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
+                const mDate = new Date(m.date);
+                mDate.setHours(0, 0, 0, 0);
+                if (mDate < today) {
+                  isExpired = true;
+                } else if (mDate.getTime() === today.getTime() && m.heure) {
+                  const parts = m.heure.split(':');
+                  const h = parseInt(parts[0]);
+                  const min = parseInt(parts[1]);
+                  if ((h * 60 + min) < currentTotalMinutes) {
+                    isExpired = true;
+                  }
+                }
+              } else if (m.date === "Aujourd'hui") {
+                if (m.heure) {
+                  const parts = m.heure.split(':');
+                  const h = parseInt(parts[0]);
+                  const min = parseInt(parts[1]);
+                  if ((h * 60 + min) < currentTotalMinutes) {
+                    isExpired = true;
+                  }
+                }
+              }
+
+              if (isExpired) {
                 return { ...m, statut: 'terminé' };
               }
             }
