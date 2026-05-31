@@ -195,6 +195,60 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     : (searchParams.depart ? departCityQuartiers : []);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
 
+  const departInputRef = useRef<HTMLInputElement>(null);
+  const pickupInputRef = useRef<HTMLInputElement>(null);
+  const arriveeInputRef = useRef<HTMLInputElement>(null);
+  const quartierArriveeInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || step !== 1) return;
+
+    const initAutocomplete = () => {
+      if (!window.google || !window.google.maps || !window.google.maps.places) return;
+      const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
+
+      if (departInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(departInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setSearchParams(s => ({ ...s, depart: place.formatted_address || '' }));
+        });
+      }
+      if (arriveeInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(arriveeInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setSearchParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
+        });
+      }
+      if (pickupInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(pickupInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setPickupLocation(place.formatted_address || '');
+        });
+      }
+      if (quartierArriveeInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setSearchParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
+        });
+      }
+    };
+
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = initAutocomplete;
+      document.head.appendChild(script);
+    } else {
+      setTimeout(initAutocomplete, 500);
+    }
+  }, [isOpen, step]);
+
   const ticketRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -341,39 +395,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="relative z-[60]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
+              ref={departInputRef}
               type="text" 
-              placeholder="Ville de départ"
+              placeholder="Ville de départ (ex: Dakar)"
               className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.depart}
-              onFocus={() => setShowDepartSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowDepartSuggestions(false), 200)}
-              onChange={(e) => {
-                setSearchParams({...searchParams, depart: e.target.value});
-                setShowDepartSuggestions(true);
-              }}
+              onChange={(e) => setSearchParams({...searchParams, depart: e.target.value})}
             />
-            {showDepartSuggestions && filteredDepart.length > 0 && (
-              <div className="absolute z-[100] w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                {filteredDepart.map(ville => (
-                  <div 
-                    key={ville} 
-                    className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
-                    onClick={() => {
-                      setSearchParams({...searchParams, depart: ville});
-                      setShowDepartSuggestions(false);
-                    }}
-                  >
-                    {ville}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
           
           {isAlloDakar && (
             <div className="relative z-[50] border border-orange-500/30 rounded-xl p-3 bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs text-orange-400 font-bold">Adresse de prise en charge (Tapez ou localisez)</label>
+                <label className="text-xs text-orange-400 font-bold">Adresse de prise en charge (Google Places)</label>
                 <button 
                   onClick={handleGeolocate} 
                   disabled={isLocating}
@@ -384,99 +418,39 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 </button>
               </div>
               <input 
+                ref={pickupInputRef}
                 type="text" 
-                placeholder="Tapez l'adresse exacte du passager ou géolocalisez-vous"
+                placeholder="Entrez l'adresse exacte du passager"
                 className="w-full bg-black border border-[#2A2A2A] rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
                 value={pickupLocation}
-                onFocus={() => setShowPickupSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
-                onChange={(e) => {
-                  setPickupLocation(e.target.value);
-                  setShowPickupSuggestions(true);
-                }}
+                onChange={(e) => setPickupLocation(e.target.value)}
               />
-              {showPickupSuggestions && displayPickupQuartiers.length > 0 && (
-                <div className="absolute z-50 w-full left-0 mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-40 overflow-y-auto">
-                  {displayPickupQuartiers.map(quartier => (
-                    <div 
-                      key={quartier} 
-                      className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
-                      onClick={() => {
-                        setPickupLocation(quartier);
-                        setShowPickupSuggestions(false);
-                      }}
-                    >
-                      {quartier}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
           <div className="relative z-[40]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
             <input 
+              ref={arriveeInputRef}
               type="text" 
-              placeholder="Ville d'arrivée"
+              placeholder="Ville d'arrivée (ex: Saly)"
               className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               value={searchParams.arrivee}
-              onFocus={() => setShowArriveeSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowArriveeSuggestions(false), 200)}
-              onChange={(e) => {
-                setSearchParams({...searchParams, arrivee: e.target.value});
-                setShowArriveeSuggestions(true);
-              }}
+              onChange={(e) => setSearchParams({...searchParams, arrivee: e.target.value})}
             />
-            {showArriveeSuggestions && filteredArrivee.length > 0 && (
-              <div className="absolute z-[100] w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                {filteredArrivee.map(ville => (
-                  <div 
-                    key={ville} 
-                    className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
-                    onClick={() => {
-                      setSearchParams({...searchParams, arrivee: ville});
-                      setShowArriveeSuggestions(false);
-                    }}
-                  >
-                    {ville}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {searchParams.arrivee && (
             <div className="relative z-[30] animate-in fade-in slide-in-from-top-2 duration-300">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input 
+                ref={quartierArriveeInputRef}
                 type="text" 
                 placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
                 className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
                 value={searchParams.quartierArrivee}
-                onFocus={() => setShowQuartierSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
-                onChange={(e) => {
-                  setSearchParams({...searchParams, quartierArrivee: e.target.value});
-                  setShowQuartierSuggestions(true);
-                }}
+                onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
               />
-              {showQuartierSuggestions && displayQuartiers.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-[#222222] border border-[#333333] rounded-xl shadow-lg max-h-40 overflow-y-auto">
-                  {displayQuartiers.map(quartier => (
-                    <div 
-                      key={quartier} 
-                      className="px-4 py-2 hover:bg-slate-700 cursor-pointer text-slate-300 text-sm"
-                      onClick={() => {
-                        setSearchParams({...searchParams, quartierArrivee: quartier});
-                        setShowQuartierSuggestions(false);
-                      }}
-                    >
-                      {quartier}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
