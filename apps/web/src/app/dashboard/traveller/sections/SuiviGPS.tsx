@@ -101,8 +101,26 @@ export default function SectionSuiviGPS() {
           allowFullScreen={false} 
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
-          className="absolute inset-0 z-0 opacity-100"
+          className="absolute inset-0 z-0 opacity-80"
         ></iframe>
+
+        {/* Animation du Véhicule en temps réel (Superposée sur la carte) */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          {/* Position du véhicule en mouvement */}
+          <g filter="url(#glow)">
+            <animateMotion dur="15s" repeatCount="indefinite" rotate="auto" path="M100,50 L250,120 L450,180 L550,220 L700,280" />
+            <rect x="-15" y="-8" width="30" height="16" rx="4" fill="#f97316" />
+            <rect x="-10" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
+            <rect x="5" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
+          </g>
+        </svg>
 
         {/* Overlay infos en bas */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent pt-12 pb-4 px-4 flex items-center justify-between">
