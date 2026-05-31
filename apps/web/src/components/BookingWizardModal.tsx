@@ -552,7 +552,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         id: t.id,
         company: t.company?.name || "Allo Dakar Partenaire",
         price: t.pricePerSeat || 5000,
-        type: t.vehicle?.type || "Voiture",
+        type: t.vehicle?.type === 'TAXI_7_PLACES' ? 'Voiture 7 places' : (t.vehicle?.type === 'VOITURE_5_PLACES' ? 'Voiture 5 places' : (t.vehicle?.type || "Voiture")),
         options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
         route: t.takesTollRoad !== false ? "Autoroute" : "Nationale",
         time: new Date(t.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
