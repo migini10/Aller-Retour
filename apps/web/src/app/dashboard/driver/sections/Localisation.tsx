@@ -9,6 +9,7 @@ export default function SectionLocalisation() {
   const [distance] = useState('1.2 km');
 
   const [isNavigating, setIsNavigating] = useState(false);
+  const [navKey, setNavKey] = useState(0);
 
   // URL par défaut (vue générale de Dakar)
   const defaultMapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr";
@@ -46,6 +47,7 @@ export default function SectionLocalisation() {
       >
         {/* Intégration Google Maps */}
         <iframe 
+          key={navKey}
           src={isNavigating ? clientLocationUrl : defaultMapUrl}
           width="100%" 
           height="100%" 
@@ -73,13 +75,23 @@ export default function SectionLocalisation() {
            </button>
         </div>
 
-        <div className="absolute bottom-4 left-4 right-4 flex gap-3 pointer-events-auto z-20">
-          <button 
-            onClick={() => setIsNavigating(true)}
-            className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/20 text-sm flex justify-center items-center gap-2"
-          >
-            <Navigation className="w-4 h-4" /> {isNavigating ? 'Recentrer sur le client' : 'Démarrer Navigation Intégrée'}
-          </button>
+        <div className={`absolute bottom-4 ${isNavigating ? 'right-4' : 'left-4 right-4'} flex gap-3 pointer-events-auto z-20`}>
+          {!isNavigating ? (
+            <button 
+              onClick={() => setIsNavigating(true)}
+              className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/20 text-sm flex justify-center items-center gap-2"
+            >
+              <Navigation className="w-4 h-4" /> Démarrer Navigation Intégrée
+            </button>
+          ) : (
+            <button 
+              onClick={() => setNavKey(k => k + 1)}
+              className="w-12 h-12 bg-slate-900/90 backdrop-blur hover:bg-slate-800 text-orange-400 border border-slate-700 font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
+              title="Recentrer sur le client"
+            >
+              <Navigation className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
