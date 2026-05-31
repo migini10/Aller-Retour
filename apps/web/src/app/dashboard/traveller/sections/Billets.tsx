@@ -205,6 +205,22 @@ export default function SectionBillets() {
               <button onClick={() => handlePrint(b.id)} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition-colors">
                 <Printer className="w-3 h-3" /> Imprimer
               </button>
+              {b.statut === 'actif' && (
+                <button 
+                  onClick={() => {
+                    if (confirm("Voulez-vous vraiment annuler votre réservation ? Le chauffeur sera alerté.")) {
+                      const updatedBillets = myBillets.map(billet => billet.id === b.id ? { ...billet, statut: 'annulé' } : billet);
+                      setMyBillets(updatedBillets);
+                      localStorage.setItem('my_tickets', JSON.stringify(updatedBillets));
+                      // Simulons une alerte pour le chauffeur via un event
+                      window.dispatchEvent(new CustomEvent('cancel_reservation', { detail: { id: b.id, trajet: b.trajet } }));
+                    }
+                  }} 
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-rose-500/20 text-rose-500 hover:text-rose-400 transition-colors ml-auto"
+                >
+                  <XCircle className="w-3 h-3" /> Annuler
+                </button>
+              )}
             </div>
           </div>
         ))}

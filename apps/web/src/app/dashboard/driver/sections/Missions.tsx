@@ -20,6 +20,8 @@ const statutStyle: Record<string, string> = {
 export default function SectionMissions() {
   const [isMounted, setIsMounted] = React.useState(false);
   
+  const [cancelAlertMessage, setCancelAlertMessage] = useState('');
+
   React.useEffect(() => {
     setIsMounted(true);
     const stored = localStorage.getItem('demo_trips');
@@ -31,6 +33,14 @@ export default function SectionMissions() {
         }
       } catch(e) {}
     }
+
+    const handleCancelAlert = (e: any) => {
+      setCancelAlertMessage(`⚠️ ALERTE : Un passager vient d'annuler sa réservation pour le trajet ${e.detail.trajet} ! Une place s'est libérée.`);
+      setTimeout(() => setCancelAlertMessage(''), 10000);
+    };
+
+    window.addEventListener('cancel_reservation', handleCancelAlert);
+    return () => window.removeEventListener('cancel_reservation', handleCancelAlert);
   }, []);
 
   const [tab, setTab] = useState('Toutes');
@@ -211,6 +221,15 @@ export default function SectionMissions() {
 
   return (
     <div className="space-y-6 relative">
+      {cancelAlertMessage && (
+        <div className="bg-amber-500/10 border border-amber-500/30 text-amber-500 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-4">
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="text-sm font-medium">
+            {cancelAlertMessage}
+          </div>
+        </div>
+      )}
+
       {hasUrgentTrips && (
         <div className="bg-rose-500/10 border border-rose-500/30 text-rose-500 p-4 rounded-xl flex items-start gap-3 animate-pulse">
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -303,6 +322,29 @@ export default function SectionMissions() {
                 {(m.statut === 'à venir' || m.statut === 'en cours') && (
                   <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 transition-colors">
                     <AlertTriangle className="w-3.5 h-3.5" /> Signaler incident
+                  </button>
+                )}
+                {m.statut === 'programmé' && m.passagers === 0 && (
+                  <button 
+                    onClick={() => {
+                      if (confirm("Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.")) {
+                        const updatedMissions = localMissions.filter(m2 => m2.id !== m.id);
+                        setLocalMissions(updatedMissions);
+                        
+                        // Si c'est un trajet demo, on le supprime du localStorage
+                        const stored = localStorage.getItem('demo_trips');
+                        if (stored) {
+                          try {
+                            const parsed = JSON.parse(stored);
+                            const updatedStorage = parsed.filter((p: any) => p.id !== m.id);
+                            localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
+                          } catch(e) {}
+                        }
+                      }
+                    }}
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-900 hover:bg-rose-500/20 text-rose-500 hover:text-rose-400 border border-slate-700 hover:border-rose-500/50 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" /> Supprimer
                   </button>
                 )}
               </div>
