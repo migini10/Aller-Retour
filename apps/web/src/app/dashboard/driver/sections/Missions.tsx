@@ -22,6 +22,15 @@ export default function SectionMissions() {
   
   React.useEffect(() => {
     setIsMounted(true);
+    const stored = localStorage.getItem('demo_trips');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLocalMissions([...parsed].reverse().concat(initialMissions));
+        }
+      } catch(e) {}
+    }
   }, []);
 
   const [tab, setTab] = useState('Toutes');
@@ -184,7 +193,7 @@ export default function SectionMissions() {
   };
 
   const checkTooSoon = (dateStr: string, heureStr: string) => {
-    if (dateStr === "Aujourd'hui") {
+    if (dateStr === "Aujourd'hui" || dateStr === getTodayStr()) {
       const parts = heureStr.split(':');
       const h = parseInt(parts[0]);
       const m = parseInt(parts[1]);
@@ -241,7 +250,11 @@ export default function SectionMissions() {
                   <span className={`text-xs px-2 py-0.5 rounded-lg border font-bold ${statutStyle[m.statut]}`}>{m.statut}</span>
                 </div>
                 <p className="font-bold text-white text-lg">{m.trajet}</p>
-                <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {m.date} à {m.heure}</p>
+                <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {
+                  m.date === "Aujourd'hui" || m.date === "Demain" 
+                  ? m.date 
+                  : new Date(m.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+                } à {m.heure}</p>
                 <p className="text-xs text-slate-500">
                   {m.vehicule} • {m.passagers} passagers prévus
                   {m.placesLibres ? ` • ${m.placesLibres} places offertes` : ''}
