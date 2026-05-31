@@ -63,15 +63,14 @@ export default function SectionMissions() {
       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
       const val = d.toISOString().split('T')[0];
       
-      let label = val;
-      if (i === 0) label = "Aujourd'hui";
-      else if (i === 1) label = "Demain";
-      else {
-        const formatD = new Date(base.getTime());
-        formatD.setDate(base.getDate() + i);
-        label = formatD.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
-        label = label.charAt(0).toUpperCase() + label.slice(1);
-      }
+      const formatD = new Date(base.getTime());
+      formatD.setDate(base.getDate() + i);
+      let dayName = formatD.toLocaleDateString('fr-FR', { weekday: 'long' });
+      dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      let dayNum = formatD.getDate();
+      let dayStr = dayNum === 1 ? '1er' : dayNum.toString();
+      let monthName = formatD.toLocaleDateString('fr-FR', { month: 'long' });
+      let label = `${dayName} ${dayStr} ${monthName}`;
       dates.push({ value: val, label });
     }
     return dates;
@@ -105,7 +104,7 @@ export default function SectionMissions() {
     const newMission = {
       id: `TRIP-${Math.floor(Math.random() * 1000)}`,
       trajet: `${formData.originCity} → ${formData.destinationCity}`,
-      date: formData.date === getTodayStr() ? 'Aujourd\'hui' : formData.date,
+      date: formData.date,
       heure: formData.heure,
       vehicule: 'Voiture Allo Dakar',
       statut: 'programmé',

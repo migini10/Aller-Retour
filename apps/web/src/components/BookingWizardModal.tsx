@@ -53,6 +53,29 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [isSearching, setIsSearching] = useState(false);
   const [realTrips, setRealTrips] = useState<any[]>([]);
 
+  const getAvailableDates = () => {
+    const dates = [];
+    const base = new Date();
+    
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(base.getTime());
+      d.setDate(base.getDate() + i);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      const val = d.toISOString().split('T')[0];
+      
+      const formatD = new Date(base.getTime());
+      formatD.setDate(base.getDate() + i);
+      let dayName = formatD.toLocaleDateString('fr-FR', { weekday: 'long' });
+      dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      let dayNum = formatD.getDate();
+      let dayStr = dayNum === 1 ? '1er' : dayNum.toString();
+      let monthName = formatD.toLocaleDateString('fr-FR', { month: 'long' });
+      let label = `${dayName} ${dayStr} ${monthName}`;
+      dates.push({ value: val, label });
+    }
+    return dates;
+  };
+
   const handleGeolocate = () => {
     setGlobalError('');
     if (!navigator.geolocation) {
@@ -431,13 +454,18 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
           <div className="grid grid-cols-2 gap-3 relative z-[20]">
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input 
-                type="date" 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 text-sm [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+              <select 
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
                 value={searchParams.date}
                 onChange={(e) => setSearchParams({...searchParams, date: e.target.value})}
-              />
+              >
+                <option value="" disabled>Date de départ</option>
+                {getAvailableDates().map(d => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             </div>
             
             {isAlloDakar && (
