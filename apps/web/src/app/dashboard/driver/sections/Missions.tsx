@@ -260,7 +260,29 @@ export default function SectionMissions() {
       </div>
 
       <div className="space-y-4">
-        {localMissions.map(m => (
+        {(() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const processedMissions = localMissions.map(m => {
+            if (m.statut === 'programmé' && m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
+              const mDate = new Date(m.date);
+              mDate.setHours(0, 0, 0, 0);
+              if (mDate < today) {
+                return { ...m, statut: 'terminé' };
+              }
+            }
+            return m;
+          });
+
+          const filteredMissions = tab === 'Toutes' ? processedMissions : processedMissions.filter(m => {
+            if (tab === "Aujourd'hui") return m.date === "Aujourd'hui" || m.date === getTodayStr();
+            if (tab === "Programmées") return m.statut === 'programmé' || m.statut === 'à venir';
+            if (tab === "Historique") return m.statut === 'terminé';
+            return true;
+          });
+
+          return filteredMissions.map(m => (
           <div key={m.id} className="bg-[#101728] border border-slate-800/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1.5">
@@ -350,7 +372,7 @@ export default function SectionMissions() {
               </div>
             </div>
           </div>
-        ))}
+        ))})()}
       </div>
 
       {/* Modal Création Trajet */}
