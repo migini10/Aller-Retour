@@ -206,10 +206,10 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Taille du Colis</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { id: 'Enveloppe', icon: Box, desc: 'Documents' },
-              { id: 'Petit', icon: Package, desc: 'Boîte à chaussures' },
-              { id: 'Moyen', icon: Package, desc: 'Valise cabine' },
-              { id: 'Grand', icon: Box, desc: 'Gros carton' }
+              { id: 'Enveloppe', icon: Box, desc: 'Documents', price: '5000F + Frais' },
+              { id: 'Petit', icon: Package, desc: 'Boîte à chaussures', price: '5000F + Frais' },
+              { id: 'Moyen', icon: Package, desc: 'Valise cabine', price: '5000F + Frais' },
+              { id: 'Grand', icon: Box, desc: 'Gros carton', price: 'À négocier' }
             ].map(size => (
               <div 
                 key={size.id}
@@ -223,7 +223,10 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                 <size.icon className="w-6 h-6" />
                 <div className="text-center">
                   <p className={`font-bold text-sm ${colisParams.taille === size.id ? 'text-white' : 'text-slate-300'}`}>{size.id}</p>
-                  <p className="text-[10px] opacity-80">{size.desc}</p>
+                  <p className="text-[10px] opacity-80 mb-1">{size.desc}</p>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${colisParams.taille === size.id ? 'bg-orange-500 text-white' : 'bg-[#1A1A1A] text-slate-400'}`}>
+                    {size.price}
+                  </span>
                 </div>
               </div>
             ))}
