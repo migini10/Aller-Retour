@@ -71,10 +71,14 @@ export default function SectionLocalisation() {
 
         <div className="absolute bottom-4 left-4 right-4 flex gap-3 pointer-events-auto z-20">
           <button 
-            onClick={() => setIsNavigating(true)}
+            onClick={() => {
+              setIsNavigating(true);
+              // Ouvre l'application Google Maps (ou le site web) avec l'itinéraire activé et le guidage GPS
+              window.open('https://www.google.com/maps/dir/?api=1&destination=Mermoz,+Dakar,+Senegal&travelmode=driving&dir_action=navigate', '_blank');
+            }}
             className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/20 text-sm flex justify-center items-center gap-2"
           >
-            <Navigation className="w-4 h-4" /> {isNavigating ? 'Recentrer sur le client' : 'Démarrer Navigation Intégrée'}
+            <Navigation className="w-4 h-4" /> {isNavigating ? 'Ouvrir le Guidage Vocal (GPS)' : 'Démarrer Navigation Intégrée'}
           </button>
         </div>
       </div>
