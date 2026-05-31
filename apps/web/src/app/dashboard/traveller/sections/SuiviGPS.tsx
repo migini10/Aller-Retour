@@ -92,16 +92,16 @@ export default function SectionSuiviGPS() {
           </div>
         </div>
 
-        {/* Intégration Google Maps */}
+        {/* Intégration Google Maps - Itinéraire du Chauffeur vers le Client */}
         <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr" 
+          src="https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=Point+E,+Dakar,+Senegal&output=embed" 
           width="100%" 
           height="100%" 
           style={{ border: 0 }} 
           allowFullScreen={false} 
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
-          className="absolute inset-0 z-0 opacity-80"
+          className="absolute inset-0 z-0 opacity-100"
         ></iframe>
 
         {/* Overlay infos en bas */}

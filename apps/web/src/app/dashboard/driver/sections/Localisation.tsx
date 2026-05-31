@@ -13,8 +13,8 @@ export default function SectionLocalisation() {
   // URL par défaut (vue générale de Dakar)
   const defaultMapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr";
   
-  // URL de la localisation exacte du client (Mermoz, Dakar) pour la navigation
-  const clientLocationUrl = "https://maps.google.com/maps?q=Mermoz,+Dakar,+Senegal&t=&z=16&ie=UTF8&iwloc=&output=embed";
+  // URL de l'itinéraire du chauffeur vers le client (Navigation)
+  const clientLocationUrl = "https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=Mermoz,+Dakar,+Senegal&output=embed";
 
   return (
     <div className="space-y-6">
