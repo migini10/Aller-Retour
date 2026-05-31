@@ -5,7 +5,7 @@ import { Home, Search, Package, User, ArrowRight, TrendingUp, MapPin, Calendar, 
 import { useModal } from '../components/ModalContext';
 
 export default function HomePage() {
-  const { openBookingWizard } = useModal();
+  const { openBookingWizard, openColisWizard } = useModal();
   const [activeTab, setActiveTab] = useState('Accueil');
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
 
@@ -85,7 +85,10 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4">
             
             {/* Envoyer un colis */}
-            <div className="bg-[#141414] rounded-[24px] p-5 shadow-lg border border-[#2A2A2A] flex flex-col items-start gap-4 active:scale-95 transition-transform cursor-pointer hover:border-orange-500/30 group">
+            <div 
+              onClick={() => openColisWizard()}
+              className="bg-[#141414] rounded-[24px] p-5 shadow-lg border border-[#2A2A2A] flex flex-col items-start gap-4 active:scale-95 transition-transform cursor-pointer hover:border-orange-500/30 group"
+            >
               <div className="w-12 h-12 rounded-[16px] bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                 <Package className="w-6 h-6" />
               </div>
@@ -157,7 +160,7 @@ export default function HomePage() {
           <span className="text-[10px] font-bold">Recherche</span>
         </button>
         
-        <button onClick={() => setActiveTab('Colis')} className={`flex flex-col items-center gap-1 ${activeTab === 'Colis' ? 'text-orange-500' : 'text-slate-500 hover:text-slate-300'}`}>
+        <button onClick={() => { setActiveTab('Colis'); openColisWizard(); }} className={`flex flex-col items-center gap-1 ${activeTab === 'Colis' ? 'text-orange-500' : 'text-slate-500 hover:text-slate-300'}`}>
           <Package className="w-6 h-6" />
           <span className="text-[10px] font-bold">Colis</span>
         </button>

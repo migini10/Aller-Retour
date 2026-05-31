@@ -2,18 +2,21 @@
 import React, { createContext, useContext, useState } from 'react';
 import MockModal from './MockModal';
 import BookingWizardModal from './BookingWizardModal';
+import ColisWizardModal from './ColisWizardModal';
 import { ErrorBoundary } from './ErrorBoundary';
 
 interface ModalContextType {
   openModal: (title: string, description?: string, buttonText?: string) => void;
   closeModal: () => void;
   openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent) => void;
+  openColisWizard: () => void;
 }
 
 const ModalContext = createContext<ModalContextType>({
   openModal: () => {},
   closeModal: () => {},
   openBookingWizard: (initialType) => {},
+  openColisWizard: () => {},
 });
 
 export const useModal = () => useContext(ModalContext);
@@ -21,6 +24,7 @@ export const useModal = () => useContext(ModalContext);
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isColisOpen, setIsColisOpen] = useState(false);
   const [bookingType, setBookingType] = useState<'bus' | 'allo-dakar'>('bus');
   const [modalConfig, setModalConfig] = useState({
     title: '',
@@ -46,8 +50,11 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   };
   const closeBookingWizard = () => setIsBookingOpen(false);
 
+  const openColisWizard = () => setIsColisOpen(true);
+  const closeColisWizard = () => setIsColisOpen(false);
+
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard }}>
+    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard, openColisWizard }}>
       {children}
       <MockModal 
         isOpen={isOpen} 
@@ -61,6 +68,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
           isOpen={isBookingOpen}
           onClose={closeBookingWizard}
           initialType={bookingType}
+        />
+        <ColisWizardModal 
+          isOpen={isColisOpen}
+          onClose={closeColisWizard}
         />
       </ErrorBoundary>
     </ModalContext.Provider>
