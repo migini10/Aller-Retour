@@ -349,7 +349,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar flex flex-col justify-center min-h-[50vh] sm:min-h-0">
           {step === 1 && renderStep1Lieux()}
           {step === 2 && renderStep2Details()}
           {step === 3 && renderStep3Ticket()}
