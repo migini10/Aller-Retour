@@ -56,6 +56,7 @@ export default function HomePage() {
                 <User className="w-5 h-5" />
               </button>
             </div>
+          </div>
 
           {/* Salutation */}
           <div>
