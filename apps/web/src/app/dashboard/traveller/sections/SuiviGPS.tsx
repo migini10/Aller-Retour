@@ -92,47 +92,17 @@ export default function SectionSuiviGPS() {
           </div>
         </div>
 
-        {/* Carte urbaine SVG */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
-          {/* Itinéraire Chauffeur -> Client */}
-          <path id="pickupRoute" d="M300,-50 L350,150 L450,180 L550,220 L650,250" stroke="#1d4ed8" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.4"/>
-          <path d="M300,-50 L350,150 L450,180 L550,220 L650,250" stroke="url(#routeGrad)" strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray="10 6">
-            <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite" />
-          </path>
-
-          <defs>
-            <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#f97316" />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-
-          {/* Position du client (Point de RDV) */}
-          <g transform="translate(650, 250)">
-            <circle cx="0" cy="0" r="14" fill="#22c55e" opacity="0.3">
-              <animate attributeName="r" values="14;28;14" dur="2s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="0" cy="0" r="6" fill="#22c55e" filter="url(#glow)"/>
-            <circle cx="0" cy="0" r="3" fill="#fff" />
-            <path d="M-8,-20 C-8,-25 8,-25 8,-20 L0,-5 Z" fill="#22c55e"/>
-            <rect x="-35" y="-45" width="70" height="20" rx="10" fill="#0f172a" opacity="0.9" />
-            <text x="0" y="-31" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Point E</text>
-          </g>
-
-          {/* Position du véhicule en mouvement le long du chemin */}
-          <g filter="url(#glow)">
-            <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M300,-50 L350,150 L450,180 L550,220 L650,250" />
-            {/* Icône du bus/voiture vu de haut */}
-            <rect x="-15" y="-8" width="30" height="16" rx="4" fill="#f97316" />
-            <rect x="-10" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
-            <rect x="5" y="-6" width="6" height="12" rx="1" fill="#fff" opacity="0.8" />
-          </g>
-        </svg>
+        {/* Intégration Google Maps */}
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr" 
+          width="100%" 
+          height="100%" 
+          style={{ border: 0 }} 
+          allowFullScreen={false} 
+          loading="lazy" 
+          referrerPolicy="no-referrer-when-downgrade"
+          className="absolute inset-0 z-0 opacity-80"
+        ></iframe>
 
         {/* Overlay infos en bas */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B0F19]/95 to-transparent pt-12 pb-4 px-4 flex items-center justify-between">
