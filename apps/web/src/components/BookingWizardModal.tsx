@@ -440,19 +440,17 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             />
           </div>
 
-          {searchParams.arrivee && (
-            <div className="relative z-[30] animate-in fade-in slide-in-from-top-2 duration-300">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-              <input 
-                ref={quartierArriveeInputRef}
-                type="text" 
-                placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
-                value={searchParams.quartierArrivee}
-                onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
-              />
-            </div>
-          )}
+          <div className="relative z-[30]">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <input 
+              ref={quartierArriveeInputRef}
+              type="text" 
+              placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
+              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
+              value={searchParams.quartierArrivee}
+              onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-3 relative z-[20]">
             <div className="relative">
