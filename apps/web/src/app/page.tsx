@@ -29,9 +29,12 @@ export default function HomePage() {
         <div className="bg-[#0A0A0A] pt-12 pb-24 px-6 relative rounded-b-[40px] border-b border-[#2A2A2A]">
           {/* Top Bar */}
           <div className="flex justify-between items-center mb-10 mt-4">
-            {/* Logo Image Allô Dakar (Zoomé) */}
-            <div className="flex items-center justify-center w-48 h-12 overflow-hidden -ml-4">
-              <img src="/logo-allodakar.jpg" alt="Allô Dakar" className="w-full h-full object-cover mix-blend-screen scale-[2.5]" />
+            {/* Logo Original Allô Dakar (Boîte Blanche) */}
+            <div className="bg-slate-100 rounded-[16px] py-1.5 px-3 flex items-center justify-center shadow-lg">
+              <span className="text-[#00437A] font-black text-xs flex items-center tracking-tight">
+                <Car className="w-3.5 h-3.5 mr-1 text-[#00437A] fill-[#00437A]" />
+                Allô<span className="text-orange-500">Dakar</span>
+              </span>
             </div>
             <button onClick={() => setActiveTab('Profil')} className="w-11 h-11 rounded-full border border-[#333333] bg-[#141414] flex items-center justify-center text-slate-300 hover:text-white transition-colors">
               <User className="w-5 h-5" />
