@@ -53,15 +53,18 @@ export default function HomePage() {
           
           {/* Barre de Recherche (Mieux organisée) */}
           <div className="bg-[#141414] rounded-[24px] p-5 shadow-2xl border border-[#2A2A2A]">
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center gap-3 bg-[#0A0A0A] p-3 rounded-xl border border-[#333333]">
+            <div 
+              className="space-y-3 mb-4 cursor-text"
+              onClick={() => openBookingWizard('allo-dakar')}
+            >
+              <div className="flex items-center gap-3 bg-[#0A0A0A] p-3 rounded-xl border border-[#333333] hover:border-orange-500/50 transition-colors">
                 <MapPin className="w-5 h-5 text-orange-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Départ</p>
                   <p className="text-sm font-semibold text-white">Dakar, SN</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-[#0A0A0A] p-3 rounded-xl border border-[#333333]">
+              <div className="flex items-center gap-3 bg-[#0A0A0A] p-3 rounded-xl border border-[#333333] hover:border-orange-500/50 transition-colors">
                 <MapPin className="w-5 h-5 text-emerald-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Arrivée</p>
