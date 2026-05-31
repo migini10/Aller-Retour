@@ -496,22 +496,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             </div>
             
-            {isAlloDakar && (
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                <select 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
-                  value={searchParams.heure}
-                  onChange={(e) => setSearchParams({...searchParams, heure: e.target.value})}
-                >
-                  <option value="" disabled>Heure de départ</option>
-                  {getAvailableHours().map((time) => (
-                    <option key={time} value={time}>{time}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              </div>
-            )}
+            {/* Removed hour selector so passenger sees all cars for the selected date */}
 
             <div className="relative">
               <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
@@ -528,7 +513,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         </div>
       </div>
       <button 
-        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.heure || isSearching}
+        disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.date || isSearching}
         onClick={async () => {
           setIsSearching(true);
           try {
@@ -548,7 +533,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         className="w-full bg-orange-600 disabled:bg-slate-800 disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-        {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.heure) ? 'Rechercher un trajet' : 'Informations incomplètes')}
+        {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.date) ? 'Rechercher un trajet' : 'Informations incomplètes')}
       </button>
     </div>
   );
