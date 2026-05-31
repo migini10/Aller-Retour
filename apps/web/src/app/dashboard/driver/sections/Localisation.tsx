@@ -49,11 +49,11 @@ export default function SectionLocalisation() {
           src={isNavigating ? clientLocationUrl : defaultMapUrl}
           width="100%" 
           height="100%" 
-          style={{ border: 0 }} 
+          style={{ border: 0, pointerEvents: 'none' }} 
           allowFullScreen={false} 
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
-          className={`absolute inset-0 z-0 ${isNavigating ? 'opacity-100' : 'opacity-80'}`}
+          className={`absolute inset-0 z-0 ${isNavigating ? 'opacity-100' : 'opacity-80'} pointer-events-none`}
         ></iframe>
 
         {/* Overlay sombre pour garder le contraste des éléments UI */}

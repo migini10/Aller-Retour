@@ -97,11 +97,11 @@ export default function SectionSuiviGPS() {
           src="https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=Point+E,+Dakar,+Senegal&output=embed" 
           width="100%" 
           height="100%" 
-          style={{ border: 0 }} 
+          style={{ border: 0, pointerEvents: 'none' }} 
           allowFullScreen={false} 
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
-          className="absolute inset-0 z-0 opacity-80"
+          className="absolute inset-0 z-0 opacity-80 pointer-events-none"
         ></iframe>
 
         {/* Animation du Véhicule en temps réel (Superposée sur la carte) */}
