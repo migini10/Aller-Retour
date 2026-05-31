@@ -136,8 +136,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
   const renderStep1Lieux = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-[#2A2A2A]">
-        <h3 className="text-lg font-bold text-white mb-4">Où envoyer votre colis ?</h3>
+      <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] transition-colors">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Où envoyer votre colis ?</h3>
         <div className="space-y-3">
           <div className="relative z-[60]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -145,7 +145,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               ref={departInputRef}
               type="text" 
               placeholder="Adresse de retrait (Expéditeur)"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
               value={colisParams.depart}
               onChange={(e) => setColisParams({...colisParams, depart: e.target.value})}
             />
@@ -157,7 +157,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               ref={arriveeInputRef}
               type="text" 
               placeholder="Adresse de livraison (Destinataire)"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
               value={colisParams.arrivee}
               onChange={(e) => setColisParams({...colisParams, arrivee: e.target.value})}
             />
@@ -176,8 +176,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
   const renderStep2Details = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-[#2A2A2A] space-y-5">
-        <h3 className="text-lg font-bold text-white mb-2">Détails du destinataire</h3>
+      <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] space-y-5 transition-colors">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Détails du destinataire</h3>
         
         <div className="space-y-3">
           <div className="relative">
@@ -185,7 +185,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             <input 
               type="text" 
               placeholder="Nom complet du destinataire"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
               value={colisParams.destinataireNom}
               onChange={(e) => setColisParams({...colisParams, destinataireNom: e.target.value})}
             />
@@ -195,15 +195,15 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             <input 
               type="tel" 
               placeholder="Numéro de téléphone"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
               value={colisParams.destinataireTel}
               onChange={(e) => setColisParams({...colisParams, destinataireTel: e.target.value})}
             />
           </div>
         </div>
 
-        <div className="pt-2 border-t border-[#333333]">
-          <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Taille du Colis</h3>
+        <div className="pt-2 border-t border-slate-200 dark:border-[#333333]">
+          <h3 className="text-sm font-bold text-slate-500 dark:text-slate-300 mb-3 uppercase tracking-wider">Taille du Colis</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
               { id: 'Enveloppe', icon: Box, desc: 'Documents', price: '5000F + Frais' },
@@ -216,15 +216,15 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                 onClick={() => setColisParams({...colisParams, taille: size.id})}
                 className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                   colisParams.taille === size.id 
-                    ? 'bg-orange-600/20 border-orange-500 text-orange-500' 
-                    : 'bg-black border-[#2A2A2A] text-slate-400 hover:border-[#444444]'
+                    ? 'bg-orange-100 dark:bg-orange-600/20 border-orange-500 text-orange-600 dark:text-orange-500' 
+                    : 'bg-white dark:bg-black border-slate-200 dark:border-[#2A2A2A] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-[#444444]'
                 }`}
               >
                 <size.icon className="w-6 h-6" />
                 <div className="text-center">
-                  <p className={`font-bold text-sm ${colisParams.taille === size.id ? 'text-white' : 'text-slate-300'}`}>{size.id}</p>
+                  <p className={`font-bold text-sm ${colisParams.taille === size.id ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{size.id}</p>
                   <p className="text-[10px] opacity-80 mb-1">{size.desc}</p>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${colisParams.taille === size.id ? 'bg-orange-500 text-white' : 'bg-[#1A1A1A] text-slate-400'}`}>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${colisParams.taille === size.id ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-[#1A1A1A] text-slate-500 dark:text-slate-400'}`}>
                     {size.price}
                   </span>
                 </div>
@@ -248,7 +248,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div 
         ref={ticketRef}
-        className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 shadow-2xl relative overflow-hidden"
+        className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-colors"
       >
         {/* Déco */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-bl-full blur-2xl"></div>
@@ -257,28 +257,28 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         <div className="flex justify-between items-start mb-6 relative z-10">
           <div>
             <p className="text-xs text-orange-500 font-bold tracking-wider uppercase mb-1">Reçu de Colis</p>
-            <h3 className="text-2xl font-black text-white tracking-tight">{generatedTicket?.id}</h3>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{generatedTicket?.id}</h3>
           </div>
-          <div className="bg-orange-500/20 p-2 rounded-xl">
+          <div className="bg-orange-100 dark:bg-orange-500/20 p-2 rounded-xl">
             <Package className="w-6 h-6 text-orange-500" />
           </div>
         </div>
 
         <div className="space-y-4 relative z-10">
-          <div className="bg-black/50 rounded-xl p-4 border border-[#2A2A2A]">
+          <div className="bg-slate-50 dark:bg-black/50 rounded-xl p-4 border border-slate-200 dark:border-[#2A2A2A]">
             <p className="text-xs text-slate-500 font-medium mb-1">Trajet</p>
-            <p className="text-sm font-bold text-white">{generatedTicket?.trajet}</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-white">{generatedTicket?.trajet}</p>
           </div>
           
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-black/50 rounded-xl p-3 border border-[#2A2A2A]">
+            <div className="bg-slate-50 dark:bg-black/50 rounded-xl p-3 border border-slate-200 dark:border-[#2A2A2A]">
               <p className="text-[10px] text-slate-500 font-medium mb-1 uppercase">Destinataire</p>
-              <p className="text-sm font-bold text-white truncate">{generatedTicket?.destinataire}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{generatedTicket?.tel}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{generatedTicket?.destinataire}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{generatedTicket?.tel}</p>
             </div>
-            <div className="bg-black/50 rounded-xl p-3 border border-[#2A2A2A]">
+            <div className="bg-slate-50 dark:bg-black/50 rounded-xl p-3 border border-slate-200 dark:border-[#2A2A2A]">
               <p className="text-[10px] text-slate-500 font-medium mb-1 uppercase">Taille</p>
-              <p className="text-sm font-bold text-white">{generatedTicket?.taille}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white">{generatedTicket?.taille}</p>
             </div>
           </div>
         </div>
@@ -296,12 +296,12 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       <div className="grid grid-cols-2 gap-3">
         <button 
           onClick={handleDownload}
-          className="bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+          className="bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
         >
           <Download className="w-4 h-4" /> Enregistrer
         </button>
         <button 
-          className="bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+          className="bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
         >
           <Share2 className="w-4 h-4" /> Partager
         </button>
@@ -309,7 +309,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
       <button 
         onClick={handleClose}
-        className="w-full bg-slate-800 hover:bg-slate-700 text-white py-4 rounded-xl font-bold text-base transition-colors mt-2"
+        className="w-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white py-4 rounded-xl font-bold text-base transition-colors mt-2"
       >
         Fermer
       </button>
@@ -325,25 +325,25 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       
       <div 
         className={`
-          relative w-full sm:w-[500px] bg-[#0A0A0A] sm:rounded-[32px] rounded-t-[32px] 
-          flex flex-col max-h-[90dvh] shadow-2xl border-t sm:border border-[#2A2A2A]
+          relative w-full sm:w-[500px] bg-white dark:bg-[#0A0A0A] sm:rounded-[32px] rounded-t-[32px] 
+          flex flex-col max-h-[90dvh] shadow-2xl border-t sm:border border-slate-200 dark:border-[#2A2A2A]
           transition-all duration-300 ease-out
           ${isOpen && !isClosing ? 'translate-y-0 opacity-100' : 'translate-y-full sm:translate-y-8 sm:opacity-0'}
         `}
       >
-        <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 border-b border-[#1A1A1A]">
+        <div className="flex-shrink-0 flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-[#1A1A1A] transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center">
               <Package className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">Envoi de Colis</h2>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Envoi de Colis</h2>
               {step < 3 && <p className="text-xs font-bold text-orange-500 uppercase tracking-wider">Étape {step} sur 2</p>}
             </div>
           </div>
           <button 
             onClick={handleClose}
-            className="w-10 h-10 rounded-full bg-[#1A1A1A] hover:bg-[#222222] flex items-center justify-center text-slate-400 transition-colors"
+            className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222222] flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

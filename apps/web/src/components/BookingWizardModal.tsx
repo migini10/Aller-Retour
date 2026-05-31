@@ -389,8 +389,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   const renderStep1Search = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-[#2A2A2A]">
-        <h3 className="text-lg font-bold text-white mb-4">Où allez-vous avec Allo Dakar ?</h3>
+      <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] transition-colors">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Où allez-vous avec Allo Dakar ?</h3>
         <div className="space-y-3">
           <div className="relative z-[60]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -398,20 +398,20 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               ref={departInputRef}
               type="text" 
               placeholder="Ville de départ (ex: Dakar)"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
               value={searchParams.depart}
               onChange={(e) => setSearchParams({...searchParams, depart: e.target.value})}
             />
           </div>
           
           {isAlloDakar && (
-            <div className="relative z-[50] border border-orange-500/30 rounded-xl p-3 bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
+            <div className="relative z-[50] border border-orange-500/30 rounded-xl p-3 bg-orange-50 dark:bg-orange-500/5 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs text-orange-400 font-bold">Adresse de prise en charge (Google Places)</label>
+                <label className="text-xs text-orange-600 dark:text-orange-400 font-bold">Adresse de prise en charge (Google Places)</label>
                 <button 
                   onClick={handleGeolocate} 
                   disabled={isLocating}
-                  className="text-white hover:text-white font-bold flex items-center gap-1 bg-orange-600 px-3 py-1 rounded-lg disabled:opacity-50 text-xs transition-colors shrink-0 ml-2"
+                  className="text-white font-bold flex items-center gap-1 bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-lg disabled:opacity-50 text-xs transition-colors shrink-0 ml-2"
                 >
                   <MapPin className="w-3 h-3" />
                   {isLocating ? 'Patientez...' : 'Me localiser'}
@@ -421,7 +421,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 ref={pickupInputRef}
                 type="text" 
                 placeholder="Entrez l'adresse exacte du passager"
-                className="w-full bg-black border border-[#2A2A2A] rounded-lg py-2 px-3 text-white focus:outline-none focus:border-orange-500 text-sm"
+                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-lg py-2 px-3 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 text-sm transition-colors"
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
               />
@@ -429,24 +429,24 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           )}
 
           <div className="relative z-[40]">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-500 dark:text-orange-400" />
             <input 
               ref={arriveeInputRef}
               type="text" 
               placeholder="Ville d'arrivée (ex: Saly)"
-              className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
               value={searchParams.arrivee}
               onChange={(e) => setSearchParams({...searchParams, arrivee: e.target.value})}
             />
           </div>
 
           <div className="relative z-[30]">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
             <input 
               ref={quartierArriveeInputRef}
               type="text" 
               placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
-              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-300 focus:outline-none focus:border-orange-500 text-sm"
+              className="w-full bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-slate-300 focus:outline-none focus:border-orange-500 text-sm transition-colors"
               value={searchParams.quartierArrivee}
               onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
             />
@@ -456,7 +456,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <select 
-                className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
+                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer transition-colors"
                 value={searchParams.date}
                 onChange={(e) => setSearchParams({...searchParams, date: e.target.value})}
               >
@@ -473,7 +473,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <div className="relative">
               <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <select 
-                className="w-full bg-black border border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer"
+                className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-10 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 appearance-none text-sm cursor-pointer transition-colors"
                 value={searchParams.passagers}
                 onChange={(e) => setSearchParams({...searchParams, passagers: parseInt(e.target.value)})}
               >
@@ -502,7 +502,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           setIsSearching(false);
           nextStep();
         }}
-        className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
+        className="w-full bg-orange-600 disabled:bg-slate-200 dark:disabled:bg-[#222222] disabled:text-slate-400 dark:disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
         {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.date) ? 'Rechercher un trajet' : 'Informations incomplètes')}
@@ -1070,26 +1070,26 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     <div className={`fixed inset-0 z-[100] flex items-center justify-center ${isClosing ? 'animate-out fade-out duration-300' : 'animate-in fade-in duration-300'}`}>
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={step < totalSteps ? handleClose : undefined}></div>
       
-      <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#000000] sm:rounded-[2rem] sm:border border-[#2A2A2A]/80 flex flex-col shadow-2xl overflow-hidden
+      <div className={`relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-white dark:bg-[#000000] sm:rounded-[2rem] sm:border border-slate-200 dark:border-[#2A2A2A]/80 flex flex-col shadow-2xl overflow-hidden transition-colors
         ${isClosing ? 'animate-out slide-out-to-bottom-8 sm:slide-out-to-bottom-0 sm:zoom-out-95 duration-300' : 'animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300'}`}
       >
         {/* Header */}
-        <div className="flex-none bg-[#0A0A0A] border-b border-[#2A2A2A]/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex-none bg-slate-50 dark:bg-[#0A0A0A] border-b border-slate-200 dark:border-[#2A2A2A]/80 px-4 py-3 flex items-center justify-between sticky top-0 z-10 transition-colors">
           <div className="flex items-center gap-3">
             {step > 1 && step < totalSteps && (
-              <button onClick={prevStep} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-[#222222]">
+              <button onClick={prevStep} className="p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors rounded-full hover:bg-slate-200 dark:hover:bg-[#222222]">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
             <div>
-              <h2 className="text-white font-bold leading-none">{step === totalSteps ? (isAlloDakar ? 'Demande Envoyée' : 'Billet Confirmé') : 'Nouvelle Demande'}</h2>
+              <h2 className="text-slate-900 dark:text-white font-bold leading-none">{step === totalSteps ? (isAlloDakar ? 'Demande Envoyée' : 'Billet Confirmé') : 'Nouvelle Demande'}</h2>
               {step < totalSteps && (
-                <p className="text-xs text-slate-400 mt-1">Étape {step} sur {totalSteps - 1} : {steps[step-1].title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Étape {step} sur {totalSteps - 1} : {steps[step-1].title}</p>
               )}
             </div>
           </div>
           {step < totalSteps && (
-            <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-[#1A1A1A] rounded-full border border-[#2A2A2A] transition-colors">
+            <button onClick={handleClose} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-[#1A1A1A] rounded-full border border-slate-200 dark:border-[#2A2A2A] transition-colors">
               <X className="w-5 h-5" />
             </button>
           )}
@@ -1097,7 +1097,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
         {/* Progress bar */}
         {step < totalSteps && (
-          <div className="h-1 bg-[#1A1A1A] w-full flex-none">
+          <div className="h-1 bg-slate-100 dark:bg-[#1A1A1A] w-full flex-none transition-colors">
             <div 
               className="h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out"
               style={{ width: `${(step / (totalSteps - 1)) * 100}%` }}

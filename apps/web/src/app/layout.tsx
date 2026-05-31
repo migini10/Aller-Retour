@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ModalProvider } from '../components/ModalContext';
-
 import { AuthProvider } from '../components/AuthContext';
+import { ThemeProvider } from '../components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Aller-Retour | SaaS & Marketplace Transport Inter-Urbain Afrique',
@@ -15,13 +15,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="dark">
-      <body className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-        <AuthProvider>
-          <ModalProvider>
-            {children}
-          </ModalProvider>
-        </AuthProvider>
+    <html lang="fr" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <AuthProvider>
+            <ModalProvider>
+              {children}
+            </ModalProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
