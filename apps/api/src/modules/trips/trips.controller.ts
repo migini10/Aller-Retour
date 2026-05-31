@@ -43,6 +43,7 @@ export class TripsController {
           },
         },
         vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+        driver: { select: { user: { select: { phone: true, fullName: true } } } },
         bookings: { select: { seatNumber: true, status: true } },
       },
       orderBy: { departureTime: 'asc' },
@@ -54,6 +55,8 @@ export class TripsController {
       return {
         ...trip,
         availableSeats: trip.vehicle.capacity - bookedSeats,
+        driverName: trip.driver?.user?.fullName || null,
+        driverPhone: trip.driver?.user?.phone || null,
       };
     });
   }

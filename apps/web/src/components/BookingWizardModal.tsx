@@ -86,7 +86,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     const currentHour = new Date().getHours();
     const currentMinute = new Date().getMinutes();
     const currentTotalMinutes = currentHour * 60 + currentMinute;
-    const MARGIN_MINUTES = 60; // 1 heure de délai minimum
+    const MARGIN_MINUTES = 0; // Le passager peut chercher l'heure actuelle pour voir les départs imminents
 
     for (let i = 0; i < 24; i++) {
       const hourStr = i.toString().padStart(2, '0');
@@ -555,16 +555,27 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   const renderStep2Results = () => {
     // Si l'API retourne des données, on les utilise, sinon on affiche une liste vide ou un fallback
-    const displayTrips = realTrips.length > 0 ? realTrips.map((t: any) => ({
-      id: t.id,
-      company: t.company?.name || "Allo Dakar Partenaire",
-      price: t.pricePerSeat || 5000,
-      type: t.vehicle?.type || "Voiture",
-      options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
-      route: t.takesTollRoad !== false ? "Autoroute" : "Nationale",
-      time: new Date(t.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-      availableSeats: t.availableSeats || 4
-    })) : [];
+    const displayTrips = realTrips.length > 0 ? realTrips.map((t: any) => {
+      let isTooSoon = false;
+      if (t.departureTime) {
+        const depTime = new Date(t.departureTime);
+        const now = new Date();
+        const diffMinutes = (depTime.getTime() - now.getTime()) / (1000 * 60);
+        isTooSoon = diffMinutes >= 0 && diffMinutes < 60;
+      }
+      return {
+        id: t.id,
+        company: t.company?.name || "Allo Dakar Partenaire",
+        price: t.pricePerSeat || 5000,
+        type: t.vehicle?.type || "Voiture",
+        options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
+        route: t.takesTollRoad !== false ? "Autoroute" : "Nationale",
+        time: new Date(t.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        availableSeats: t.availableSeats || 4,
+        isTooSoon,
+        driverPhone: t.driverPhone || '+221 77 000 00 00'
+      };
+    }) : [];
 
       return (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -578,13 +589,28 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             ) : displayTrips.map((service: any) => (
               <div 
                 key={service.id} 
-                onClick={() => { setSelectedTrip(service); nextStep(); }}
-                className="bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl cursor-pointer transition-all hover:bg-slate-800/50"
+                onClick={() => {
+                  if (service.isTooSoon) {
+                    setGlobalError(`Vous ne pouvez pas réserver à moins d'une heure du départ. Appelez le chauffeur au ${service.driverPhone}`);
+                  } else {
+                    setSelectedTrip(service); 
+                    nextStep();
+                  }
+                }}
+                className={`border p-4 rounded-2xl cursor-pointer transition-all ${
+                  service.isTooSoon 
+                  ? 'bg-slate-900/50 border-slate-800/50 opacity-80' 
+                  : 'bg-slate-900 border-slate-800 hover:border-orange-500/50 hover:bg-slate-800/50'
+                }`}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex flex-col gap-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-white text-lg bg-orange-500/20 px-2 py-0.5 rounded-lg border border-orange-500/30 text-orange-400">
+                      <span className={`font-bold text-lg px-2 py-0.5 rounded-lg border ${
+                        service.isTooSoon 
+                        ? 'bg-slate-800 text-slate-400 border-slate-700' 
+                        : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                      }`}>
                         {service.time}
                       </span>
                       <span className="font-bold text-white">{service.company}</span>
@@ -609,9 +635,20 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 </div>
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-xl font-bold text-orange-500">{service.price} <span className="text-sm text-slate-400 font-normal">FCFA / pers</span></p>
-                  <div className="text-orange-500 flex items-center gap-1 text-sm font-bold bg-orange-500/10 px-3 py-1.5 rounded-xl">
-                    Choisir <ArrowRight className="w-4 h-4" />
-                  </div>
+                  
+                  {service.isTooSoon ? (
+                    <a 
+                      href={`tel:${service.driverPhone}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-white flex items-center gap-2 text-sm font-bold bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-rose-600/20"
+                    >
+                      <Smartphone className="w-4 h-4" /> Appeler
+                    </a>
+                  ) : (
+                    <div className="text-orange-500 flex items-center gap-1 text-sm font-bold bg-orange-500/10 px-3 py-1.5 rounded-xl">
+                      Choisir <ArrowRight className="w-4 h-4" />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

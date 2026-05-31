@@ -175,10 +175,35 @@ export default function SectionMissions() {
     setIsLoading(false);
   };
 
+  const checkTooSoon = (dateStr: string, heureStr: string) => {
+    if (dateStr === "Aujourd'hui") {
+      const parts = heureStr.split(':');
+      const h = parseInt(parts[0]);
+      const m = parseInt(parts[1]);
+      const currentHour = new Date().getHours();
+      const currentMinute = new Date().getMinutes();
+      const diffMinutes = (h * 60 + m) - (currentHour * 60 + currentMinute);
+      return diffMinutes >= 0 && diffMinutes < 60;
+    }
+    return false;
+  };
+  
+  const hasUrgentTrips = localMissions.some(m => checkTooSoon(m.date, m.heure) && m.statut === 'programmé');
+
   if (!isMounted) return null;
 
   return (
     <div className="space-y-6 relative">
+      {hasUrgentTrips && (
+        <div className="bg-rose-500/10 border border-rose-500/30 text-rose-500 p-4 rounded-xl flex items-start gap-3 animate-pulse">
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-bold">Attention, votre départ est dans moins d'une heure !</p>
+            <p className="mt-1 text-rose-500/80">Les réservations automatiques sont bloquées si vous ne changez pas votre heure de départ. Préparez-vous à recevoir des appels.</p>
+          </div>
+        </div>
+      )}
+      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Mes Missions & Trajets</h2>
         <button 
@@ -241,6 +266,19 @@ export default function SectionMissions() {
                 <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 transition-colors">
                   <MapPin className="w-3.5 h-3.5" /> Voir détails
                 </button>
+                {m.statut === 'programmé' && checkTooSoon(m.date, m.heure) && (
+                  <button 
+                    onClick={() => {
+                      const parts = m.heure.split(':');
+                      const newH = (parseInt(parts[0]) + 1).toString().padStart(2, '0');
+                      const newHeure = `${newH}:${parts[1]}`;
+                      setLocalMissions(localMissions.map(m2 => m2.id === m.id ? { ...m2, heure: newHeure } : m2));
+                    }}
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-600/20"
+                  >
+                    <Clock className="w-3.5 h-3.5" /> Repousser +1h
+                  </button>
+                )}
                 {(m.statut === 'à venir' || m.statut === 'en cours') && (
                   <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 transition-colors">
                     <AlertTriangle className="w-3.5 h-3.5" /> Signaler incident
