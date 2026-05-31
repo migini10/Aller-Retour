@@ -26,9 +26,9 @@ export default function HomePage() {
       <div className="flex-1 overflow-y-auto pb-24 w-full">
         
         {/* En-tête Sombre (Premium Noir & Orange) */}
-        <div className="bg-[#0A0A0A] pt-12 pb-24 px-6 relative rounded-b-[40px] border-b border-[#2A2A2A]">
+        <div className="bg-[#0A0A0A] pt-6 pb-24 px-6 relative rounded-b-[40px] border-b border-[#2A2A2A]">
           {/* Top Bar */}
-          <div className="flex justify-between items-center mb-10 mt-4">
+          <div className="flex justify-between items-center mb-8">
             {/* Logo Original Allô Dakar (Boîte Blanche) */}
             <div className="bg-slate-100 rounded-[16px] py-1.5 px-3 flex items-center justify-center shadow-lg">
               <span className="text-[#00437A] font-black text-xs flex items-center tracking-tight">
