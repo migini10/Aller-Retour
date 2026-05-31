@@ -12,8 +12,8 @@ const initialMockBillets = [
 ];
 
 const statutStyle: Record<string, string> = {
-  actif: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
-  utilisé: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+  actif: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+  utilisé: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
   annulé: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
 };
 

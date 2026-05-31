@@ -12,8 +12,8 @@ const reservations = [
 const tabs = ['Toutes', 'En cours', 'Passées', 'Annulées'];
 
 const statutStyle: Record<string, string> = {
-  'en cours': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  'passée': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  'en cours': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  'passée': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
   'annulée': 'bg-rose-500/20 text-rose-400 border-rose-500/30',
 };
 
