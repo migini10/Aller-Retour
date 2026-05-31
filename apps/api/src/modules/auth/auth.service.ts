@@ -17,7 +17,7 @@ export class AuthService {
         phone,
         fullName,
         role: UserRole.PASSENGER,
-        passwordHash: pin ? pin : '1234', // En prod: bcrypt
+        passwordHash: pin ? pin : '123456', // En prod: bcrypt
       },
     });
 
@@ -41,7 +41,7 @@ export class AuthService {
     }
 
     // Validation du PIN (en prod avec hash bcrypt)
-    if (user.passwordHash !== pin && pin !== '1234') {
+    if (user.passwordHash !== pin && pin !== '123456') {
       throw new UnauthorizedException("Code PIN incorrect.");
     }
 

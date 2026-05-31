@@ -206,16 +206,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">Code PIN (4 chiffres)</label>
+                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">Code PIN (6 chiffres)</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input 
                     type="password" 
                     required
-                    maxLength={4}
+                    maxLength={6}
                     value={pin}
                     onChange={e => setPin(e.target.value)}
-                    placeholder="1234"
+                    placeholder="123456"
                     className="w-full bg-[#0B0F19] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white tracking-widest focus:outline-none focus:border-orange-500 transition-colors font-mono"
                   />
                 </div>
