@@ -30,14 +30,29 @@ export default function SectionReservations() {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
           // Map structure from Billets to Reservations
-          const mapped = parsed.map((b: any) => ({
-            id: b.id,
-            trajet: b.trajet,
-            date: b.date,
-            prix: b.prix || '5000 FCFA',
-            statut: b.statut === 'actif' ? 'en cours' : (b.statut === 'annulé' ? 'annulée' : 'passée'),
-            modifiable: b.statut === 'actif'
-          }));
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const mapped = parsed.map((b: any) => {
+            let s = b.statut === 'actif' ? 'en cours' : (b.statut === 'annulé' ? 'annulée' : 'passée');
+            
+            if (s === 'en cours' && b.date && b.date !== "Aujourd'hui" && b.date !== "Demain") {
+              const tDate = new Date(b.date);
+              tDate.setHours(0, 0, 0, 0);
+              if (tDate < today) {
+                s = 'passée';
+              }
+            }
+
+            return {
+              id: b.id,
+              trajet: b.trajet,
+              date: b.date,
+              prix: b.prix || '5000 FCFA',
+              statut: s,
+              modifiable: s === 'en cours'
+            };
+          });
           setLocalReservations([...mapped, ...reservations]);
         }
       } catch (e) {}

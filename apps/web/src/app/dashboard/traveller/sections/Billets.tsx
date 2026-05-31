@@ -32,8 +32,28 @@ export default function SectionBillets() {
         const stored = localStorage.getItem('my_tickets');
         if (stored) {
           const parsed = JSON.parse(stored);
-          // Only update if it's different to prevent infinite re-renders or flashing
-          setMyBillets([...parsed, ...initialMockBillets]);
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          let hasChanges = false;
+          
+          const updatedParsed = parsed.map((t: any) => {
+            if (t.statut === 'actif' && t.date && t.date !== "Aujourd'hui" && t.date !== "Demain") {
+              const tDate = new Date(t.date);
+              tDate.setHours(0, 0, 0, 0);
+              if (tDate < today) {
+                hasChanges = true;
+                return { ...t, statut: 'utilisé' };
+              }
+            }
+            return t;
+          });
+          
+          if (hasChanges) {
+            localStorage.setItem('my_tickets', JSON.stringify(updatedParsed));
+          }
+
+          setMyBillets([...updatedParsed, ...initialMockBillets]);
         }
       } catch (e) {}
     };
