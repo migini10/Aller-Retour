@@ -49,12 +49,16 @@ export default function SectionLocalisation() {
           src={isNavigating ? clientLocationUrl : defaultMapUrl}
           width="100%" 
           height="100%" 
-          style={{ border: 0, pointerEvents: 'none' }} 
+          style={{ border: 0 }} 
           allowFullScreen={false} 
           loading="lazy" 
           referrerPolicy="no-referrer-when-downgrade"
-          className={`absolute inset-0 z-0 ${isNavigating ? 'opacity-100' : 'opacity-80'} pointer-events-none`}
+          className={`absolute inset-0 z-0 ${isNavigating ? 'opacity-100' : 'opacity-80'}`}
         ></iframe>
+
+        {/* Overlays protecteurs pour empêcher les clics sur les logos/liens Google en haut et en bas */}
+        <div className="absolute top-0 left-0 right-0 h-16 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
+        <div className="absolute bottom-0 left-0 right-0 h-16 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
 
         {/* Overlay sombre pour garder le contraste des éléments UI */}
         <div className="absolute inset-0 bg-[#0a1520]/20 pointer-events-none z-10" />
