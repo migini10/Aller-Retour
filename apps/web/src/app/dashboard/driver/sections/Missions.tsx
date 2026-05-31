@@ -275,8 +275,9 @@ export default function SectionMissions() {
             return m;
           });
 
-          const filteredMissions = tab === 'Toutes' ? processedMissions : processedMissions.filter(m => {
-            if (tab === "Aujourd'hui") return m.date === "Aujourd'hui" || m.date === getTodayStr();
+          const filteredMissions = processedMissions.filter(m => {
+            if (tab === "Toutes") return m.statut !== 'terminé';
+            if (tab === "Aujourd'hui") return (m.date === "Aujourd'hui" || m.date === getTodayStr()) && m.statut !== 'terminé';
             if (tab === "Programmées") return m.statut === 'programmé' || m.statut === 'à venir';
             if (tab === "Historique") return m.statut === 'terminé';
             return true;
