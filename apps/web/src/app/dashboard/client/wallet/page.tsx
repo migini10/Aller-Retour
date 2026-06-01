@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useModal } from '../../../../components/ModalContext';
 
 export default function WalletPage() {
-  const { openModal } = useModal();
+  const { openModal, openRechargeWizard } = useModal();
   
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
@@ -25,7 +25,7 @@ export default function WalletPage() {
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gérez vos fonds et vos paiements en toute sécurité.</p>
             </div>
           </div>
-          <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave pour recharger votre Wallet.', 'Continuer avec Wave')} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-2xl transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+          <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-2xl transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
             <Plus className="w-5 h-5" /> Recharger le compte
           </button>
         </div>

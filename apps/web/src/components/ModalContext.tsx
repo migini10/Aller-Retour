@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 import MockModal from './MockModal';
 import BookingWizardModal from './BookingWizardModal';
 import ColisWizardModal from './ColisWizardModal';
+import RechargeWizardModal from './RechargeWizardModal';
 import { ErrorBoundary } from './ErrorBoundary';
 
 interface ModalContextType {
@@ -10,6 +11,7 @@ interface ModalContextType {
   closeModal: () => void;
   openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent) => void;
   openColisWizard: () => void;
+  openRechargeWizard: () => void;
 }
 
 const ModalContext = createContext<ModalContextType>({
@@ -17,6 +19,7 @@ const ModalContext = createContext<ModalContextType>({
   closeModal: () => {},
   openBookingWizard: (initialType) => {},
   openColisWizard: () => {},
+  openRechargeWizard: () => {},
 });
 
 export const useModal = () => useContext(ModalContext);
@@ -25,6 +28,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isColisOpen, setIsColisOpen] = useState(false);
+  const [isRechargeOpen, setIsRechargeOpen] = useState(false);
   const [bookingType, setBookingType] = useState<'bus' | 'allo-dakar'>('bus');
   const [modalConfig, setModalConfig] = useState({
     title: '',
@@ -53,8 +57,11 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const openColisWizard = () => setIsColisOpen(true);
   const closeColisWizard = () => setIsColisOpen(false);
 
+  const openRechargeWizard = () => setIsRechargeOpen(true);
+  const closeRechargeWizard = () => setIsRechargeOpen(false);
+
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard, openColisWizard }}>
+    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard, openColisWizard, openRechargeWizard }}>
       {children}
       <MockModal 
         isOpen={isOpen} 
@@ -72,6 +79,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         <ColisWizardModal 
           isOpen={isColisOpen}
           onClose={closeColisWizard}
+        />
+        <RechargeWizardModal
+          isOpen={isRechargeOpen}
+          onClose={closeRechargeWizard}
         />
       </ErrorBoundary>
     </ModalContext.Provider>
