@@ -30,9 +30,9 @@ export default function ClientDashboard() {
   const TYPE_OPTIONS = ['Tous', 'Bus', 'Taxi', 'Covoiturage'];
 
   const tabs = [
-    { id: 'trips', label: 'Billets QR', icon: QrCode },
+    { id: 'trips', label: 'QR code', icon: QrCode },
     { id: 'wallet', label: 'Wallet', icon: Wallet },
-    { id: 'miles', label: 'Points fidélité', icon: Award },
+    { id: 'miles', label: 'Fidélité', icon: Award },
     { id: 'luggage', label: 'Colis', icon: Package }
   ];
 
@@ -44,7 +44,7 @@ export default function ClientDashboard() {
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Espace Voyageur</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gérez vos billets QR, recharges Wave/OM et points de fidélité.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gérez vos QR codes, recharges Wave/OM et votre fidélité.</p>
           </div>
           <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
             <div className="bg-orange-500/10 border border-orange-500/30 px-4 py-2.5 rounded-xl flex items-center gap-3 shadow-sm">
@@ -369,7 +369,7 @@ export default function ClientDashboard() {
               <Award className="w-6 h-6 text-orange-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Solde Points fidélité</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Solde Fidélité</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-white">450 pts</p>
             </div>
           </div>
