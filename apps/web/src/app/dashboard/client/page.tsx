@@ -64,14 +64,14 @@ export default function ClientDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+      <div className="flex flex-wrap gap-2 pb-1">
         {tabs.map((t) => {
           const Icon = t.icon;
           return (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap shrink-0 transition-all ${
+              className={`flex items-center justify-center sm:justify-start flex-1 sm:flex-none gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                 activeTab === t.id
                   ? 'bg-orange-600 text-white font-semibold shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A]'
