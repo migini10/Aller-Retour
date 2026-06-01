@@ -1,12 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Settings, User, Lock, Globe, CreditCard, Trash2, Save, Eye, EyeOff } from 'lucide-react';
+import { Settings, User, Lock, Globe, CreditCard, Trash2, Save, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const sections = ['Profil', 'Sécurité', 'Préférences', 'Paiements', 'Compte'];
 
 export default function SectionParametres() {
   const [tab, setTab] = useState('Profil');
   const [showPwd, setShowPwd] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="space-y-5">
@@ -62,8 +67,23 @@ export default function SectionParametres() {
         )}
 
         {tab === 'Préférences' && (
-          <div className="space-y-4">
-            <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Globe className="w-4 h-4 text-[#003B73] dark:text-orange-400" /> Langue & Région</p>
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3 transition-colors"><Sun className="w-4 h-4 text-[#003B73] dark:text-orange-400" /> Apparence</p>
+              {mounted && (
+                <div className="flex gap-3">
+                  <button onClick={() => setTheme('light')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${theme === 'light' ? 'bg-orange-100 border-orange-500 text-orange-600' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-[#1A1A1A] dark:border-[#333333] dark:text-slate-400 dark:hover:bg-[#222222]'}`}>
+                    <Sun className="w-4 h-4" /> Clair
+                  </button>
+                  <button onClick={() => setTheme('dark')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${theme === 'dark' ? 'bg-orange-500/20 border-orange-500 text-orange-400' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-[#1A1A1A] dark:border-[#333333] dark:text-slate-400 dark:hover:bg-[#222222]'}`}>
+                    <Moon className="w-4 h-4" /> Sombre
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Globe className="w-4 h-4 text-[#003B73] dark:text-orange-400" /> Langue & Région</p>
             <div>
               <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block transition-colors">Langue</label>
               <select className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none cursor-pointer transition-colors">
@@ -79,6 +99,7 @@ export default function SectionParametres() {
                 <option>Mali</option>
                 <option>Côte d'Ivoire</option>
               </select>
+            </div>
             </div>
             <button className="flex items-center gap-2 bg-[#003B73] dark:bg-orange-600 hover:bg-[#002D59] dark:hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-blue-900/10">
               <Save className="w-4 h-4" /> Sauvegarder
