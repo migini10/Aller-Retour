@@ -3,7 +3,7 @@
 import React from 'react';
 import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Plus, Sparkles, CreditCard, Clock, Activity, Download } from 'lucide-react';
 import Link from 'next/link';
-import { useModal } from '../../../../../components/ModalContext';
+import { useModal } from '../../../../components/ModalContext';
 
 export default function WalletPage() {
   const { openModal } = useModal();

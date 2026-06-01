@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Search, X, List, LayoutGrid, CheckCircle2, Calendar, Clock, ArrowUpRight, Building2, Bus, Eye, Download, Share2, QrCode } from 'lucide-react';
 import Link from 'next/link';
-import QRCodeBrandEngine from '../../../../../components/QRCodeBrandEngine';
+import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 
 export default function QrCodePage() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
