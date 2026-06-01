@@ -80,6 +80,23 @@ export default function ColisPage() {
           </div>
         </div>
 
+        {/* Action Card: Send via Allo Dakar */}
+        <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl shadow-orange-500/20 flex flex-col sm:flex-row justify-between items-center gap-6">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 blur-3xl rounded-full"></div>
+          
+          <div className="relative z-10">
+            <h2 className="text-2xl font-black mb-2 flex items-center gap-2">
+              <Truck className="w-6 h-6" /> Allo Dakar Express
+            </h2>
+            <p className="text-orange-50 max-w-lg text-sm sm:text-base">
+              Besoin d'envoyer un colis en urgence ? Confiez-le à un chauffeur de notre réseau Allo Dakar pour une livraison interurbaine rapide et sécurisée.
+            </p>
+          </div>
+          <button className="w-full sm:w-auto bg-white text-orange-600 hover:bg-slate-50 font-black px-8 py-4 rounded-2xl shadow-lg transition-transform hover:scale-105 flex items-center justify-center gap-2 shrink-0 z-10">
+            <Plus className="w-5 h-5" /> Créer un envoi
+          </button>
+        </div>
+
         {/* Tracking Section */}
         <div className="bg-gradient-to-br from-purple-600 to-indigo-900 rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl shadow-purple-900/20">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
