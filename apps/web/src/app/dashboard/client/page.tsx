@@ -8,14 +8,13 @@ import {
 } from 'lucide-react';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 import { useModal } from '../../../components/ModalContext';
-import SectionParametres from './sections/Parametres';
 import { useTheme } from 'next-themes';
 
 export default function ClientDashboard() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
-  const [activeTab, setActiveTab] = useState<'trips' | 'wallet' | 'miles' | 'luggage' | 'profil'>('trips');
+  const [activeTab, setActiveTab] = useState<'trips' | 'wallet' | 'miles' | 'luggage'>('trips');
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const { openModal } = useModal();
@@ -34,8 +33,7 @@ export default function ClientDashboard() {
     { id: 'trips', label: 'Billets QR', icon: QrCode },
     { id: 'wallet', label: 'Wallet', icon: Wallet },
     { id: 'miles', label: 'Miles', icon: Award },
-    { id: 'luggage', label: 'Bagages', icon: Package },
-    { id: 'profil', label: 'Profil', icon: User },
+    { id: 'luggage', label: 'Bagages', icon: Package }
   ];
 
   return (
@@ -392,13 +390,6 @@ export default function ClientDashboard() {
             </div>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">Surplus : +5 kg = 1 000 FCFA (débit séquestre auto).</p>
-        </div>
-      )}
-
-      {/* Profil Tab Content */}
-      {activeTab === 'profil' && (
-        <div className="w-full animate-fade-in max-w-2xl dark">
-          <SectionParametres />
         </div>
       )}
 
