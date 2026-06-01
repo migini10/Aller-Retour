@@ -59,14 +59,6 @@ export default function ClientDashboard() {
             <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave pour recharger votre Wallet.', 'Continuer avec Wave')} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
               <Sparkles className="w-4 h-4" /> Recharger via Wave
             </button>
-            {mounted && (
-              <button 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
-                className="w-full sm:w-auto bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 font-semibold px-5 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm border border-slate-200 dark:border-slate-700"
-              >
-                {theme === 'dark' ? 'Passer au Thème Clair' : 'Passer au Thème Sombre'}
-              </button>
-            )}
           </div>
         </div>
       </div>
