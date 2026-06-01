@@ -23,7 +23,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const { openBookingWizard } = useModal();
 
   const navItems = [
-    { name: 'Allo Dakar', path: '/dashboard/traveller', icon: User, badge: 'Premium' },
+    { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium' },
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver' },
     { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
@@ -32,7 +32,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-full h-full bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden">
+    <aside className="w-full h-full bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden transition-colors duration-300">
       <div className="flex-none">
         {/* Logo & Brand */}
         <Link
@@ -44,10 +44,10 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
             <CarFront className="w-5 h-5 text-orange-500 shrink-0" />
           </div>
           <div className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap flex-1">
-            <h1 className="text-lg font-bold tracking-tight text-white">
+            <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
               Aller<span className="text-orange-500 font-extrabold">Retour</span>
             </h1>
-            <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 transition-colors">
               Panafrican SaaS
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           <Link
             href="/"
             onClick={onLinkClick}
-            className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 text-xs font-semibold text-slate-300 hover:text-white transition-all group/btn shadow-sm"
+            className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-orange-500/50 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all group/btn shadow-sm"
           >
             <ArrowLeft className="w-5 h-5 text-orange-500 shrink-0 group-hover/btn:-translate-x-1 transition-transform" />
             <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Retour à l'accueil</span>
@@ -85,12 +85,12 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
 
       {/* Navigation Links (Scrollable) */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-hide -mx-2 px-2 space-y-1.5">
-        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap w-[230px]">
+        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-3 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap w-[230px]">
           Espaces & Rôles
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname.startsWith(item.path);
+          const isActive = item.path === '/' || item.path.startsWith('http') ? pathname === '/' : pathname.startsWith(item.path);
 
           return (
             <Link
@@ -100,17 +100,17 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
               className={`flex items-center justify-between p-3 w-[230px] rounded-xl font-medium text-sm transition-colors ${
                 isActive
                   ? 'bg-orange-600 text-white font-semibold shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
                 <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">{item.name}</span>
               </div>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap ${
                 isActive
-                  ? 'bg-slate-900 text-orange-300 border border-orange-500/30'
-                  : 'bg-slate-900 border border-slate-800 text-slate-400'
+                  ? 'bg-slate-100 dark:bg-slate-900 text-orange-600 dark:text-orange-300 border border-orange-500/30'
+                  : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
               }`}>
                 {item.badge}
               </span>
@@ -120,8 +120,8 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
       </div>
 
       {/* Logout Footer */}
-      <div className="flex-none pt-6 border-t border-slate-800/80 mt-auto">
-        <button className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
+      <div className="flex-none pt-6 border-t border-slate-200 dark:border-slate-800/80 mt-auto">
+        <button className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-slate-500 dark:text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 dark:hover:text-rose-400 transition-colors">
           <LogOut className="w-5 h-5 shrink-0" />
           <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Se déconnecter</span>
         </button>

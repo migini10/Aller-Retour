@@ -20,22 +20,22 @@ export default function SectionLocalisation() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Navigation className="w-5 h-5 text-orange-400" /> Récupération Client</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Navigation className="w-5 h-5 text-orange-500 dark:text-orange-400" /> Récupération Client</h2>
         <span className="bg-orange-500/10 text-orange-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/20 animate-pulse">
           {isNavigating ? 'EN ROUTE VERS LE CLIENT' : 'EN APPROCHE'}
         </span>
       </div>
 
-      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
+      <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-5 transition-colors">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Destination</p>
-            <h3 className="text-xl font-bold text-white">Point de rendez-vous</h3>
-            <p className="text-sm text-slate-300 flex items-center gap-1 mt-1"><MapPin className="w-4 h-4 text-orange-400" /> Mermoz, Dakar</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mb-1 transition-colors">Destination</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">Point de rendez-vous</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 mt-1 transition-colors"><MapPin className="w-4 h-4 text-orange-500 dark:text-orange-400" /> Mermoz, Dakar</p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-orange-400">{eta}</p>
-            <p className="text-sm text-slate-400">{distance}</p>
+            <p className="text-3xl font-bold text-orange-500 dark:text-orange-400">{eta}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors">{distance}</p>
           </div>
         </div>
       </div>
@@ -65,13 +65,13 @@ export default function SectionLocalisation() {
         {/* Overlay sombre pour garder le contraste des éléments UI */}
         <div className="absolute inset-0 bg-[#0a1520]/20 pointer-events-none z-10" />
 
-        <div className="absolute top-4 left-4 right-4 flex justify-between pointer-events-none z-20">
-           <div className="bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] px-3 py-1.5 rounded-xl flex items-center gap-2">
-             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-             <span className="text-xs font-semibold text-white">Trajet sécurisé</span>
+        <div className="absolute top-4 right-4 flex justify-end gap-3 pointer-events-none z-20">
+           <div className="bg-white/80 dark:bg-[#1A1A1A]/80 backdrop-blur border border-slate-200 dark:border-[#333333] px-3 py-1.5 rounded-xl flex items-center gap-2 transition-colors pointer-events-auto shadow-lg">
+             <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+             <span className="text-xs font-semibold text-slate-900 dark:text-white transition-colors">Trajet sécurisé</span>
            </div>
-           <button className="bg-[#1A1A1A]/80 backdrop-blur border border-[#333333] w-10 h-10 flex items-center justify-center rounded-xl pointer-events-auto hover:bg-[#222222] transition-colors">
-             <AlertTriangle className="w-5 h-5 text-amber-400" />
+           <button className="bg-white/80 dark:bg-[#1A1A1A]/80 backdrop-blur border border-slate-200 dark:border-[#333333] w-10 h-10 flex items-center justify-center rounded-xl pointer-events-auto hover:bg-slate-100 dark:hover:bg-[#222222] transition-colors shadow-lg">
+             <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400" />
            </button>
         </div>
 
@@ -86,7 +86,7 @@ export default function SectionLocalisation() {
           ) : (
             <button 
               onClick={() => setNavKey(k => k + 1)}
-              className="w-12 h-12 bg-[#1A1A1A]/90 backdrop-blur hover:bg-[#222222] text-orange-400 border border-[#333333] font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
+              className="w-12 h-12 bg-white/90 dark:bg-[#1A1A1A]/90 backdrop-blur hover:bg-slate-100 dark:hover:bg-[#222222] text-orange-500 dark:text-orange-400 border border-slate-200 dark:border-[#333333] font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
               title="Recentrer sur le client"
             >
               <Navigation className="w-5 h-5" />
@@ -96,16 +96,16 @@ export default function SectionLocalisation() {
       </div>
 
       {/* Actions Client */}
-      <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-4 flex items-center justify-between">
+      <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-4 flex items-center justify-between transition-colors">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold text-lg">F</div>
+          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg transition-colors">F</div>
           <div>
-            <p className="font-bold text-white">Fatou Diop</p>
-            <p className="text-xs text-slate-400">Passager • Paiement Wave</p>
+            <p className="font-bold text-slate-900 dark:text-white transition-colors">Fatou Diop</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">Passager • Paiement Wave</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="w-10 h-10 bg-[#222222] hover:bg-slate-700 border border-[#333333] rounded-xl flex items-center justify-center text-white transition-colors"><MessageSquare className="w-4 h-4" /></button>
+          <button className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors"><MessageSquare className="w-4 h-4" /></button>
           <button className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors"><Phone className="w-4 h-4" /></button>
         </div>
       </div>

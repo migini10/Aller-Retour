@@ -19,7 +19,7 @@ export default function SectionRevenus() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-orange-400" /> Revenus & Wallet</h2>
+      <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Wallet className="w-5 h-5 text-orange-500 dark:text-orange-400" /> Revenus & Wallet</h2>
 
       {/* Main Balance Card */}
       <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-xl shadow-orange-500/20 relative overflow-hidden">
@@ -41,12 +41,12 @@ export default function SectionRevenus() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map(s => (
-          <div key={s.type} className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl p-5">
+          <div key={s.type} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-5 transition-colors">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">{s.label}</p>
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold transition-colors">{s.label}</p>
+              <TrendingUp className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{s.val}</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">{s.val}</p>
           </div>
         ))}
       </div>
@@ -54,22 +54,22 @@ export default function SectionRevenus() {
       {/* History */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold">Historique récent</p>
-          <button className="text-xs text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1">Voir tout <ChevronRight className="w-3.5 h-3.5" /></button>
+          <p className="text-sm text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold transition-colors">Historique récent</p>
+          <button className="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300 font-semibold flex items-center gap-1 transition-colors">Voir tout <ChevronRight className="w-3.5 h-3.5" /></button>
         </div>
-        <div className="bg-[#141414] border border-[#2A2A2A]/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
+        <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-800/60 transition-colors">
           {transactions.map(t => (
-            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-[#222222]/30 transition-colors">
+            <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-[#222222]/30 transition-colors">
               <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.montant > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#222222] text-slate-400'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${t.montant > 0 ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-[#222222] text-slate-500 dark:text-slate-400'}`}>
                   {t.montant > 0 ? <TrendingUp className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                 </div>
                 <div>
-                  <p className="text-sm text-white font-semibold">{t.label}</p>
-                  <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5"><Calendar className="w-3 h-3" /> {t.date}</p>
+                  <p className="text-sm text-slate-900 dark:text-white font-semibold transition-colors">{t.label}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 transition-colors"><Calendar className="w-3 h-3" /> {t.date}</p>
                 </div>
               </div>
-              <span className={`font-bold text-sm whitespace-nowrap ${t.montant > 0 ? 'text-emerald-400' : 'text-white'}`}>
+              <span className={`font-bold text-sm whitespace-nowrap transition-colors ${t.montant > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}`}>
                 {t.montant > 0 ? '+' : ''}{t.montant.toLocaleString('fr-FR')} F
               </span>
             </div>

@@ -241,7 +241,7 @@ export default function SectionMissions() {
       )}
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Route className="w-5 h-5 text-orange-400" /> Mes Missions & Trajets</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Route className="w-5 h-5 text-orange-500 dark:text-orange-400" /> Mes Missions & Trajets</h2>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2"
@@ -253,7 +253,7 @@ export default function SectionMissions() {
       <div className="flex gap-2 flex-wrap">
         {tabs.map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-[#1A1A1A] text-slate-400 hover:text-white border border-[#2A2A2A]'}`}>
+            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${tab === t ? 'bg-orange-600 text-white' : 'bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#2A2A2A]'}`}>
             {t}
           </button>
         ))}
@@ -311,15 +311,15 @@ export default function SectionMissions() {
           });
 
           return filteredMissions.map(m => (
-          <div key={m.id} className="bg-[#141414] border border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
+          <div key={m.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-xs text-slate-500">{m.id}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-lg border font-bold ${statutStyle[m.statut]}`}>{m.statut}</span>
                 </div>
-                <p className="font-bold text-white text-lg">{m.trajet}</p>
-                <p className="text-sm text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {
+                <p className="font-bold text-slate-900 dark:text-white text-lg transition-colors">{m.trajet}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 transition-colors"><Clock className="w-3.5 h-3.5" /> {
                   m.date === "Aujourd'hui" || m.date === "Demain" 
                   ? m.date 
                   : new Date(m.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -353,7 +353,7 @@ export default function SectionMissions() {
                     <CheckCircle2 className="w-3.5 h-3.5" /> Terminer trajet
                   </button>
                 )}
-                <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] text-white border border-[#333333] transition-colors">
+                <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border border-slate-200 dark:border-[#333333] transition-colors">
                   <MapPin className="w-3.5 h-3.5" /> Voir détails
                 </button>
                 {m.statut === 'programmé' && checkTooSoon(m.date, m.heure) && (
@@ -370,7 +370,7 @@ export default function SectionMissions() {
                   </button>
                 )}
                 {(m.statut === 'à venir' || m.statut === 'en cours') && (
-                  <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] text-amber-400 border border-[#333333] transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-[#333333] transition-colors">
                     <AlertTriangle className="w-3.5 h-3.5" /> Signaler incident
                   </button>
                 )}
@@ -392,7 +392,7 @@ export default function SectionMissions() {
                         }
                       }
                     }}
-                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-[#1A1A1A] hover:bg-rose-500/20 text-rose-500 hover:text-rose-400 border border-[#333333] hover:border-rose-500/50 transition-colors"
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-white dark:bg-[#1A1A1A] hover:bg-rose-50 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 border border-slate-200 dark:border-[#333333] hover:border-rose-300 dark:hover:border-rose-500/50 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" /> Supprimer
                   </button>
@@ -406,16 +406,16 @@ export default function SectionMissions() {
       {/* Modal Création Trajet */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-[#000000] sm:rounded-3xl border border-[#2A2A2A]/80 shadow-2xl p-6 animate-in zoom-in-95 duration-300">
+          <div className="absolute inset-0 bg-slate-900/50 dark:bg-black/90 backdrop-blur-sm transition-colors" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white dark:bg-[#000000] sm:rounded-3xl border border-slate-200 dark:border-[#2A2A2A]/80 shadow-2xl p-6 animate-in zoom-in-95 duration-300 transition-colors">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-[#1A1A1A] rounded-full border border-[#2A2A2A] transition-colors"
+              className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#1A1A1A] rounded-full border border-slate-200 dark:border-[#2A2A2A] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 transition-colors">
               <CarFront className="w-6 h-6 text-orange-500" /> Nouveau Trajet
             </h3>
 
@@ -447,15 +447,15 @@ export default function SectionMissions() {
                       setShowOriginSuggestions(true);
                     }}
                     onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
+                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="Saisir ou choisir" 
                   />
                   {showOriginSuggestions && originSuggestions.length > 0 && (
-                    <ul className="absolute z-[100] w-full bg-[#141414] border border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar">
+                    <ul className="absolute z-[100] w-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar transition-colors">
                       {originSuggestions.map(city => (
                         <li key={city} onClick={() => {
                            setFormData({...formData, originCity: city});
                            setShowOriginSuggestions(false);
-                        }} className="px-4 py-2 hover:bg-orange-500/20 text-slate-300 hover:text-white cursor-pointer text-sm">
+                        }} className="px-4 py-2 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm transition-colors">
                           {city}
                         </li>
                       ))}
@@ -476,15 +476,15 @@ export default function SectionMissions() {
                       setShowDestSuggestions(true);
                     }}
                     onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="Saisir ou choisir" 
+                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="Saisir ou choisir" 
                   />
                   {showDestSuggestions && destSuggestions.length > 0 && (
-                    <ul className="absolute z-[100] w-full bg-[#141414] border border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar">
+                    <ul className="absolute z-[100] w-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar transition-colors">
                       {destSuggestions.map(city => (
                         <li key={city} onClick={() => {
                            setFormData({...formData, destinationCity: city});
                            setShowDestSuggestions(false);
-                        }} className="px-4 py-2 hover:bg-orange-500/20 text-slate-300 hover:text-white cursor-pointer text-sm">
+                        }} className="px-4 py-2 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm transition-colors">
                           {city}
                         </li>
                       ))}
@@ -501,7 +501,7 @@ export default function SectionMissions() {
                     onChange={e => {
                       setFormData({...formData, date: e.target.value, heure: ''});
                     }} 
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
                     required
                   >
                     <option value="" disabled>Choisir la date</option>
@@ -518,7 +518,7 @@ export default function SectionMissions() {
                   <select 
                     value={formData.heure} 
                     onChange={e => setFormData({...formData, heure: e.target.value})} 
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
                     required
                     disabled={!formData.date}
                   >
@@ -539,7 +539,7 @@ export default function SectionMissions() {
                   <select 
                     value={formData.vehicleCapacity} 
                     onChange={e => setFormData({...formData, vehicleCapacity: parseInt(e.target.value)})} 
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none appearance-none" 
+                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
                     required
                   >
                     <option value="" disabled>Capacité totale</option>
@@ -552,31 +552,31 @@ export default function SectionMissions() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Places Disponibles</label>
-                  <input type="number" min="1" max={formData.vehicleCapacity ? formData.vehicleCapacity - 1 : 6} value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 4" disabled={!formData.vehicleCapacity} />
+                  <input type="number" min="1" max={formData.vehicleCapacity ? formData.vehicleCapacity - 1 : 6} value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 4" disabled={!formData.vehicleCapacity} />
                 </div>
               </div>
               
               <div className="space-y-1.5">
                 <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-white focus:border-orange-500 outline-none" required placeholder="ex: 5000" />
+                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 5000" />
               </div>
 
               <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 text-sm text-slate-300 font-medium cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 font-medium cursor-pointer transition-colors">
                   <input 
                     type="checkbox" 
                     checked={formData.isAirConditioned} 
                     onChange={e => setFormData({...formData, isAirConditioned: e.target.checked})} 
-                    className="w-4 h-4 rounded bg-[#0A0A0A] border-[#333333] text-orange-500 focus:ring-orange-500"
+                    className="w-4 h-4 rounded bg-white dark:bg-[#0A0A0A] border-slate-300 dark:border-[#333333] text-orange-500 focus:ring-orange-500 transition-colors"
                   />
                   ❄️ Climatisé
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-300 font-medium cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 font-medium cursor-pointer transition-colors">
                   <input 
                     type="checkbox" 
                     checked={formData.takesTollRoad} 
                     onChange={e => setFormData({...formData, takesTollRoad: e.target.checked})} 
-                    className="w-4 h-4 rounded bg-[#0A0A0A] border-[#333333] text-orange-500 focus:ring-orange-500"
+                    className="w-4 h-4 rounded bg-white dark:bg-[#0A0A0A] border-slate-300 dark:border-[#333333] text-orange-500 focus:ring-orange-500 transition-colors"
                   />
                   🛣️ Autoroute
                 </label>
