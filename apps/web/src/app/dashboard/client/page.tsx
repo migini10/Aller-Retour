@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 
 export default function ClientDashboard() {
-  const { openModal } = useModal();
+  const { openModal, openBookingWizard } = useModal();
 
   const sections = [
     {
@@ -78,7 +78,7 @@ export default function ClientDashboard() {
               <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave ou Orange Money pour recharger votre Wallet.', 'Continuer')} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 active:scale-95 text-sm">
                 <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
               </button>
-              <button onClick={() => openModal('Réserver', 'Commencez une nouvelle réservation pour votre prochain voyage.', 'Continuer')} className="w-full sm:w-auto bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 text-sm">
+              <button onClick={() => openBookingWizard('allo-dakar')} className="w-full sm:w-auto bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 text-sm">
                 <CarFront className="w-4 h-4" /> Réserver une voiture
               </button>
             </div>
