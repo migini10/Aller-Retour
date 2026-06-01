@@ -41,12 +41,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
+  const getLogoLink = () => {
+    if (pathname.startsWith('/dashboard/client')) return '/dashboard/client';
+    if (pathname.startsWith('/dashboard/carrier')) return '/dashboard/carrier';
+    if (pathname.startsWith('/dashboard/station')) return '/dashboard/station';
+    if (pathname.startsWith('/dashboard/admin')) return '/dashboard/admin';
+    if (pathname.startsWith('/dashboard/driver')) return '/dashboard/driver';
+    if (pathname.startsWith('/dashboard/dispatcher')) return '/dashboard/dispatcher';
+    return '/';
+  };
+
   return (
     <BrandingProvider>
       <div className="h-[100dvh] overflow-hidden bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300">
       {/* Topbar Fixe (Mobile & Desktop) */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-colors duration-300">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href={getLogoLink()} className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-600/20 border border-orange-200 dark:border-orange-500/30 flex items-center justify-center transition-colors">
             <CarFront className="w-4 h-4 text-orange-500" />
           </div>
