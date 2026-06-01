@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles } from 'lucide-react';
+import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 
@@ -74,9 +74,14 @@ export default function ClientDashboard() {
                 <p className="text-xl font-black text-slate-900 dark:text-white">45 000 <span className="text-sm font-bold text-slate-500">FCFA</span></p>
               </div>
             </div>
-            <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave pour recharger votre Wallet.', 'Continuer avec Wave')} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-4 sm:py-0 sm:h-[76px] rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 active:scale-95 text-sm sm:text-base">
-              <Sparkles className="w-5 h-5" /> Recharger via Wave
-            </button>
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+              <button onClick={() => openModal('Recharger', 'Connectez votre compte Wave ou Orange Money pour recharger votre Wallet.', 'Continuer')} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 active:scale-95 text-sm">
+                <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
+              </button>
+              <button onClick={() => openModal('Réserver', 'Commencez une nouvelle réservation pour votre prochain voyage.', 'Continuer')} className="w-full sm:w-auto bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 text-sm">
+                <CarFront className="w-4 h-4" /> Réserver une voiture
+              </button>
+            </div>
           </div>
         </div>
 
