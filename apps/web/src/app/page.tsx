@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Home, Search, Package, User, ArrowRight, TrendingUp, MapPin, Calendar, Clock, Ticket, Car, Wifi, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useModal } from '../components/ModalContext';
-import SectionParametres from './dashboard/client/sections/Parametres';
 
 export default function HomePage() {
   const { openBookingWizard, openColisWizard } = useModal();
@@ -29,11 +28,7 @@ export default function HomePage() {
 
   const renderContent = () => {
     if (activeTab === 'Profil') {
-      return (
-        <div className="pt-8 px-5">
-          <SectionParametres />
-        </div>
-      );
+      return null;
     }
     
     return (
@@ -58,9 +53,6 @@ export default function HomePage() {
                   {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
               )}
-              <button onClick={() => setActiveTab('Profil')} className="w-11 h-11 rounded-full border border-slate-200 dark:border-[#333333] bg-slate-100 dark:bg-[#141414] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-white transition-colors">
-                <User className="w-5 h-5" />
-              </button>
             </div>
           </div>
 
@@ -195,11 +187,6 @@ export default function HomePage() {
         <button onClick={() => { setActiveTab('Colis'); openColisWizard(); }} className={`flex flex-col items-center gap-1 ${activeTab === 'Colis' ? 'text-orange-500' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
           <Package className="w-6 h-6" />
           <span className="text-[10px] font-bold">Colis</span>
-        </button>
-        
-        <button onClick={() => setActiveTab('Profil')} className={`flex flex-col items-center gap-1 ${activeTab === 'Profil' ? 'text-orange-500' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
-          <User className="w-6 h-6" />
-          <span className="text-[10px] font-bold">Profil</span>
         </button>
       </div>
 
