@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, Search, Package, User, ArrowRight, TrendingUp, MapPin, Calendar, Clock, Ticket, Car, Wifi, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useModal } from '../components/ModalContext';
-import SectionParametres from './dashboard/traveller/sections/Parametres';
+import SectionParametres from './dashboard/client/sections/Parametres';
 
 export default function HomePage() {
   const { openBookingWizard, openColisWizard } = useModal();
@@ -28,20 +28,18 @@ export default function HomePage() {
   }, []);
 
   const renderContent = () => {
-    switch (activeTab) {
-      case 'Profil':
-        return (
-          <div className="pt-8 px-5">
-            <SectionParametres />
-          </div>
-        );
-      case 'Accueil':
-      default:
-        return (
-          <>
-            {/* En-tête (Responsive Light/Dark) */}
-            <div className="bg-slate-50 dark:bg-[#0A0A0A] pt-6 pb-24 px-6 relative rounded-b-[40px] border-b border-slate-200 dark:border-[#2A2A2A] shadow-sm dark:shadow-none transition-colors duration-300">
-
+    if (activeTab === 'Profil') {
+      return (
+        <div className="pt-8 px-5">
+          <SectionParametres />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="w-full">
+        {/* En-tête (Responsive Light/Dark) */}
+        <div className="bg-slate-50 dark:bg-[#0A0A0A] pt-6 pb-24 px-6 relative rounded-b-[40px] border-b border-slate-200 dark:border-[#2A2A2A] shadow-sm dark:shadow-none transition-colors duration-300">
           {/* Top Bar */}
           <div className="flex justify-between items-center mb-8">
             {/* Logo Original Allô Dakar (Boîte Blanche) */}
@@ -169,9 +167,9 @@ export default function HomePage() {
               </div>
             )}
           </div>
-        </>
-        );
-    }
+        </div>
+      </div>
+    );
   };
 
   return (
