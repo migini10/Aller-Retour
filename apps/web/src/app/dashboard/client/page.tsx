@@ -33,7 +33,7 @@ export default function ClientDashboard() {
     { id: 'trips', label: 'Billets QR', icon: QrCode },
     { id: 'wallet', label: 'Wallet', icon: Wallet },
     { id: 'miles', label: 'Miles', icon: Award },
-    { id: 'luggage', label: 'Bagages', icon: Package }
+    { id: 'luggage', label: 'Colis', icon: Package }
   ];
 
   return (
@@ -385,11 +385,11 @@ export default function ClientDashboard() {
               <Package className="w-6 h-6 text-orange-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Franchise Bagages</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">15 kg inclus</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Mes Colis</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">Aucun colis</p>
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Surplus : +5 kg = 1 000 FCFA (débit séquestre auto).</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Suivez l'état de vos envois de colis ici.</p>
         </div>
       )}
 

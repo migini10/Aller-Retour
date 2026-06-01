@@ -25,7 +25,7 @@ const navItems = [
   { id: 'scanner', label: 'Contrôle & Scan', icon: Scan },
   { id: 'embarquement', label: 'Embarquement', icon: Users },
   { id: 'departs', label: 'Départs', icon: Route },
-  { id: 'bagages', label: 'Bagages', icon: Package },
+  { id: 'bagages', label: 'Colis', icon: Package },
   { id: 'suivi', label: 'Suivi GPS', icon: Navigation },
   { id: 'notifications', label: 'Notifications', icon: Bell, badge: '2' },
   { id: 'support', label: 'Support Technique', icon: HelpCircle },

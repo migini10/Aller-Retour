@@ -780,16 +780,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             />
           </div>
           <div>
-            <label className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1 block">Nombre de bagages</label>
+            <label className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1 block">Nombre de colis</label>
             <select 
               className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 px-4 text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors"
               value={voyageurInfo.bagages}
               onChange={(e) => setVoyageurInfo({...voyageurInfo, bagages: parseInt(e.target.value)})}
             >
-              <option value={0}>Aucun bagage soute</option>
-              <option value={1}>1 bagage (inclus)</option>
-              <option value={2}>2 bagages (+1000 FCFA)</option>
-              <option value={3}>3 bagages (+2000 FCFA)</option>
+              <option value={0}>Aucun colis supplémentaire</option>
+              <option value={1}>1 colis inclus</option>
+              <option value={2}>2 colis (+1000 FCFA)</option>
+              <option value={3}>3 colis (+2000 FCFA)</option>
             </select>
           </div>
         </div>
@@ -821,7 +821,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <span>{basePrice * searchParams.passagers} FCFA</span>
             </div>
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
-              <span>Frais de bagages ({voyageurInfo.bagages})</span>
+              <span>Frais de colis ({voyageurInfo.bagages})</span>
               <span>{luggageFee} FCFA</span>
             </div>
             <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs">

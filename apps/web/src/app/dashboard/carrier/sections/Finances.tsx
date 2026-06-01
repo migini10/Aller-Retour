@@ -44,7 +44,7 @@ export default function SectionFinances() {
           </div>
           <div>
             <h4 className="font-bold text-white text-lg">Répartition</h4>
-            <p className="text-sm text-slate-400 mt-1">Billetterie: 85%<br/>Fret/Bagages: 15%</p>
+            <p className="text-sm text-slate-400 mt-1">Billetterie: 85%<br/>Fret/Colis: 15%</p>
           </div>
         </div>
       </div>

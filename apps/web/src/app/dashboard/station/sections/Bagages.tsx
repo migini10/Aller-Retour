@@ -6,7 +6,7 @@ export default function SectionBagages() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-orange-400" /> Enregistrement Bagages</h2>
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Package className="w-5 h-5 text-orange-400" /> Enregistrement Colis</h2>
         <button className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nouvel enregistrement
         </button>
