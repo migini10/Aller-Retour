@@ -18,14 +18,44 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
 
   if (!isOpen) return null;
 
-  const handleNext = () => {
+  const handlePaymentAPI = async () => {
+    // PREPARATION DE L'API (À remplacer par les vrais appels backend plus tard)
+    // 1. Créer le payload avec les informations utilisateur
+    const paymentData = {
+      provider: operator, // 'wave' ou 'orange'
+      customer: {
+        fullName,
+        phone
+      },
+      amount: parseInt(amount, 10),
+      currency: 'XOF',
+      reference: `RECHARGE_${Math.floor(Math.random() * 1000000)}`
+    };
+
+    console.log("Appel API de paiement préparé avec les données:", paymentData);
+
+    // 2. Simuler l'attente de réponse de l'API (Génération du lien de paiement)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // 3. Simuler l'URL de redirection retournée par l'API de l'opérateur
+    const mockPaymentUrl = operator === 'wave' 
+      ? `https://pay.wave.com/checkout?amount=${amount}&ref=${paymentData.reference}`
+      : `https://api.orangemoney.com/checkout?amount=${amount}&ref=${paymentData.reference}`;
+
+    // 4. Rediriger l'utilisateur vers l'interface sécurisée de l'opérateur
+    // En production: window.location.href = response.paymentUrl;
+    window.open(mockPaymentUrl, '_blank'); // Nouvel onglet pour la démo
+
+    // 5. Passer à l'écran final
+    setStep(3);
+  };
+
+  const handleNext = async () => {
     if (step === 1 && operator) setStep(2);
     else if (step === 2 && fullName && phone && amount) {
       setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setStep(3); // Success
-      }, 1500);
+      await handlePaymentAPI();
+      setLoading(false);
     }
   };
 
