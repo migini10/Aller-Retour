@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'client/client_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,22 +47,24 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF0F172A),
         indicatorColor: const Color(0xFF10B981).withOpacity(0.2),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.search), label: 'Rechercher'),
-          NavigationDestination(icon: Icon(Icons.qr_code_scanner), label: 'Scan Gare'),
+          NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
           NavigationDestination(icon: Icon(Icons.wallet), label: 'Wallet'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Compte'),
+          NavigationDestination(icon: Icon(Icons.history), label: 'Historique'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );
   }
 
   Widget _buildBody() {
-    if (_currentIndex == 1) {
-      return _buildScanScreen();
-    } else if (_currentIndex == 2) {
+    if (_currentIndex == 0) {
+      return const ClientDashboardScreen();
+    } else if (_currentIndex == 1) {
       return _buildWalletScreen();
+    } else if (_currentIndex == 2) {
+      return const Center(child: Text('Historique des transactions', style: TextStyle(color: Colors.white)));
     }
-    return _buildSearchScreen();
+    return const Center(child: Text('Profil', style: TextStyle(color: Colors.white)));
   }
 
   Widget _buildSearchScreen() {
