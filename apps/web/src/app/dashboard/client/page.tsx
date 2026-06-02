@@ -72,17 +72,22 @@ export default function ClientDashboard() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-              {/* Wallet Card - Totalement transparent avec bordure élégante */}
-              <div className="w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10">
-                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
-                  <Wallet className="w-6 h-6 text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
-                  <p className="text-xl font-black text-white">45 000 <span className="text-sm font-bold text-slate-300">FCFA</span></p>
-                  <Link href="/dashboard/client/wallet" className="text-[11px] text-orange-400 font-bold hover:text-orange-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
-                    Voir mon compte <ArrowRight className="w-3 h-3" />
-                  </Link>
+              {/* Wallet Card - Transparent avec effet lumineux turquoise (pulsing) */}
+              <div className="relative w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10 group overflow-hidden">
+                {/* L'effet lumineux turquoise à l'intérieur de la bordure */}
+                <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(6,182,212,0.7)] animate-pulse pointer-events-none rounded-2xl mix-blend-screen"></div>
+                
+                <div className="relative z-10 px-5 py-4 flex items-center justify-between sm:justify-start gap-5">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                    <Wallet className="w-6 h-6 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
+                    <p className="text-xl font-black text-white">45 000 <span className="text-sm font-bold text-cyan-400">FCFA</span></p>
+                    <Link href="/dashboard/client/wallet" className="text-[11px] text-cyan-400 font-bold hover:text-cyan-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
+                      Voir mon compte <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
                 </div>
               </div>
               
