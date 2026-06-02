@@ -72,8 +72,8 @@ export default function ClientDashboard() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-              {/* Wallet Card - Totalement transparent */}
-              <div className="w-full sm:w-auto bg-black/5 border border-white/5 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-sm transition-all hover:bg-black/10">
+              {/* Wallet Card - Totalement transparent avec bordure élégante */}
+              <div className="w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10">
                 <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
                   <Wallet className="w-6 h-6 text-orange-400" />
                 </div>
