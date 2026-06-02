@@ -136,6 +136,28 @@ export default function ClientDashboard() {
           </div>
         </div>
 
+        {/* Responsive Footer */}
+        <footer className="mt-16 pt-8 border-t border-slate-200 dark:border-[#2A2A2A] text-slate-500 dark:text-slate-400 text-sm animate-fade-in pb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 text-center md:text-left">
+              <span className="font-black text-slate-900 dark:text-white">Aller-Retour</span>
+              <span>© {new Date().getFullYear()}</span>
+            </div>
+            
+            {/* Hidden on mobile, visible on medium+ screens */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link href="#" className="hover:text-orange-500 transition-colors">Aide & Support</Link>
+              <Link href="#" className="hover:text-orange-500 transition-colors">Confidentialité</Link>
+              <Link href="#" className="hover:text-orange-500 transition-colors">Conditions générales</Link>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="hidden md:inline text-xs">Version voyageur</span> 
+              <span className="px-2 py-1 bg-slate-100 dark:bg-[#222222] rounded-md text-xs font-bold">v1.2.0</span>
+            </div>
+          </div>
+        </footer>
+
       </div>
     </div>
   );
