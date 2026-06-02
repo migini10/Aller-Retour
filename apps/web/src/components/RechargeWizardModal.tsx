@@ -71,8 +71,16 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
                   }`}
                 >
                   <div className="w-16 h-16 rounded-full bg-[#1da1f2] flex items-center justify-center shadow-lg">
-                    {/* Simplified Wave-like logo (using text for placeholder) */}
-                    <span className="text-white font-black text-2xl tracking-tighter">wave</span>
+                    <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 mt-1">
+                      <rect x="50" y="20" width="100" height="190" rx="50" fill="black"/>
+                      <rect x="20" y="80" width="40" height="90" rx="20" transform="rotate(-40 20 80)" fill="black"/>
+                      <ellipse cx="100" cy="140" rx="28" ry="55" fill="white"/>
+                      <circle cx="82" cy="55" r="7" fill="white"/>
+                      <circle cx="118" cy="55" r="7" fill="white"/>
+                      <path d="M75 80 Q100 98 125 80 Q100 70 75 80Z" fill="#F7931E"/>
+                      <ellipse cx="75" cy="220" rx="22" ry="12" fill="#F7931E"/>
+                      <ellipse cx="125" cy="220" rx="22" ry="12" fill="#F7931E"/>
+                    </svg>
                   </div>
                   <span className={`font-bold ${operator === 'wave' ? 'text-[#1da1f2]' : 'text-slate-700 dark:text-slate-300'}`}>
                     Wave Mobile Money
@@ -114,7 +122,16 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
               <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-[#222222] bg-slate-50 dark:bg-[#141414]">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${operator === 'wave' ? 'bg-[#1da1f2]' : 'bg-black border border-[#ff7900]/30'}`}>
                    {operator === 'wave' ? (
-                     <span className="text-white font-black text-sm tracking-tighter">wave</span>
+                     <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mt-1">
+                       <rect x="50" y="20" width="100" height="190" rx="50" fill="black"/>
+                       <rect x="20" y="80" width="40" height="90" rx="20" transform="rotate(-40 20 80)" fill="black"/>
+                       <ellipse cx="100" cy="140" rx="28" ry="55" fill="white"/>
+                       <circle cx="82" cy="55" r="7" fill="white"/>
+                       <circle cx="118" cy="55" r="7" fill="white"/>
+                       <path d="M75 80 Q100 98 125 80 Q100 70 75 80Z" fill="#F7931E"/>
+                       <ellipse cx="75" cy="220" rx="22" ry="12" fill="#F7931E"/>
+                       <ellipse cx="125" cy="220" rx="22" ry="12" fill="#F7931E"/>
+                     </svg>
                    ) : (
                      <div className="w-5 h-5 bg-[#ff7900]"></div>
                    )}
