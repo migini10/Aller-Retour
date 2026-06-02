@@ -154,9 +154,9 @@ export default function WalletPage() {
                 </div>
               </div>
               
-              <button className="w-full mt-6 py-3.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-[#333333] text-slate-500 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-[#1A1A1A] hover:text-slate-900 dark:hover:text-white transition-colors">
+              <Link href="/dashboard/client/transactions" className="block text-center w-full mt-6 py-3.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-[#333333] text-slate-500 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-[#1A1A1A] hover:text-slate-900 dark:hover:text-white transition-colors">
                 Voir tout l'historique
-              </button>
+              </Link>
             </div>
           </div>
 
