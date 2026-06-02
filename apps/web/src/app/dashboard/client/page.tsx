@@ -72,6 +72,9 @@ export default function ClientDashboard() {
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-0.5">Solde Wallet (XOF)</p>
                 <p className="text-xl font-black text-slate-900 dark:text-white">45 000 <span className="text-sm font-bold text-slate-500">FCFA</span></p>
+                <Link href="/dashboard/client/wallet" className="text-[11px] text-orange-600 dark:text-orange-500 font-bold hover:underline mt-1.5 flex items-center gap-1 w-fit">
+                  Voir l'historique <ArrowRight className="w-3 h-3" />
+                </Link>
               </div>
             </div>
             <div className="flex flex-col gap-2 w-full sm:w-auto">
