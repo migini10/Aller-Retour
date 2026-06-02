@@ -153,7 +153,7 @@ export default function TransactionsHistoryPage() {
                       onClick={(e) => { e.stopPropagation(); handleCancel(tx.id); }}
                       className="mt-2 text-xs font-bold text-red-500 hover:text-red-400 hover:underline flex items-center gap-1 bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded-md transition-colors"
                     >
-                      <XCircle className="w-3.5 h-3.5" /> Annuler (24h)
+                      <XCircle className="w-3.5 h-3.5" /> Annuler dans les (24H)
                     </button>
                   )}
                 </div>
