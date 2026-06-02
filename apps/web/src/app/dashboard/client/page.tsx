@@ -53,7 +53,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
-      <div className="w-full max-w-[1600px] px-5 sm:px-8 lg:px-12 py-8 pb-8 space-y-8 animate-fade-in">
+      <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 py-8 pb-8 space-y-8 animate-fade-in mx-auto">
         
         {/* Header & Wallet Quick Look with Hero Background */}
         <div className="relative rounded-3xl overflow-hidden mb-8 shadow-xl">
@@ -63,15 +63,15 @@ export default function ClientDashboard() {
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40 dark:from-black/95 dark:via-black/80 dark:to-black/40"></div>
           </div>
 
-          <div className="relative z-10 p-8 sm:p-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-            <div>
+          <div className="relative z-10 p-6 sm:p-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+            <div className="max-w-xl">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">Espace Voyageur</h1>
-              <p className="text-slate-300 text-sm sm:text-base max-w-xl">
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
                 Bienvenue sur votre tableau de bord. Gérez vos QR codes, recharges Wave/OM et votre fidélité en un seul endroit.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto shrink-0">
               {/* Wallet Card - Transparent avec effet lumineux turquoise (pulsing) */}
               <div className="relative w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10 group overflow-hidden">
                 {/* L'effet lumineux turquoise à l'intérieur de la bordure */}
