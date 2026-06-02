@@ -16,6 +16,22 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  React.useEffect(() => {
+    if (step === 3) {
+      const timer = setTimeout(() => {
+        onClose();
+        setTimeout(() => {
+          setStep(1);
+          setOperator(null);
+          setFullName('');
+          setPhone('');
+          setAmount('');
+        }, 300);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, onClose]);
+
   if (!isOpen) return null;
 
   const handlePaymentAPI = async () => {

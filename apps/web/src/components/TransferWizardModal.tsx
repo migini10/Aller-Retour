@@ -26,6 +26,21 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
     }
   }, [phone]);
 
+  React.useEffect(() => {
+    if (step === 3) {
+      const timer = setTimeout(() => {
+        onClose();
+        setTimeout(() => {
+          setStep(1);
+          setPhone('');
+          setAmount('');
+          setAccessCode('');
+        }, 300);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, onClose]);
+
   if (!isOpen) return null;
 
   const handleNext = () => {
