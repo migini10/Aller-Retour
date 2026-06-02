@@ -16,21 +16,25 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const handleCloseAndReset = React.useCallback(() => {
+    onClose();
+    setTimeout(() => {
+      setStep(1);
+      setOperator(null);
+      setFullName('');
+      setPhone('');
+      setAmount('');
+    }, 300);
+  }, [onClose]);
+
   React.useEffect(() => {
     if (step === 3) {
       const timer = setTimeout(() => {
-        onClose();
-        setTimeout(() => {
-          setStep(1);
-          setOperator(null);
-          setFullName('');
-          setPhone('');
-          setAmount('');
-        }, 300);
-      }, 3000);
+        handleCloseAndReset();
+      }, 10000);
       return () => clearTimeout(timer);
     }
-  }, [step, onClose]);
+  }, [step, handleCloseAndReset]);
 
   if (!isOpen) return null;
 
@@ -79,7 +83,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
+        onClick={handleCloseAndReset}
       />
       
       <div className="relative w-full max-w-lg bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in">
@@ -93,7 +97,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
             {step < 3 && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Étape {step} sur 2</p>}
           </div>
           <button 
-            onClick={onClose}
+            onClick={handleCloseAndReset}
             className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#222222] border border-slate-200 dark:border-[#333333] rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
@@ -262,7 +266,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
                 Veuillez valider le paiement de <strong className="text-slate-900 dark:text-white">{amount} FCFA</strong> sur votre téléphone via l'application {operator === 'wave' ? 'Wave' : 'Orange Money'}.
               </p>
               <button 
-                onClick={onClose}
+                onClick={handleCloseAndReset}
                 className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold px-8 py-3.5 rounded-xl transition-colors hover:bg-slate-800 dark:hover:bg-slate-100"
               >
                 Retour au Wallet

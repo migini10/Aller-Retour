@@ -26,20 +26,24 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
     }
   }, [phone]);
 
+  const handleCloseAndReset = React.useCallback(() => {
+    onClose();
+    setTimeout(() => {
+      setStep(1);
+      setPhone('');
+      setAmount('');
+      setAccessCode('');
+    }, 300);
+  }, [onClose]);
+
   React.useEffect(() => {
     if (step === 3) {
       const timer = setTimeout(() => {
-        onClose();
-        setTimeout(() => {
-          setStep(1);
-          setPhone('');
-          setAmount('');
-          setAccessCode('');
-        }, 300);
-      }, 3000);
+        handleCloseAndReset();
+      }, 10000);
       return () => clearTimeout(timer);
     }
-  }, [step, onClose]);
+  }, [step, handleCloseAndReset]);
 
   if (!isOpen) return null;
 
@@ -62,7 +66,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
+        onClick={handleCloseAndReset}
       />
       
       <div className="relative w-full max-w-lg bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in">
@@ -76,7 +80,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
             </p>
           </div>
           <button 
-            onClick={onClose}
+            onClick={handleCloseAndReset}
             className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#222222] flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
@@ -202,7 +206,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
         {step < 3 ? (
           <div className="p-6 border-t border-slate-100 dark:border-[#222222] bg-slate-50 dark:bg-[#141414] flex gap-4">
             <button 
-              onClick={step === 1 ? onClose : () => setStep(1)}
+              onClick={step === 1 ? handleCloseAndReset : () => setStep(1)}
               className="flex-1 py-3.5 px-4 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-[#222222] transition-colors"
             >
               {step === 1 ? 'Annuler' : 'Retour'}
@@ -224,7 +228,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
         ) : (
           <div className="p-6 border-t border-slate-100 dark:border-[#222222] bg-slate-50 dark:bg-[#141414]">
             <button 
-              onClick={onClose}
+              onClick={handleCloseAndReset}
               className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors"
             >
               Terminer
