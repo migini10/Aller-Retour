@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ArrowRight, User, Phone, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, ArrowRight, User, Phone, CheckCircle2, AlertCircle, Lock, Shield } from 'lucide-react';
 
 interface TransferWizardModalProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [recipientName, setRecipientName] = useState('');
+  const [accessCode, setAccessCode] = useState('');
 
   React.useEffect(() => {
     const cleanPhone = phone.replace(/\s/g, '');
@@ -29,7 +30,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
 
   const handleNext = () => {
     if (step === 1 && phone && amount) setStep(2);
-    else if (step === 2) {
+    else if (step === 2 && accessCode.length >= 4) {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
@@ -150,6 +151,22 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
                   <span className="text-xl font-black text-blue-600 dark:text-blue-500">{total} FCFA</span>
                 </div>
               </div>
+
+              <div className="mt-6 text-left">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Code d'accès secret</label>
+                <div className="relative">
+                  <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="password" 
+                    maxLength={4}
+                    placeholder="Entrez votre code à 4 chiffres"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:text-white font-mono tracking-widest text-lg"
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value.replace(/\D/g, ''))}
+                  />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5"/> Requis pour sécuriser la transaction</p>
+              </div>
             </div>
           )}
 
@@ -177,7 +194,7 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
             </button>
             <button 
               onClick={handleNext}
-              disabled={loading || (step === 1 && (!phone || !amount))}
+              disabled={loading || (step === 1 && (!phone || !amount)) || (step === 2 && accessCode.length < 4)}
               className="flex-1 py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
