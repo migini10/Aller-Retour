@@ -55,35 +55,46 @@ export default function ClientDashboard() {
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
       <div className="w-full max-w-[1600px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">
         
-        {/* Header & Wallet Quick Look */}
-        <div className="pb-8 border-b border-slate-200 dark:border-[#2A2A2A] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3">Espace Voyageur</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base max-w-xl">
-              Bienvenue sur votre tableau de bord. Gérez vos QR codes, recharges Wave/OM et votre fidélité en un seul endroit.
-            </p>
+        {/* Header & Wallet Quick Look with Hero Background */}
+        <div className="relative rounded-3xl overflow-hidden mb-8 shadow-xl">
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0">
+            <img src="/images/peugeot_406_hero.png" alt="Peugeot 406 sur autoroute" className="w-full h-full object-cover object-center" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40 dark:from-black/95 dark:via-black/80 dark:to-black/40"></div>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-            <div className="w-full sm:w-auto bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] px-5 py-3.5 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
-                <Wallet className="w-6 h-6 text-orange-500" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-0.5">Solde Wallet (XOF)</p>
-                <p className="text-xl font-black text-slate-900 dark:text-white">45 000 <span className="text-sm font-bold text-slate-500">FCFA</span></p>
-                <Link href="/dashboard/client/wallet" className="text-[11px] text-orange-600 dark:text-orange-500 font-bold hover:underline mt-1.5 flex items-center gap-1 w-fit">
-                  Voir mon compte <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
+
+          <div className="relative z-10 p-8 sm:p-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">Espace Voyageur</h1>
+              <p className="text-slate-300 text-sm sm:text-base max-w-xl">
+                Bienvenue sur votre tableau de bord. Gérez vos QR codes, recharges Wave/OM et votre fidélité en un seul endroit.
+              </p>
             </div>
-            <div className="flex flex-col gap-2 w-full sm:w-auto">
-              <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 active:scale-95 text-sm">
-                <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
-              </button>
-              <button onClick={() => openBookingWizard('allo-dakar')} className="w-full sm:w-auto bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-95 text-sm">
-                <CarFront className="w-4 h-4" /> Réserver une voiture
-              </button>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+              {/* Wallet Card Glassmorphism */}
+              <div className="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/20 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-xl">
+                <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0 border border-orange-500/30">
+                  <Wallet className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
+                  <p className="text-xl font-black text-white">45 000 <span className="text-sm font-bold text-slate-300">FCFA</span></p>
+                  <Link href="/dashboard/client/wallet" className="text-[11px] text-orange-400 font-bold hover:text-orange-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
+                    Voir mon compte <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 active:scale-95 text-sm border border-orange-500/50">
+                  <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
+                </button>
+                <button onClick={() => openBookingWizard('allo-dakar')} className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/20 active:scale-95 text-sm">
+                  <CarFront className="w-4 h-4" /> Réserver une voiture
+                </button>
+              </div>
             </div>
           </div>
         </div>
