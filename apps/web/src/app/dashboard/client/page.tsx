@@ -72,9 +72,9 @@ export default function ClientDashboard() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-              {/* Wallet Card Glassmorphism */}
-              <div className="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/20 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-xl">
-                <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0 border border-orange-500/30">
+              {/* Wallet Card Glassmorphism - Très transparent pour voir la voiture */}
+              <div className="w-full sm:w-auto bg-black/20 backdrop-blur-sm border border-white/10 px-5 py-4 rounded-2xl flex items-center justify-between sm:justify-start gap-5 shadow-xl transition-all hover:bg-black/30">
+                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
                   <Wallet className="w-6 h-6 text-orange-400" />
                 </div>
                 <div>
