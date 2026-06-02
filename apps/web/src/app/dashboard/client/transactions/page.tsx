@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { ArrowLeft, Clock, CreditCard, ArrowDownLeft, ArrowUpRight, Search, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Clock, CreditCard, ArrowDownLeft, ArrowUpRight, Search, Download, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TransactionsHistoryPage() {
@@ -12,10 +12,11 @@ export default function TransactionsHistoryPage() {
       title: 'Transfert vers Mamadou N.',
       date: 'Aujourd\'hui • 10:42',
       amount: '- 15 000 FCFA',
-      status: 'Terminé',
+      status: 'En attente',
       icon: ArrowUpRight,
-      color: 'bg-red-500/10 text-red-500',
+      color: 'bg-orange-500/10 text-orange-500',
       isNegative: true,
+      isCancelable: true,
     },
     {
       id: 'TRX_002',
@@ -63,6 +64,21 @@ export default function TransactionsHistoryPage() {
     }
   ];
 
+  const [txs, setTxs] = useState(transactions);
+
+  const handleCancel = (id: string) => {
+    if (window.confirm("Êtes-vous sûr de vouloir annuler ce transfert ? Les fonds vous seront restitués car le bénéficiaire ne les a pas encore utilisés.")) {
+      setTxs(txs.map(tx => tx.id === id ? { 
+        ...tx, 
+        status: 'Annulé', 
+        isCancelable: false, 
+        color: 'bg-slate-500/10 text-slate-500',
+        amount: '+ 15 000 FCFA', // Refund simulated
+        isNegative: false 
+      } : tx));
+    }
+  };
+
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1000px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">
@@ -104,7 +120,7 @@ export default function TransactionsHistoryPage() {
           </div>
           
           <div className="divide-y divide-slate-100 dark:divide-[#222222]">
-            {transactions.map((tx) => (
+            {txs.map((tx) => (
               <div key={tx.id} className="p-5 sm:p-6 hover:bg-slate-50 dark:hover:bg-[#222222]/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 group cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${tx.color}`}>
@@ -117,13 +133,29 @@ export default function TransactionsHistoryPage() {
                     </p>
                   </div>
                 </div>
-                <div className="sm:text-right ml-16 sm:ml-0">
-                  <p className={`font-black text-lg ${tx.isNegative ? 'text-slate-900 dark:text-white' : 'text-green-600 dark:text-green-500'}`}>
+                <div className="sm:text-right ml-16 sm:ml-0 flex flex-col items-start sm:items-end">
+                  <p className={`font-black text-lg ${
+                    tx.status === 'Annulé' ? 'text-slate-500 line-through' :
+                    tx.isNegative ? 'text-slate-900 dark:text-white' : 'text-green-600 dark:text-green-500'
+                  }`}>
                     {tx.amount}
                   </p>
-                  <p className="text-[10px] uppercase font-bold text-slate-500 bg-slate-500/10 inline-block px-2 py-0.5 rounded border border-slate-500/20 mt-1">
+                  <p className={`text-[10px] uppercase font-bold inline-block px-2 py-0.5 rounded border mt-1 ${
+                    tx.status === 'Annulé' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                    tx.status === 'En attente' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
+                    'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                  }`}>
                     {tx.status}
                   </p>
+                  
+                  {tx.isCancelable && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleCancel(tx.id); }}
+                      className="mt-2 text-xs font-bold text-red-500 hover:text-red-400 hover:underline flex items-center gap-1 bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded-md transition-colors"
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> Annuler (24h)
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
