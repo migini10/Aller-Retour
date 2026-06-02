@@ -13,6 +13,17 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
   const [amount, setAmount] = useState('');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [recipientName, setRecipientName] = useState('');
+
+  React.useEffect(() => {
+    const cleanPhone = phone.replace(/\s/g, '');
+    if (cleanPhone.length >= 9) {
+      // Simulation d'un appel API pour récupérer le nom du voyageur
+      setRecipientName('Mamadou Ndiaye');
+    } else {
+      setRecipientName('');
+    }
+  }, [phone]);
 
   if (!isOpen) return null;
 
@@ -73,6 +84,17 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
                       onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
+                  {recipientName && (
+                    <div className="mt-3 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-lg p-3 flex items-center gap-3 animate-fade-in">
+                      <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4 text-green-600 dark:text-green-500" />
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-slate-500 dark:text-slate-400">Destinataire trouvé : </span>
+                        <strong className="text-slate-900 dark:text-white">{recipientName}</strong>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -109,7 +131,9 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
               </div>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Confirmation</h3>
               <p className="text-slate-500 dark:text-slate-400">
-                Vous êtes sur le point de transférer des fonds à <strong className="text-slate-900 dark:text-white">{phone}</strong>.
+                Vous êtes sur le point de transférer des fonds à <br/>
+                <strong className="text-slate-900 dark:text-white text-lg">{recipientName || phone}</strong>
+                {recipientName && <span className="block text-sm">({phone})</span>}
               </p>
 
               <div className="bg-slate-50 dark:bg-[#141414] rounded-2xl p-5 mt-6 border border-slate-100 dark:border-[#222222] text-left space-y-3">
