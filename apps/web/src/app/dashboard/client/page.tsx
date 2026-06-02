@@ -10,14 +10,14 @@ export default function ClientDashboard() {
 
   const sections = [
     {
-      id: 'qr-code',
-      title: 'QR code',
-      description: 'Vos billets actifs, réservations passées et historiques de voyage interurbain.',
-      icon: QrCode,
-      href: '/dashboard/client/qr-code',
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10',
-      border: 'border-orange-500/20'
+      id: 'colis',
+      title: 'Colis',
+      description: 'Gérez vos franchises et suivez l\'expédition de vos colis à travers le pays.',
+      icon: Package,
+      href: '/dashboard/client/colis',
+      color: 'text-purple-500',
+      bg: 'bg-purple-500/10',
+      border: 'border-purple-500/20'
     },
     {
       id: 'wallet',
@@ -40,14 +40,14 @@ export default function ClientDashboard() {
       border: 'border-emerald-500/20'
     },
     {
-      id: 'colis',
-      title: 'Colis',
-      description: 'Gérez vos franchises et suivez l\'expédition de vos colis à travers le pays.',
-      icon: Package,
-      href: '/dashboard/client/colis',
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20'
+      id: 'qr-code',
+      title: 'QR code',
+      description: 'Vos billets actifs, réservations passées et historiques de voyage interurbain.',
+      icon: QrCode,
+      href: '/dashboard/client/qr-code',
+      color: 'text-orange-500',
+      bg: 'bg-orange-500/10',
+      border: 'border-orange-500/20'
     }
   ];
 
