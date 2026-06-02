@@ -52,12 +52,9 @@ export default function WalletPage() {
                   <p className="text-4xl sm:text-5xl font-black tracking-tight">45 000 <span className="text-xl font-bold text-blue-200">FCFA</span></p>
                 </div>
                 
-                <div className="mt-8 flex gap-3">
-                  <button className="flex-1 bg-white text-blue-600 hover:bg-blue-50 font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
-                    <ArrowDownLeft className="w-4 h-4" /> Recevoir
-                  </button>
-                  <button onClick={openTransferWizard} className="flex-1 bg-blue-500/30 hover:bg-blue-500/50 border border-white/20 text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 backdrop-blur-sm">
-                    <ArrowUpRight className="w-4 h-4" /> Envoyer
+                <div className="mt-8">
+                  <button onClick={openTransferWizard} className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold py-3.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 shadow-lg shadow-black/10">
+                    <ArrowUpRight className="w-5 h-5" /> Envoyer du solde
                   </button>
                 </div>
               </div>
