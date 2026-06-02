@@ -170,13 +170,13 @@ export default function ClientDashboard() {
             <div className="w-full h-px bg-slate-200 dark:bg-[#2A2A2A]"></div>
 
             {/* Bottom Section: Logo, Copyright & Version */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-row justify-between items-center w-full text-[11px] sm:text-xs">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-black text-slate-900 dark:text-white">Aller-Retour</span>
                 <span>© {new Date().getFullYear()}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span>Version voyageur</span> 
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span>Version</span> 
                 <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-[#222222] rounded font-bold">v1.2.0</span>
               </div>
             </div>
