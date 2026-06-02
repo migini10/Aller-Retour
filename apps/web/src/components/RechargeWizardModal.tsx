@@ -101,8 +101,15 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
                       : 'border-slate-200 dark:border-[#333333] hover:border-[#ff7900]/50 bg-white dark:bg-[#141414]'
                   }`}
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-[#000000] flex items-center justify-center shadow-lg overflow-hidden border border-[#ff7900]/20">
-                    <div className="w-8 h-8 bg-[#ff7900]"></div>
+                  <div className="w-16 h-16 rounded-2xl bg-[#000000] flex items-center justify-center shadow-lg overflow-hidden border border-[#ff7900]/20 p-2">
+                    <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                      <g transform="translate(40,20)">
+                        <path d="M40 170 L170 40 L170 90 Q170 120 200 120 Q230 120 230 90 L230 20 Q230 0 210 0 L140 0 Q110 0 110 30 Q110 60 140 60 L10 190 Q-10 210 10 230 Q30 250 50 230 Z" fill="#ffffff" strokeLinejoin="round"/>
+                      </g>
+                      <g transform="translate(250,20)">
+                        <path d="M0 20 Q0 0 20 0 Q40 0 40 20 L40 130 L170 0 Q190 -10 210 10 Q230 30 220 50 L90 180 L200 180 Q230 180 230 210 Q230 240 200 240 L20 240 Q0 240 0 220 Z" fill="#ff7900" strokeLinejoin="round"/>
+                      </g>
+                    </svg>
                   </div>
                   <span className={`font-bold ${operator === 'orange' ? 'text-[#ff7900]' : 'text-slate-700 dark:text-slate-300'}`}>
                     Orange Money
@@ -133,7 +140,16 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
                        <ellipse cx="125" cy="220" rx="22" ry="12" fill="#F7931E"/>
                      </svg>
                    ) : (
-                     <div className="w-5 h-5 bg-[#ff7900]"></div>
+                     <div className="w-8 h-8 flex items-center justify-center">
+                       <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                         <g transform="translate(40,20)">
+                           <path d="M40 170 L170 40 L170 90 Q170 120 200 120 Q230 120 230 90 L230 20 Q230 0 210 0 L140 0 Q110 0 110 30 Q110 60 140 60 L10 190 Q-10 210 10 230 Q30 250 50 230 Z" fill="#ffffff" strokeLinejoin="round"/>
+                         </g>
+                         <g transform="translate(250,20)">
+                           <path d="M0 20 Q0 0 20 0 Q40 0 40 20 L40 130 L170 0 Q190 -10 210 10 Q230 30 220 50 L90 180 L200 180 Q230 180 230 210 Q230 240 200 240 L20 240 Q0 240 0 220 Z" fill="#ff7900" strokeLinejoin="round"/>
+                         </g>
+                       </svg>
+                     </div>
                    )}
                 </div>
                 <div>
