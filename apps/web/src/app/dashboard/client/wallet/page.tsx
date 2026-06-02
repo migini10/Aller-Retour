@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useModal } from '../../../../components/ModalContext';
 
 export default function WalletPage() {
-  const { openModal, openRechargeWizard } = useModal();
+  const { openModal, openRechargeWizard, openTransferWizard } = useModal();
   
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
@@ -56,7 +56,7 @@ export default function WalletPage() {
                   <button className="flex-1 bg-white text-blue-600 hover:bg-blue-50 font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
                     <ArrowDownLeft className="w-4 h-4" /> Recevoir
                   </button>
-                  <button className="flex-1 bg-blue-500/30 hover:bg-blue-500/50 border border-white/20 text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 backdrop-blur-sm">
+                  <button onClick={openTransferWizard} className="flex-1 bg-blue-500/30 hover:bg-blue-500/50 border border-white/20 text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 backdrop-blur-sm">
                     <ArrowUpRight className="w-4 h-4" /> Envoyer
                   </button>
                 </div>
