@@ -1216,70 +1216,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             }
 
             Widget buildStep3() {
-              List<int> occupied = [2, 5, 8];
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Choix du siège', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      Row(
-                        children: [
-                          Container(width: 12, height: 12, decoration: BoxDecoration(color: const Color(0xFF222222), border: Border.all(color: const Color(0xFF333333)), borderRadius: BorderRadius.circular(4))),
-                          const SizedBox(width: 4), const Text('Libre', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          const SizedBox(width: 8),
-                          Container(width: 12, height: 12, decoration: BoxDecoration(color: const Color(0xFFF97316), borderRadius: BorderRadius.circular(4))),
-                          const SizedBox(width: 4), const Text('Sélection', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                        ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    width: 200,
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(color: const Color(0xFF2A2A2A), width: 4),
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(width: 48, height: 8, decoration: BoxDecoration(color: const Color(0xFF222222), borderRadius: BorderRadius.circular(4))),
-                        const SizedBox(height: 24),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: List.generate(12, (index) {
-                            int seatNum = index + 1;
-                            bool isOcc = occupied.contains(seatNum);
-                            bool isSel = selectedSeat == seatNum.toString();
-                            return GestureDetector(
-                              onTap: isOcc ? null : () => setState(() => selectedSeat = seatNum.toString()),
-                              child: Container(
-                                width: 45,
-                                height: 45,
-                                margin: EdgeInsets.only(right: (index % 3 == 1) ? 16 : 0),
-                                decoration: BoxDecoration(
-                                  color: isOcc ? Colors.red.withOpacity(0.1) : (isSel ? const Color(0xFFF97316) : const Color(0xFF222222)),
-                                  border: Border.all(color: isOcc ? Colors.red.withOpacity(0.2) : (isSel ? Colors.transparent : const Color(0xFF333333))),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: Text(seatNum.toString(), style: TextStyle(color: isOcc ? Colors.red : (isSel ? Colors.white : Colors.white70), fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            Widget buildStep4() {
               if (ticketPour == null) {
                 return Column(
                   children: [
@@ -1420,7 +1356,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               );
             }
 
-            String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : step == 3 ? 'Choix du siège' : 'Informations Passager';
+            String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : 'Informations Passager';
 
             return Dialog(
               backgroundColor: Colors.transparent,
@@ -1486,12 +1422,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     Flexible(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(24),
-                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : step == 3 ? buildStep3() : buildStep4(),
+                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : buildStep3(),
                       ),
                     ),
 
                     // Footer Action
-                    if (step == 1 || step == 3 || (step == 4 && ticketPour != null))
+                    if (step == 1 || (step == 3 && ticketPour != null))
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: const BoxDecoration(
@@ -1515,12 +1451,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                   step = 2;
                                 });
                               } else if (step == 3) {
-                                if (selectedSeat != null) {
-                                  setState(() => step = 4);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez choisir un siège')));
-                                }
-                              } else if (step == 4) {
                                 if (nom.isNotEmpty && telephone.isNotEmpty) {
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Billet généré avec succès !'), backgroundColor: Color(0xFFF97316)));
@@ -1529,8 +1459,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             },
                             icon: isSearching 
                               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
-                              : Icon(step == 4 ? Icons.check_circle : (step == 3 ? Icons.event_seat : Icons.search), color: Colors.white),
-                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Confirmer le siège $selectedSeat' : 'Générer le billet', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                              : Icon(step == 3 ? Icons.check_circle : Icons.search, color: Colors.white),
+                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : 'Générer le billet', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF97316),
                               padding: const EdgeInsets.symmetric(vertical: 18),
