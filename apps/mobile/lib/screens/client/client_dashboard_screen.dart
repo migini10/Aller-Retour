@@ -1712,13 +1712,13 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
             String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : step == 3 ? 'Informations Passager' : 'Paiement';
 
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.all(16),
-              child: Container(
-                width: 500, // max-w-lg
-                constraints: BoxConstraints(
-                  minHeight: 500,
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.all(16),
+                child: Container(
+                  width: 420, // max-w-md (equivalent)
+                  constraints: BoxConstraints(
+                    minHeight: 500,
                   maxHeight: MediaQuery.of(context).size.height * 0.9,
                 ),
                 decoration: BoxDecoration(
