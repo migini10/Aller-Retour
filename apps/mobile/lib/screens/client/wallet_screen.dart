@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -328,8 +329,8 @@ class WalletScreen extends StatelessWidget {
             return BackdropFilter(
               filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
               child: Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.all(16),
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.all(16),
               child: Container(
                 width: 400, // Reduced from 500
                 constraints: BoxConstraints(
@@ -497,7 +498,7 @@ class WalletScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            );
             );
           },
         );
