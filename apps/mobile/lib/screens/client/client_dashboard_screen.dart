@@ -7,7 +7,7 @@ import 'fidelite_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 class ClientDashboardScreen extends StatefulWidget {
   const ClientDashboardScreen({super.key});
 
@@ -1449,6 +1449,201 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               );
             }
 
+            Widget buildStep5() {
+              int passagersCount = int.tryParse(passagers?.split(' ')[0] ?? '1') ?? 1;
+              int basePrice = selectedTrip?['price'] ?? 5000;
+              int total = basePrice * passagersCount;
+              String departCity = departController.text.isNotEmpty ? departController.text : 'Dakar, Sénégal';
+              String arriveeCity = arriveeController.text.isNotEmpty ? arriveeController.text : 'Touba, Sénégal';
+              String dateStr = date ?? 'Aujourd\'hui';
+
+              return Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        // Header ticket
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF0A0A0A),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                            border: Border(bottom: BorderSide(color: Color(0xFFF97316), width: 3)),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.directions_car, color: Color(0xFFF97316)),
+                                  const SizedBox(width: 8),
+                                  const Text('Aller', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                  const Text('Retour', style: TextStyle(color: Color(0xFFF97316), fontSize: 20, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text('Demande en attente : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        
+                        // Body ticket
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            children: [
+                              // Trajet
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('DÉPART', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text(departCity.split(',')[0], style: const TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        const Text('Sénégal', style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward, color: Color(0xFFF97316)),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        const Text('ARRIVÉE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text(arriveeCity.split(',')[0], style: const TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        const Text('Sénégal', style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Text('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -', style: TextStyle(color: Color(0xFFE2E8F0)), maxLines: 1, overflow: TextOverflow.clip),
+                              ),
+                              
+                              // Infos 1
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('PASSAGER', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text(nom, style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('PLACES', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text('$passagersCount', style: const TextStyle(color: Color(0xFFEA580C), fontSize: 16, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // Infos 2
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('DATE & HEURE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text('$dateStr à\nFlexible', style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('PRIX TOTAL', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text('$total FCFA', style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Text('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -', style: TextStyle(color: Color(0xFFE2E8F0)), maxLines: 1, overflow: TextOverflow.clip),
+                              ),
+                              
+                              // QR Code
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: const Color(0xFFFFF7ED), width: 4),
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    QrImageView(
+                                      data: 'ALLORETOUR-$nom-$departCity-$arriveeCity',
+                                      version: QrVersions.auto,
+                                      size: 160.0,
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      color: const Color(0xFFEA580C),
+                                      alignment: Alignment.center,
+                                      child: const Text('AR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              const Text('Recherche de chauffeurs en cours...', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF222222),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Retour à l\'accueil', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              );
+            }
+
             String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : step == 3 ? 'Informations Passager' : 'Paiement';
 
             return Dialog(
@@ -1471,30 +1666,31 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Header
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF141414), // Header bg
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        border: Border(bottom: BorderSide(color: Color(0xFF2A2A2A))),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (step > 1)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF222222),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: const Color(0xFF333333)),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back, color: Colors.white70),
-                                onPressed: () => setState(() => step--),
-                              ),
-                            )
-                          else
-                            const SizedBox(width: 48),
+                    if (step < 5)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF141414), // Header bg
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                          border: Border(bottom: BorderSide(color: Color(0xFF2A2A2A))),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (step > 1)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF222222),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: const Color(0xFF333333)),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back, color: Colors.white70),
+                                  onPressed: () => setState(() => step--),
+                                ),
+                              )
+                            else
+                              const SizedBox(width: 48),
                           Expanded(
                             child: Column(
                               children: [
@@ -1520,31 +1716,32 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     ),
 
                     // Progress bar
-                    Container(
-                      height: 4,
-                      width: double.infinity,
-                      color: const Color(0xFF1A1A1A),
-                      alignment: Alignment.centerLeft,
-                      child: FractionallySizedBox(
-                        widthFactor: step / 4,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [Color(0xFFEA580C), Color(0xFFFB923C)]),
+                    if (step < 5)
+                      Container(
+                        height: 4,
+                        width: double.infinity,
+                        color: const Color(0xFF1A1A1A),
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: step / 4,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(colors: [Color(0xFFEA580C), Color(0xFFFB923C)]),
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
                     // Content
                     Flexible(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : step == 3 ? buildStep3() : buildStep4(),
+                        padding: EdgeInsets.all(step == 5 ? 16 : 24),
+                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : step == 3 ? buildStep3() : step == 4 ? buildStep4() : buildStep5(),
                       ),
                     ),
 
                     // Footer Action
-                    if (step == 1 || (step == 3 && ticketPour != null) || step == 4)
+                    if (step < 5 && (step == 1 || (step == 3 && ticketPour != null) || step == 4))
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: const BoxDecoration(
@@ -1573,8 +1770,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 }
                               } else if (step == 4) {
                                 if (paymentMethod != null) {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Paiement réussi, billet généré !'), backgroundColor: Color(0xFF10B981)));
+                                  setState(() => step = 5);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez choisir un moyen de paiement')));
                                 }
