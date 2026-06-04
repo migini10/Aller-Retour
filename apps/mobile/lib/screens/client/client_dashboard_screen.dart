@@ -1607,6 +1607,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                       version: QrVersions.auto,
                                       size: 160.0,
                                       padding: EdgeInsets.zero,
+                                      dataModuleStyle: const QrDataModuleStyle(
+                                        dataModuleShape: QrDataModuleShape.circle,
+                                        color: Colors.black,
+                                      ),
+                                      eyeStyle: const QrEyeStyle(
+                                        eyeShape: QrEyeShape.square,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                     Container(
                                       width: 40,
