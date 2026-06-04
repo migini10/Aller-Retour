@@ -1,0 +1,375 @@
+import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+class QrCodeScreen extends StatelessWidget {
+  const QrCodeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF020617), // slate-950
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F172A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.qr_code, color: Colors.orangeAccent),
+            SizedBox(width: 12),
+            Text('Mes QR codes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Vos billets, réservations et historiques de voyage.',
+              style: TextStyle(color: Colors.white54, fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            
+            // Search Bar
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: const TextField(
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search, color: Colors.white54),
+                  border: InputBorder.none,
+                  hintText: 'Rechercher un QR code, trajet...',
+                  hintStyle: TextStyle(color: Colors.white30),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Liste de mes QR codes', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+                  ),
+                  child: const Text('1 Billet actif', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // Ticket 1 (Active)
+            _buildTicketCard(
+              context,
+              isActive: true,
+              status: 'Confirmé (Escrow)',
+              ref: 'AR-74892374',
+              date: '18 Mai 2026',
+              time: '08:00',
+              from: 'Dakar',
+              to: 'Touba',
+              ticketNo: 'TKT-0014',
+              seat: '#14 (VIP)',
+              passenger: 'Abdou Bakhe',
+              vehicle: 'Bus Climatisé',
+              price: '4 500 FCFA',
+            ),
+            const SizedBox(height: 24),
+            
+            // Ticket 2 (History)
+            Opacity(
+              opacity: 0.6,
+              child: _buildTicketCard(
+                context,
+                isActive: false,
+                status: 'Terminé',
+                ref: 'AR-12984756',
+                date: '10 Mai 2026',
+                time: '14:30',
+                from: 'Touba',
+                to: 'Dakar',
+                ticketNo: 'TKT-0089',
+                seat: '#02 (VIP)',
+                passenger: 'Abdou Bakhe',
+                vehicle: 'Minibus',
+                price: '4 500 FCFA',
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTicketCard(
+    BuildContext context, {
+    required bool isActive,
+    required String status,
+    required String ref,
+    required String date,
+    required String time,
+    required String from,
+    required String to,
+    required String ticketNo,
+    required String seat,
+    required String passenger,
+    required String vehicle,
+    required String price,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: isActive ? Colors.orangeAccent.withOpacity(0.5) : Colors.white10),
+        boxShadow: isActive ? [BoxShadow(color: Colors.orangeAccent.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))] : null,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          // Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: isActive ? Colors.orangeAccent : const Color(0xFF1E293B),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.check_circle, color: isActive ? Colors.white : Colors.white54, size: 16),
+                    const SizedBox(width: 6),
+                    Text('Statut: $status', style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Text('Réf: $ref', style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+              ],
+            ),
+          ),
+          
+          // Main Body
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header (Route + QR)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_month, color: isActive ? Colors.orangeAccent : Colors.white54, size: 14),
+                              const SizedBox(width: 4),
+                              Text(date, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                              const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('•', style: TextStyle(color: Colors.white30))),
+                              Icon(Icons.access_time, color: isActive ? Colors.orangeAccent : Colors.white54, size: 14),
+                              const SizedBox(width: 4),
+                              Text(time, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Text(from, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.arrow_forward, color: isActive ? Colors.orangeAccent : Colors.white38, size: 20),
+                              ),
+                              Text(to, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              const Icon(Icons.directions_bus, color: Colors.white38, size: 14),
+                              const SizedBox(width: 4),
+                              const Text('Sénégal Express', style: TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // QR Code Image (Real)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                      ),
+                      child: QRCodeBrandEngine(value: ref, size: 75),
+                    ),
+                  ],
+                ),
+                
+                if (isActive) ...[
+                  const SizedBox(height: 24),
+                  // Details Grid
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.03),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: _buildDetailField('N° Billet', ticketNo)),
+                            Expanded(child: _buildDetailField('Siège', seat, valueColor: Colors.orangeAccent)),
+                            Expanded(child: _buildDetailField('Passager', passenger)),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(child: _buildDetailField('Véhicule', vehicle)),
+                            Expanded(flex: 2, child: _buildDetailField('Montant Payé', price)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Détails...')));
+                          },
+                          icon: const Icon(Icons.visibility, color: Colors.white),
+                          label: const Text('Détails', style: TextStyle(color: Colors.white)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white24),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Téléchargement du billet...')));
+                          },
+                          icon: const Icon(Icons.download, color: Colors.white),
+                          label: const Text('Télécharger'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orangeAccent,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (!isActive) ...[
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Historique...')));
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Voir l\'historique complet', style: TextStyle(color: Colors.white70)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailField(String label, String value, {Color valueColor = Colors.white}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: const TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+        const SizedBox(height: 4),
+        Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
+      ],
+    );
+  }
+}
+
+class QRCodeBrandEngine extends StatelessWidget {
+  final String value;
+  final double size;
+
+  const QRCodeBrandEngine({
+    super.key,
+    required this.value,
+    this.size = 80,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          QrImageView(
+            data: value,
+            version: QrVersions.auto,
+            size: size,
+            backgroundColor: Colors.white,
+            eyeStyle: const QrEyeStyle(
+              eyeShape: QrEyeShape.square, // Keep eyes square for contrast
+              color: Color(0xFFE65100), // deep orange
+            ),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.circle, // Make data modules dots
+              color: Colors.black87,
+            ),
+            padding: const EdgeInsets.all(4),
+          ),
+          // Logo in the center
+          Container(
+            width: size * 0.3,
+            height: size * 0.3,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(size * 0.08),
+              border: Border.all(color: Colors.deepOrangeAccent, width: 1.5),
+            ),
+            child: Center(
+              child: Icon(Icons.directions_car, color: Colors.deepOrange, size: size * 0.18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

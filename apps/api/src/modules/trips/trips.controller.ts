@@ -18,9 +18,12 @@ export class TripsController {
     };
 
     if (originCity && destinationCity) {
+      const cleanOrigin = originCity.split(',')[0].trim();
+      const cleanDest = destinationCity.split(',')[0].trim();
+      
       whereClause.route = {
-        originStation: { city: originCity },
-        destinationStation: { city: destinationCity },
+        originStation: { city: { contains: cleanOrigin, mode: 'insensitive' } },
+        destinationStation: { city: { contains: cleanDest, mode: 'insensitive' } },
       };
     }
 
@@ -114,7 +117,7 @@ export class TripsController {
         data: { 
           companyId: company.id, 
           plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
-          type: capacity === 7 ? 'TAXI_7_PLACES' : 'VOITURE_5_PLACES', 
+          type: 'TAXI_7_PLACES', 
           capacity: capacity,
           insuranceExpiry: new Date('2030-01-01'),
           inspectionExpiry: new Date('2030-01-01')

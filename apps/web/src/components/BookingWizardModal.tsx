@@ -117,20 +117,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
-            headers: { 'Accept-Language': 'fr' }
-          });
+          const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+          const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${googleMapsApiKey}`);
           const data = await response.json();
-          let address = data.display_name;
           
-          if (address) {
-            const parts = address.split(',').slice(0, 3);
-            address = `${parts.join(', ')} (GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)})`;
+          if (data.status === 'OK' && data.results.length > 0) {
+            let address = data.results[0].formatted_address;
+            setPickupLocation(address);
           } else {
-            address = `Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            setPickupLocation(`Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
           }
-          
-          setPickupLocation(address);
         } catch (error) {
           setPickupLocation(`Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
         }

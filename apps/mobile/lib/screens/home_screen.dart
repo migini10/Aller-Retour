@@ -1,5 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'client/client_dashboard_screen.dart';
+import 'client/profile_screen.dart';
+import 'client/history_screen.dart';
+import 'client/settings_screen.dart';
+import 'client/fidelite_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,47 +20,124 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF020617), // Slate 950
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A), // Slate 900
-        title: Row(
-          children: [
-            const Icon(Icons.directions_bus, color: Color(0xFF10B981)),
-            const SizedBox(width: 8),
-            const Text('Aller-Retour', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.wifi_off, color: Colors.amber),
-            tooltip: 'Mode Offline Actif',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Mode Offline: 50 passagers en cache local')),
-              );
-            },
+      body: const ClientDashboardScreen(),
+      endDrawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.horizontal(left: Radius.circular(32)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+            child: Container(
+              color: const Color(0xFF0F172A).withOpacity(0.65), // translucent slate
+              child: SafeArea(
+                child: Column(
+            children: [
+              // Stylish Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.cyanAccent, width: 2),
+                      ),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.cyanAccent.withOpacity(0.2),
+                        child: const Text('AB', style: TextStyle(color: Colors.cyanAccent, fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Abdou Bakhe', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orangeAccent.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.orangeAccent.withOpacity(0.5)),
+                            ),
+                            child: const Text('Voyageur Gold', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Divider(color: Colors.white10),
+              ),
+              const SizedBox(height: 16),
+              // Menu Items
+              _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.cyanAccent, route: '/profile'),
+              _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.blueAccent, route: '/history'),
+              _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.greenAccent, route: '/fidelite'),
+              _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.purpleAccent, route: '/settings'),
+              const Spacer(),
+              // Logout button
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Divider(color: Colors.white10),
+              ),
+              const SizedBox(height: 16),
+              _buildMenuItem(context, Icons.logout, 'Déconnexion', Colors.redAccent, isLogout: true),
+              const SizedBox(height: 24),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.account_balance_wallet, color: Color(0xFF38BDF8)),
-            onPressed: () {},
-          )
-        ],
-      ),
-      body: _buildBody(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-        backgroundColor: const Color(0xFF0F172A),
-        indicatorColor: const Color(0xFF10B981).withOpacity(0.2),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
-          NavigationDestination(icon: Icon(Icons.wallet), label: 'Wallet'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'Historique'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
-        ],
+        ),
+              ),
+            ),
+          ),
       ),
     );
   }
 
+  Widget _buildMenuItem(BuildContext context, IconData icon, String title, Color color, {bool isLogout = false, String? route}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        hoverColor: color.withOpacity(0.1),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: isLogout ? Colors.redAccent : Colors.white,
+            fontWeight: isLogout ? FontWeight.bold : FontWeight.w600,
+            fontSize: 15,
+          ),
+        ),
+        trailing: isLogout ? null : const Icon(Icons.chevron_right, color: Colors.white38, size: 20),
+        onTap: () {
+          if (route != null) {
+              Navigator.pop(context); // Close drawer
+              Navigator.pushNamed(context, route);
+            } else {if (isLogout) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title bientôt disponible !')));
+          }
+        }},
+      ),
+    );
+  }
   Widget _buildBody() {
     if (_currentIndex == 0) {
       return const ClientDashboardScreen();
@@ -134,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Card(
       color: const Color(0xFF0F172A),
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: Border.all(color: const Color(0xFF1E293B))),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1E293B))),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
