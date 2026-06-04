@@ -948,6 +948,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     dynamic selectedTrip;
     String? selectedSeat;
     String? ticketPour;
+    String? paymentMethod;
     String nom = 'Abdou Bakhe';
     String telephone = '+221 77 123 45 67';
     String email = 'abdou@example.com';
@@ -1356,7 +1357,99 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               );
             }
 
-            String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : 'Informations Passager';
+            Widget buildStep4() {
+              int passagersCount = int.tryParse(passagers?.split(' ')[0] ?? '1') ?? 1;
+              int basePrice = selectedTrip?['price'] ?? 5000;
+              int total = basePrice * passagersCount;
+
+              Widget _buildPaymentMethodOption(String id, String name, IconData icon, Color color) {
+                bool isSelected = paymentMethod == id;
+                return GestureDetector(
+                  onTap: () => setState(() => paymentMethod = id),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected ? color.withOpacity(0.1) : const Color(0xFF1A1A1A),
+                      border: Border.all(color: isSelected ? color : const Color(0xFF2A2A2A), width: isSelected ? 2 : 1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(icon, color: isSelected ? color : Colors.white70, size: 20),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(name, style: TextStyle(color: isSelected ? color : Colors.white70, fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal), overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1A1A),
+                      border: Border.all(color: const Color(0xFF2A2A2A)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Résumé de la commande', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Billet ${selectedTrip?['company'] ?? ''}', style: const TextStyle(color: Colors.white70)),
+                            Text('${basePrice * passagersCount} FCFA', style: const TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Taxes et frais', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                            const Text('0 FCFA', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                          ],
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Divider(color: Color(0xFF2A2A2A)),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total à payer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text('$total FCFA', style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 18)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text('Moyen de paiement', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 2.5,
+                    children: [
+                      _buildPaymentMethodOption('wave', 'Wave', Icons.phone_android, const Color(0xFF2563EB)),
+                      _buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316)),
+                      _buildPaymentMethodOption('wallet', 'Wallet', Icons.account_balance_wallet, const Color(0xFF9CA3AF)),
+                      _buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
+                    ],
+                  ),
+                ],
+              );
+            }
+
+            String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : step == 3 ? 'Informations Passager' : 'Paiement';
 
             return Dialog(
               backgroundColor: Colors.transparent,
@@ -1422,12 +1515,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     Flexible(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(24),
-                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : buildStep3(),
+                        child: step == 1 ? buildStep1() : step == 2 ? buildStep2() : step == 3 ? buildStep3() : buildStep4(),
                       ),
                     ),
 
                     // Footer Action
-                    if (step == 1 || (step == 3 && ticketPour != null))
+                    if (step == 1 || (step == 3 && ticketPour != null) || step == 4)
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: const BoxDecoration(
@@ -1452,15 +1545,21 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 });
                               } else if (step == 3) {
                                 if (nom.isNotEmpty && telephone.isNotEmpty) {
+                                  setState(() => step = 4);
+                                }
+                              } else if (step == 4) {
+                                if (paymentMethod != null) {
                                   Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Billet généré avec succès !'), backgroundColor: Color(0xFFF97316)));
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Paiement réussi, billet généré !'), backgroundColor: Color(0xFF10B981)));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez choisir un moyen de paiement')));
                                 }
                               }
                             },
                             icon: isSearching 
                               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
-                              : Icon(step == 3 ? Icons.check_circle : Icons.search, color: Colors.white),
-                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : 'Générer le billet', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                              : Icon(step == 4 ? Icons.payment : (step == 3 ? Icons.check_circle : Icons.search), color: Colors.white),
+                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : 'Payer maintenant', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF97316),
                               padding: const EdgeInsets.symmetric(vertical: 18),
