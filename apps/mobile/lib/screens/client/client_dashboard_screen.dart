@@ -1643,6 +1643,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       ],
                     ),
                   ),
+                  ), // Closing RepaintBoundary
                   const SizedBox(height: 16),
                   Row(
                     children: [
