@@ -1040,10 +1040,19 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            Widget buildStep1() {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                child: const SizedBox(),
+              ),
+            ),
+            StatefulBuilder(
+              builder: (context, setState) {
+                Widget buildStep1() {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1712,12 +1721,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
             String stepTitle = step == 1 ? 'Réserver un trajet' : step == 2 ? 'Choix du véhicule' : step == 3 ? 'Informations Passager' : 'Paiement';
 
-              return BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-                child: Dialog(
-                  backgroundColor: Colors.transparent,
-                  insetPadding: const EdgeInsets.all(16),
-                  child: Container(
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.all(16),
+                child: Container(
                   width: 420, // max-w-md (equivalent)
                   constraints: BoxConstraints(
                     minHeight: 500,
@@ -1861,9 +1868,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   ],
                 ),
               ),
-            ),
             );
           },
+        ),
+        ],
         );
       },
     );

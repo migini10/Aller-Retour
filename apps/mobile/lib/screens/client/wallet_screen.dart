@@ -323,14 +323,21 @@ class WalletScreen extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-              child: Dialog(
-                backgroundColor: Colors.transparent,
-                insetPadding: const EdgeInsets.all(16),
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                child: const SizedBox(),
+              ),
+            ),
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Dialog(
+                  backgroundColor: Colors.transparent,
+                  insetPadding: const EdgeInsets.all(16),
               child: Container(
                 width: 400, // Reduced from 500
                 constraints: BoxConstraints(
@@ -498,9 +505,10 @@ class WalletScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
             );
           },
+        ),
+        ],
         );
       },
     );
