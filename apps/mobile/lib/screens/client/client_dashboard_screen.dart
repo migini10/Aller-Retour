@@ -1495,7 +1495,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             )
                           else
                             const SizedBox(width: 48),
-                          Text(stepTitle, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Text('Nouvelle Demande', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Text('Étape $step sur 4 : $stepTitle', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                              ],
+                            ),
+                          ),
                           Container(
                             decoration: BoxDecoration(
                               color: const Color(0xFF222222),
@@ -1508,6 +1516,22 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                    // Progress bar
+                    Container(
+                      height: 4,
+                      width: double.infinity,
+                      color: const Color(0xFF1A1A1A),
+                      alignment: Alignment.centerLeft,
+                      child: FractionallySizedBox(
+                        widthFactor: step / 4,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(colors: [Color(0xFFEA580C), Color(0xFFFB923C)]),
+                          ),
+                        ),
                       ),
                     ),
 
