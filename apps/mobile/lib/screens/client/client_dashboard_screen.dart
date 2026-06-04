@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // for ImageFilter
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 import 'wallet_screen.dart';
 import 'colis_screen.dart';
 import 'qr_code_screen.dart';
@@ -8,6 +10,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/rendering.dart';
 class ClientDashboardScreen extends StatefulWidget {
   const ClientDashboardScreen({super.key});
 
@@ -960,6 +965,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     final quartierController = TextEditingController();
     String? date;
     String? passagers = '1 Passager';
+    final GlobalKey ticketKey = GlobalKey();
 
     Future<void> handleGeolocate(StateSetter setState) async {
       bool serviceEnabled;
@@ -1459,15 +1465,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
               return Column(
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        // Header ticket
+                  RepaintBoundary(
+                    key: ticketKey,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          // Header ticket
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: const BoxDecoration(
@@ -1634,6 +1642,55 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              RenderRepaintBoundary boundary = ticketKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                              ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+                              ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                              Uint8List pngBytes = byteData!.buffer.asUint8List();
+                              final file = XFile.fromData(pngBytes, name: 'billet.png', mimeType: 'image/png');
+                              await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
+                            } catch (e) {}
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF222222), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.download, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('Billet', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              RenderRepaintBoundary boundary = ticketKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                              ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+                              ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                              Uint8List pngBytes = byteData!.buffer.asUint8List();
+                              final file = XFile.fromData(pngBytes, name: 'billet.png', mimeType: 'image/png');
+                              await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
+                            } catch (e) {}
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF222222), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.share, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('Partager', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final url = Uri.parse('whatsapp://send?text=Voici mon billet Allo Dakar !');
+                            try { await launchUrl(url); } catch (e) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur WhatsApp'))); }
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('WhatsApp', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
