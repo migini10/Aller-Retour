@@ -175,23 +175,65 @@ export default function ColisPage() {
                 const isDelivered = colis.statut === 'Livré';
                 
                 let progressWidth = '10%';
-                let progressColor = 'amber-500';
-                let iconColor = 'amber-500';
                 
-                if (isAccepted) { progressWidth = '30%'; progressColor = 'blue-500'; iconColor = 'blue-500'; }
-                if (isTransit) { progressWidth = '65%'; progressColor = 'indigo-500'; iconColor = 'indigo-500'; }
-                if (isDelivered) { progressWidth = '100%'; progressColor = 'emerald-500'; iconColor = 'emerald-500'; }
+                // Explicit tailwind classes map
+                let borderColor = 'border-orange-500/30';
+                let hoverBorderColor = 'hover:border-orange-500/60';
+                let bgColor = 'bg-orange-500/10';
+                let iconBorderColor = 'border-orange-500/20';
+                let textColor = 'text-orange-500';
+                let bgSolidColor = 'bg-orange-500';
+                let borderSolidColor = 'border-orange-500';
+                let hoverBgColor = 'hover:bg-orange-500/10';
+                let hoverTextColor = 'hover:text-orange-500';
+                
+                if (isAccepted) { 
+                  progressWidth = '30%'; 
+                  borderColor = 'border-blue-500/30';
+                  hoverBorderColor = 'hover:border-blue-500/60';
+                  bgColor = 'bg-blue-500/10';
+                  iconBorderColor = 'border-blue-500/20';
+                  textColor = 'text-blue-500';
+                  bgSolidColor = 'bg-blue-500';
+                  borderSolidColor = 'border-blue-500';
+                  hoverBgColor = 'hover:bg-blue-500/10';
+                  hoverTextColor = 'hover:text-blue-500';
+                }
+                if (isTransit) { 
+                  progressWidth = '65%'; 
+                  borderColor = 'border-indigo-500/30';
+                  hoverBorderColor = 'hover:border-indigo-500/60';
+                  bgColor = 'bg-indigo-500/10';
+                  iconBorderColor = 'border-indigo-500/20';
+                  textColor = 'text-indigo-500';
+                  bgSolidColor = 'bg-indigo-500';
+                  borderSolidColor = 'border-indigo-500';
+                  hoverBgColor = 'hover:bg-indigo-500/10';
+                  hoverTextColor = 'hover:text-indigo-500';
+                }
+                if (isDelivered) { 
+                  progressWidth = '100%'; 
+                  borderColor = 'border-emerald-500/30';
+                  hoverBorderColor = 'hover:border-emerald-500/60';
+                  bgColor = 'bg-emerald-500/10';
+                  iconBorderColor = 'border-emerald-500/20';
+                  textColor = 'text-emerald-500';
+                  bgSolidColor = 'bg-emerald-500';
+                  borderSolidColor = 'border-emerald-500';
+                  hoverBgColor = 'hover:bg-emerald-500/10';
+                  hoverTextColor = 'hover:text-emerald-500';
+                }
 
                 return (
-                  <div key={idx} className={`bg-white dark:bg-[#141414] border border-${progressColor}/30 hover:border-${progressColor}/60 rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6`}>
+                  <div key={idx} className={`bg-white dark:bg-[#141414] border ${borderColor} ${hoverBorderColor} rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6`}>
                     <div className="flex-1 flex flex-col md:flex-row gap-6">
-                      <div className={`w-16 h-16 rounded-2xl bg-${iconColor}/10 border border-${iconColor}/20 flex items-center justify-center shrink-0`}>
-                        {isDelivered ? <CheckCircle2 className={`w-8 h-8 text-${iconColor}`} /> : <Truck className={`w-8 h-8 text-${iconColor}`} />}
+                      <div className={`w-16 h-16 rounded-2xl ${bgColor} border ${iconBorderColor} flex items-center justify-center shrink-0`}>
+                        {isDelivered ? <CheckCircle2 className={`w-8 h-8 ${textColor}`} /> : <Truck className={`w-8 h-8 ${textColor}`} />}
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-3 mb-2">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white">{colis.trajet}</h3>
-                          <span className={`text-[10px] uppercase font-bold text-${progressColor} bg-${progressColor}/10 px-2.5 py-1 rounded-md border border-${progressColor}/20`}>
+                          <span className={`text-[10px] uppercase font-bold ${textColor} ${bgColor} px-2.5 py-1 rounded-md border ${iconBorderColor}`}>
                             {colis.statut || 'En attente'}
                           </span>
                         </div>
@@ -200,31 +242,32 @@ export default function ColisPage() {
                         {/* Progress bar */}
                         <div className="relative pt-4 w-full max-w-md hidden sm:block">
                           <div className="absolute top-0 left-0 w-full flex justify-between text-[10px] font-bold text-slate-400 uppercase">
-                            <span className={!isAccepted && !isTransit && !isDelivered ? `text-${progressColor}` : ''}>Dépôt</span>
-                            <span className={isAccepted || isTransit ? `text-${progressColor}` : ''}>{isAccepted ? 'Accepté' : 'En route'}</span>
-                            <span className={isDelivered ? `text-${progressColor}` : ''}>Livré</span>
+                            <span className={!isAccepted && !isTransit && !isDelivered ? textColor : ''}>Dépôt</span>
+                            <span className={isAccepted || isTransit ? textColor : ''}>{isAccepted ? 'Accepté' : 'En route'}</span>
+                            <span className={isDelivered ? textColor : ''}>Livré</span>
                           </div>
                           <div className="w-full bg-slate-100 dark:bg-[#222222] rounded-full h-2 mt-2 relative">
-                            <div className={`bg-${progressColor} h-2 rounded-full absolute top-0 left-0 transition-all duration-1000`} style={{ width: progressWidth }}></div>
-                            <div className={`w-4 h-4 rounded-full bg-white border-4 border-${progressColor} absolute top-1/2 -translate-y-1/2 shadow-md transition-all duration-1000`} style={{ left: progressWidth, transform: 'translate(-50%, -50%)' }}></div>
+                            <div className={`${bgSolidColor} h-2 rounded-full absolute top-0 left-0 transition-all duration-1000`} style={{ width: progressWidth }}></div>
+                            <div className={`w-4 h-4 rounded-full bg-white border-4 ${borderSolidColor} absolute top-1/2 -translate-y-1/2 shadow-md transition-all duration-1000`} style={{ left: progressWidth, transform: 'translate(-50%, -50%)' }}></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                <div className="md:border-l md:border-slate-200 md:dark:border-[#2A2A2A] md:pl-6 flex flex-col justify-center shrink-0 gap-3">
-                  <div className="text-sm text-slate-500 dark:text-slate-400">
-                    <p className="font-bold text-slate-900 dark:text-white text-base">Destinataire</p>
-                    <p>{colis.destinataire}</p>
-                    <p className="font-mono text-xs mt-0.5">{colis.tel}</p>
+                    
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between border-t md:border-t-0 md:border-l border-slate-200 dark:border-[#2A2A2A] pt-4 md:pt-0 md:pl-6">
+                      <div className="text-left md:text-right">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Destinataire</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{colis.destinataire}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{colis.tel}</p>
+                      </div>
+                      <button 
+                        onClick={() => setTrackingColis(colis)}
+                        className={`px-4 py-2 bg-slate-100 dark:bg-[#222222] ${hoverBgColor} text-slate-700 dark:text-slate-300 ${hoverTextColor} rounded-xl text-sm font-bold transition-colors flex items-center gap-2`}
+                      >
+                        Suivre <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => setTrackingColis(colis)}
-                    className="w-full bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:hover:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-2.5 rounded-xl text-xs transition-colors"
-                  >
-                    Détails / Suivre
-                  </button>
-                </div>
-              </div>
                 );
             })}
           </div>
