@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class DriverColisScreen extends StatefulWidget {
   const DriverColisScreen({super.key});
@@ -22,11 +21,10 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
   Future<void> _loadColis() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final stored = prefs.getString('demo_colis');
-      if (stored != null) {
+      final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
+      if (response.statusCode == 200) {
         setState(() {
-          colis = jsonDecode(stored);
+          colis = jsonDecode(response.body);
         });
       }
     } catch (e) {
@@ -39,19 +37,18 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
   }
 
   Future<void> _updateStatut(String id, String nextStatut) async {
-    final updatedList = colis.map((c) {
-      if (c['id'] == id) {
-        return {...c, 'statut': nextStatut};
+    try {
+      final response = await http.patch(
+        Uri.parse('http://localhost:3000/api/colis/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'statut': nextStatut}),
+      );
+      if (response.statusCode == 200) {
+        await _loadColis();
       }
-      return c;
-    }).toList();
-
-    setState(() {
-      colis = updatedList;
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('demo_colis', jsonEncode(updatedList));
+    } catch (e) {
+      debugPrint('Error updating status: $e');
+    }
   }
 
   void _showPinModal(String colisId, String nextStatut) {

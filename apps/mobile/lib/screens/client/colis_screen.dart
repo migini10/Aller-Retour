@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'widgets/colis_modal.dart';
 
 class ColisScreen extends StatefulWidget {
@@ -12,6 +12,7 @@ class ColisScreen extends StatefulWidget {
 
 class _ColisScreenState extends State<ColisScreen> {
   List<dynamic> localColis = [];
+  bool _isLoading = true;
   final TextEditingController searchController = TextEditingController();
 
   void _showTrackingModal(Map<String, dynamic> colis) {
@@ -228,14 +229,17 @@ class _ColisScreenState extends State<ColisScreen> {
 
   Future<void> _loadColis() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final stored = prefs.getString('demo_colis');
-      if (stored != null) {
+      final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
+      if (response.statusCode == 200) {
         setState(() {
-          localColis = jsonDecode(stored);
+          localColis = jsonDecode(response.body);
+          _isLoading = false;
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error loading colis: $e');
+      setState(() { _isLoading = false; });
+    }
   }
 
   @override

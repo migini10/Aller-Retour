@@ -193,29 +193,30 @@ void showColisModal(BuildContext context) {
                                             setState(() => step = 3);
                                           } else if (step == 3) {
                                             setState(() => isLoading = true);
-                                            await Future.delayed(const Duration(milliseconds: 1000));
-                                            
-                                            setState(() {
-                                              isLoading = false;
-                                              generatedTicket = 'COLIS-${Random().nextInt(90000) + 10000}';
-                                              step = 4;
-                                            });
-                                            // Save to SharedPreferences
                                             try {
-                                              final prefs = await SharedPreferences.getInstance();
-                                              final stored = prefs.getString('demo_colis');
-                                              List<dynamic> colisList = stored != null ? jsonDecode(stored) : [];
-                                              colisList.insert(0, {
-                                                'id': generatedTicket,
-                                                'trajet': '${departController.text} → ${arriveeController.text}',
-                                                'date': DateTime.now().toIso8601String().split('T')[0],
-                                                'taille': taille ?? 'Moyen (5 - 15 kg)',
-                                                'destinataire': destNomController.text,
-                                                'tel': destTelController.text,
-                                                'statut': 'En attente de prise en charge',
-                                              });
-                                              await prefs.setString('demo_colis', jsonEncode(colisList));
-                                            } catch (e) {}
+                                              final response = await http.post(
+                                                Uri.parse('http://localhost:3000/api/colis'),
+                                                headers: {'Content-Type': 'application/json'},
+                                                body: jsonEncode({
+                                                  'destinataire': destNomController.text,
+                                                  'tel': destTelController.text,
+                                                  'taille': taille ?? 'Moyen (5-15kg)',
+                                                }),
+                                              );
+                                              if (response.statusCode == 200) {
+                                                final data = jsonDecode(response.body);
+                                                setState(() {
+                                                  isLoading = false;
+                                                  generatedTicket = data['parcel']['trackingCode'];
+                                                  step = 4;
+                                                });
+                                              } else {
+                                                setState(() => isLoading = false);
+                                              }
+                                            } catch (e) {
+                                              debugPrint('Error: $e');
+                                              setState(() => isLoading = false);
+                                            }
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(
