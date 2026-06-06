@@ -410,113 +410,103 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                 angle: -0.2,
                                 child: Icon(
                                   Icons.inventory_2,
-                                  size: 120,
+                                  size: 140,
                                   color: Colors.white.withOpacity(0.03),
                                 ),
                               ),
                             ),
                             Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.inventory_2, color: Colors.white54, size: 16),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      c['id'] ?? 'INCONNU',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontFamily: 'monospace',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: badgeColor.withOpacity(0.1),
-                                    border: Border.all(color: badgeColor.withOpacity(0.3)),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    (c['statut'] ?? '').toUpperCase(),
-                                    style: TextStyle(
-                                      color: badgeColor,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Content
-                            Text(
-                              c['trajet'] ?? 'Trajet Inconnu',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                const Icon(Icons.access_time, color: Colors.white30, size: 16),
-                                const SizedBox(width: 6),
-                                Text(c['date'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 13)),
-                                const SizedBox(width: 16),
-                                const Icon(Icons.aspect_ratio, color: Colors.white30, size: 16),
-                                const SizedBox(width: 6),
-                                Text(c['taille'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 13)),
-                              ],
-                            ),
-                            
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Divider(color: Colors.white10, height: 1),
-                            ),
-                            
-                            // Destinataire + Action
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.03),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: badgeColor.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: badgeColor.withOpacity(0.3)),
+                                        ),
+                                        child: Icon(Icons.inventory_2, color: badgeColor, size: 28),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: badgeColor.withOpacity(0.15),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: badgeColor.withOpacity(0.3)),
+                                        ),
+                                        child: Text(
+                                          (c['statut'] ?? '').toUpperCase(),
+                                          style: TextStyle(
+                                            color: badgeColor,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    c['trajet'] ?? 'Trajet Inconnu',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${c['id'] ?? 'INCONNU'} • ${c['taille'] ?? ''}\n${c['date'] ?? ''}',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.6),
+                                      fontSize: 13,
+                                      height: 1.4,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  
+                                  const SizedBox(height: 20),
+                                  
+                                  // Destinataire + Action
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.03),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Row(
                                       children: [
-                                        const Text('DESTINATAIRE', style: TextStyle(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                                        const SizedBox(height: 4),
-                                        Text(c['destinataire'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                        Text(c['tel'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const Text('DESTINATAIRE', style: TextStyle(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                              const SizedBox(height: 4),
+                                              Text(c['destinataire'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                              Text(c['tel'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
+                                  const SizedBox(height: 16),
+                                  _buildActionButton(c),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            _buildActionButton(c),
                           ],
                         ),
                       ),
-                        ],
-                      ),
-                    ),
                     );
                   },
                 ),

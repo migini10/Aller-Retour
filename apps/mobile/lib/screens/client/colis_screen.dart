@@ -554,143 +554,160 @@ class _ColisScreenState extends State<ColisScreen> {
     required String actionLabel,
     required VoidCallback onTapAction,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // slate-800
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            // Faint background icon
-            Positioned(
-              bottom: -20,
-              right: -20,
-              child: Transform.rotate(
-                angle: -0.2,
-                child: Icon(
-                  icon,
-                  size: 120,
-                  color: Colors.white.withOpacity(0.03),
-                ),
-              ),
+    return GestureDetector(
+      onTap: onTapAction,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B), // slate-800
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(14),
+              // Faint background icon
+              Positioned(
+                bottom: -20,
+                right: -20,
+                child: Transform.rotate(
+                  angle: -0.2,
+                  child: Icon(
+                    icon,
+                    size: 140,
+                    color: Colors.white.withOpacity(0.03),
+                  ),
                 ),
-                child: Icon(icon, color: iconColor, size: 24),
               ),
-              const SizedBox(width: 16),
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 4),
-                    Text(ref, style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: statusColor.withOpacity(0.3)),
-                ),
-                child: Text(status, style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          if (showProgress) ...[
-            const SizedBox(height: 20),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      height: 4,
-                      width: double.infinity,
-                      decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      height: 4,
-                      width: constraints.maxWidth * progressValue,
-                      decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(2)),
-                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('DÉPÔT', style: TextStyle(color: progressValue >= 0.1 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
-                        Text('EN ROUTE', style: TextStyle(color: progressValue >= 0.5 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
-                        Text('LIVRÉ', style: TextStyle(color: progressValue >= 1.0 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: iconColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: iconColor.withOpacity(0.3)),
+                          ),
+                          child: Icon(icon, color: iconColor, size: 28),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: statusColor.withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            status,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$ref\nDestinataire: $dest${phone != null ? ' ($phone)' : ''}',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (showProgress) ...[
+                      const SizedBox(height: 24),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Stack(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                height: 6,
+                                width: double.infinity,
+                                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3)),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                height: 6,
+                                width: constraints.maxWidth * progressValue,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  borderRadius: BorderRadius.circular(3),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: statusColor.withOpacity(0.5),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('DÉPÔT', style: TextStyle(color: progressValue >= 0.1 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                  Text('EN ROUTE', style: TextStyle(color: progressValue >= 0.5 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                  Text('LIVRÉ', style: TextStyle(color: progressValue >= 1.0 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Text(
+                          actionLabel,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(Icons.arrow_forward_rounded, size: 18, color: statusColor),
                       ],
                     ),
                   ],
-                );
-              }
-            ),
-          ],
-          const SizedBox(height: 16),
-          const Divider(color: Colors.white10),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Destinataire', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                    const SizedBox(height: 2),
-                    Text(dest, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    if (phone != null) ...[
-                      const SizedBox(height: 2),
-                      Text(phone, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
-                  ],
                 ),
-              ),
-              ElevatedButton(
-                onPressed: onTapAction,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E293B),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: Text(actionLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
+        ),
+      ),
+    );
+  }
 }
