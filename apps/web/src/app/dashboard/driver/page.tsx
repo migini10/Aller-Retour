@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { 
-  Bus, LayoutDashboard, Route, QrCode, Users, Wallet, Store, Bell, HelpCircle, Settings, MapPin, Activity, ChevronRight, Sun, Moon
+  Bus, LayoutDashboard, Route, QrCode, Users, Wallet, Store, Bell, HelpCircle, Settings, MapPin, Activity, ChevronRight, Sun, Moon, Package
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -17,6 +17,7 @@ import SectionVehicule from './sections/Vehicule';
 import SectionNotifications from './sections/Notifications';
 import SectionSupport from './sections/Support';
 import SectionParametres from './sections/Parametres';
+import SectionColis from './sections/Colis';
 
 const navItems = [
   { id: 'accueil', label: 'Accueil', icon: LayoutDashboard },
@@ -26,6 +27,7 @@ const navItems = [
   { id: 'passagers', label: 'Passagers', icon: Users },
   { id: 'revenus', label: 'Revenus', icon: Wallet },
   { id: 'marketplace', label: 'Marketplace', icon: Store },
+  { id: 'colis', label: 'Gestion des Colis', icon: Package },
   { id: 'vehicule', label: 'Véhicule', icon: Bus },
   { id: 'notifications', label: 'Notifications', icon: Bell, badge: '2' },
   { id: 'support', label: 'Support', icon: HelpCircle },
@@ -71,6 +73,7 @@ export default function DriverDashboard() {
       case 'passagers': return <SectionPassagers />;
       case 'revenus': return <SectionRevenus />;
       case 'marketplace': return <SectionMarketplace />;
+      case 'colis': return <SectionColis />;
       case 'vehicule': return <SectionVehicule />;
       case 'notifications': return <SectionNotifications />;
       case 'support': return <SectionSupport />;
