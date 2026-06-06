@@ -232,7 +232,7 @@ export default function ColisPage() {
               </div>
 
               {/* Informations du Chauffeur (Visible uniquement pour le client) */}
-              {(trackingColis.statut === 'Pris en charge' || trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') && (
+              {(trackingColis.statut === 'Accepté' || trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') && (
                 <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl p-4 flex gap-4 items-center">
                   <div className="bg-orange-500 text-white p-3 rounded-xl shadow-lg shadow-orange-500/30">
                     <Truck className="w-6 h-6" />
@@ -256,8 +256,8 @@ export default function ColisPage() {
                 </div>
 
                 <div className="relative">
-                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Pris en charge' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
-                  <h4 className={`font-bold ${trackingColis.statut === 'Pris en charge' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Pris en charge par le chauffeur</h4>
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Accepté' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${trackingColis.statut === 'Accepté' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Course acceptée par un chauffeur</h4>
                   <p className="text-xs text-slate-400 mt-1">À l'agence de départ</p>
                 </div>
 

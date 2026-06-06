@@ -79,7 +79,7 @@ class _ColisScreenState extends State<ColisScreen> {
               const SizedBox(height: 16),
               
               // Informations du Chauffeur (Visible uniquement pour le client)
-              if (colis['statut'] == 'Pris en charge' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
+              if (colis['statut'] == 'Accepté' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -109,7 +109,7 @@ class _ColisScreenState extends State<ColisScreen> {
                     ],
                   ),
                 ),
-              if (colis['statut'] == 'Pris en charge' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
+              if (colis['statut'] == 'Accepté' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
                 const SizedBox(height: 32)
               else 
                 const SizedBox(height: 16),
@@ -124,9 +124,9 @@ class _ColisScreenState extends State<ColisScreen> {
                 isLast: false,
               ),
               _buildTimelineStep(
-                title: 'Pris en charge par le chauffeur',
+                title: 'Course acceptée par un chauffeur',
                 subtitle: 'À l\'agence de départ',
-                isActive: colis['statut'] == 'Pris en charge',
+                isActive: colis['statut'] == 'Accepté',
                 isDone: colis['statut'] != 'En attente de prise en charge',
                 color: Colors.blueAccent,
                 isLast: false,

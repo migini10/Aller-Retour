@@ -38,19 +38,19 @@ export default function SectionColis() {
       case 'En attente de prise en charge':
         return (
           <button 
-            onClick={() => updateStatut(c.id, 'Pris en charge')}
+            onClick={() => updateStatut(c.id, 'Accepté')}
             className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <Truck className="w-4 h-4 shrink-0" /> Prendre en charge
+            <CheckCircle2 className="w-4 h-4 shrink-0" /> Accepter la course
           </button>
         );
-      case 'Pris en charge':
+      case 'Accepté':
         return (
           <button 
             onClick={() => updateStatut(c.id, 'En transit')}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <MapPin className="w-4 h-4 shrink-0" /> En transit
+            <Package className="w-4 h-4 shrink-0" /> Colis récupéré
           </button>
         );
       case 'En transit':
@@ -59,7 +59,7 @@ export default function SectionColis() {
             onClick={() => updateStatut(c.id, 'Livré')}
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <CheckCircle2 className="w-4 h-4 shrink-0" /> Livrer
+            <MapPin className="w-4 h-4 shrink-0" /> Livrer au destinataire
           </button>
         );
       case 'Livré':
@@ -110,7 +110,7 @@ export default function SectionColis() {
                     </span>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-md border uppercase tracking-wider whitespace-nowrap ${
                       c.statut === 'En attente de prise en charge' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/20' :
-                      c.statut === 'Pris en charge' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
+                      c.statut === 'Accepté' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
                       c.statut === 'En transit' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' :
                       'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     }`}>

@@ -118,8 +118,8 @@ export default function VerifyColisPage({ params }: { params: { id: string } }) 
           </div>
 
           <div className="relative">
-            <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${colis.statut === 'Pris en charge' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
-            <h4 className={`font-bold ${colis.statut === 'Pris en charge' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Pris en charge par le réseau</h4>
+            <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${colis.statut === 'Accepté' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+            <h4 className={`font-bold ${colis.statut === 'Accepté' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Course acceptée par un chauffeur</h4>
             <p className="text-xs text-slate-400 mt-1">Colis sécurisé et prêt au départ</p>
           </div>
 
