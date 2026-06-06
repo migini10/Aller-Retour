@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma, ParcelStatus } from '@aller-retour/database';
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  console.log('PATCH ROUTE HIT', params);
   try {
     const { id } = params; // This is the trackingCode because we use it as ID in frontend
     const data = await request.json();

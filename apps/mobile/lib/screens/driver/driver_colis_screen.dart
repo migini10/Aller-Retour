@@ -45,14 +45,25 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
       );
       if (response.statusCode == 200) {
         await _loadColis();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut mis à jour avec succès!'), backgroundColor: Colors.green));
+        }
+      } else {
+        debugPrint('Error status code: ${response.statusCode} - ${response.body}');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur serveur: ${response.statusCode}'), backgroundColor: Colors.red));
+        }
       }
     } catch (e) {
       debugPrint('Error updating status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur réseau: $e'), backgroundColor: Colors.red));
+      }
     }
   }
 
   void _showPinModal(String colisId, String nextStatut) {
-    String pinCode = '';
+    final TextEditingController pinController = TextEditingController();
     String errorMsg = '';
 
     showGeneralDialog(
@@ -130,8 +141,8 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-
                         TextField(
+                          controller: pinController,
                           autofocus: true,
                           keyboardType: TextInputType.number,
                           maxLength: 4,
@@ -159,7 +170,6 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             ),
                           ),
                           onChanged: (val) {
-                            pinCode = val;
                             if (errorMsg.isNotEmpty) {
                               setStateModal(() {
                                 errorMsg = '';
@@ -200,12 +210,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  if (pinCode == '1234') {
+                                  if (pinController.text.trim() == '1234') {
                                     Navigator.pop(context);
                                     _updateStatut(colisId, nextStatut);
                                   } else {
                                     setStateModal(() {
-                                      errorMsg = 'Code de sécurité incorrect.';
+                                      errorMsg = 'Code de sécurité incorrect. (Saisi: "${pinController.text}")';
                                     });
                                   }
                                 },
