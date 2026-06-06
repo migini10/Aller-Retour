@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,27 +13,41 @@ class DriverColisScreen extends StatefulWidget {
 class _DriverColisScreenState extends State<DriverColisScreen> {
   List<dynamic> colis = [];
   bool isLoading = true;
+  Timer? _pollingTimer;
 
   @override
   void initState() {
     super.initState();
     _loadColis();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadColis(silent: true);
+    });
   }
 
-  Future<void> _loadColis() async {
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadColis({bool silent = false}) async {
     try {
       final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
       if (response.statusCode == 200) {
-        setState(() {
-          colis = jsonDecode(response.body);
-        });
+        if (mounted) {
+          setState(() {
+            colis = jsonDecode(response.body);
+          });
+        }
       }
     } catch (e) {
       debugPrint('Error loading colis: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (!silent && mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

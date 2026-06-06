@@ -23,7 +23,7 @@ export default function ColisPage() {
 
   const loadColis = async () => {
     try {
-      const res = await fetch('/api/colis');
+      const res = await fetch(`/api/colis?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setLocalColis(data);

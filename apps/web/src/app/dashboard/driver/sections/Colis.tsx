@@ -5,6 +5,7 @@ import { Package, MapPin, Clock, CheckCircle2, Truck, AlertTriangle } from 'luci
 export default function SectionColis() {
   const [colis, setColis] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   // Security PIN states
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -26,13 +27,26 @@ export default function SectionColis() {
 
   const loadColis = async () => {
     try {
-      const res = await fetch('/api/colis');
+      const res = await fetch(`/api/colis?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
-        const data = await res.json();
-        setColis(data);
+        try {
+          const text = await res.text();
+          const data = JSON.parse(text);
+          if (Array.isArray(data)) {
+            setColis(data);
+            setDebugError(null);
+          } else {
+            setDebugError("Data is not an array: " + text.substring(0, 100));
+          }
+        } catch (parseErr: any) {
+          setDebugError("JSON Parse Error: " + parseErr.message);
+        }
+      } else {
+        setDebugError(`Fetch not OK: ${res.status} ${res.statusText}`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setDebugError(`Fetch Error: ${e.message}`);
     }
   };
 
@@ -126,7 +140,12 @@ export default function SectionColis() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {colis.length === 0 ? (
+        {debugError && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-4 font-mono text-sm break-words">
+            DEBUG ERROR: {debugError}
+          </div>
+        )}
+        {colis.length === 0 && !debugError ? (
           <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-8 text-center transition-colors">
             <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>

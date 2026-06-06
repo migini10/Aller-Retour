@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'widgets/colis_modal.dart';
@@ -13,6 +14,7 @@ class ColisScreen extends StatefulWidget {
 class _ColisScreenState extends State<ColisScreen> {
   List<dynamic> localColis = [];
   bool _isLoading = true;
+  Timer? _pollingTimer;
   final TextEditingController searchController = TextEditingController();
 
   void _showTrackingModal(Map<String, dynamic> colis) {
@@ -225,20 +227,33 @@ class _ColisScreenState extends State<ColisScreen> {
   void initState() {
     super.initState();
     _loadColis();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadColis(silent: true);
+    });
   }
 
-  Future<void> _loadColis() async {
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadColis({bool silent = false}) async {
     try {
       final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
       if (response.statusCode == 200) {
-        setState(() {
-          localColis = jsonDecode(response.body);
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            localColis = jsonDecode(response.body);
+            if (!silent) _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       debugPrint('Error loading colis: $e');
-      setState(() { _isLoading = false; });
+      if (!silent && mounted) {
+        setState(() { _isLoading = false; });
+      }
     }
   }
 
