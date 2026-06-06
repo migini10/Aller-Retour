@@ -231,6 +231,20 @@ export default function ColisPage() {
                 </div>
               </div>
 
+              {/* Informations du Chauffeur (Visible uniquement pour le client) */}
+              {(trackingColis.statut === 'Pris en charge' || trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') && (
+                <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl p-4 flex gap-4 items-center">
+                  <div className="bg-orange-500 text-white p-3 rounded-xl shadow-lg shadow-orange-500/30">
+                    <Truck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-orange-600 dark:text-orange-400 font-bold uppercase tracking-wider mb-1">Chauffeur en charge</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Ousmane Diop</p>
+                    <p className="text-sm text-slate-500">+221 77 987 65 43</p>
+                  </div>
+                </div>
+              )}
+
               <div className="relative pl-6 space-y-8">
                 {/* Ligne verticale de la timeline */}
                 <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-[#2A2A2A]"></div>

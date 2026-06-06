@@ -76,7 +76,43 @@ class _ColisScreenState extends State<ColisScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              
+              // Informations du Chauffeur (Visible uniquement pour le client)
+              if (colis['statut'] == 'Pris en charge' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: Colors.orangeAccent, borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(Icons.local_shipping, color: Colors.white),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('CHAUFFEUR EN CHARGE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                            SizedBox(height: 2),
+                            Text('Ousmane Diop', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text('+221 77 987 65 43', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (colis['statut'] == 'Pris en charge' || colis['statut'] == 'En transit' || colis['statut'] == 'Livré')
+                const SizedBox(height: 32)
+              else 
+                const SizedBox(height: 16),
               
               // Timeline
               _buildTimelineStep(
