@@ -491,13 +491,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: service['color'].withOpacity(0.3), width: 1.5),
+                  border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
                   boxShadow: [
                     BoxShadow(
-                      color: service['color'].withOpacity(0.15),
-                      blurRadius: 20,
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -506,22 +510,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   borderRadius: BorderRadius.circular(24),
                   child: Stack(
                     children: [
-                      // Glow effect top-left
-                      Positioned(
-                        top: -30,
-                        left: -30,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: service['color'].withOpacity(0.2),
-                            boxShadow: [
-                              BoxShadow(color: service['color'].withOpacity(0.4), blurRadius: 40)
-                            ],
-                          ),
-                        ),
-                      ),
                       // Faint background icon
                       Positioned(
                         bottom: -15,
@@ -544,12 +532,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: service['color'].withOpacity(0.2),
+                                color: service['color'].withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: service['color'].withOpacity(0.5)),
-                                boxShadow: [
-                                  BoxShadow(color: service['color'].withOpacity(0.3), blurRadius: 10)
-                                ],
+                                border: Border.all(color: service['color'].withOpacity(0.3)),
                               ),
                               child: Icon(
                                 service['icon'],
