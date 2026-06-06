@@ -557,6 +557,7 @@ class _ColisScreenState extends State<ColisScreen> {
     return GestureDetector(
       onTap: onTapAction,
       child: Container(
+        width: double.infinity,
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: const Color(0xFF1E293B), // slate-800
@@ -649,30 +650,34 @@ class _ColisScreenState extends State<ColisScreen> {
                       const SizedBox(height: 24),
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          return Stack(
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                margin: const EdgeInsets.only(top: 4),
-                                height: 6,
-                                width: double.infinity,
-                                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3)),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.only(top: 4),
-                                height: 6,
-                                width: constraints.maxWidth * progressValue,
-                                decoration: BoxDecoration(
-                                  color: statusColor,
-                                  borderRadius: BorderRadius.circular(3),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: statusColor.withOpacity(0.5),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
+                              Stack(
+                                children: [
+                                  Container(
+                                    height: 6,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3)),
+                                  ),
+                                  Container(
+                                    height: 6,
+                                    width: constraints.maxWidth * progressValue,
+                                    decoration: BoxDecoration(
+                                      color: statusColor,
+                                      borderRadius: BorderRadius.circular(3),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: statusColor.withOpacity(0.5),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                              const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
