@@ -39,33 +39,33 @@ export default function SectionColis() {
         return (
           <button 
             onClick={() => updateStatut(c.id, 'Pris en charge')}
-            className="w-full mt-4 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <Truck className="w-5 h-5" /> Accepter et Prendre en charge
+            <Truck className="w-4 h-4 shrink-0" /> Prendre en charge
           </button>
         );
       case 'Pris en charge':
         return (
           <button 
             onClick={() => updateStatut(c.id, 'En transit')}
-            className="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <MapPin className="w-5 h-5" /> Mettre en transit
+            <MapPin className="w-4 h-4 shrink-0" /> En transit
           </button>
         );
       case 'En transit':
         return (
           <button 
             onClick={() => updateStatut(c.id, 'Livré')}
-            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
-            <CheckCircle2 className="w-5 h-5" /> Marquer comme Livré
+            <CheckCircle2 className="w-4 h-4 shrink-0" /> Livrer
           </button>
         );
       case 'Livré':
         return (
-          <div className="w-full mt-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-5 h-5" /> Colis Livré avec succès
+          <div className="w-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm">
+            <CheckCircle2 className="w-4 h-4 shrink-0" /> Terminé
           </div>
         );
       default:
@@ -87,50 +87,61 @@ export default function SectionColis() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-4">
         {colis.length === 0 ? (
-          <div className="col-span-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-8 text-center transition-colors">
+          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-8 text-center transition-colors">
             <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>
           </div>
         ) : (
           colis.map((c, idx) => (
-            <div key={idx} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 shadow-sm transition-colors flex flex-col justify-between hover:border-orange-500/30">
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <p className="font-mono text-xs font-bold text-orange-500 mb-1">{c.id}</p>
-                    <p className="font-bold text-slate-900 dark:text-white">{c.trajet || 'Trajet Inconnu'}</p>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-md border uppercase tracking-wider ${
-                    c.statut === 'En attente de prise en charge' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/20' :
-                    c.statut === 'Pris en charge' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
-                    c.statut === 'En transit' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' :
-                    'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  }`}>
-                    {c.statut}
-                  </span>
+            <div key={idx} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-4 sm:p-5 shadow-sm transition-colors flex flex-col lg:flex-row lg:items-center justify-between hover:border-orange-500/30 gap-6">
+              
+              {/* Infos principales */}
+              <div className="flex-1 flex gap-5 items-start">
+                <div className="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-100 dark:border-orange-500/20">
+                  <Package className="w-6 h-6 text-orange-500" />
                 </div>
-                
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Clock className="w-4 h-4 shrink-0" />
-                    <span>{c.date}</span>
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <p className="font-mono text-xs font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-md">{c.id}</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${
+                      c.statut === 'En attente de prise en charge' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/20' :
+                      c.statut === 'Pris en charge' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
+                      c.statut === 'En transit' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' :
+                      'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    }`}>
+                      {c.statut}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Package className="w-4 h-4 shrink-0" />
-                    <span>{c.taille || 'Taille Inconnue'}</span>
+                  <h3 className="font-black text-slate-900 dark:text-white text-base sm:text-lg tracking-tight mb-2">
+                    {c.trajet || 'Trajet Inconnu'}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      {c.date}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Package className="w-4 h-4 text-slate-400" />
+                      {c.taille || 'Taille Inconnue'}
+                    </div>
                   </div>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-[#1A1A1A] rounded-xl p-3 border border-slate-100 dark:border-[#222222]">
-                  <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Destinataire</p>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm">{c.destinataire || 'Inconnu'}</p>
-                  <p className="text-xs text-slate-500 font-mono mt-0.5">{c.tel || 'Aucun numéro'}</p>
                 </div>
               </div>
 
-              {getActionBtn(c)}
+              {/* Destinataire */}
+              <div className="w-full lg:w-64 bg-slate-50 dark:bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-slate-100 dark:border-[#222222] shrink-0">
+                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Destinataire</p>
+                <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{c.destinataire || 'Inconnu'}</p>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">{c.tel || 'Aucun numéro'}</p>
+              </div>
+
+              {/* Action Button */}
+              <div className="w-full lg:w-48 shrink-0">
+                {getActionBtn(c)}
+              </div>
+
             </div>
           ))
         )}
