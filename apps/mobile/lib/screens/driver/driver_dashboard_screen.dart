@@ -272,43 +272,111 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                           decoration: BoxDecoration(
                             color: const Color(0xFF0F172A),
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.white.withOpacity(0.05)),
-                          ),
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: service['color'].withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Icon(
-                                  service['icon'],
-                                  color: service['color'],
-                                  size: 28,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                service['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                service['description'],
-                                style: const TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 12,
-                                  height: 1.3,
-                                ),
+                            border: Border.all(color: service['color'].withOpacity(0.3), width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: service['color'].withOpacity(0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
                               ),
                             ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: Stack(
+                              children: [
+                                // Glow effect top-left
+                                Positioned(
+                                  top: -30,
+                                  left: -30,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: service['color'].withOpacity(0.2),
+                                      boxShadow: [
+                                        BoxShadow(color: service['color'].withOpacity(0.4), blurRadius: 40)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Faint background icon
+                                Positioned(
+                                  bottom: -15,
+                                  right: -15,
+                                  child: Transform.rotate(
+                                    angle: -0.2,
+                                    child: Icon(
+                                      service['icon'],
+                                      size: 100,
+                                      color: Colors.white.withOpacity(0.04),
+                                    ),
+                                  ),
+                                ),
+                                // Foreground Content
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: service['color'].withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: service['color'].withOpacity(0.5)),
+                                          boxShadow: [
+                                            BoxShadow(color: service['color'].withOpacity(0.3), blurRadius: 10)
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          service['icon'],
+                                          color: service['color'],
+                                          size: 28,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        service['title'],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: -0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        service['description'],
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.6),
+                                          fontSize: 12,
+                                          height: 1.3,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Ouvrir',
+                                            style: TextStyle(
+                                              color: service['color'],
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Icon(Icons.arrow_forward_rounded, size: 16, color: service['color']),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
