@@ -113,27 +113,37 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     }, 300);
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (step === 3) {
-      const newTicket = {
-        id: `COLIS-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        qrCodeToken: 'TOKEN-COLIS',
-        trajet: `${colisParams.depart} → ${colisParams.arrivee}`,
-        date: new Date().toLocaleDateString('fr-FR'),
-        taille: colisParams.taille,
-        destinataire: colisParams.destinataireNom,
-        tel: colisParams.destinataireTel,
-        modePaiement: colisParams.modePaiement,
-        statut: 'En attente de prise en charge'
-      };
-      
-      setGeneratedTicket(newTicket);
-      
-      const stored = localStorage.getItem('demo_colis');
-      const colisList = stored ? JSON.parse(stored) : [];
-      colisList.unshift(newTicket);
-      localStorage.setItem('demo_colis', JSON.stringify(colisList));
-      window.dispatchEvent(new Event('colis_updated'));
+      try {
+        const res = await fetch('/api/colis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            destinataire: colisParams.destinataireNom,
+            tel: colisParams.destinataireTel,
+            taille: colisParams.taille
+          })
+        });
+        if (res.ok) {
+          const { parcel } = await res.json();
+          const newTicket = {
+            id: parcel.trackingCode,
+            qrCodeToken: 'TOKEN-COLIS',
+            trajet: `${colisParams.depart} → ${colisParams.arrivee}`,
+            date: new Date().toLocaleDateString('fr-FR'),
+            taille: colisParams.taille,
+            destinataire: colisParams.destinataireNom,
+            tel: colisParams.destinataireTel,
+            modePaiement: colisParams.modePaiement,
+            statut: 'En attente de prise en charge'
+          };
+          setGeneratedTicket(newTicket);
+          window.dispatchEvent(new Event('colis_updated'));
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
     setStep(s => Math.min(s + 1, 4));
   };

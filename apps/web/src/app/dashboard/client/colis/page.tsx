@@ -12,16 +12,26 @@ export default function ColisPage() {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
-    const loadColis = () => {
-      const stored = localStorage.getItem('demo_colis');
-      if (stored) {
-        setLocalColis(JSON.parse(stored));
-      }
-    };
     loadColis();
+    const interval = setInterval(loadColis, 5000); // Polling for real-time sync demo
     window.addEventListener('colis_updated', loadColis);
-    return () => window.removeEventListener('colis_updated', loadColis);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('colis_updated', loadColis);
+    };
   }, []);
+
+  const loadColis = async () => {
+    try {
+      const res = await fetch('/api/colis');
+      if (res.ok) {
+        const data = await res.json();
+        setLocalColis(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1200px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">

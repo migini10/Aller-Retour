@@ -15,29 +15,41 @@ export default function SectionColis() {
 
   useEffect(() => {
     setMounted(true);
-    const loadColis = () => {
-      const stored = localStorage.getItem('demo_colis');
-      if (stored) {
-        try {
-          setColis(JSON.parse(stored));
-        } catch(e) {}
-      }
-    };
     loadColis();
+    const interval = setInterval(loadColis, 5000); // Polling for real-time sync demo
     window.addEventListener('colis_updated', loadColis);
-    return () => window.removeEventListener('colis_updated', loadColis);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('colis_updated', loadColis);
+    };
   }, []);
 
-  const updateStatut = (id: string, nextStatut: string) => {
-    const updatedList = colis.map(c => {
-      if (c.id === id) {
-        return { ...c, statut: nextStatut };
+  const loadColis = async () => {
+    try {
+      const res = await fetch('/api/colis');
+      if (res.ok) {
+        const data = await res.json();
+        setColis(data);
       }
-      return c;
-    });
-    setColis(updatedList);
-    localStorage.setItem('demo_colis', JSON.stringify(updatedList));
-    window.dispatchEvent(new Event('colis_updated'));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateStatut = async (id: string, nextStatut: string) => {
+    try {
+      const res = await fetch(`/api/colis/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ statut: nextStatut }),
+      });
+      if (res.ok) {
+        loadColis();
+        window.dispatchEvent(new Event('colis_updated'));
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleActionClick = (id: string, nextStatut: string) => {
