@@ -169,33 +169,48 @@ export default function ColisPage() {
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Colis Récents</h2>
           
           <div className="space-y-4">
-            {localColis.map((colis, idx) => (
-              <div key={idx} className="bg-white dark:bg-[#141414] border border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6">
-                <div className="flex-1 flex flex-col md:flex-row gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                    <Truck className="w-8 h-8 text-amber-500" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{colis.trajet}</h3>
-                      <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">{colis.statut || 'En attente'}</span>
-                    </div>
-                    <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: {colis.id} • {colis.taille} • {colis.date}</p>
-                    
-                    {/* Progress bar */}
-                    <div className="relative pt-4 w-full max-w-md hidden sm:block">
-                      <div className="absolute top-0 left-0 w-full flex justify-between text-[10px] font-bold text-slate-400 uppercase">
-                        <span>Dépôt</span>
-                        <span className="text-amber-500">En route</span>
-                        <span>Livré</span>
+            {localColis.map((colis, idx) => {
+                const isAccepted = colis.statut === 'Accepté';
+                const isTransit = colis.statut === 'En transit';
+                const isDelivered = colis.statut === 'Livré';
+                
+                let progressWidth = '10%';
+                let progressColor = 'amber-500';
+                let iconColor = 'amber-500';
+                
+                if (isAccepted) { progressWidth = '30%'; progressColor = 'blue-500'; iconColor = 'blue-500'; }
+                if (isTransit) { progressWidth = '65%'; progressColor = 'indigo-500'; iconColor = 'indigo-500'; }
+                if (isDelivered) { progressWidth = '100%'; progressColor = 'emerald-500'; iconColor = 'emerald-500'; }
+
+                return (
+                  <div key={idx} className={`bg-white dark:bg-[#141414] border border-${progressColor}/30 hover:border-${progressColor}/60 rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6`}>
+                    <div className="flex-1 flex flex-col md:flex-row gap-6">
+                      <div className={`w-16 h-16 rounded-2xl bg-${iconColor}/10 border border-${iconColor}/20 flex items-center justify-center shrink-0`}>
+                        {isDelivered ? <CheckCircle2 className={`w-8 h-8 text-${iconColor}`} /> : <Truck className={`w-8 h-8 text-${iconColor}`} />}
                       </div>
-                      <div className="w-full bg-slate-100 dark:bg-[#222222] rounded-full h-2 mt-2 relative">
-                        <div className="bg-amber-500 h-2 rounded-full absolute top-0 left-0" style={{ width: '10%' }}></div>
-                        <div className="w-4 h-4 rounded-full bg-white border-4 border-amber-500 absolute top-1/2 -translate-y-1/2 shadow-md" style={{ left: '10%', transform: 'translate(-50%, -50%)' }}></div>
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{colis.trajet}</h3>
+                          <span className={`text-[10px] uppercase font-bold text-${progressColor} bg-${progressColor}/10 px-2.5 py-1 rounded-md border border-${progressColor}/20`}>
+                            {colis.statut || 'En attente'}
+                          </span>
+                        </div>
+                        <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: {colis.id} • {colis.taille} • {colis.date}</p>
+                        
+                        {/* Progress bar */}
+                        <div className="relative pt-4 w-full max-w-md hidden sm:block">
+                          <div className="absolute top-0 left-0 w-full flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                            <span className={!isAccepted && !isTransit && !isDelivered ? `text-${progressColor}` : ''}>Dépôt</span>
+                            <span className={isAccepted || isTransit ? `text-${progressColor}` : ''}>{isAccepted ? 'Accepté' : 'En route'}</span>
+                            <span className={isDelivered ? `text-${progressColor}` : ''}>Livré</span>
+                          </div>
+                          <div className="w-full bg-slate-100 dark:bg-[#222222] rounded-full h-2 mt-2 relative">
+                            <div className={`bg-${progressColor} h-2 rounded-full absolute top-0 left-0 transition-all duration-1000`} style={{ width: progressWidth }}></div>
+                            <div className={`w-4 h-4 rounded-full bg-white border-4 border-${progressColor} absolute top-1/2 -translate-y-1/2 shadow-md transition-all duration-1000`} style={{ left: progressWidth, transform: 'translate(-50%, -50%)' }}></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
                 <div className="md:border-l md:border-slate-200 md:dark:border-[#2A2A2A] md:pl-6 flex flex-col justify-center shrink-0 gap-3">
                   <div className="text-sm text-slate-500 dark:text-slate-400">
                     <p className="font-bold text-slate-900 dark:text-white text-base">Destinataire</p>
@@ -210,7 +225,8 @@ export default function ColisPage() {
                   </button>
                 </div>
               </div>
-            ))}
+                );
+            })}
           </div>
         </div>
 
