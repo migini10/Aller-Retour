@@ -417,24 +417,44 @@ class _ColisScreenState extends State<ColisScreen> {
             const Text('Colis Récents', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             
-            ...localColis.map((c) => Column(
-              children: [
-                _buildParcelItem(
-                  icon: Icons.local_shipping,
-                  iconColor: Colors.amber,
-                  title: c['trajet'] ?? 'Trajet Inconnu',
-                  status: (c['statut'] ?? 'En attente').toString().toUpperCase(),
-                  statusColor: Colors.amber,
-                  ref: 'Réf: ${c['id']} • ${c['taille']} • ${c['date']}',
-                  dest: c['destinataire'] ?? 'Inconnu',
-                  phone: c['tel'] ?? '',
-                  showProgress: true,
-                  actionLabel: 'Détails / Suivre',
-                  onTapAction: () => _showTrackingModal(c),
-                ),
-                const SizedBox(height: 16),
-              ],
-            )).toList(),
+            ...localColis.map((c) {
+              final statut = c['statut'] ?? 'En attente de prise en charge';
+              Color statusColor = Colors.orangeAccent;
+              double progress = 0.1;
+
+              if (statut == 'Accepté') {
+                statusColor = Colors.blueAccent;
+                progress = 0.3;
+              }
+              if (statut == 'En transit') {
+                statusColor = Colors.indigoAccent;
+                progress = 0.6;
+              }
+              if (statut == 'Livré') {
+                statusColor = Colors.tealAccent;
+                progress = 1.0;
+              }
+
+              return Column(
+                children: [
+                  _buildParcelItem(
+                    icon: statut == 'Livré' ? Icons.check_circle : Icons.inventory_2,
+                    iconColor: statusColor,
+                    title: c['trajet'] ?? 'Trajet Inconnu',
+                    status: statut.toString().toUpperCase(),
+                    statusColor: statusColor,
+                    progressValue: progress,
+                    ref: 'Réf: ${c['id']} • ${c['taille']} • ${c['date']}',
+                    dest: c['destinataire'] ?? 'Inconnu',
+                    phone: c['tel'] ?? '',
+                    showProgress: true,
+                    actionLabel: 'Détails / Suivre',
+                    onTapAction: () => _showTrackingModal(c),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            }).toList(),
             
             // Active Parcel 1 (Mock)
             if (localColis.isEmpty)
@@ -526,6 +546,7 @@ class _ColisScreenState extends State<ColisScreen> {
     required String title,
     required String status,
     required Color statusColor,
+    double progressValue = 0.5,
     required String ref,
     required String dest,
     String? phone,
@@ -577,29 +598,33 @@ class _ColisScreenState extends State<ColisScreen> {
           ),
           if (showProgress) ...[
             const SizedBox(height: 20),
-            Stack(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  height: 4,
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  height: 4,
-                  width: 150,
-                  decoration: BoxDecoration(color: iconColor, borderRadius: BorderRadius.circular(2)),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
                   children: [
-                    const Text('DÉPÔT', style: TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
-                    Text('EN ROUTE', style: TextStyle(color: iconColor, fontSize: 9, fontWeight: FontWeight.bold)),
-                    const Text('LIVRÉ', style: TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      height: 4,
+                      width: double.infinity,
+                      decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      height: 4,
+                      width: constraints.maxWidth * progressValue,
+                      decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(2)),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('DÉPÔT', style: TextStyle(color: progressValue >= 0.1 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
+                        Text('EN ROUTE', style: TextStyle(color: progressValue >= 0.5 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
+                        Text('LIVRÉ', style: TextStyle(color: progressValue >= 1.0 ? statusColor : Colors.white54, fontSize: 9, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ],
-                ),
-              ],
+                );
+              }
             ),
           ],
           const SizedBox(height: 16),

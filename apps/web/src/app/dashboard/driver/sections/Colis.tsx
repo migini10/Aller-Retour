@@ -150,27 +150,59 @@ export default function SectionColis() {
             <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>
           </div>
-        ) : (
-          colis.map((c, idx) => (
-            <div key={idx} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-4 sm:p-5 shadow-sm transition-all flex flex-col lg:flex-row gap-5 lg:gap-6 hover:border-orange-500/30">
+          colis.map((c, idx) => {
+            const isAccepted = c.statut === 'Accepté';
+            const isTransit = c.statut === 'En transit';
+            const isDelivered = c.statut === 'Livré';
+            
+            // Explicit tailwind classes map to prevent compiler stripping
+            let progressColorStr = 'orange-500';
+            let borderColor = 'border-orange-500/30';
+            let hoverBorderColor = 'hover:border-orange-500/60';
+            let bgColor = 'bg-orange-500/10';
+            let iconBorderColor = 'border-orange-500/20';
+            let textColor = 'text-orange-500';
+
+            if (isAccepted) {
+              progressColorStr = 'blue-500';
+              borderColor = 'border-blue-500/30';
+              hoverBorderColor = 'hover:border-blue-500/60';
+              bgColor = 'bg-blue-500/10';
+              iconBorderColor = 'border-blue-500/20';
+              textColor = 'text-blue-500';
+            }
+            if (isTransit) {
+              progressColorStr = 'indigo-500';
+              borderColor = 'border-indigo-500/30';
+              hoverBorderColor = 'hover:border-indigo-500/60';
+              bgColor = 'bg-indigo-500/10';
+              iconBorderColor = 'border-indigo-500/20';
+              textColor = 'text-indigo-500';
+            }
+            if (isDelivered) {
+              progressColorStr = 'emerald-500';
+              borderColor = 'border-emerald-500/30';
+              hoverBorderColor = 'hover:border-emerald-500/60';
+              bgColor = 'bg-emerald-500/10';
+              iconBorderColor = 'border-emerald-500/20';
+              textColor = 'text-emerald-500';
+            }
+
+            return (
+            <div key={idx} className={`bg-white dark:bg-[#141414] border ${borderColor} ${hoverBorderColor} rounded-3xl p-4 sm:p-5 shadow-sm transition-all flex flex-col lg:flex-row gap-5 lg:gap-6`}>
               
               {/* Infos principales */}
               <div className="flex-1 min-w-0 flex items-start gap-4 sm:gap-5">
-                <div className="hidden sm:flex w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 items-center justify-center shrink-0 border border-orange-100 dark:border-orange-500/20">
-                  <Package className="w-6 h-6 text-orange-500" />
+                <div className={`hidden sm:flex w-12 h-12 rounded-xl ${bgColor} items-center justify-center shrink-0 border ${iconBorderColor}`}>
+                  {isDelivered ? <CheckCircle2 className={`w-6 h-6 ${textColor}`} /> : <Package className={`w-6 h-6 ${textColor}`} />}
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="font-mono text-xs font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-1 rounded-md border border-orange-100 dark:border-orange-500/20 whitespace-nowrap">
+                    <span className={`font-mono text-xs font-bold ${textColor} ${bgColor} px-2 py-1 rounded-md border ${iconBorderColor} whitespace-nowrap`}>
                       {c.id}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border uppercase tracking-wider whitespace-nowrap ${
-                      c.statut === 'En attente de prise en charge' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/20' :
-                      c.statut === 'Accepté' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
-                      c.statut === 'En transit' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' :
-                      'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    }`}>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border uppercase tracking-wider whitespace-nowrap ${textColor} ${bgColor} ${iconBorderColor}`}>
                       {c.statut}
                     </span>
                   </div>
@@ -205,7 +237,7 @@ export default function SectionColis() {
               </div>
 
             </div>
-          ))
+          )})
         )}
       </div>
 

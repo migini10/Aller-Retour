@@ -389,7 +389,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF0F172A),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                        border: Border.all(color: badgeColor.withOpacity(0.3)),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
