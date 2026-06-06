@@ -95,17 +95,20 @@ export default function SectionColis() {
           </div>
         ) : (
           colis.map((c, idx) => (
-            <div key={idx} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-4 sm:p-5 shadow-sm transition-colors flex flex-col lg:flex-row lg:items-center justify-between hover:border-orange-500/30 gap-6">
+            <div key={idx} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-4 sm:p-5 shadow-sm transition-all flex flex-col lg:flex-row gap-5 lg:gap-6 hover:border-orange-500/30">
               
               {/* Infos principales */}
-              <div className="flex-1 flex gap-5 items-start">
-                <div className="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-100 dark:border-orange-500/20">
+              <div className="flex-1 min-w-0 flex items-start gap-4 sm:gap-5">
+                <div className="hidden sm:flex w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 items-center justify-center shrink-0 border border-orange-100 dark:border-orange-500/20">
                   <Package className="w-6 h-6 text-orange-500" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <p className="font-mono text-xs font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-md">{c.id}</p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className="font-mono text-xs font-bold text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-1 rounded-md border border-orange-100 dark:border-orange-500/20 whitespace-nowrap">
+                      {c.id}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border uppercase tracking-wider whitespace-nowrap ${
                       c.statut === 'En attente de prise en charge' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/20' :
                       c.statut === 'Pris en charge' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
                       c.statut === 'En transit' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' :
@@ -114,32 +117,34 @@ export default function SectionColis() {
                       {c.statut}
                     </span>
                   </div>
-                  <h3 className="font-black text-slate-900 dark:text-white text-base sm:text-lg tracking-tight mb-2">
+                  
+                  <h3 className="font-black text-slate-900 dark:text-white text-base sm:text-lg mb-2 leading-snug break-words">
                     {c.trajet || 'Trajet Inconnu'}
                   </h3>
+                  
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Clock className="w-4 h-4 shrink-0" />
                       {c.date}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Package className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Package className="w-4 h-4 shrink-0" />
                       {c.taille || 'Taille Inconnue'}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Destinataire */}
-              <div className="w-full lg:w-64 bg-slate-50 dark:bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-slate-100 dark:border-[#222222] shrink-0">
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Destinataire</p>
-                <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{c.destinataire || 'Inconnu'}</p>
-                <p className="text-xs text-slate-500 font-mono mt-0.5">{c.tel || 'Aucun numéro'}</p>
-              </div>
-
-              {/* Action Button */}
-              <div className="w-full lg:w-48 shrink-0">
-                {getActionBtn(c)}
+              {/* Destinataire & Bouton */}
+              <div className="flex flex-col sm:flex-row lg:flex-col justify-between items-stretch sm:items-center lg:items-stretch gap-4 shrink-0 lg:w-64">
+                <div className="flex-1 bg-slate-50 dark:bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-slate-100 dark:border-[#222222]">
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Destinataire</p>
+                  <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{c.destinataire || 'Inconnu'}</p>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5 truncate">{c.tel || 'Aucun numéro'}</p>
+                </div>
+                <div className="sm:w-48 lg:w-full shrink-0">
+                  {getActionBtn(c)}
+                </div>
               </div>
 
             </div>
