@@ -117,17 +117,17 @@ export default function ClientDashboard() {
                 <Link 
                   key={section.id} 
                   href={section.href}
-                  className="group bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] hover:border-orange-500/50 dark:hover:border-orange-500/50 p-6 sm:p-8 rounded-3xl transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 flex flex-col h-full relative overflow-hidden"
+                  className={`group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] ${section.border} hover:border-opacity-60 p-6 sm:p-8 rounded-3xl transition-all duration-300 shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex flex-col h-full relative overflow-hidden`}
                 >
-                  <div className={`absolute -right-6 -top-6 w-24 h-24 ${section.bg} rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
+                  <Icon className={`absolute -bottom-6 -right-6 w-32 h-32 ${section.color} opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6`} />
                   
                   <div className={`w-14 h-14 rounded-2xl ${section.bg} ${section.border} border flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10`}>
                     <Icon className={`w-7 h-7 ${section.color}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-orange-500 transition-colors relative z-10">{section.title}</h3>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3 tracking-tight relative z-10">{section.title}</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 flex-1 leading-relaxed relative z-10">{section.description}</p>
                   
-                  <div className="mt-8 flex items-center text-sm font-bold text-slate-400 group-hover:text-orange-500 transition-colors relative z-10">
+                  <div className={`mt-8 flex items-center text-sm font-bold ${section.color} transition-colors relative z-10`}>
                     Ouvrir {section.title} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
