@@ -135,9 +135,16 @@ export default function ColisPage() {
               </div>
               <button 
                 onClick={() => {
-                  const found = localColis.find(c => (c.id || '').includes(searchQuery));
-                  if (found) setTrackingColis(found);
-                  else alert("Colis non trouvé");
+                  if (!searchQuery.trim()) {
+                    alert("Veuillez entrer un numéro de colis valide.");
+                    return;
+                  }
+                  const found = localColis.find(c => String(c?.id || '').toUpperCase().includes(searchQuery.toUpperCase()));
+                  if (found) {
+                    setTrackingColis(found);
+                  } else {
+                    alert("Colis non trouvé");
+                  }
                 }}
                 className="bg-white text-purple-600 hover:bg-slate-50 font-bold px-8 py-4 rounded-xl transition-colors shadow-lg whitespace-nowrap"
               >
@@ -243,7 +250,7 @@ export default function ColisPage() {
                 <div className="relative">
                   <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'En transit' ? 'bg-indigo-500 border-indigo-200 shadow-[0_0_0_4px_rgba(99,102,241,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
                   <h4 className={`font-bold ${trackingColis.statut === 'En transit' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>En transit vers la destination</h4>
-                  <p className="text-xs text-slate-400 mt-1">{(trackingColis.trajet || '').split('→')[1]?.trim() || 'Destination'}</p>
+                  <p className="text-xs text-slate-400 mt-1">{String(trackingColis.trajet || '').split('→')[1]?.trim() || 'Destination'}</p>
                 </div>
 
                 <div className="relative">
