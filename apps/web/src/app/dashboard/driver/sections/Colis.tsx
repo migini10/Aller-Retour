@@ -181,8 +181,20 @@ export default function SectionColis() {
       {/* Modal Code de Sécurité */}
       {isPinModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center">Code de sécurité</h3>
+          <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center">
+              {nextStatutForAction === 'Accepté' ? 'Contrat de Responsabilité' : 'Code de sécurité'}
+            </h3>
+            
+            {nextStatutForAction === 'Accepté' && (
+              <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl p-4 mb-4">
+                <p className="text-xs sm:text-sm text-rose-700 dark:text-rose-400 font-medium leading-relaxed text-center">
+                  En saisissant votre code PIN, vous signez électroniquement ce contrat. 
+                  <span className="font-bold"> Vous devenez l'unique responsable de ce colis du début à la fin de la course.</span> En cas de perte, de vol ou de dommage entraînant une demande de remboursement du client, vous en assumerez intégralement les frais.
+                </p>
+              </div>
+            )}
+
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
               Veuillez entrer votre code d'accès chauffeur (ex: <span className="font-mono font-bold text-slate-900 dark:text-white">1234</span>) pour valider cette action.
             </p>
@@ -206,13 +218,17 @@ export default function SectionColis() {
                 onClick={() => setIsPinModalOpen(false)}
                 className="flex-1 py-3.5 font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
-                Annuler
+                {nextStatutForAction === 'Accepté' ? 'Refuser' : 'Annuler'}
               </button>
               <button 
                 onClick={confirmAction}
-                className="flex-1 py-3.5 font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-500 transition-colors shadow-lg shadow-orange-500/20"
+                className={`flex-1 py-3.5 font-bold text-white rounded-xl transition-colors shadow-lg ${
+                  nextStatutForAction === 'Accepté' 
+                    ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-500/20' 
+                    : 'bg-orange-600 hover:bg-orange-500 shadow-orange-500/20'
+                }`}
               >
-                Valider
+                {nextStatutForAction === 'Accepté' ? 'Signer et Valider' : 'Valider'}
               </button>
             </div>
           </div>
