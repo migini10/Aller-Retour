@@ -6,6 +6,13 @@ export default function SectionColis() {
   const [colis, setColis] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
 
+  // Security PIN states
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [pinCode, setPinCode] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [selectedColisForAction, setSelectedColisForAction] = useState<string | null>(null);
+  const [nextStatutForAction, setNextStatutForAction] = useState<string | null>(null);
+
   useEffect(() => {
     setMounted(true);
     const loadColis = () => {
@@ -33,12 +40,31 @@ export default function SectionColis() {
     window.dispatchEvent(new Event('colis_updated'));
   };
 
+  const handleActionClick = (id: string, nextStatut: string) => {
+    setSelectedColisForAction(id);
+    setNextStatutForAction(nextStatut);
+    setPinCode('');
+    setPinError('');
+    setIsPinModalOpen(true);
+  };
+
+  const confirmAction = () => {
+    if (pinCode === '1234') {
+      if (selectedColisForAction && nextStatutForAction) {
+        updateStatut(selectedColisForAction, nextStatutForAction);
+      }
+      setIsPinModalOpen(false);
+    } else {
+      setPinError('Code de sécurité incorrect.');
+    }
+  };
+
   const getActionBtn = (c: any) => {
     switch (c.statut) {
       case 'En attente de prise en charge':
         return (
           <button 
-            onClick={() => updateStatut(c.id, 'Accepté')}
+            onClick={() => handleActionClick(c.id, 'Accepté')}
             className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
             <CheckCircle2 className="w-4 h-4 shrink-0" /> Accepter la course
@@ -47,7 +73,7 @@ export default function SectionColis() {
       case 'Accepté':
         return (
           <button 
-            onClick={() => updateStatut(c.id, 'En transit')}
+            onClick={() => handleActionClick(c.id, 'En transit')}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
             <Package className="w-4 h-4 shrink-0" /> Colis récupéré
@@ -56,7 +82,7 @@ export default function SectionColis() {
       case 'En transit':
         return (
           <button 
-            onClick={() => updateStatut(c.id, 'Livré')}
+            onClick={() => handleActionClick(c.id, 'Livré')}
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
           >
             <MapPin className="w-4 h-4 shrink-0" /> Livrer au destinataire
@@ -151,6 +177,47 @@ export default function SectionColis() {
           ))
         )}
       </div>
+
+      {/* Modal Code de Sécurité */}
+      {isPinModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center">Code de sécurité</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
+              Veuillez entrer votre code d'accès chauffeur (ex: <span className="font-mono font-bold text-slate-900 dark:text-white">1234</span>) pour valider cette action.
+            </p>
+            
+            <input 
+              type="password" 
+              maxLength={4}
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ''))}
+              className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-4 text-center text-3xl font-mono tracking-[1em] text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all mb-2"
+              placeholder="••••"
+              autoFocus
+            />
+            
+            <div className="h-6 mb-4">
+              {pinError && <p className="text-rose-500 text-sm font-semibold text-center animate-in slide-in-from-top-1">{pinError}</p>}
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setIsPinModalOpen(false)}
+                className="flex-1 py-3.5 font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={confirmAction}
+                className="flex-1 py-3.5 font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-500 transition-colors shadow-lg shadow-orange-500/20"
+              >
+                Valider
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
