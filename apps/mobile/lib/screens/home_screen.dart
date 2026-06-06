@@ -5,6 +5,7 @@ import 'client/profile_screen.dart';
 import 'client/history_screen.dart';
 import 'client/settings_screen.dart';
 import 'client/fidelite_screen.dart';
+import 'driver/driver_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,12 +16,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  bool isDriverMode = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF020617), // Slate 950
-      body: const ClientDashboardScreen(),
+      body: isDriverMode ? const DriverDashboardScreen() : const ClientDashboardScreen(),
       endDrawer: Drawer(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -82,6 +84,48 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.blueAccent, route: '/history'),
               _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.greenAccent, route: '/fidelite'),
               _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.purpleAccent, route: '/settings'),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Divider(color: Colors.white10),
+              ),
+              // Mode Switcher
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      isDriverMode = !isDriverMode;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: isDriverMode ? Colors.orangeAccent.withOpacity(0.1) : Colors.cyanAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isDriverMode ? Colors.orangeAccent.withOpacity(0.3) : Colors.cyanAccent.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(isDriverMode ? Icons.person : Icons.drive_eta, color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            isDriverMode ? 'Passer en Mode Voyageur' : 'Passer en Mode Chauffeur',
+                            style: TextStyle(
+                              color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.swap_horiz, color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               const Spacer(),
               // Logout button
               const Padding(
