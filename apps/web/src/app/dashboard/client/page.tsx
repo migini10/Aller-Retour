@@ -110,25 +110,25 @@ export default function ClientDashboard() {
             <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
             Vos Services
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
             {sections.map((section) => {
               const Icon = section.icon;
               return (
                 <Link 
                   key={section.id} 
                   href={section.href}
-                  className={`group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] ${section.border} hover:border-opacity-60 p-6 sm:p-8 rounded-3xl transition-all duration-300 shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex flex-col h-full relative overflow-hidden`}
+                  className={`group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] ${section.border} hover:border-opacity-60 p-4 sm:p-8 rounded-3xl transition-all duration-300 shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex flex-col h-full relative overflow-hidden`}
                 >
-                  <Icon className={`absolute -bottom-6 -right-6 w-32 h-32 ${section.color} opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6`} />
+                  <Icon className={`absolute -bottom-6 -right-6 w-24 h-24 sm:w-32 sm:h-32 ${section.color} opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6`} />
                   
-                  <div className={`w-14 h-14 rounded-2xl ${section.bg} ${section.border} border flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10`}>
-                    <Icon className={`w-7 h-7 ${section.color}`} />
+                  <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl ${section.bg} ${section.border} border flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10`}>
+                    <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${section.color}`} />
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3 tracking-tight relative z-10">{section.title}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 flex-1 leading-relaxed relative z-10">{section.description}</p>
+                  <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-white mb-2 sm:mb-3 tracking-tight relative z-10">{section.title}</h3>
+                  <p className="text-[11px] sm:text-sm text-slate-500 dark:text-slate-400 flex-1 leading-relaxed relative z-10 line-clamp-3 sm:line-clamp-none">{section.description}</p>
                   
-                  <div className={`mt-8 flex items-center text-sm font-bold ${section.color} transition-colors relative z-10`}>
-                    Ouvrir {section.title} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <div className={`mt-4 sm:mt-8 flex items-center text-[11px] sm:text-sm font-bold ${section.color} transition-colors relative z-10`}>
+                    Ouvrir <span className="hidden sm:inline">&nbsp;{section.title}</span> <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
               );
