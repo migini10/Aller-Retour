@@ -387,11 +387,35 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
+                        color: const Color(0xFF1E293B), // slate-800
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: badgeColor.withOpacity(0.3)),
+                        border: Border.all(color: badgeColor.withOpacity(0.3), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      child: Padding(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Stack(
+                          children: [
+                            // Faint background icon
+                            Positioned(
+                              bottom: -20,
+                              right: -20,
+                              child: Transform.rotate(
+                                angle: -0.2,
+                                child: Icon(
+                                  Icons.inventory_2,
+                                  size: 120,
+                                  color: Colors.white.withOpacity(0.03),
+                                ),
+                              ),
+                            ),
+                            Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -490,6 +514,9 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           ],
                         ),
                       ),
+                        ],
+                      ),
+                    ),
                     );
                   },
                 ),
