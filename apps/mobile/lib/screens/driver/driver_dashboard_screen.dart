@@ -276,7 +276,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+                            border: Border.all(color: service['color'].withOpacity(0.3), width: 1.5),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.4),
