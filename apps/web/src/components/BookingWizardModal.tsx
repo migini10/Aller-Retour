@@ -124,6 +124,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           if (data.status === 'OK' && data.results.length > 0) {
             let address = data.results[0].formatted_address;
             setPickupLocation(address);
+            
+            // Extract city from address_components
+            const components = data.results[0].address_components;
+            let city = '';
+            for (const component of components) {
+              if (component.types.includes('locality') || component.types.includes('administrative_area_level_2')) {
+                city = component.long_name;
+                break;
+              }
+            }
+            if (city) {
+              setSearchParams(prev => ({ ...prev, depart: city }));
+            }
           } else {
             setPickupLocation(`Point GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
           }

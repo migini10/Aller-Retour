@@ -168,6 +168,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               if (status === 'OK' && results && results[0]) {
                 const components = results[0].address_components || [];
                 let quartier = '';
+                let city = '';
                 for (const component of components) {
                   if (
                     component.types.includes('neighborhood') || 
@@ -175,13 +176,15 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                     component.types.includes('sublocality_level_1') ||
                     component.types.includes('route')
                   ) {
-                    quartier = component.long_name;
-                    if (component.types.includes('neighborhood') || component.types.includes('sublocality')) break;
+                    if (!quartier) quartier = component.long_name;
+                  }
+                  if (component.types.includes('locality') || component.types.includes('administrative_area_level_2')) {
+                    if (!city) city = component.long_name;
                   }
                 }
                 setColisParams(s => ({ 
                   ...s, 
-                  depart: results[0].formatted_address,
+                  depart: city || s.depart,
                   quartierDepart: quartier || s.quartierDepart
                 }));
               }
