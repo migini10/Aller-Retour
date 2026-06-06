@@ -1,10 +1,27 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
+import { useModal } from '@/components/ModalContext';
 
 export default function ColisPage() {
+  const { openColisWizard } = useModal();
+  const [localColis, setLocalColis] = React.useState<any[]>([]);
+  const [trackingColis, setTrackingColis] = React.useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  React.useEffect(() => {
+    const loadColis = () => {
+      const stored = localStorage.getItem('demo_colis');
+      if (stored) {
+        setLocalColis(JSON.parse(stored));
+      }
+    };
+    loadColis();
+    window.addEventListener('colis_updated', loadColis);
+    return () => window.removeEventListener('colis_updated', loadColis);
+  }, []);
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1200px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">
@@ -22,8 +39,8 @@ export default function ColisPage() {
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gérez et suivez l'expédition de vos colis à travers le pays.</p>
             </div>
           </div>
-          <button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-3.5 rounded-2xl transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
-            <Plus className="w-5 h-5" /> Nouveau Colis
+          <button onClick={() => openColisWizard()} className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-3.5 rounded-2xl transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
+            <Plus className="w-5 h-5" /> Envoyer un colis
           </button>
         </div>
 
@@ -92,8 +109,8 @@ export default function ColisPage() {
               Besoin d'envoyer un colis en urgence ? Confiez-le à un chauffeur de notre réseau Allo Dakar pour une livraison interurbaine rapide et sécurisée.
             </p>
           </div>
-          <button className="w-full sm:w-auto bg-white text-orange-600 hover:bg-slate-50 font-black px-8 py-4 rounded-2xl shadow-lg transition-transform hover:scale-105 flex items-center justify-center gap-2 shrink-0 z-10">
-            <Plus className="w-5 h-5" /> Créer un envoi
+          <button onClick={() => openColisWizard()} className="w-full sm:w-auto bg-white text-orange-600 hover:bg-slate-50 font-black px-8 py-4 rounded-2xl shadow-lg transition-transform hover:scale-105 flex items-center justify-center gap-2 shrink-0 z-10">
+            <Plus className="w-5 h-5" /> Envoyer un colis
           </button>
         </div>
 
@@ -110,11 +127,20 @@ export default function ColisPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-300 group-focus-within:text-white transition-colors" />
                 <input 
                   type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ex: COL-894-D15" 
                   className="w-full bg-white/10 backdrop-blur-md border border-white/20 hover:border-white/40 focus:border-white transition-all rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-purple-300 text-sm font-medium outline-none shadow-inner"
                 />
               </div>
-              <button className="bg-white text-purple-600 hover:bg-slate-50 font-bold px-8 py-4 rounded-xl transition-colors shadow-lg whitespace-nowrap">
+              <button 
+                onClick={() => {
+                  const found = localColis.find(c => (c.id || '').includes(searchQuery));
+                  if (found) setTrackingColis(found);
+                  else alert("Colis non trouvé");
+                }}
+                className="bg-white text-purple-600 hover:bg-slate-50 font-bold px-8 py-4 rounded-xl transition-colors shadow-lg whitespace-nowrap"
+              >
                 Rechercher
               </button>
             </div>
@@ -126,73 +152,114 @@ export default function ColisPage() {
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Colis Récents</h2>
           
           <div className="space-y-4">
-            {/* Active Parcel */}
-            <div className="bg-white dark:bg-[#141414] border border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6">
-              <div className="flex-1 flex flex-col md:flex-row gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                  <Truck className="w-8 h-8 text-amber-500" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Dakar <ArrowRight className="w-4 h-4 inline text-slate-400" /> Saint-Louis</h3>
-                    <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">En transit</span>
+            {localColis.map((colis, idx) => (
+              <div key={idx} className="bg-white dark:bg-[#141414] border border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6">
+                <div className="flex-1 flex flex-col md:flex-row gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                    <Truck className="w-8 h-8 text-amber-500" />
                   </div>
-                  <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: COL-894-D15 • 12 kg</p>
-                  
-                  {/* Progress bar */}
-                  <div className="relative pt-4 w-full max-w-md hidden sm:block">
-                    <div className="absolute top-0 left-0 w-full flex justify-between text-[10px] font-bold text-slate-400 uppercase">
-                      <span>Dépôt</span>
-                      <span className="text-amber-500">En route</span>
-                      <span>Livré</span>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{colis.trajet}</h3>
+                      <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">{colis.statut || 'En attente'}</span>
                     </div>
-                    <div className="w-full bg-slate-100 dark:bg-[#222222] rounded-full h-2 mt-2 relative">
-                      <div className="bg-amber-500 h-2 rounded-full absolute top-0 left-0" style={{ width: '50%' }}></div>
-                      <div className="w-4 h-4 rounded-full bg-white border-4 border-amber-500 absolute top-1/2 -translate-y-1/2 shadow-md" style={{ left: '50%', transform: 'translate(-50%, -50%)' }}></div>
+                    <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: {colis.id} • {colis.taille} • {colis.date}</p>
+                    
+                    {/* Progress bar */}
+                    <div className="relative pt-4 w-full max-w-md hidden sm:block">
+                      <div className="absolute top-0 left-0 w-full flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                        <span>Dépôt</span>
+                        <span className="text-amber-500">En route</span>
+                        <span>Livré</span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-[#222222] rounded-full h-2 mt-2 relative">
+                        <div className="bg-amber-500 h-2 rounded-full absolute top-0 left-0" style={{ width: '10%' }}></div>
+                        <div className="w-4 h-4 rounded-full bg-white border-4 border-amber-500 absolute top-1/2 -translate-y-1/2 shadow-md" style={{ left: '10%', transform: 'translate(-50%, -50%)' }}></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="md:border-l md:border-slate-200 md:dark:border-[#2A2A2A] md:pl-6 flex flex-col justify-center shrink-0 gap-3">
-                <div className="text-sm text-slate-500 dark:text-slate-400">
-                  <p className="font-bold text-slate-900 dark:text-white text-base">Destinataire</p>
-                  <p>Moussa Diop</p>
-                  <p className="font-mono text-xs mt-0.5">+221 77 123 45 67</p>
-                </div>
-                <button className="w-full bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
-                  Détails
-                </button>
-              </div>
-            </div>
-
-            {/* Delivered Parcel */}
-            <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6 opacity-75 grayscale-[20%] hover:grayscale-0">
-              <div className="flex-1 flex flex-col md:flex-row gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Dakar <ArrowRight className="w-4 h-4 inline text-slate-400" /> Thiès</h3>
-                    <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Livré</span>
+                <div className="md:border-l md:border-slate-200 md:dark:border-[#2A2A2A] md:pl-6 flex flex-col justify-center shrink-0 gap-3">
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="font-bold text-slate-900 dark:text-white text-base">Destinataire</p>
+                    <p>{colis.destinataire}</p>
+                    <p className="font-mono text-xs mt-0.5">{colis.tel}</p>
                   </div>
-                  <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: COL-112-A89 • 5 kg • Il y a 3 jours</p>
+                  <button 
+                    onClick={() => setTrackingColis(colis)}
+                    className="w-full bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:hover:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-2.5 rounded-xl text-xs transition-colors"
+                  >
+                    Détails / Suivre
+                  </button>
                 </div>
               </div>
-              <div className="md:border-l md:border-slate-200 md:dark:border-[#2A2A2A] md:pl-6 flex flex-col justify-center shrink-0 gap-3">
-                <div className="text-sm text-slate-500 dark:text-slate-400">
-                  <p className="font-bold text-slate-900 dark:text-white text-base">Destinataire</p>
-                  <p>Aminata Fall</p>
-                </div>
-                <button className="w-full bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
-                  Reçu
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
       </div>
+
+      {trackingColis && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setTrackingColis(null)}></div>
+          <div className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl w-full max-w-lg shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-200 dark:border-[#2A2A2A] flex justify-between items-center">
+              <div>
+                <h3 className="font-black text-xl text-slate-900 dark:text-white">Suivi de Colis</h3>
+                <p className="text-sm font-mono text-slate-500 mt-1">{trackingColis.id}</p>
+              </div>
+              <button onClick={() => setTrackingColis(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-[#222222] rounded-full transition-colors">
+                <X className="w-6 h-6 text-slate-400" />
+              </button>
+            </div>
+            <div className="p-6 space-y-8">
+              <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-4 flex gap-4 items-center">
+                <div className="bg-purple-500 text-white p-3 rounded-xl shadow-lg shadow-purple-500/30">
+                  <Package className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider mb-1">Destinataire</p>
+                  <p className="font-bold text-slate-900 dark:text-white">{trackingColis.destinataire}</p>
+                  <p className="text-sm text-slate-500">{trackingColis.tel}</p>
+                </div>
+              </div>
+
+              <div className="relative pl-6 space-y-8">
+                {/* Ligne verticale de la timeline */}
+                <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-[#2A2A2A]"></div>
+
+                <div className="relative">
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'En attente de prise en charge' ? 'bg-orange-500 border-orange-200 dark:border-orange-900 shadow-[0_0_0_4px_rgba(249,115,22,0.2)]' : 'bg-orange-500 border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${trackingColis.statut === 'En attente de prise en charge' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>En attente de prise en charge</h4>
+                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {trackingColis.date}</p>
+                </div>
+
+                <div className="relative">
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Pris en charge' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${trackingColis.statut === 'Pris en charge' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Pris en charge par le chauffeur</h4>
+                  <p className="text-xs text-slate-400 mt-1">À l'agence de départ</p>
+                </div>
+
+                <div className="relative">
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'En transit' ? 'bg-indigo-500 border-indigo-200 shadow-[0_0_0_4px_rgba(99,102,241,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${trackingColis.statut === 'En transit' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>En transit vers la destination</h4>
+                  <p className="text-xs text-slate-400 mt-1">{(trackingColis.trajet || '').split('→')[1]?.trim() || 'Destination'}</p>
+                </div>
+
+                <div className="relative">
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Livré' ? 'bg-emerald-500 border-emerald-200 shadow-[0_0_0_4px_rgba(16,185,129,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${trackingColis.statut === 'Livré' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Livré au destinataire</h4>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-[#1A1A1A] border-t border-slate-200 dark:border-[#2A2A2A]">
+              <button onClick={() => setTrackingColis(null)} className="w-full py-3 bg-white dark:bg-[#222222] border border-slate-200 dark:border-[#333333] rounded-xl font-bold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#2A2A2A] transition-colors">
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

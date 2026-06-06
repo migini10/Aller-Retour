@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, MapPin, Package, User, ArrowRight, CheckCircle2, 
-  Smartphone, QrCode, Download, Share2, Box
+  Smartphone, QrCode, Download, Share2, Box, Wallet
 } from 'lucide-react';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
 import html2canvas from 'html2canvas';
@@ -19,16 +19,21 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
   const [colisParams, setColisParams] = useState({
     depart: '',
+    quartierDepart: '',
     arrivee: '',
+    quartierArrivee: '',
     destinataireNom: '',
     destinataireTel: '',
-    taille: 'Moyen'
+    taille: 'Moyen',
+    modePaiement: 'Wave'
   });
 
   const [generatedTicket, setGeneratedTicket] = useState<any>(null);
 
   const departInputRef = useRef<HTMLInputElement>(null);
+  const quartierDepartInputRef = useRef<HTMLInputElement>(null);
   const arriveeInputRef = useRef<HTMLInputElement>(null);
+  const quartierArriveeInputRef = useRef<HTMLInputElement>(null);
   const ticketRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,11 +50,25 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           if (place.formatted_address) setColisParams(s => ({ ...s, depart: place.formatted_address || '' }));
         });
       }
+      if (quartierDepartInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(quartierDepartInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setColisParams(s => ({ ...s, quartierDepart: place.formatted_address || '' }));
+        });
+      }
       if (arriveeInputRef.current) {
         const autocomplete = new window.google.maps.places.Autocomplete(arriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
+        });
+      }
+      if (quartierArriveeInputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setColisParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
     };
@@ -73,7 +92,9 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       setIsClosing(false);
       setColisParams({
         depart: '',
+        quartierDepart: '',
         arrivee: '',
+        quartierArrivee: '',
         destinataireNom: '',
         destinataireTel: '',
         taille: 'Moyen'
@@ -93,8 +114,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
   };
 
   const nextStep = () => {
-    if (step === 2) {
-      // Générer le reçu du colis
+    if (step === 3) {
       const newTicket = {
         id: `COLIS-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         qrCodeToken: 'TOKEN-COLIS',
@@ -103,16 +123,19 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         taille: colisParams.taille,
         destinataire: colisParams.destinataireNom,
         tel: colisParams.destinataireTel,
+        modePaiement: colisParams.modePaiement,
         statut: 'En attente de prise en charge'
       };
       
       setGeneratedTicket(newTicket);
-      try {
-        const existing = JSON.parse(localStorage.getItem('my_colis') || '[]');
-        localStorage.setItem('my_colis', JSON.stringify([newTicket, ...existing]));
-      } catch (e) {}
+      
+      const stored = localStorage.getItem('demo_colis');
+      const colisList = stored ? JSON.parse(stored) : [];
+      colisList.unshift(newTicket);
+      localStorage.setItem('demo_colis', JSON.stringify(colisList));
+      window.dispatchEvent(new Event('colis_updated'));
     }
-    setStep(s => Math.min(s + 1, 3));
+    setStep(s => Math.min(s + 1, 4));
   };
   
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
@@ -134,6 +157,44 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
   if (!isOpen && !isClosing) return null;
 
+  const handleLocateMe = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          if (window.google && window.google.maps) {
+            const geocoder = new window.google.maps.Geocoder();
+            geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
+              if (status === 'OK' && results && results[0]) {
+                const components = results[0].address_components || [];
+                let quartier = '';
+                for (const component of components) {
+                  if (
+                    component.types.includes('neighborhood') || 
+                    component.types.includes('sublocality') || 
+                    component.types.includes('sublocality_level_1') ||
+                    component.types.includes('route')
+                  ) {
+                    quartier = component.long_name;
+                    if (component.types.includes('neighborhood') || component.types.includes('sublocality')) break;
+                  }
+                }
+                setColisParams(s => ({ 
+                  ...s, 
+                  depart: results[0].formatted_address,
+                  quartierDepart: quartier || s.quartierDepart
+                }));
+              }
+            });
+          }
+        },
+        (error) => {
+          console.error("Erreur géolocalisation", error);
+        }
+      );
+    }
+  };
+
   const renderStep1Lieux = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] transition-colors">
@@ -145,13 +206,31 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               ref={departInputRef}
               type="text" 
               placeholder="Adresse de retrait (Expéditeur)"
-              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-24 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
               value={colisParams.depart}
               onChange={(e) => setColisParams({...colisParams, depart: e.target.value})}
             />
+            <button 
+              type="button"
+              onClick={handleLocateMe}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-orange-200 dark:hover:bg-orange-800/50 transition-colors"
+            >
+              Me localiser
+            </button>
           </div>
 
-          <div className="relative z-[40]">
+          <div className="relative">
+            <input 
+              ref={quartierDepartInputRef}
+              type="text" 
+              placeholder="Sous-quartier de retrait exact"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-2 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
+              value={colisParams.quartierDepart}
+              onChange={(e) => setColisParams({...colisParams, quartierDepart: e.target.value})}
+            />
+          </div>
+
+          <div className="relative z-[40] mt-4">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400" />
             <input 
               ref={arriveeInputRef}
@@ -162,12 +241,27 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               onChange={(e) => setColisParams({...colisParams, arrivee: e.target.value})}
             />
           </div>
+
+          <div className="relative">
+            <input 
+              ref={quartierArriveeInputRef}
+              type="text" 
+              placeholder="Sous-quartier de livraison exact"
+              className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-2 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
+              value={colisParams.quartierArrivee}
+              onChange={(e) => setColisParams({...colisParams, quartierArrivee: e.target.value})}
+            />
+          </div>
         </div>
       </div>
       <button 
-        disabled={!colisParams.depart || !colisParams.arrivee}
+        disabled={!colisParams.depart || !colisParams.arrivee || !colisParams.quartierDepart || !colisParams.quartierArrivee}
         onClick={nextStep}
-        className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20"
+        className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
+          (colisParams.depart && colisParams.arrivee && colisParams.quartierDepart && colisParams.quartierArrivee)
+            ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30' 
+            : 'bg-slate-200 dark:bg-[#222222] text-slate-400 dark:text-slate-500 cursor-not-allowed'
+        }`}
       >
         Continuer <ArrowRight className="w-5 h-5" />
       </button>
@@ -237,10 +331,71 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       <button 
         disabled={!colisParams.destinataireNom || !colisParams.destinataireTel}
         onClick={nextStep}
-        className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-600/20 disabled:opacity-50"
+        className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
+          (colisParams.destinataireNom && colisParams.destinataireTel)
+            ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30' 
+            : 'bg-slate-200 dark:bg-[#222222] text-slate-400 dark:text-slate-500 cursor-not-allowed'
+        }`}
       >
-        Valider et créer le reçu <CheckCircle2 className="w-5 h-5" />
+        Continuer vers le paiement <ArrowRight className="w-5 h-5" />
       </button>
+    </div>
+  );
+
+  const renderStep3Paiement = () => (
+    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] space-y-5 transition-colors">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Mode de paiement</h3>
+        
+        <div className="space-y-3">
+          {[
+            { id: 'Wave', icon: Smartphone, title: 'Wave', desc: 'Payer via l\'application Wave', color: 'cyan' },
+            { id: 'Orange Money', icon: Smartphone, title: 'Orange Money', desc: 'Payer via Orange Money', color: 'orange' },
+            { id: 'Wallet', icon: Wallet, title: 'Mon Solde', desc: 'Paiement instantané via votre portefeuille', color: 'blue' }
+          ].map(method => (
+            <div 
+              key={method.id}
+              onClick={() => setColisParams({...colisParams, modePaiement: method.id})}
+              className={`p-4 rounded-xl border flex items-center gap-4 cursor-pointer transition-all ${
+                colisParams.modePaiement === method.id 
+                  ? 'bg-orange-100 dark:bg-orange-600/20 border-orange-500' 
+                  : 'bg-white dark:bg-black border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300 dark:hover:border-[#444444]'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                colisParams.modePaiement === method.id 
+                  ? 'bg-orange-500 text-white' 
+                  : 'bg-slate-100 dark:bg-[#222222] text-slate-500 dark:text-slate-400'
+              }`}>
+                <method.icon className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <p className={`font-bold text-sm ${colisParams.modePaiement === method.id ? 'text-orange-700 dark:text-orange-400' : 'text-slate-900 dark:text-white'}`}>
+                  {method.title}
+                </p>
+                <p className={`text-xs ${colisParams.modePaiement === method.id ? 'text-orange-600/80 dark:text-orange-400/80' : 'text-slate-500 dark:text-slate-400'}`}>
+                  {method.desc}
+                </p>
+              </div>
+              {colisParams.modePaiement === method.id && (
+                <CheckCircle2 className="w-5 h-5 text-orange-500" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+        <button 
+          disabled={!colisParams.modePaiement}
+          onClick={nextStep}
+          className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
+            colisParams.modePaiement 
+              ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30' 
+              : 'bg-slate-200 dark:bg-[#222222] text-slate-400 dark:text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          Valider et créer le reçu <CheckCircle2 className="w-5 h-5" />
+        </button>
     </div>
   );
 
@@ -338,7 +493,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             </div>
             <div>
               <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Envoi de Colis</h2>
-              {step < 3 && <p className="text-xs font-bold text-orange-500 uppercase tracking-wider">Étape {step} sur 2</p>}
+              {step < 4 && <p className="text-xs font-bold text-orange-500 uppercase tracking-wider">Étape {step} sur 3</p>}
             </div>
           </div>
           <button 
@@ -352,7 +507,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar flex flex-col justify-center min-h-[50vh] sm:min-h-0">
           {step === 1 && renderStep1Lieux()}
           {step === 2 && renderStep2Details()}
-          {step === 3 && renderStep3Ticket()}
+          {step === 3 && renderStep3Paiement()}
+          {step === 4 && renderStep3Ticket()}
         </div>
       </div>
     </div>

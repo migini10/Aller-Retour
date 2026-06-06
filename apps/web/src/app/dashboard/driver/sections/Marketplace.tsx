@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Store, MapPin, Search, Calendar, ChevronRight } from 'lucide-react';
+import { Store, MapPin, Search, Calendar, ChevronRight, Package, AlertTriangle, Truck } from 'lucide-react';
 
 const missionsDispo = [
   { id: 'M-104', trajet: 'Dakar → Saint-Louis', depart: 'Demain, 07:00', distance: '260 km', passagers: 4, remuneration: '18 000 FCFA', transporteur: 'Sénégal Express', urgent: true },
@@ -9,6 +9,38 @@ const missionsDispo = [
 ];
 
 export default function SectionMarketplace() {
+  const [colisDispo, setColisDispo] = React.useState<any[]>([]);
+  const [hasClient, setHasClient] = React.useState(true);
+
+  React.useEffect(() => {
+    const loadData = () => {
+      // Vérifier si le chauffeur a au moins 1 client
+      const tripsStored = localStorage.getItem('demo_trips');
+      let driverHasClient = true;
+      if (tripsStored) {
+        try {
+          const trips = JSON.parse(tripsStored);
+          driverHasClient = trips.some((t: any) => t.passagers >= 1);
+        } catch(e) {}
+      } else {
+        driverHasClient = true; // Par défaut pour la démo
+      }
+      setHasClient(driverHasClient);
+
+      // Charger les colis
+      const colisStored = localStorage.getItem('demo_colis');
+      if (colisStored) {
+        try {
+          setColisDispo(JSON.parse(colisStored));
+        } catch(e) {}
+      }
+    };
+    
+    loadData();
+    window.addEventListener('colis_updated', loadData);
+    return () => window.removeEventListener('colis_updated', loadData);
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -59,6 +91,62 @@ export default function SectionMarketplace() {
             </div>
           </div>
         ))}
+        {colisDispo.length > 0 && (
+          <div className="mt-8 mb-4 border-t border-slate-200 dark:border-[#2A2A2A] pt-8">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+              <Package className="w-5 h-5 text-purple-500" /> Colis Disponibles
+            </h3>
+            
+            {!hasClient && (
+              <div className="mb-4 bg-rose-500/10 border border-rose-500/30 text-rose-500 p-4 rounded-xl flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-bold">Vous ne pouvez pas prendre de colis.</p>
+                  <p className="mt-1 text-rose-500/80">Pour accepter un colis, vous devez avoir au moins un (1) client passager dans votre trajet Allo Dakar.</p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {colisDispo.map(c => (
+                <div key={c.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 hover:border-purple-500/30 rounded-2xl p-5 transition-colors group">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-500 font-mono">Colis {c.id}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">• {c.taille}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{c.trajet}</h3>
+                      <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {c.date}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 dark:border-[#2A2A2A]">
+                      <div className="text-left md:text-right">
+                        <p className="text-xs text-slate-500 mb-0.5">Rémunération estimée</p>
+                        <p className="text-lg font-bold text-purple-600 dark:text-purple-400">5 000 FCFA</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 text-slate-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
+                        <button 
+                          disabled={!hasClient}
+                          className={`px-4 py-2 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 ${
+                            hasClient 
+                              ? 'bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-500/20' 
+                              : 'bg-slate-300 dark:bg-[#333333] cursor-not-allowed opacity-50'
+                          }`}
+                        >
+                          Prendre le colis <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

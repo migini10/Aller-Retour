@@ -1,7 +1,206 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/colis_modal.dart';
 
-class ColisScreen extends StatelessWidget {
+class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
+
+  @override
+  State<ColisScreen> createState() => _ColisScreenState();
+}
+
+class _ColisScreenState extends State<ColisScreen> {
+  List<dynamic> localColis = [];
+  final TextEditingController searchController = TextEditingController();
+
+  void _showTrackingModal(Map<String, dynamic> colis) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF111111),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Suivi de Colis', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                      Text(colis['id'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 14, fontFamily: 'monospace')),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: Colors.white54),
+                  )
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.purpleAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.purpleAccent.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.purpleAccent, borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.inventory_2, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('DESTINATAIRE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                          const SizedBox(height: 2),
+                          Text(colis['destinataire'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(colis['tel'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Timeline
+              _buildTimelineStep(
+                title: 'En attente de prise en charge',
+                subtitle: colis['date'] ?? '',
+                isActive: colis['statut'] == 'En attente de prise en charge',
+                isDone: true,
+                color: Colors.orangeAccent,
+                isLast: false,
+              ),
+              _buildTimelineStep(
+                title: 'Pris en charge par le chauffeur',
+                subtitle: 'À l\'agence de départ',
+                isActive: colis['statut'] == 'Pris en charge',
+                isDone: colis['statut'] != 'En attente de prise en charge',
+                color: Colors.blueAccent,
+                isLast: false,
+              ),
+              _buildTimelineStep(
+                title: 'En transit vers la destination',
+                subtitle: (colis['trajet'] ?? '').split('→').last.trim(),
+                isActive: colis['statut'] == 'En transit',
+                isDone: colis['statut'] == 'Livré' || colis['statut'] == 'En transit',
+                color: Colors.indigoAccent,
+                isLast: false,
+              ),
+              _buildTimelineStep(
+                title: 'Livré au destinataire',
+                subtitle: '',
+                isActive: colis['statut'] == 'Livré',
+                isDone: colis['statut'] == 'Livré',
+                color: Colors.greenAccent,
+                isLast: true,
+              ),
+              
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.1),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text('Fermer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTimelineStep({required String title, required String subtitle, required bool isActive, required bool isDone, required Color color, required bool isLast}) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 30,
+            child: Column(
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: isActive ? color : (isDone ? color.withOpacity(0.5) : Colors.white10),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: isActive ? Colors.white : Colors.transparent, width: 3),
+                    boxShadow: isActive ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, spreadRadius: 4)] : [],
+                  ),
+                ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: Colors.white10,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(color: isActive ? Colors.white : (isDone ? Colors.white70 : Colors.white30), fontWeight: FontWeight.bold, fontSize: 15)),
+                  if (subtitle.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(subtitle, style: TextStyle(color: isActive ? Colors.white70 : Colors.white30, fontSize: 12)),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadColis();
+  }
+
+  Future<void> _loadColis() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString('demo_colis');
+      if (stored != null) {
+        setState(() {
+          localColis = jsonDecode(stored);
+        });
+      }
+    } catch (e) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,20 +269,20 @@ class ColisScreen extends StatelessWidget {
                       Text('Allo Dakar Express', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Besoin d\'envoyer un colis en urgence ? Confiez-le à un chauffeur de notre réseau Allo Dakar pour une livraison rapide.',
-                    style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-                  ),
+                  const SizedBox(height: 4),
+                  const Text('Gérez et suivez l\'expédition de vos colis à travers le pays.', style: TextStyle(color: Colors.white54, fontSize: 13)),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Création d\'envoi...')));
+                      onPressed: () async {
+                        showColisModal(context);
+                        // Reload when returning
+                        await Future.delayed(const Duration(seconds: 3));
+                        _loadColis();
                       },
-                      icon: const Icon(Icons.add, color: Colors.orangeAccent),
-                      label: const Text('Créer un envoi'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Envoyer un colis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.orangeAccent,
@@ -123,9 +322,10 @@ class ColisScreen extends StatelessWidget {
                       border: Border.all(color: Colors.white30),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: const TextField(
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
+                    child: TextField(
+                      controller: searchController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
                         icon: Icon(Icons.search, color: Colors.white70),
                         border: InputBorder.none,
                         hintText: 'Ex: COL-894-D15',
@@ -138,7 +338,12 @@ class ColisScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recherche de colis...')));
+                        final found = localColis.firstWhere((c) => (c['id'] ?? '').toString().contains(searchController.text), orElse: () => null);
+                        if (found != null) {
+                          _showTrackingModal(found);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Colis non trouvé')));
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -157,7 +362,27 @@ class ColisScreen extends StatelessWidget {
             const Text('Colis Récents', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             
-            // Active Parcel 1
+            ...localColis.map((c) => Column(
+              children: [
+                _buildParcelItem(
+                  icon: Icons.local_shipping,
+                  iconColor: Colors.amber,
+                  title: c['trajet'] ?? 'Trajet Inconnu',
+                  status: (c['statut'] ?? 'En attente').toString().toUpperCase(),
+                  statusColor: Colors.amber,
+                  ref: 'Réf: ${c['id']} • ${c['taille']} • ${c['date']}',
+                  dest: c['destinataire'] ?? 'Inconnu',
+                  phone: c['tel'] ?? '',
+                  showProgress: true,
+                  actionLabel: 'Détails / Suivre',
+                  onTapAction: () => _showTrackingModal(c),
+                ),
+                const SizedBox(height: 16),
+              ],
+            )).toList(),
+            
+            // Active Parcel 1 (Mock)
+            if (localColis.isEmpty)
             _buildParcelItem(
               icon: Icons.local_shipping,
               iconColor: Colors.amber,
@@ -169,6 +394,7 @@ class ColisScreen extends StatelessWidget {
               phone: '+221 77 123 45 67',
               showProgress: true,
               actionLabel: 'Détails',
+              onTapAction: () => _showTrackingModal({'id': 'COL-894-D15', 'statut': 'En transit', 'destinataire': 'Moussa Diop', 'tel': '+221 77 123 45 67', 'date': 'Aujourd\'hui', 'trajet': 'Dakar → Saint-Louis'}),
             ),
             const SizedBox(height: 16),
             
@@ -186,6 +412,7 @@ class ColisScreen extends StatelessWidget {
                 phone: null,
                 showProgress: false,
                 actionLabel: 'Reçu',
+                onTapAction: () => _showTrackingModal({'id': 'COL-112-A89', 'statut': 'Livré', 'destinataire': 'Aminata Fall', 'tel': '+221 77 000 00 00', 'date': 'Il y a 3 jours', 'trajet': 'Dakar → Thiès'}),
               ),
             ),
             const SizedBox(height: 40),
@@ -194,6 +421,7 @@ class ColisScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildStatCard(IconData icon, Color color, String badge, String value, String label) {
     return Container(
@@ -248,6 +476,7 @@ class ColisScreen extends StatelessWidget {
     String? phone,
     required bool showProgress,
     required String actionLabel,
+    required VoidCallback onTapAction,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -339,7 +568,7 @@ class ColisScreen extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: onTapAction,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E293B),
                   foregroundColor: Colors.white,
