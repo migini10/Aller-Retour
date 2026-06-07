@@ -11,7 +11,12 @@ import {
   TicketCheck, 
   ShieldAlert,
   LogOut,
-  ArrowLeft
+  ArrowLeft,
+  Package,
+  Wallet,
+  Award,
+  History,
+  Code
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,7 +27,10 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
   const { openBookingWizard } = useModal();
 
-  const navItems = [
+  const [showDevMenu, setShowDevMenu] = React.useState(false);
+  const isClientPage = pathname.startsWith('/dashboard/client');
+
+  const roleNavItems = [
     { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium' },
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver' },
@@ -30,6 +38,18 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
     { name: 'Guichet & Contrôle', path: '/dashboard/station', icon: TicketCheck, badge: 'Gare' },
     { name: 'Super Admin SaaS', path: '/dashboard/admin', icon: ShieldAlert, badge: 'Global' },
   ];
+
+  const clientNavItems = [
+    { name: 'Tableau de bord', path: '/dashboard/client', icon: User, badge: '' },
+    { name: 'Mon Wallet', path: '/dashboard/client/wallet', icon: Wallet, badge: '' },
+    { name: 'Mes Colis', path: '/dashboard/client/colis', icon: Package, badge: '' },
+    { name: 'QR Code & Billets', path: '/dashboard/client/qr-code', icon: TicketCheck, badge: '' },
+    { name: 'Fidélité', path: '/dashboard/client/fidelite', icon: Award, badge: '' },
+    { name: 'Historique', path: '/dashboard/client/transactions', icon: History, badge: '' },
+  ];
+
+  const currentNavItems = (isClientPage && !showDevMenu) ? clientNavItems : roleNavItems;
+  const menuTitle = (isClientPage && !showDevMenu) ? "Espace Voyageur" : "Espaces & Rôles (Dev)";
 
   return (
     <aside className="w-full h-full bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden transition-colors duration-300">
@@ -86,9 +106,9 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
       {/* Navigation Links (Scrollable) */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-hide -mx-2 px-2 space-y-1.5">
         <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-3 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap w-[230px]">
-          Espaces & Rôles
+          {menuTitle}
         </p>
-        {navItems.map((item) => {
+        {currentNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.path === '/' || item.path.startsWith('http') ? pathname === '/' : pathname.startsWith(item.path);
 
@@ -108,6 +128,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
                 <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">{item.name}</span>
               </div>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap ${
+                !item.badge ? 'hidden' :
                 isActive
                   ? 'bg-slate-100 dark:bg-slate-900 text-orange-600 dark:text-orange-300 border border-orange-500/30'
                   : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
@@ -119,8 +140,16 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
         })}
       </div>
 
-      {/* Logout Footer */}
-      <div className="flex-none pt-6 border-t border-slate-200 dark:border-slate-800/80 mt-auto">
+      {/* Bottom Actions Footer */}
+      <div className="flex-none pt-4 border-t border-slate-200 dark:border-slate-800/80 mt-auto space-y-2">
+        <button 
+          onClick={() => setShowDevMenu(!showDevMenu)}
+          className={`flex items-center gap-3 p-3 w-[230px] rounded-xl transition-colors ${showDevMenu ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white'}`}
+        >
+          <Code className="w-5 h-5 shrink-0" />
+          <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Mode Dev</span>
+        </button>
+
         <button className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-slate-500 dark:text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 dark:hover:text-rose-400 transition-colors">
           <LogOut className="w-5 h-5 shrink-0" />
           <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Se déconnecter</span>
