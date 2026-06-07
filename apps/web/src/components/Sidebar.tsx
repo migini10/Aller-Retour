@@ -16,7 +16,8 @@ import {
   Wallet,
   Award,
   History,
-  Code
+  Code,
+  Settings
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -46,6 +47,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
     { name: 'QR Code & Billets', path: '/dashboard/client/qr-code', icon: TicketCheck, badge: '' },
     { name: 'Fidélité', path: '/dashboard/client/fidelite', icon: Award, badge: '' },
     { name: 'Historique', path: '/dashboard/client/transactions', icon: History, badge: '' },
+    { name: 'Paramètres', path: '/dashboard/client/settings', icon: Settings, badge: '' },
   ];
 
   const currentNavItems = (isClientPage && !showDevMenu) ? clientNavItems : roleNavItems;
