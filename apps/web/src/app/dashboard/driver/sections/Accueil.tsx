@@ -28,11 +28,17 @@ export default function SectionAccueil() {
           </p>
           
           <div className="mt-8 flex flex-wrap gap-4">
-            <button className="bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 group">
+            <button 
+              onClick={() => window.location.hash = 'missions'}
+              className="bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 group"
+            >
               <Route className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" /> 
-              Démarrer ma journée
+              Créer un voyage
             </button>
-            <button className="bg-white/10 hover:bg-white/15 backdrop-blur-md text-white font-bold py-3 px-6 rounded-xl transition-all border border-white/10 flex items-center gap-2">
+            <button 
+              onClick={() => window.location.hash = 'revenus'}
+              className="bg-white/10 hover:bg-white/15 backdrop-blur-md text-white font-bold py-3 px-6 rounded-xl transition-all border border-white/10 flex items-center gap-2"
+            >
               <Wallet className="w-5 h-5" /> 
               Voir mes gains
             </button>
@@ -81,10 +87,16 @@ export default function SectionAccueil() {
             </div>
             
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-[#2A2A2A] relative z-10 flex gap-4">
-              <button className="flex-1 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold py-3 px-4 rounded-xl transition-colors">
+              <button 
+                onClick={() => window.location.hash = 'passagers'}
+                className="flex-1 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold py-3 px-4 rounded-xl transition-colors"
+              >
                 Gérer le manifeste
               </button>
-              <button className="px-4 py-3 bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222] text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-colors">
+              <button 
+                onClick={() => window.location.hash = 'localisation'}
+                className="px-4 py-3 bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222] text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-colors"
+              >
                 <Navigation className="w-5 h-5" />
               </button>
             </div>

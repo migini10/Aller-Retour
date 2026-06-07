@@ -36,6 +36,15 @@ interface SidebarProps {
 export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
   const { openBookingWizard } = useModal();
+  
+  const [hash, setHash] = React.useState('');
+  
+  React.useEffect(() => {
+    setHash(window.location.hash);
+    const handleHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const [showDevMenu, setShowDevMenu] = React.useState(false);
   const isClientPage = pathname.startsWith('/dashboard/client');
@@ -153,13 +162,31 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
         </p>
         {currentNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.path === '/' || item.path.startsWith('http') ? pathname === '/' : pathname.startsWith(item.path);
+          
+          let isActive = false;
+          if (item.path === '/' || item.path.startsWith('http')) {
+            isActive = pathname === '/';
+          } else if (item.path.includes('#')) {
+            const [basePath, itemHash] = item.path.split('#');
+            isActive = pathname === basePath && hash === `#${itemHash}`;
+          } else {
+            isActive = pathname.startsWith(item.path);
+          }
 
           return (
             <Link
               key={item.path}
               href={item.path}
-              onClick={onLinkClick}
+              onClick={(e) => {
+                if (item.path.includes('#')) {
+                  const [basePath, itemHash] = item.path.split('#');
+                  if (pathname === basePath) {
+                    e.preventDefault();
+                    window.location.hash = itemHash;
+                  }
+                }
+                if (onLinkClick) onLinkClick();
+              }}
               className={`group/item flex items-center justify-between p-2.5 w-[230px] rounded-2xl font-medium text-sm transition-all duration-300 ${
                 isActive
                   ? 'bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/50'

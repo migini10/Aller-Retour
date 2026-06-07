@@ -363,7 +363,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                                   const Icon(Icons.lock, color: Colors.white, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Score de ${mission['minScore']}% requis', 
+                                    'Score de ${item['minScore']}% requis', 
                                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
                                   ),
                                 ],

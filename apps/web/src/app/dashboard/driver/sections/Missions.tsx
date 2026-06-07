@@ -19,8 +19,13 @@ const statutStyle: Record<string, string> = {
 
 export default function SectionMissions() {
   const [isMounted, setIsMounted] = React.useState(false);
-  
   const [cancelAlertMessage, setCancelAlertMessage] = useState('');
+  const [tab, setTab] = useState('Toutes');
+  const [localMissions, setLocalMissions] = useState(initialMissions);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -40,15 +45,59 @@ export default function SectionMissions() {
     };
 
     window.addEventListener('cancel_reservation', handleCancelAlert);
-    return () => window.removeEventListener('cancel_reservation', handleCancelAlert);
+    
+    // Fetch real missions from DB
+    const fetchApiMissions = async () => {
+      try {
+        const res = await fetch('/api/missions');
+        if (res.ok) {
+          const apiData = await res.json();
+          // Convert apiData to match our localMissions format
+          const mappedMissions = apiData.map((m: any) => {
+             // depart format: "lundi, 14:30" or similar based on Intl.DateTimeFormat
+             let dateParts = m.depart.split(', ');
+             let dateStr = "Aujourd'hui"; // default fallback
+             let heureStr = "12:00";
+             if (dateParts.length > 1) {
+               dateStr = dateParts[0];
+               heureStr = dateParts[1];
+             } else {
+               heureStr = dateParts[0];
+             }
+             return {
+                id: m.id,
+                trajet: m.trajet,
+                date: dateStr,
+                heure: heureStr,
+                vehicule: m.transporteur, // generic
+                statut: m.status === 'disponible' ? 'programmé' : 'en cours',
+                passagers: m.passagers,
+                placesLibres: 4, // placeholder
+                isAirConditioned: true,
+                takesTollRoad: true
+             };
+          });
+          
+          // Merge avoiding duplicates by ID
+          setLocalMissions(prev => {
+             const existingIds = new Set(prev.map(p => p.id));
+             const newMissions = mappedMissions.filter((m: any) => !existingIds.has(m.id));
+             return [...newMissions, ...prev];
+          });
+        }
+      } catch(e) {}
+    };
+    
+    fetchApiMissions();
+    const interval = setInterval(fetchApiMissions, 10000); // refresh every 10s
+
+    return () => {
+      window.removeEventListener('cancel_reservation', handleCancelAlert);
+      clearInterval(interval);
+    };
   }, []);
 
-  const [tab, setTab] = useState('Toutes');
-  const [localMissions, setLocalMissions] = useState(initialMissions);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState('');
+
   const [formData, setFormData] = useState({
     originCity: '',
     destinationCity: '',
@@ -61,48 +110,11 @@ export default function SectionMissions() {
     takesTollRoad: true
   });
 
-  const originInputRef = React.useRef<HTMLInputElement>(null);
-  const destInputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (!isModalOpen) return;
-
-    const initAutocomplete = () => {
-      if (!window.google || !window.google.maps || !window.google.maps.places) return;
-      const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
-
-      if (originInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(originInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) {
-            setFormData(prev => ({ ...prev, originCity: place.formatted_address || '' }));
-          }
-        });
-      }
-      
-      if (destInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(destInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) {
-            setFormData(prev => ({ ...prev, destinationCity: place.formatted_address || '' }));
-          }
-        });
-      }
-    };
-
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initAutocomplete;
-      document.head.appendChild(script);
-    } else {
-      setTimeout(initAutocomplete, 500);
-    }
-  }, [isModalOpen]);
+  const SENEGAL_CITIES = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda', 'Louga', 'Kolda', 'Fatick', 'Kaffrine', 'Matam', 'Sédhiou', 'Kédougou'];
+  const [originSuggestions, setOriginSuggestions] = useState<string[]>([]);
+  const [destSuggestions, setDestSuggestions] = useState<string[]>([]);
+  const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
+  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
 
   const getTodayStr = () => {
     const d = new Date();
@@ -471,28 +483,70 @@ export default function SectionMissions() {
             <form onSubmit={handleCreateTrip} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 relative">
-                  <label className="text-xs text-slate-400 font-medium">Départ (Google Places)</label>
+                  <label className="text-xs text-slate-400 font-medium">Départ</label>
                   <input 
                     type="text" 
-                    ref={originInputRef}
                     value={formData.originCity} 
-                    onChange={e => setFormData({...formData, originCity: e.target.value})}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormData({...formData, originCity: val});
+                      setOriginSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                      setShowOriginSuggestions(true);
+                    }}
+                    onFocus={() => {
+                      setOriginSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(formData.originCity.toLowerCase())));
+                      setShowOriginSuggestions(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
                     className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" 
                     required 
-                    placeholder="Ville de départ" 
+                    placeholder="Saisir ou choisir" 
                   />
+                  {showOriginSuggestions && originSuggestions.length > 0 && (
+                    <ul className="absolute z-[100] w-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar transition-colors">
+                      {originSuggestions.map(city => (
+                        <li key={city} onClick={() => {
+                           setFormData({...formData, originCity: city});
+                           setShowOriginSuggestions(false);
+                        }} className="px-4 py-2 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm transition-colors">
+                          {city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <div className="space-y-1.5 relative">
-                  <label className="text-xs text-slate-400 font-medium">Arrivée (Google Places)</label>
+                  <label className="text-xs text-slate-400 font-medium">Arrivée</label>
                   <input 
                     type="text" 
-                    ref={destInputRef}
                     value={formData.destinationCity} 
-                    onChange={e => setFormData({...formData, destinationCity: e.target.value})}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormData({...formData, destinationCity: val});
+                      setDestSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                      setShowDestSuggestions(true);
+                    }}
+                    onFocus={() => {
+                      setDestSuggestions(SENEGAL_CITIES.filter(c => c.toLowerCase().includes(formData.destinationCity.toLowerCase())));
+                      setShowDestSuggestions(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
                     className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" 
                     required 
-                    placeholder="Ville d'arrivée" 
+                    placeholder="Saisir ou choisir" 
                   />
+                  {showDestSuggestions && destSuggestions.length > 0 && (
+                    <ul className="absolute z-[100] w-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-xl custom-scrollbar transition-colors">
+                      {destSuggestions.map(city => (
+                        <li key={city} onClick={() => {
+                           setFormData({...formData, destinationCity: city});
+                           setShowDestSuggestions(false);
+                        }} className="px-4 py-2 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm transition-colors">
+                          {city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
 

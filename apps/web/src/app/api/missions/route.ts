@@ -12,8 +12,8 @@ export async function GET() {
       include: {
         route: {
           include: {
-            origin: true,
-            destination: true,
+            originStation: true,
+            destinationStation: true,
           }
         },
         vehicle: true,
@@ -26,7 +26,7 @@ export async function GET() {
       return {
         id: `M-${trip.id.substring(0, 4).toUpperCase()}`,
         tripId: trip.id, // For patching
-        trajet: `${trip.route.origin.city} → ${trip.route.destination.city}`,
+        trajet: `${trip.route.originStation.city} → ${trip.route.destinationStation.city}`,
         depart: new Intl.DateTimeFormat('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(trip.departureTime),
         distance: `${trip.route.distanceKm} km`,
         passagers: 0, // Placeholder

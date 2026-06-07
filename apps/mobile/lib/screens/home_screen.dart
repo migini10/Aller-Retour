@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
           isDrawerOpen = isOpen;
         });
       },
+      drawerScrimColor: Colors.black.withOpacity(0.3), // Added darker scrim
       endDrawer: Drawer(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -120,55 +121,46 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Divider(color: Colors.white10),
-              ),
-              // Mode Switcher
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      isDriverMode = !isDriverMode;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: isDriverMode ? Colors.orangeAccent.withOpacity(0.1) : Colors.cyanAccent.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: isDriverMode ? Colors.orangeAccent.withOpacity(0.3) : Colors.cyanAccent.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(isDriverMode ? Icons.person : Icons.drive_eta, color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            isDriverMode ? 'Passer en Mode Voyageur' : 'Passer en Mode Chauffeur',
-                            style: TextStyle(
-                              color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Icon(Icons.swap_horiz, color: isDriverMode ? Colors.orangeAccent : Colors.cyanAccent),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Logout button
+              // Logout button (Replacing the Mode Switcher)
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Divider(color: Colors.white10),
               ),
               const SizedBox(height: 16),
-              _buildMenuItem(context, Icons.logout, 'Déconnexion', Colors.redAccent, isLogout: true),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.redAccent),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Se déconnecter',
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
             ],
           ),

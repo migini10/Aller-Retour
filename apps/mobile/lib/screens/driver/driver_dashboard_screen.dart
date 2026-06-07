@@ -162,9 +162,11 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                 children: [
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.pushNamed(context, '/driver/missions');
+                                      },
                                       icon: const Icon(Icons.route, size: 18),
-                                      label: const Text('Démarrer ma journée', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      label: const Text('Créer un voyage', style: TextStyle(fontWeight: FontWeight.bold)),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orangeAccent,
                                         foregroundColor: Colors.black,
@@ -297,7 +299,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/driver/missions');
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
                                     foregroundColor: Colors.black,
@@ -309,7 +313,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                               ),
                               const SizedBox(width: 12),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/driver/missions');
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF1A1A1A),
                                   foregroundColor: Colors.white,
