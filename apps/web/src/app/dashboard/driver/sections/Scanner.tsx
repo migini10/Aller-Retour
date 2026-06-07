@@ -1,10 +1,50 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QrCode, Camera, CheckCircle2, XCircle, User } from 'lucide-react';
-import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
+import { Html5Qrcode } from 'html5-qrcode';
 
 export default function SectionScanner() {
   const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid'>('idle');
+  const [hasCameraError, setHasCameraError] = useState(false);
+
+  useEffect(() => {
+    let html5QrCode: Html5Qrcode;
+
+    const startScanner = async () => {
+      try {
+        html5QrCode = new Html5Qrcode("reader");
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+          },
+          (decodedText) => {
+            // Simulated valid check
+            handleScan('valid');
+          },
+          (errorMessage) => {
+            // Ignore parsing errors (very frequent when no QR code is in frame)
+          }
+        );
+      } catch (err) {
+        console.error("Camera error:", err);
+        setHasCameraError(true);
+      }
+    };
+
+    // Small delay to ensure the DOM element exists before starting
+    setTimeout(() => {
+      startScanner();
+    }, 500);
+
+    return () => {
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
+      }
+    };
+  }, []);
 
   const handleScan = (type: 'valid' | 'invalid') => {
     setScanResult(type);
@@ -21,14 +61,19 @@ export default function SectionScanner() {
           <div className="absolute inset-0 bg-black opacity-50" />
           
           <div className="relative z-10 w-64 h-64 border-2 border-orange-500/50 rounded-3xl flex items-center justify-center shadow-[0_0_0_9999px_rgba(15,23,42,0.8)] overflow-hidden">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-orange-500 rounded-tl-3xl" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-orange-500 rounded-tr-3xl" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-orange-500 rounded-bl-3xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-orange-500 rounded-br-3xl" />
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-orange-500 rounded-tl-3xl z-20" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-orange-500 rounded-tr-3xl z-20" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-orange-500 rounded-bl-3xl z-20" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-orange-500 rounded-br-3xl z-20" />
             
             {/* Ligne de scan animée */}
-            <div className="w-full h-0.5 bg-orange-400 shadow-[0_0_10px_2px_#f97316] absolute animate-scan" />
-            <Camera className="w-8 h-8 text-white/20" />
+            <div className="w-full h-0.5 bg-orange-400 shadow-[0_0_10px_2px_#f97316] absolute animate-scan z-20" />
+            
+            {/* Flux Caméra Réel */}
+            <div className="absolute inset-0 z-10 bg-black/50 overflow-hidden">
+              <div id="reader" className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
+              {hasCameraError && <Camera className="w-8 h-8 text-white/20 absolute inset-0 m-auto z-10" />}
+            </div>
           </div>
 
           <p className="relative z-10 mt-6 text-sm font-semibold text-white">Placez le QR Code dans le cadre</p>
