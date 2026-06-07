@@ -53,7 +53,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="flex-1 w-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center">
-      <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 py-8 pb-8 space-y-8 animate-fade-in mx-auto">
+      <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 pt-24 pb-12 space-y-8 animate-fade-in mx-auto">
         
         {/* Header & Wallet Quick Look with Hero Background */}
         <div className="relative rounded-3xl overflow-hidden mb-8 shadow-xl">

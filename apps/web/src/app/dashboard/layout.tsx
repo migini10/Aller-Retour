@@ -115,8 +115,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Sidebar onLinkClick={() => setSidebarOpen(false)} />
         </div>
 
-        {/* Contenu principal: un conteneur flex qui ne scrolle pas, pour permettre aux headers d'être vraiment fixes */}
-        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-16 lg:pt-16 ${isSuperAdmin ? '' : 'lg:ml-20'} transition-colors duration-300`}>
+        {/* Contenu principal: un conteneur flex qui scrolle derrière le header */}
+        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:ml-20'} transition-colors duration-300`}>
           {children}
         </main>
       </div>
