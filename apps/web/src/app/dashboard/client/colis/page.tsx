@@ -56,53 +56,69 @@ export default function ColisPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-purple-500/30 transition-colors">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Box className="w-5 h-5 text-purple-500" />
+          {/* Card 1: Total */}
+          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full">
+            <Box className="absolute -bottom-6 -right-6 w-24 h-24 text-purple-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Box className="w-5 h-5 text-purple-500" />
+                </div>
+                <span className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Total</span>
               </div>
-              <span className="bg-slate-100 dark:bg-[#222222] text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Total</span>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">12</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Colis envoyés (Année)</p>
+              <div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">12</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis envoyés (Année)</p>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-amber-500/30 transition-colors">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-500" />
+          {/* Card 2: Actif */}
+          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full">
+            <Clock className="absolute -bottom-6 -right-6 w-24 h-24 text-amber-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Clock className="w-5 h-5 text-amber-500" />
+                </div>
+                <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Actif</span>
               </div>
-              <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Actif</span>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">1</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">En cours d'expédition</p>
+              <div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">1</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">En cours d'expédition</p>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-emerald-500/30 transition-colors">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+          {/* Card 3: Livrés */}
+          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-emerald-500/30 hover:border-emerald-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full">
+            <CheckCircle2 className="absolute -bottom-6 -right-6 w-24 h-24 text-emerald-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">11</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Colis livrés</p>
+              <div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">11</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis livrés</p>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-blue-500/30 transition-colors">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <Truck className="w-5 h-5 text-blue-500" />
+          {/* Card 4: Franchise */}
+          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-blue-500/30 hover:border-blue-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full">
+            <Truck className="absolute -bottom-6 -right-6 w-24 h-24 text-blue-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Truck className="w-5 h-5 text-blue-500" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">15kg</p>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Franchise incluse restante</p>
+              <div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">15kg</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Franchise incluse restante</p>
+              </div>
             </div>
           </div>
         </div>

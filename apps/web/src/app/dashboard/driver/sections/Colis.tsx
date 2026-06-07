@@ -150,6 +150,7 @@ export default function SectionColis() {
             <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>
           </div>
+        ) : (
           colis.map((c, idx) => {
             const isAccepted = c.statut === 'Accepté';
             const isTransit = c.statut === 'En transit';
