@@ -6,8 +6,12 @@ import { Html5Qrcode } from 'html5-qrcode';
 export default function SectionScanner() {
   const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid'>('idle');
   const [hasCameraError, setHasCameraError] = useState(false);
+  const scannerStarted = React.useRef(false);
 
   useEffect(() => {
+    if (scannerStarted.current) return;
+    scannerStarted.current = true;
+
     let html5QrCode: Html5Qrcode;
 
     const startScanner = async () => {
@@ -17,8 +21,6 @@ export default function SectionScanner() {
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
           },
           (decodedText) => {
             // Simulated valid check
@@ -70,8 +72,8 @@ export default function SectionScanner() {
             <div className="w-full h-0.5 bg-orange-400 shadow-[0_0_10px_2px_#f97316] absolute animate-scan z-20" />
             
             {/* Flux Caméra Réel */}
-            <div className="absolute inset-0 z-10 bg-black/50 overflow-hidden">
-              <div id="reader" className="w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full" />
+            <div className="absolute inset-0 z-10 bg-black overflow-hidden flex items-center justify-center">
+              <div id="reader" style={{ width: '100%', minHeight: '100%' }} />
               {hasCameraError && <Camera className="w-8 h-8 text-white/20 absolute inset-0 m-auto z-10" />}
             </div>
           </div>
