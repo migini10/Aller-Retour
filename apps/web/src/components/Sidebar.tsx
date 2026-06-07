@@ -32,22 +32,22 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const isClientPage = pathname.startsWith('/dashboard/client');
 
   const roleNavItems = [
-    { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium' },
-    { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client' },
-    { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver' },
-    { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant' },
-    { name: 'Guichet & Contrôle', path: '/dashboard/station', icon: TicketCheck, badge: 'Gare' },
-    { name: 'Super Admin SaaS', path: '/dashboard/admin', icon: ShieldAlert, badge: 'Global' },
+    { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
+    { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-500/15', borderClass: 'border-cyan-500/30' },
+    { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-500/15', borderClass: 'border-emerald-500/30' },
+    { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/15', borderClass: 'border-blue-500/30' },
+    { name: 'Guichet & Contrôle', path: '/dashboard/station', icon: TicketCheck, badge: 'Gare', colorClass: 'text-indigo-500', bgClass: 'bg-indigo-500/15', borderClass: 'border-indigo-500/30' },
+    { name: 'Super Admin SaaS', path: '/dashboard/admin', icon: ShieldAlert, badge: 'Global', colorClass: 'text-rose-500', bgClass: 'bg-rose-500/15', borderClass: 'border-rose-500/30' },
   ];
 
   const clientNavItems = [
-    { name: 'Tableau de bord', path: '/dashboard/client', icon: User, badge: '' },
-    { name: 'Mon Wallet', path: '/dashboard/client/wallet', icon: Wallet, badge: '' },
-    { name: 'Mes Colis', path: '/dashboard/client/colis', icon: Package, badge: '' },
-    { name: 'QR Code & Billets', path: '/dashboard/client/qr-code', icon: TicketCheck, badge: '' },
-    { name: 'Fidélité', path: '/dashboard/client/fidelite', icon: Award, badge: '' },
-    { name: 'Historique', path: '/dashboard/client/transactions', icon: History, badge: '' },
-    { name: 'Paramètres', path: '/dashboard/client/settings', icon: Settings, badge: '' },
+    { name: 'Tableau de bord', path: '/dashboard/client', icon: User, badge: '', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-500/15', borderClass: 'border-cyan-500/30' },
+    { name: 'Mon Wallet', path: '/dashboard/client/wallet', icon: Wallet, badge: '', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-500/15', borderClass: 'border-emerald-500/30' },
+    { name: 'Mes Colis', path: '/dashboard/client/colis', icon: Package, badge: '', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/15', borderClass: 'border-purple-500/30' },
+    { name: 'QR Code & Billets', path: '/dashboard/client/qr-code', icon: TicketCheck, badge: '', colorClass: 'text-orange-500', bgClass: 'bg-orange-500/15', borderClass: 'border-orange-500/30' },
+    { name: 'Fidélité', path: '/dashboard/client/fidelite', icon: Award, badge: '', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
+    { name: 'Historique', path: '/dashboard/client/transactions', icon: History, badge: '', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/15', borderClass: 'border-blue-500/30' },
+    { name: 'Paramètres', path: '/dashboard/client/settings', icon: Settings, badge: '', colorClass: 'text-slate-500 dark:text-slate-400', bgClass: 'bg-slate-500/15', borderClass: 'border-slate-500/30' },
   ];
 
   const currentNavItems = (isClientPage && !showDevMenu) ? clientNavItems : roleNavItems;
@@ -119,15 +119,25 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
               key={item.path}
               href={item.path}
               onClick={onLinkClick}
-              className={`flex items-center justify-between p-3 w-[230px] rounded-xl font-medium text-sm transition-colors ${
+              className={`group/item flex items-center justify-between p-2.5 w-[230px] rounded-2xl font-medium text-sm transition-all duration-300 ${
                 isActive
-                  ? 'bg-orange-600 text-white font-semibold shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                  : 'border border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/50 hover:border-slate-200 dark:hover:border-slate-800/50'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
-                <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">{item.name}</span>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover/item:scale-105 ${
+                  isActive 
+                    ? `${item.bgClass} ${item.borderClass}` 
+                    : `${item.bgClass} border-transparent group-hover/item:${item.borderClass}`
+                }`}>
+                  <Icon className={`w-4 h-4 ${item.colorClass}`} />
+                </div>
+                <span className={`lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap ${
+                  isActive ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-600 dark:text-slate-300 group-hover/item:text-slate-900 dark:group-hover/item:text-white'
+                }`}>
+                  {item.name}
+                </span>
               </div>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap ${
                 !item.badge ? 'hidden' :
