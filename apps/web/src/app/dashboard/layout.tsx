@@ -32,22 +32,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setShowTopbar(true); // Always show topbar when changing pages
   }, [pathname]);
 
-  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
-    const currentScrollY = e.currentTarget.scrollTop;
-    
-    // Si on est tout en haut, toujours afficher
-    if (currentScrollY < 10) {
-      setShowTopbar(true);
-    } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
-      // Scroll vers le bas
-      setShowTopbar(false);
-    } else if (currentScrollY < lastScrollY) {
-      // Scroll vers le haut
-      setShowTopbar(true);
-    }
-    
-    setLastScrollY(currentScrollY);
-  };
+  useEffect(() => {
+    const onWindowScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < 10) {
+        setShowTopbar(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
+        setShowTopbar(false);
+      } else if (currentScrollY < lastScrollY) {
+        setShowTopbar(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', onWindowScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onWindowScroll);
+  }, [lastScrollY]);
 
   if (pathname.startsWith('/dashboard/traveller')) {
     return (
@@ -73,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="fixed inset-0 overflow-hidden bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full h-[100dvh]">
+      <div className="min-h-[100dvh] bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full">
       {/* Topbar Fixe (Mobile & Desktop) avec Effet de Disparition */}
       <header className={`fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-transform duration-300 ease-in-out ${showTopbar ? 'translate-y-0' : '-translate-y-full'}`}>
         <Link href={getLogoLink()} className="flex items-center gap-2.5">
@@ -135,10 +137,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Sidebar onLinkClick={() => setSidebarOpen(false)} />
         </div>
 
-        {/* Contenu principal: un conteneur flex qui scrolle derrière le header */}
+        {/* Contenu principal: scrolle naturellement avec la fenêtre */}
         <main 
-          onScroll={handleScroll}
-          className={`flex-1 min-w-0 flex flex-col h-full relative overflow-y-auto overscroll-contain bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
+          className={`flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
         >
           {children}
         </main>
