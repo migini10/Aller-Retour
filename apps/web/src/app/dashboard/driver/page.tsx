@@ -97,18 +97,7 @@ export default function DriverDashboard() {
             </div>
           </button>
 
-          <div className="flex items-center gap-3">
-            {mounted && (
-              <button 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
-                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-white transition-colors shrink-0"
-                aria-label="Changer le thème"
-              >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-            )}
-
-            {/* Status Toggle */}
+          <div className="flex items-center gap-3">            {/* Status Toggle */}
             <div className="flex items-center bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] rounded-xl p-1 transition-colors">
               {['Disponible', 'En Trajet', 'Hors Ligne'].map(s => (
                 <button key={s} onClick={() => setStatus(s)} className={`px-2 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all ${status === s ? (s === 'Disponible' ? 'bg-emerald-600 text-white' : s === 'En Trajet' ? 'bg-orange-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white') : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}>
