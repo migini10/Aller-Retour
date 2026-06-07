@@ -19,19 +19,10 @@ import SectionSupport from './sections/Support';
 import SectionParametres from './sections/Parametres';
 import SectionColis from './sections/Colis';
 
-const navItems = [
-  { id: 'accueil', label: 'Accueil', icon: LayoutDashboard },
-  { id: 'missions', label: 'Missions & Trajets', icon: Route },
-  { id: 'localisation', label: 'Localisation Client', icon: MapPin },
-  { id: 'scanner', label: 'Scanner Billet', icon: QrCode },
-  { id: 'passagers', label: 'Passagers', icon: Users },
-  { id: 'revenus', label: 'Revenus', icon: Wallet },
-  { id: 'marketplace', label: 'Marketplace', icon: Store },
-  { id: 'colis', label: 'Gestion des Colis', icon: Package },
-  { id: 'vehicule', label: 'Véhicule', icon: Bus },
-  { id: 'notifications', label: 'Notifications', icon: Bell, badge: '2' },
-  { id: 'support', label: 'Support', icon: HelpCircle },
-  { id: 'parametres', label: 'Paramètres', icon: Settings },
+const validTabs = [
+  'accueil', 'missions', 'localisation', 'scanner', 'passagers', 
+  'revenus', 'marketplace', 'colis', 'vehicule', 'notifications', 
+  'support', 'parametres'
 ];
 
 export default function DriverDashboard() {
@@ -47,7 +38,7 @@ export default function DriverDashboard() {
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && navItems.some(t => t.id === hash)) {
+      if (hash && validTabs.includes(hash)) {
         setActiveTab(hash);
       }
     };
@@ -82,72 +73,12 @@ export default function DriverDashboard() {
     }
   };
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-  };
-
-  const renderNavMenu = (isMobile: boolean = false) => (
-    <div 
-      ref={isMobile ? scrollContainerRef : null}
-      className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto overscroll-contain pb-2 lg:pb-0 gap-1.5 lg:gap-2 pr-8 lg:pr-0 scrollbar-hide lg:h-full lg:bg-white dark:lg:bg-[#141414] lg:border lg:border-slate-200 dark:lg:border-[#2A2A2A]/80 lg:p-4 lg:rounded-3xl transition-colors"
-    >
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isActive = activeTab === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => handleTabChange(item.id)}
-            className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all whitespace-nowrap text-xs lg:text-sm font-semibold shrink-0 relative
-              ${isActive 
-                ? 'bg-orange-600 lg:bg-orange-50 lg:dark:bg-orange-500/10 text-white lg:text-orange-600 lg:dark:text-orange-400 border border-orange-500/20 lg:shadow-none shadow-sm shadow-orange-500/20' 
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#222222]/50 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent bg-slate-50 dark:bg-[#1A1A1A]/50 lg:bg-transparent'
-              }`}
-          >
-            <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? 'text-white lg:text-orange-600 lg:dark:text-orange-400' : 'text-slate-500'}`} />
-            {item.label}
-            {item.badge && (
-              <span className="lg:ml-auto absolute lg:relative -top-1 -right-1 lg:top-0 lg:right-0 bg-rose-500 lg:bg-orange-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
-                {item.badge}
-              </span>
-            )}
-          </button>
-        );
-      })}
-      
-      <div className="lg:mt-auto lg:pt-4">
-        <Link 
-          href="/allo-dakar-driver" 
-          className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all whitespace-nowrap text-xs lg:text-sm font-bold shrink-0 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-[1.02]"
-        >
-          <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-          Lancer Allo Dakar
-        </Link>
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto lg:overflow-hidden scrollbar-hide">
       
-      {/* Mobile Navigation Menu (Affiché en haut juste sous le header de layout) */}
-      <div className="lg:hidden shrink-0 sticky top-0 z-50 bg-white/95 dark:bg-[#000000]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 px-5 sm:px-8 py-3 w-full relative transition-colors">
-        {renderNavMenu(true)}
-        {/* Indicateur de défilement horizontal */}
-        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white dark:from-[#050A15] via-white/80 dark:via-[#050A15]/80 to-transparent pointer-events-none flex items-center justify-end pr-2">
-          <button 
-            onClick={scrollRight}
-            className="pointer-events-auto p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-            aria-label="Faire défiler"
-          >
-            <ChevronRight className="w-5 h-5 animate-pulse drop-shadow-md" />
-          </button>
-        </div>
-      </div>
+
 
       {/* Top Bar : Status & Profile (Scrolle sur mobile, fixe sur desktop via le layout) */}
       <div className="flex-none z-40 bg-white dark:bg-[#0A0A0A] border-b border-slate-200 dark:border-[#2A2A2A]/80 px-5 sm:px-8 lg:px-12 py-3 transition-colors">
@@ -191,10 +122,7 @@ export default function DriverDashboard() {
 
       {/* Full Height Content Area */}
       <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-12 py-4 lg:py-6 overflow-visible lg:overflow-hidden">
-        {/* Navigation Sidebar (Desktop Only) */}
-        <div className="hidden lg:block lg:w-64 shrink-0 lg:h-full">
-          {renderNavMenu()}
-        </div>
+
 
         {/* Contenu Principal (Scrolle indépendamment sur desktop, scrolle avec la page sur mobile) */}
         <div className="flex-1 min-w-0 lg:h-full overflow-visible lg:overflow-y-auto overscroll-contain pb-10 scrollbar-hide lg:pr-2">

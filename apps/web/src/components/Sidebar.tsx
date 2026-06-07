@@ -17,7 +17,16 @@ import {
   Award,
   History,
   Code,
-  Settings
+  Settings,
+  LayoutDashboard,
+  Route,
+  MapPin,
+  QrCode,
+  Users,
+  Store,
+  Bus,
+  Bell,
+  HelpCircle
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,6 +39,8 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
 
   const [showDevMenu, setShowDevMenu] = React.useState(false);
   const isClientPage = pathname.startsWith('/dashboard/client');
+
+  const isDriverPage = pathname.startsWith('/dashboard/driver');
 
   const roleNavItems = [
     { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
@@ -50,8 +61,36 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
     { name: 'Paramètres', path: '/dashboard/client/settings', icon: Settings, badge: '', colorClass: 'text-slate-500 dark:text-slate-400', bgClass: 'bg-slate-500/15', borderClass: 'border-slate-500/30' },
   ];
 
-  const currentNavItems = (isClientPage && !showDevMenu) ? clientNavItems : roleNavItems;
-  const menuTitle = (isClientPage && !showDevMenu) ? "Espace Voyageur" : "Espaces & Rôles (Dev)";
+  const driverNavItems = [
+    { name: 'Accueil', path: '/dashboard/driver#accueil', icon: LayoutDashboard, badge: '', colorClass: 'text-orange-500', bgClass: 'bg-orange-500/15', borderClass: 'border-orange-500/30' },
+    { name: 'Missions & Trajets', path: '/dashboard/driver#missions', icon: Route, badge: '', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-500/15', borderClass: 'border-emerald-500/30' },
+    { name: 'Localisation Client', path: '/dashboard/driver#localisation', icon: MapPin, badge: '', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-500/15', borderClass: 'border-cyan-500/30' },
+    { name: 'Scanner Billet', path: '/dashboard/driver#scanner', icon: QrCode, badge: '', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/15', borderClass: 'border-purple-500/30' },
+    { name: 'Passagers', path: '/dashboard/driver#passagers', icon: Users, badge: '', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/15', borderClass: 'border-blue-500/30' },
+    { name: 'Revenus', path: '/dashboard/driver#revenus', icon: Wallet, badge: '', colorClass: 'text-emerald-600', bgClass: 'bg-emerald-600/15', borderClass: 'border-emerald-600/30' },
+    { name: 'Marketplace', path: '/dashboard/driver#marketplace', icon: Store, badge: '', colorClass: 'text-indigo-500', bgClass: 'bg-indigo-500/15', borderClass: 'border-indigo-500/30' },
+    { name: 'Gestion des Colis', path: '/dashboard/driver#colis', icon: Package, badge: '', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
+    { name: 'Véhicule', path: '/dashboard/driver#vehicule', icon: Bus, badge: '', colorClass: 'text-slate-700 dark:text-slate-300', bgClass: 'bg-slate-500/15', borderClass: 'border-slate-500/30' },
+    { name: 'Notifications', path: '/dashboard/driver#notifications', icon: Bell, badge: '2', colorClass: 'text-rose-500', bgClass: 'bg-rose-500/15', borderClass: 'border-rose-500/30' },
+    { name: 'Support', path: '/dashboard/driver#support', icon: HelpCircle, badge: '', colorClass: 'text-blue-400', bgClass: 'bg-blue-400/15', borderClass: 'border-blue-400/30' },
+    { name: 'Paramètres', path: '/dashboard/driver#parametres', icon: Settings, badge: '', colorClass: 'text-slate-500 dark:text-slate-400', bgClass: 'bg-slate-500/15', borderClass: 'border-slate-500/30' },
+  ];
+
+  const currentNavItems = showDevMenu 
+    ? roleNavItems 
+    : isClientPage 
+      ? clientNavItems 
+      : isDriverPage 
+        ? driverNavItems 
+        : roleNavItems;
+        
+  const menuTitle = showDevMenu 
+    ? "Espaces & Rôles (Dev)" 
+    : isClientPage 
+      ? "Espace Voyageur" 
+      : isDriverPage 
+        ? "Espace Chauffeur" 
+        : "Espaces & Rôles (Dev)";
 
   return (
     <aside className="w-full h-full bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-xl border-l border-slate-200 dark:border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden transition-colors duration-300">
