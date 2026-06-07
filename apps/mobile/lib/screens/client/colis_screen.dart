@@ -581,7 +581,7 @@ class _ColisScreenState extends State<ColisScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildParcelItem({
