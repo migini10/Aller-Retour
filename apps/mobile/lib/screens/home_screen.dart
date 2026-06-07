@@ -17,12 +17,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   bool isDriverMode = false;
+  bool isDrawerOpen = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF020617), // Slate 950
-      body: isDriverMode ? const DriverDashboardScreen() : const ClientDashboardScreen(),
+      body: Stack(
+        children: [
+          isDriverMode ? const DriverDashboardScreen() : const ClientDashboardScreen(),
+          if (isDrawerOpen)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+        ],
+      ),
+      onEndDrawerChanged: (isOpen) {
+        setState(() {
+          isDrawerOpen = isOpen;
+        });
+      },
       endDrawer: Drawer(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -80,21 +97,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 16),
               // Menu Items
-              if (isDriverMode) ...[
-                _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orangeAccent, route: '/'),
-                _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.blueAccent, route: '/driver/missions'),
-                _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purpleAccent, route: '/driver/scanner'),
-                _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amberAccent, route: '/driver/colis'),
-                _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.greenAccent, route: '/driver/revenus'),
-                _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigoAccent, route: '/driver/marketplace'),
-                _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.cyanAccent, route: '/driver/vehicule'),
-                _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.blueGrey, route: '/driver/settings'),
-              ] else ...[
-                _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.cyanAccent, route: '/profile'),
-                _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.blueAccent, route: '/history'),
-                _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.greenAccent, route: '/fidelite'),
-                _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.purpleAccent, route: '/settings'),
-              ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (isDriverMode) ...[
+                        _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orangeAccent, route: '/'),
+                        _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.blueAccent, route: '/driver/missions'),
+                        _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purpleAccent, route: '/driver/scanner'),
+                        _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amberAccent, route: '/driver/colis'),
+                        _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.greenAccent, route: '/driver/revenus'),
+                        _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigoAccent, route: '/driver/marketplace'),
+                        _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.cyanAccent, route: '/driver/vehicule'),
+                        _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.blueGrey, route: '/driver/settings'),
+                      ] else ...[
+                        _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.cyanAccent, route: '/profile'),
+                        _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.blueAccent, route: '/history'),
+                        _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.greenAccent, route: '/fidelite'),
+                        _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.purpleAccent, route: '/settings'),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Divider(color: Colors.white10),
@@ -137,7 +162,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const Spacer(),
               // Logout button
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),

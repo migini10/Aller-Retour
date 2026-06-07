@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class DriverMarketplaceScreen extends StatefulWidget {
   const DriverMarketplaceScreen({super.key});
@@ -8,16 +11,56 @@ class DriverMarketplaceScreen extends StatefulWidget {
 }
 
 class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
-  final List<Map<String, dynamic>> missions = [
-    { 'id': 'M-104', 'trajet': 'Dakar → Saint-Louis', 'depart': 'Demain, 07:00', 'remuneration': '18 000 FCFA', 'status': 'disponible', 'minScore': 80 },
-    { 'id': 'M-105', 'trajet': 'Thiès → Dakar', 'depart': 'Aujourd\'hui, 16:00', 'remuneration': '7 500 FCFA', 'status': 'disponible', 'minScore': 50 },
-    { 'id': 'M-106', 'trajet': 'Dakar → Mbour', 'depart': 'Samedi, 09:00', 'remuneration': '12 000 FCFA', 'status': 'disponible', 'minScore': 60 },
-  ];
+  List<Map<String, dynamic>> missions = [];
+  List<dynamic> colis = [];
+  Timer? _pollingTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final colisRes = await http.get(Uri.parse('http://localhost:3000/api/colis'));
+      final missionsRes = await http.get(Uri.parse('http://localhost:3000/api/missions'));
+      
+      if (mounted) {
+        setState(() {
+          if (colisRes.statusCode == 200) colis = jsonDecode(colisRes.body);
+          if (missionsRes.statusCode == 200) missions = List<Map<String, dynamic>>.from(jsonDecode(missionsRes.body));
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading marketplace data: $e');
+    }
+  }
+
+  Future<void> _updateColisStatus(String id, String status) async {
+    try {
+      await http.patch(
+        Uri.parse('http://localhost:3000/api/colis/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'statut': status}),
+      );
+      _loadData();
+    } catch (e) {
+      debugPrint('Error updating colis: $e');
+    }
+  }
 
   // Simulating a degraded driver score
   final double driverReliabilityScore = 65.0;
 
-  void _showReleaseModal(int index) {
+  void _showReleaseModal(dynamic item, bool isColis) {
     String selectedReason = 'Panne de véhicule';
     TextEditingController customReasonController = TextEditingController();
 
@@ -91,9 +134,13 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                         if (selectedReason == 'Autre' && customReasonController.text.trim().isEmpty) {
                           return;
                         }
-                        setState(() {
-                          missions[index]['status'] = 'disponible';
-                        });
+                        if (isColis) {
+                          _updateColisStatus(item['id'], 'En attente de prise en charge');
+                        } else {
+                          setState(() {
+                            item['status'] = 'disponible'; // Placeholder for mission
+                          });
+                        }
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -169,15 +216,45 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
           ),
           
           Expanded(
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: missions.length,
-              itemBuilder: (context, index) {
-                final mission = missions[index];
-                final isAccepted = mission['status'] == 'accepte';
-                final isLocked = (mission['minScore'] ?? 0) > driverReliabilityScore;
+              children: [
+                if (missions.isEmpty && colis.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(child: CircularProgressIndicator(color: Colors.orangeAccent)),
+                  ),
+                
+                if (missions.isNotEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Text('Missions & Trajets', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ...missions.map((mission) {
+                  final isAccepted = mission['status'] == 'accepte';
+                  final isLocked = (mission['minScore'] ?? 0) > driverReliabilityScore;
+                  return _buildItemCard(mission, false, isAccepted, isLocked);
+                }).toList(),
 
-                return Container(
+                if (colis.isNotEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16, bottom: 16),
+                    child: Text('Colis Disponibles', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ...colis.map((c) {
+                  final isAccepted = c['statut'] == 'Accepté' || c['statut'] == 'En transit';
+                  return _buildItemCard(c, true, isAccepted, false);
+                }).toList(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemCard(dynamic item, bool isColis, bool isAccepted, bool isLocked) {
+    return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -204,7 +281,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Mission ${mission['id']}', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                                Text(isColis ? 'Colis ${item['id']}' : 'Mission ${item['id']}', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
                                 if (isAccepted)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -217,13 +294,13 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            Text(mission['trajet'], style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text(isColis ? '${item['destinataire']} - ${item['tel']}' : item['trajet'], style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                const Icon(Icons.calendar_today, size: 14, color: Colors.white54),
+                                Icon(isColis ? Icons.scale : Icons.calendar_today, size: 14, color: Colors.white54),
                                 const SizedBox(width: 6),
-                                Text(mission['depart'], style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                                Text(isColis ? item['taille'] : item['depart'], style: const TextStyle(color: Colors.white54, fontSize: 13)),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -234,12 +311,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text('Rémunération', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                                    Text(mission['remuneration'], style: const TextStyle(color: Colors.orangeAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                                    Text(isColis ? item['prix'] : item['remuneration'], style: const TextStyle(color: Colors.orangeAccent, fontSize: 18, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                                 if (isAccepted)
                                   ElevatedButton(
-                                    onPressed: () => _showReleaseModal(index),
+                                    onPressed: () => _showReleaseModal(item, isColis),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       side: const BorderSide(color: Colors.redAccent),
@@ -250,9 +327,13 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                                 else if (!isLocked)
                                   ElevatedButton(
                                     onPressed: () {
-                                      setState(() {
-                                        mission['status'] = 'accepte';
-                                      });
+                                      if (isColis) {
+                                        _updateColisStatus(item['id'], 'Accepté');
+                                      } else {
+                                        setState(() {
+                                          item['status'] = 'accepte';
+                                        });
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.orangeAccent,
@@ -293,11 +374,5 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                     ],
                   ),
                 );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

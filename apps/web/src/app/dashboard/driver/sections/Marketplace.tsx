@@ -23,7 +23,7 @@ export default function SectionMarketplace() {
   const [customReason, setCustomReason] = useState<string>('');
 
   React.useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       // Vérifier si le chauffeur a au moins 1 client
       const tripsStored = localStorage.getItem('demo_trips');
       let driverHasClient = true;
@@ -37,26 +37,41 @@ export default function SectionMarketplace() {
       }
       setHasClient(driverHasClient);
 
-      // Charger les colis
-      const colisStored = localStorage.getItem('demo_colis');
-      if (colisStored) {
-        try {
-          const parsedColis = JSON.parse(colisStored).map((c: any) => ({ ...c, status: 'disponible' }));
-          setColis(parsedColis);
-        } catch(e) {}
+      // Charger les colis depuis l'API !
+      try {
+        const res = await fetch('/api/colis');
+        if (res.ok) {
+          const data = await res.json();
+          // Filter out delivered or already accepted by others if needed, 
+          // For now we show all but only "En attente..." are disponible
+          const availableColis = data.map((c: any) => ({
+            ...c,
+            status: c.statut === 'En attente de prise en charge' ? 'disponible' : 'accepte'
+          }));
+          setColis(availableColis);
+        }
+      } catch (e) {
+        console.error('Failed to fetch colis', e);
       }
     };
     
     loadData();
-    window.addEventListener('colis_updated', loadData);
-    return () => window.removeEventListener('colis_updated', loadData);
+    const interval = setInterval(loadData, 5000); // Polling every 5s
+    return () => clearInterval(interval);
   }, []);
 
-  const handleAccept = (id: string, type: 'mission' | 'colis') => {
+  const handleAccept = async (id: string, type: 'mission' | 'colis') => {
     if (type === 'mission') {
       setMissions(missions.map(m => m.id === id ? { ...m, status: 'accepte' } : m));
     } else {
-      setColis(colis.map(c => c.id === id ? { ...c, status: 'accepte' } : c));
+      try {
+        await fetch(`/api/colis/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ statut: 'Accepté' })
+        });
+        setColis(colis.map(c => c.id === id ? { ...c, status: 'accepte' } : c));
+      } catch (e) {}
     }
   };
 
@@ -68,13 +83,20 @@ export default function SectionMarketplace() {
     setReleaseModalOpen(true);
   };
 
-  const confirmRelease = () => {
+  const confirmRelease = async () => {
     if (!releaseItemId || !releaseItemType) return;
     
     if (releaseItemType === 'mission') {
       setMissions(missions.map(m => m.id === releaseItemId ? { ...m, status: 'disponible' } : m));
     } else {
-      setColis(colis.map(c => c.id === releaseItemId ? { ...c, status: 'disponible' } : c));
+      try {
+        await fetch(`/api/colis/${releaseItemId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ statut: 'En attente de prise en charge' })
+        });
+        setColis(colis.map(c => c.id === releaseItemId ? { ...c, status: 'disponible' } : c));
+      } catch (e) {}
     }
     
     setReleaseModalOpen(false);
