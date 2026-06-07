@@ -121,7 +121,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-slate-900/50 dark:bg-[#0A0A0A]/70 backdrop-blur-sm lg:hidden transition-colors"
+            className="fixed inset-0 z-40 bg-slate-900/50 dark:bg-[#0A0A0A]/70 backdrop-blur-sm lg:hidden transition-colors"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar Desktop : miniature w-20, expansible au hover (w-72) */}
         <div
           className={`
-            fixed top-16 bottom-0 right-0 z-40 transform transition-all duration-300 ease-in-out group
+            fixed top-16 bottom-0 right-0 z-50 transform transition-all duration-300 ease-in-out group
             w-72 lg:w-20 lg:hover:w-72 overflow-hidden
             ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} 
             ${isSuperAdmin ? 'lg:translate-x-full lg:hidden' : 'lg:translate-x-0'}

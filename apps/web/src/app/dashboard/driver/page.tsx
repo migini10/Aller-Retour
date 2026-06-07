@@ -81,7 +81,7 @@ export default function DriverDashboard() {
 
 
       {/* Top Bar : Status & Profile (Scrolle sur mobile, fixe sur desktop via le layout) */}
-      <div className="flex-none z-40 bg-white dark:bg-[#0A0A0A] border-b border-slate-200 dark:border-[#2A2A2A]/80 px-5 sm:px-8 lg:px-12 py-3 transition-colors">
+      <div className="flex-none z-10 bg-white dark:bg-[#0A0A0A] border-b border-slate-200 dark:border-[#2A2A2A]/80 px-5 sm:px-8 lg:px-12 py-3 transition-colors">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
           <button 
             onClick={() => handleTabChange('parametres')}
