@@ -9,6 +9,12 @@ import 'screens/client/qr_code_screen.dart';
 import 'screens/client/profile_screen.dart';
 import 'screens/client/history_screen.dart';
 import 'screens/client/settings_screen.dart';
+import 'screens/driver/driver_marketplace_screen.dart';
+import 'screens/driver/driver_revenus_screen.dart';
+import 'screens/driver/driver_missions_screen.dart';
+import 'screens/driver/driver_scanner_screen.dart';
+import 'screens/driver/driver_vehicule_screen.dart';
+import 'screens/driver/driver_settings_screen.dart';
 import 'services/offline_db.dart';
 
 void main() async {
@@ -48,6 +54,12 @@ class AllerRetourApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/driver/marketplace': (context) => const DriverMarketplaceScreen(),
+        '/driver/revenus': (context) => const DriverRevenusScreen(),
+        '/driver/missions': (context) => const DriverMissionsScreen(),
+        '/driver/scanner': (context) => const DriverScannerScreen(),
+        '/driver/vehicule': (context) => const DriverVehiculeScreen(),
+        '/driver/settings': (context) => const DriverSettingsScreen(),
       },
     );
   }
