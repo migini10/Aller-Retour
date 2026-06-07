@@ -9,7 +9,11 @@ class DriverScannerScreen extends StatefulWidget {
 }
 
 class _DriverScannerScreenState extends State<DriverScannerScreen> {
-  MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController cameraController = MobileScannerController(
+    formats: const [BarcodeFormat.qrCode],
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+  );
   bool isScanning = true;
   String scanResult = 'idle'; // 'idle', 'valid', 'invalid'
 
@@ -92,6 +96,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
                         children: [
                           MobileScanner(
                             controller: cameraController,
+                            fit: BoxFit.contain,
                             onDetect: _onDetect,
                           ),
                           // Overlay faint camera icon if idle
