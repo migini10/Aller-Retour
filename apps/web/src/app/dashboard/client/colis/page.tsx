@@ -33,7 +33,7 @@ export default function ColisPage() {
     }
   };
   return (
-    <div className="flex-1 w-full overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
+    <div className="flex-1 w-full flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1200px] px-5 sm:px-8 lg:px-12 pt-24 pb-24 space-y-8 animate-fade-in">
         
         {/* Header with Back Button */}

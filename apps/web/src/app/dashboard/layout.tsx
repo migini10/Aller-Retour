@@ -17,6 +17,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { openBookingWizard } = useModal();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [showTopbar, setShowTopbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -27,7 +29,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Fermer la sidebar automatiquement à chaque changement de page (mobile)
   useEffect(() => {
     setSidebarOpen(false);
+    setShowTopbar(true); // Always show topbar when changing pages
   }, [pathname]);
+
+  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+    const currentScrollY = e.currentTarget.scrollTop;
+    
+    // Si on est tout en haut, toujours afficher
+    if (currentScrollY < 10) {
+      setShowTopbar(true);
+    } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
+      // Scroll vers le bas
+      setShowTopbar(false);
+    } else if (currentScrollY < lastScrollY) {
+      // Scroll vers le haut
+      setShowTopbar(true);
+    }
+    
+    setLastScrollY(currentScrollY);
+  };
 
   if (pathname.startsWith('/dashboard/traveller')) {
     return (
@@ -54,8 +74,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <BrandingProvider>
       <div className="fixed inset-0 overflow-hidden bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full h-[100dvh]">
-      {/* Topbar Fixe (Mobile & Desktop) */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-colors duration-300">
+      {/* Topbar Fixe (Mobile & Desktop) avec Effet de Disparition */}
+      <header className={`fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-transform duration-300 ease-in-out ${showTopbar ? 'translate-y-0' : '-translate-y-full'}`}>
         <Link href={getLogoLink()} className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-600/20 border border-orange-200 dark:border-orange-500/30 flex items-center justify-center transition-colors">
             <CarFront className="w-4 h-4 text-orange-500" />
@@ -116,7 +136,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Contenu principal: un conteneur flex qui scrolle derrière le header */}
-        <main className={`flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:ml-20'} transition-colors duration-300`}>
+        <main 
+          onScroll={handleScroll}
+          className={`flex-1 min-w-0 flex flex-col h-full relative overflow-y-auto overscroll-contain bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:ml-20'} transition-colors duration-300`}
+        >
           {children}
         </main>
       </div>

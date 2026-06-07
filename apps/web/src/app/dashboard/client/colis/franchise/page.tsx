@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function ColisFranchisePage() {
   return (
-    <div className="flex-1 w-full overflow-y-auto pb-20 bg-slate-50 dark:bg-black transition-colors duration-300">
+    <div className="flex-1 w-full pb-20 bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24">
         
         {/* Header */}
