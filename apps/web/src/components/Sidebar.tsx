@@ -173,26 +173,10 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
             isActive = pathname.startsWith(item.path);
           }
 
-          return (
-            <Link
-              key={item.path}
-              href={item.path}
-              onClick={(e) => {
-                if (item.path.includes('#')) {
-                  const [basePath, itemHash] = item.path.split('#');
-                  if (pathname === basePath) {
-                    e.preventDefault();
-                    window.location.hash = itemHash;
-                  }
-                }
-                if (onLinkClick) onLinkClick();
-              }}
-              className={`group/item flex items-center justify-between p-2.5 w-[230px] rounded-2xl font-medium text-sm transition-all duration-300 ${
-                isActive
-                  ? 'bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/50'
-                  : 'border border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/50 hover:border-slate-200 dark:hover:border-slate-800/50'
-              }`}
-            >
+          const isSamePageHash = item.path.includes('#') && pathname === item.path.split('#')[0];
+
+          const linkContent = (
+            <>
               <div className="flex items-center gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover/item:scale-105 ${
                   isActive 
@@ -215,7 +199,38 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
               }`}>
                 {item.badge}
               </span>
+            </>
+          );
+
+          const className = `group/item flex items-center justify-between p-2.5 w-[230px] rounded-2xl font-medium text-sm transition-all duration-300 ${
+            isActive
+              ? 'bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/50'
+              : 'border border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/50 hover:border-slate-200 dark:hover:border-slate-800/50'
+          }`;
+
+          if (isSamePageHash) {
+            return (
+              <a
+                key={item.path}
+                href={item.path}
+                onClick={() => { if (onLinkClick) onLinkClick(); }}
+                className={className}
+              >
+                {linkContent}
+              </a>
+            );
+          }
+
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              onClick={() => { if (onLinkClick) onLinkClick(); }}
+              className={className}
+            >
+              {linkContent}
             </Link>
+
           );
         })}
       </div>
