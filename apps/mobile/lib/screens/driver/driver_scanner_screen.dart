@@ -10,7 +10,6 @@ class DriverScannerScreen extends StatefulWidget {
 
 class _DriverScannerScreenState extends State<DriverScannerScreen> {
   MobileScannerController cameraController = MobileScannerController(
-    formats: const [BarcodeFormat.qrCode],
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
   );

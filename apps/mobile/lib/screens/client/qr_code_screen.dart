@@ -408,6 +408,7 @@ class QRCodeBrandEngine extends StatelessWidget {
           QrImageView(
             data: value,
             version: QrVersions.auto,
+            errorCorrectionLevel: QrErrorCorrectLevel.H,
             size: size,
             backgroundColor: Colors.white,
             eyeStyle: const QrEyeStyle(
