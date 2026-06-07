@@ -116,7 +116,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 relative">
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}
         {sidebarOpen && (
           <div
