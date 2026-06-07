@@ -8,6 +8,18 @@ import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 export default function QrCodePage() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  
+  const ticketData = {
+    ref: 'AR-74892374',
+    from: 'Dakar',
+    to: 'Touba',
+    passenger: 'Abdoulaye Ndiaye',
+    date: '18 Mai 2026',
+    time: '08:00',
+    seat: '#14 (VIP)',
+    price: '4 500 FCFA'
+  };
   
   return (
     <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
@@ -80,7 +92,7 @@ export default function QrCodePage() {
                     </div>
                  </div>
                  <div className="flex items-center gap-2 md:shrink-0 mt-2 md:mt-0">
-                     <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                     <button onClick={() => setSelectedTicket(ticketData)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
                         <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
                      </button>
                      <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
@@ -174,7 +186,7 @@ export default function QrCodePage() {
                   
                   {/* Actions */}
                   <div className="flex gap-3">
-                     <button className="flex-1 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                     <button onClick={() => setSelectedTicket(ticketData)} className="flex-1 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
                         <Eye className="w-4 h-4" /> Détails
                      </button>
                      <button className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2">
@@ -221,6 +233,50 @@ export default function QrCodePage() {
           )}
         </div>
       </div>
+
+      {/* TICKET DETAILS MODAL */}
+      {selectedTicket && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedTicket(null)} />
+          <div className="relative w-full max-w-sm bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-[2rem] p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setSelectedTicket(null)} className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-[#1A1A1A] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-full transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="flex flex-col items-center mt-4">
+              <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-100 dark:border-none">
+                <QRCodeBrandEngine value={selectedTicket.ref} size={150} />
+              </div>
+              
+              <h3 className="mt-6 text-2xl font-black text-slate-900 dark:text-white">Billet N° {selectedTicket.ref}</h3>
+              <p className="text-orange-600 dark:text-orange-500 font-bold mt-1 text-lg">{selectedTicket.from} ➔ {selectedTicket.to}</p>
+              
+              <div className="w-full mt-8 space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-[#1A1A1A]">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm">Passager</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{selectedTicket.passenger}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-[#1A1A1A]">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm">Date & Heure</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{selectedTicket.date} à {selectedTicket.time}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-[#1A1A1A]">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm">Siège</span>
+                  <span className="text-orange-500 font-black">{selectedTicket.seat}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-[#1A1A1A]">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm">Montant payé</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{selectedTicket.price}</span>
+                </div>
+              </div>
+              
+              <button onClick={() => setSelectedTicket(null)} className="w-full mt-8 bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222222] text-slate-900 dark:text-white font-bold py-3.5 rounded-xl transition-colors">
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
