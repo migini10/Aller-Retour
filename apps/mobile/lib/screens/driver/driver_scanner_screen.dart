@@ -140,7 +140,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
             // RESULT CARD
             Container(
               width: double.infinity,
-              minHeight: 250,
+              constraints: const BoxConstraints(minHeight: 250),
               decoration: BoxDecoration(
                 color: const Color(0xFF141414),
                 borderRadius: BorderRadius.circular(24),
