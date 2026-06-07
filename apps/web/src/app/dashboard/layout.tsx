@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="h-[100dvh] overflow-hidden bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300">
+      <div className="fixed inset-0 overflow-hidden bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full h-[100dvh]">
       {/* Topbar Fixe (Mobile & Desktop) */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-colors duration-300">
         <Link href={getLogoLink()} className="flex items-center gap-2.5">
