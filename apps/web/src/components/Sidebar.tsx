@@ -129,18 +129,20 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           </Link>
 
         {/* Quick Action */}
-        <div className="mb-4">
-          <button
-            onClick={() => {
-              if (onLinkClick) onLinkClick();
-              openBookingWizard('allo-dakar');
-            }}
-            className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.3)] border border-orange-500/50 group/buybtn"
-          >
-            <TicketCheck className="w-5 h-5 shrink-0 group-hover/buybtn:scale-110 transition-transform" />
-            <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Acheter un billet</span>
-          </button>
-        </div>
+        {!isDriverPage && (
+          <div className="mb-4">
+            <button
+              onClick={() => {
+                if (onLinkClick) onLinkClick();
+                openBookingWizard('allo-dakar');
+              }}
+              className="flex items-center gap-3 p-3 w-[230px] rounded-xl bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(234,88,12,0.3)] border border-orange-500/50 group/buybtn"
+            >
+              <TicketCheck className="w-5 h-5 shrink-0 group-hover/buybtn:scale-110 transition-transform" />
+              <span className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Acheter un billet</span>
+            </button>
+          </div>
+        )}
         </div>
       </div>
 

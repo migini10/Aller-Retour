@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   const isSuperAdmin = pathname.startsWith('/dashboard/admin');
+  const isDriverPage = pathname.startsWith('/dashboard/driver');
 
   // Fermer la sidebar automatiquement à chaque changement de page (mobile)
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Link>
 
         <div className="flex items-center gap-3">
-          {!isSuperAdmin && (
+          {(!isSuperAdmin && !isDriverPage) && (
             <button
               onClick={() => openBookingWizard('allo-dakar')}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
