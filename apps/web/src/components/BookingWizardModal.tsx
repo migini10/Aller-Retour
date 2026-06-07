@@ -14,7 +14,7 @@ import { useAuth } from './AuthContext';
 interface BookingWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialType?: 'allo-dakar';
+  initialType?: 'bus' | 'allo-dakar';
 }
 
 export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar' }: BookingWizardModalProps) {
