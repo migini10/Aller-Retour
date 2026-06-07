@@ -54,7 +54,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const menuTitle = (isClientPage && !showDevMenu) ? "Espace Voyageur" : "Espaces & Rôles (Dev)";
 
   return (
-    <aside className="w-full h-full bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden transition-colors duration-300">
+    <aside className="w-full h-full bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-xl border-l border-slate-200 dark:border-slate-800/80 flex flex-col p-4 shadow-sm overflow-hidden transition-colors duration-300">
       <div className="flex-none">
         {/* Logo & Brand */}
         <Link

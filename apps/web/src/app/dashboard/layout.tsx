@@ -126,10 +126,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar Desktop : miniature w-20, expansible au hover (w-72) */}
         <div
           className={`
-            fixed top-16 bottom-0 left-0 z-40 transform transition-all duration-300 ease-in-out group
+            fixed top-16 bottom-0 right-0 z-40 transform transition-all duration-300 ease-in-out group
             w-72 lg:w-20 lg:hover:w-72 overflow-hidden
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-            ${isSuperAdmin ? 'lg:-translate-x-full lg:hidden' : 'lg:translate-x-0'}
+            ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} 
+            ${isSuperAdmin ? 'lg:translate-x-full lg:hidden' : 'lg:translate-x-0'}
           `}
         >
           <Sidebar onLinkClick={() => setSidebarOpen(false)} />
@@ -138,7 +138,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Contenu principal: un conteneur flex qui scrolle derrière le header */}
         <main 
           onScroll={handleScroll}
-          className={`flex-1 min-w-0 flex flex-col h-full relative overflow-y-auto overscroll-contain bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:ml-20'} transition-colors duration-300`}
+          className={`flex-1 min-w-0 flex flex-col h-full relative overflow-y-auto overscroll-contain bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
         >
           {children}
         </main>
