@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront } from 'lucide-react';
 
 const initialMissions = [
-  { id: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45 },
-  { id: 'TRIP-398', trajet: 'Thiès → Dakar', date: 'Aujourd\'hui', heure: '08:00', vehicule: 'Bus 50 Places', statut: 'terminé', passagers: 48 },
-  { id: 'TRIP-405', trajet: 'Dakar → Saint-Louis', date: 'Demain', heure: '07:00', vehicule: 'Bus 50 Places', statut: 'programmé', passagers: 22 },
+  { id: 'TRIP-402', displayId: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45, placesLibres: 5, placesPrises: 45, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
+  { id: 'TRIP-398', displayId: 'TRIP-398', trajet: 'Thiès → Dakar', date: 'Aujourd\'hui', heure: '08:00', vehicule: 'Bus 50 Places', statut: 'terminé', passagers: 48, placesLibres: 2, placesPrises: 48, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
+  { id: 'TRIP-405', displayId: 'TRIP-405', trajet: 'Dakar → Saint-Louis', date: 'Demain', heure: '07:00', vehicule: 'Bus 50 Places', statut: 'programmé', passagers: 22, placesLibres: 28, placesPrises: 22, isAirConditioned: true, takesTollRoad: false, pricePerSeat: 5000 },
 ];
 
 const tabs = ['Toutes', 'Aujourd\'hui', 'Programmées', 'Historique'];
@@ -23,9 +23,43 @@ export default function SectionMissions() {
   const [tab, setTab] = useState('Toutes');
   const [localMissions, setLocalMissions] = useState(initialMissions);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editMissionId, setEditMissionId] = useState<string | null>(null);
+  const [selectedDetailMission, setSelectedDetailMission] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
+
+  const isTripInPast = (m: any) => {
+    if (m.departureTime) {
+      return new Date(m.departureTime).getTime() < new Date().getTime();
+    }
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (m.date === "Aujourd'hui") {
+        if (m.heure) {
+          const [h, min] = m.heure.split(':').map(Number);
+          const d = new Date();
+          d.setHours(h, min, 0, 0);
+          return d.getTime() < new Date().getTime();
+        }
+        return false;
+      }
+      if (m.date === "Demain") {
+        return false;
+      }
+      const mDate = new Date(m.date);
+      mDate.setHours(0, 0, 0, 0);
+      if (mDate < today) return true;
+      if (mDate.getTime() === today.getTime() && m.heure) {
+        const [h, min] = m.heure.split(':').map(Number);
+        const d = new Date();
+        d.setHours(h, min, 0, 0);
+        return d.getTime() < new Date().getTime();
+      }
+    } catch (e) {}
+    return false;
+  };
 
   const mapApiMissionToLocal = (m: any) => {
     let dateStr = "Aujourd'hui";
@@ -62,17 +96,21 @@ export default function SectionMissions() {
       }
     }
     return {
-      id: m.id,
+      id: m.tripId || m.id,
+      displayId: m.id,
       trajet: m.trajet,
       date: dateStr,
+      rawDate: m.departureTime ? m.departureTime.split('T')[0] : null,
+      departureTime: m.departureTime || null,
       heure: heureStr,
       vehicule: m.transporteur,
-      statut: m.status === 'disponible' ? 'programmé' : 'en cours',
+      statut: m.status || 'programmé',
       passagers: m.passagers,
       placesLibres: m.placesLibres ?? 4,
       placesPrises: m.placesPrises ?? 0,
       isAirConditioned: m.isAirConditioned ?? true,
-      takesTollRoad: m.takesTollRoad ?? true
+      takesTollRoad: m.takesTollRoad ?? true,
+      pricePerSeat: m.pricePerSeat ?? 5000
     };
   };
 
@@ -118,6 +156,7 @@ export default function SectionMissions() {
     pricePerSeat: '' as number | '',
     vehicleCapacity: '' as number | '',
     placesLibres: '' as number | '',
+    passagers: 0,
     isAirConditioned: true,
     takesTollRoad: true
   });
@@ -221,8 +260,11 @@ export default function SectionMissions() {
         throw new Error("Date ou heure de départ invalide.");
       }
 
-      const res = await fetch(`/api/missions`, {
-        method: 'POST',
+      const url = editMissionId ? `/api/missions/${editMissionId}` : `/api/missions`;
+      const method = editMissionId ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -233,6 +275,7 @@ export default function SectionMissions() {
           departureTime: departureTime,
           placesLibres: formData.placesLibres,
           vehicleCapacity: formData.vehicleCapacity,
+          passagers: formData.passagers,
           isAirConditioned: formData.isAirConditioned,
           takesTollRoad: formData.takesTollRoad
         })
@@ -257,6 +300,7 @@ export default function SectionMissions() {
 
         setTimeout(() => {
           setIsModalOpen(false);
+          setEditMissionId(null);
           setSubmitSuccess('');
           setFormData({
             originCity: '',
@@ -266,6 +310,7 @@ export default function SectionMissions() {
             pricePerSeat: '',
             vehicleCapacity: '',
             placesLibres: '',
+            passagers: 0,
             isAirConditioned: true,
             takesTollRoad: true
           });
@@ -327,7 +372,22 @@ export default function SectionMissions() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Route className="w-5 h-5 text-orange-500 dark:text-orange-400" /> Mes Missions & Trajets</h2>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditMissionId(null);
+            setFormData({
+              originCity: '',
+              destinationCity: '',
+              date: '',
+              heure: '',
+              pricePerSeat: '' as any,
+              vehicleCapacity: '' as any,
+              placesLibres: '' as any,
+              passagers: 0,
+              isAirConditioned: true,
+              takesTollRoad: true
+            });
+            setIsModalOpen(true);
+          }}
           className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2"
         >
           <CarFront className="w-4 h-4" /> Proposer un Trajet Allo Dakar
@@ -352,7 +412,7 @@ export default function SectionMissions() {
           const currentTotalMinutes = currentHour * 60 + currentMinute;
           
           const processedMissions = localMissions.map(m => {
-            if (m.statut === 'programmé' || m.statut === 'à venir') {
+            if (m.id.startsWith('TRIP-') && (m.statut === 'programmé' || m.statut === 'à venir')) {
               let isExpired = false;
               
               if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
@@ -436,7 +496,10 @@ export default function SectionMissions() {
                     <CheckCircle2 className="w-3.5 h-3.5" /> Terminer trajet
                   </button>
                 )}
-                <button className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border border-slate-200 dark:border-[#333333] transition-colors">
+                <button 
+                  onClick={() => setSelectedDetailMission(m)}
+                  className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border border-slate-200 dark:border-[#333333] transition-colors"
+                >
                   <MapPin className="w-3.5 h-3.5" /> Voir détails
                 </button>
                 {m.statut === 'programmé' && checkTooSoon(m.date, m.heure) && (
@@ -450,6 +513,34 @@ export default function SectionMissions() {
                     className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-600/20"
                   >
                     <Clock className="w-3.5 h-3.5" /> Repousser +1h
+                  </button>
+                )}
+                {(m.statut === 'programmé' || m.statut === 'à venir') && (
+                  <button 
+                    onClick={() => {
+                      const separator = m.trajet.includes('→') ? '→' : m.trajet.includes('->') ? '->' : m.trajet.includes(' - ') ? ' - ' : '-';
+                      const parts = m.trajet.split(separator).map((s: string) => s.trim());
+                      const originCity = parts[0] || '';
+                      const destinationCity = parts[1] || '';
+
+                      setEditMissionId(m.id);
+                      setFormData({
+                        originCity,
+                        destinationCity,
+                        date: m.rawDate || (m.date === "Aujourd'hui" ? getTodayStr() : m.date === "Demain" ? (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })() : getTodayStr()),
+                        heure: m.heure,
+                        pricePerSeat: m.pricePerSeat || 5000,
+                        vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,
+                        placesLibres: m.placesLibres || 0,
+                        passagers: m.passagers || 0,
+                        isAirConditioned: m.isAirConditioned ?? true,
+                        takesTollRoad: m.takesTollRoad ?? true
+                      });
+                      setIsModalOpen(true);
+                    }}
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg shadow-blue-600/20"
+                  >
+                    <Route className="w-3.5 h-3.5" /> Modifier
                   </button>
                 )}
                 {(m.statut === 'à venir' || m.statut === 'en cours') && (
@@ -498,9 +589,11 @@ export default function SectionMissions() {
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 transition-colors">
-              <CarFront className="w-6 h-6 text-orange-500" /> Nouveau Trajet
-            </h3>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-[#2A2A2A]">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <CarFront className="w-6 h-6 text-orange-500" /> {editMissionId ? 'Modifier le Trajet' : 'Nouveau Trajet'}
+              </h2>
+            </div>
 
             {submitError && (
               <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium">
@@ -587,37 +680,64 @@ export default function SectionMissions() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Date</label>
-                  <select 
-                    value={formData.date} 
-                    onChange={e => {
-                      setFormData({...formData, date: e.target.value, heure: ''});
-                    }} 
-                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
-                    required
-                  >
-                    <option value="" disabled>Choisir la date</option>
-                    {getAvailableDates().map(d => (
-                      <option key={d.value} value={d.value}>{d.label}</option>
-                    ))}
-                  </select>
+                  {(() => {
+                    const availableDates = getAvailableDates();
+                    if (formData.date && !availableDates.some(d => d.value === formData.date)) {
+                      try {
+                        const d = new Date(formData.date);
+                        let dayName = d.toLocaleDateString('fr-FR', { weekday: 'long' });
+                        dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+                        let dayNum = d.getDate();
+                        let dayStr = dayNum === 1 ? '1er' : dayNum.toString();
+                        let monthName = d.toLocaleDateString('fr-FR', { month: 'long' });
+                        let label = `${dayName} ${dayStr} ${monthName}`;
+                        availableDates.unshift({ value: formData.date, label });
+                      } catch (e) {
+                        availableDates.unshift({ value: formData.date, label: formData.date });
+                      }
+                    }
+                    return (
+                      <select 
+                        value={formData.date} 
+                        onChange={e => {
+                          setFormData({...formData, date: e.target.value, heure: ''});
+                        }} 
+                        className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
+                        required
+                      >
+                        <option value="" disabled>Choisir la date</option>
+                        {availableDates.map(d => (
+                          <option key={d.value} value={d.value}>{d.label}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
                   <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </div>
                 </div>
                 <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Heure</label>
-                  <select 
-                    value={formData.heure} 
-                    onChange={e => setFormData({...formData, heure: e.target.value})} 
-                    className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
-                    required
-                    disabled={!formData.date}
-                  >
-                    <option value="" disabled>Choisir l'heure</option>
-                    {getAvailableHours().map(h => (
-                      <option key={h} value={h}>{h}</option>
-                    ))}
-                  </select>
+                  {(() => {
+                    const availableHours = getAvailableHours();
+                    if (formData.heure && !availableHours.includes(formData.heure)) {
+                      availableHours.unshift(formData.heure);
+                    }
+                    return (
+                      <select 
+                        value={formData.heure} 
+                        onChange={e => setFormData({...formData, heure: e.target.value})} 
+                        className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
+                        required
+                        disabled={!formData.date}
+                      >
+                        <option value="" disabled>Choisir l'heure</option>
+                        {availableHours.map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
                   <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </div>
@@ -647,9 +767,15 @@ export default function SectionMissions() {
                 </div>
               </div>
               
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 5000" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
+                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 5000" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400 font-medium">Passagers prévus</label>
+                  <input type="number" min="0" max={formData.placesLibres ? formData.placesLibres : 6} value={formData.passagers} onChange={e => setFormData({...formData, passagers: e.target.value ? parseInt(e.target.value) : 0})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" placeholder="ex: 0" />
+                </div>
               </div>
 
               <div className="flex items-center gap-6 pt-2">
@@ -684,9 +810,87 @@ export default function SectionMissions() {
                 disabled={isLoading}
                 className="w-full mt-4 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Publier le trajet'}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (editMissionId ? 'Modifier le trajet' : 'Publier le trajet')}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {selectedDetailMission && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/50 dark:bg-black/90 backdrop-blur-sm transition-colors" onClick={() => setSelectedDetailMission(null)}></div>
+          <div className="relative w-full max-w-md bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-3xl shadow-2xl p-6 overflow-hidden animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setSelectedDetailMission(null)}
+              className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#1A1A1A] rounded-full border border-slate-200 dark:border-[#2A2A2A] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-slate-500 font-bold bg-slate-100 dark:bg-[#1A1A1A] px-2 py-1 rounded-md">{selectedDetailMission.displayId || selectedDetailMission.id}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-lg border font-bold ${statutStyle[selectedDetailMission.statut]}`}>{selectedDetailMission.statut}</span>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">{selectedDetailMission.trajet}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 transition-colors mt-1">
+                  <Clock className="w-4 h-4 text-orange-500" /> {
+                    selectedDetailMission.date === "Aujourd'hui" || selectedDetailMission.date === "Demain" 
+                    ? selectedDetailMission.date 
+                    : new Date(selectedDetailMission.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+                  } à {selectedDetailMission.heure}
+                </p>
+              </div>
+
+              <div className="border-t border-b border-slate-100 dark:border-[#2A2A2A] py-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Véhicule</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{selectedDetailMission.vehicule}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Prix de la place</span>
+                  <span className="font-bold text-orange-500">{selectedDetailMission.pricePerSeat || 5000} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Places offertes</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{(selectedDetailMission.placesLibres || 0) + (selectedDetailMission.placesPrises || 0)} places</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Places réservées / prises</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{selectedDetailMission.placesPrises || 0} places</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Places restantes libres</span>
+                  <span className="font-semibold text-emerald-500">{selectedDetailMission.placesLibres || 0} places</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Passagers prévus</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{selectedDetailMission.passagers || 0} passagers</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {(selectedDetailMission.isAirConditioned !== false) && (
+                  <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-bold px-3 py-1 rounded-lg">❄️ Véhicule Climatisé</span>
+                )}
+                {(selectedDetailMission.takesTollRoad !== false) && (
+                  <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold px-3 py-1 rounded-lg">🛣️ Passage par Autoroute</span>
+                )}
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  onClick={() => setSelectedDetailMission(null)}
+                  className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-800 dark:text-white font-bold py-2.5 rounded-xl border border-slate-200 dark:border-[#2A2A2A] transition-colors"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

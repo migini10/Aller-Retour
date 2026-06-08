@@ -18,5 +18,8 @@
   "devDependencies": {
     "prettier": "^3.2.5",
     "turbo": "^2.0.0"
+  },
+  "dependencies": {
+    "playwright": "^1.60.0"
   }
 }

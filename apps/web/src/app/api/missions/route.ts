@@ -27,7 +27,8 @@ export async function GET() {
       const departStr = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(trip.departureTime);
       
       const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
-      const placesLibresRestantes = Math.max(0, trip.seatsOffered - bookedSeats);
+      const totalPassengers = trip.initialPassengers + bookedSeats;
+      const placesLibresRestantes = Math.max(0, trip.seatsOffered - totalPassengers);
       
       return {
         id: `M-${trip.id.substring(0, 4).toUpperCase()}`,
@@ -36,15 +37,17 @@ export async function GET() {
         depart: departStr,
         departureTime: trip.departureTime.toISOString(),
         distance: `${trip.route.distanceKm} km`,
-        passagers: bookedSeats,
+        passagers: totalPassengers,
         placesLibres: placesLibresRestantes,
-        placesPrises: bookedSeats,
+        placesPrises: totalPassengers,
         seatsOffered: trip.seatsOffered,
+        initialPassengers: trip.initialPassengers,
         vehicleCapacity: trip.vehicle?.capacity || 5,
         remuneration: `${trip.pricePerSeat} FCFA / place`,
+        pricePerSeat: trip.pricePerSeat,
         transporteur: `Voiture ${trip.vehicle?.capacity || 5} places`,
         urgent: isUrgent,
-        status: trip.status === 'SCHEDULED' ? 'disponible' : 'accepte', // Very simple mapping
+        status: trip.status === 'SCHEDULED' ? 'programmé' : trip.status === 'BOARDING' ? 'à venir' : trip.status === 'IN_TRANSIT' ? 'en cours' : 'terminé',
         minScore: 60,
         isAirConditioned: true,
         takesTollRoad: true
@@ -65,6 +68,7 @@ export async function POST(req: Request) {
     const vehicleCapacity = body.vehicleCapacity ? parseInt(body.vehicleCapacity.toString(), 10) : 5;
     const pricePerSeat = body.pricePerSeat ? parseFloat(body.pricePerSeat.toString()) : 5000;
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
+    const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
     let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
     if (!company) {
@@ -130,6 +134,7 @@ export async function POST(req: Request) {
         pricePerSeat: pricePerSeat,
         isMarketplace: true,
         seatsOffered: seatsOffered,
+        initialPassengers: initialPassengers,
         status: 'SCHEDULED'
       }
     });

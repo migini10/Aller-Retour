@@ -85,17 +85,20 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             }
           }
           return {
-            'id': m['id'] ?? 'TRIP-XXX',
+            'id': m['tripId'] ?? m['id'] ?? 'TRIP-XXX',
+            'displayId': m['id'] ?? 'TRIP-XXX',
             'trajet': m['trajet'] ?? 'Inconnu',
             'date': dateStr,
+            'rawDate': m['departureTime'] != null ? m['departureTime'].toString().split('T')[0] : null,
             'heure': heureStr,
             'vehicule': m['transporteur'] ?? 'Véhicule',
-            'statut': m['status'] == 'disponible' ? 'programmé' : 'en cours',
+            'statut': m['status'] ?? 'programmé',
             'passagers': m['passagers'] ?? 0,
             'placesLibres': m['placesLibres'] ?? 4,
             'placesPrises': m['placesPrises'] ?? 0,
             'isAirConditioned': m['isAirConditioned'] ?? true,
             'takesTollRoad': m['takesTollRoad'] ?? true,
+            'pricePerSeat': m['pricePerSeat'] ?? 5000,
           };
         }).toList();
 
@@ -117,9 +120,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     if (mounted) {
       setState(() {
         missions = [
-          { 'id': 'TRIP-402', 'trajet': 'Dakar → Touba', 'date': 'Aujourd\'hui', 'heure': '14:30', 'vehicule': 'Bus 50 Places', 'statut': 'à venir', 'passagers': 45, 'placesLibres': 5, 'isAirConditioned': true, 'takesTollRoad': true },
-          { 'id': 'TRIP-398', 'trajet': 'Thiès → Dakar', 'date': 'Aujourd\'hui', 'heure': '08:00', 'vehicule': 'Bus 50 Places', 'statut': 'terminé', 'passagers': 48, 'placesLibres': 2, 'isAirConditioned': true, 'takesTollRoad': true },
-          { 'id': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'isAirConditioned': true, 'takesTollRoad': false },
+          { 'id': 'TRIP-402', 'displayId': 'TRIP-402', 'trajet': 'Dakar → Touba', 'date': 'Aujourd\'hui', 'heure': '14:30', 'vehicule': 'Bus 50 Places', 'statut': 'à venir', 'passagers': 45, 'placesLibres': 5, 'placesPrises': 45, 'isAirConditioned': true, 'takesTollRoad': true, 'pricePerSeat': 5000 },
+          { 'id': 'TRIP-398', 'displayId': 'TRIP-398', 'trajet': 'Thiès → Dakar', 'date': 'Aujourd\'hui', 'heure': '08:00', 'vehicule': 'Bus 50 Places', 'statut': 'terminé', 'passagers': 48, 'placesLibres': 2, 'placesPrises': 48, 'isAirConditioned': true, 'takesTollRoad': true, 'pricePerSeat': 5000 },
+          { 'id': 'TRIP-405', 'displayId': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'placesPrises': 0, 'isAirConditioned': true, 'takesTollRoad': false, 'pricePerSeat': 5000 },
         ];
         isLoading = false;
       });
@@ -134,6 +137,46 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       case 'en cours': return const Color(0xFFA855F7);
       default: return Colors.white54;
     }
+  }
+
+  bool _isTripInPast(Map<String, dynamic> m) {
+    if (m['departureTime'] != null) {
+      try {
+        DateTime d = DateTime.parse(m['departureTime']).toLocal();
+        return d.isBefore(DateTime.now());
+      } catch (e) {}
+    }
+    try {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (m['date'] == "Aujourd'hui") {
+        if (m['heure'] != null) {
+          final parts = m['heure'].split(':');
+          final h = int.parse(parts[0]);
+          final min = int.parse(parts[1]);
+          final tripTime = DateTime(now.year, now.month, now.day, h, min);
+          return tripTime.isBefore(now);
+        }
+        return false;
+      }
+      if (m['date'] == "Demain") {
+        return false;
+      }
+      final dateVal = m['rawDate'] ?? m['date'];
+      if (dateVal != null) {
+        final parsedDate = DateTime.parse(dateVal);
+        final tripDay = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+        if (tripDay.isBefore(today)) return true;
+        if (tripDay == today && m['heure'] != null) {
+          final parts = m['heure'].split(':');
+          final h = int.parse(parts[0]);
+          final min = int.parse(parts[1]);
+          final tripTime = DateTime(now.year, now.month, now.day, h, min);
+          return tripTime.isBefore(now);
+        }
+      }
+    } catch (e) {}
+    return false;
   }
 
   List<Map<String, String>> _getAvailableDates() {
@@ -178,17 +221,41 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     return hours;
   }
 
-  void _showCreateMissionBottomSheet(BuildContext context) {
+  void _showCreateMissionBottomSheet(BuildContext context, {Map<String, dynamic>? missionToEdit}) {
     String? originCity;
     String? destinationCity;
-    String? date;
-    String? time;
-    String price = '';
+    if (missionToEdit != null && missionToEdit['trajet'] != null) {
+      String trajet = missionToEdit['trajet'];
+      String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
+      List<String> parts = trajet.split(separator);
+      if (parts.isNotEmpty) originCity = parts[0].trim();
+      if (parts.length > 1) destinationCity = parts[1].trim();
+    }
+    
+    String? date = missionToEdit != null ? (missionToEdit['rawDate'] ?? missionToEdit['date']) : null;
+    if (date == "Aujourd'hui") {
+      final now = DateTime.now();
+      date = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    } else if (date == "Demain") {
+      final tomorrow = DateTime.now().add(const Duration(days: 1));
+      date = "${tomorrow.year}-${tomorrow.month.toString().padLeft(2, '0')}-${tomorrow.day.toString().padLeft(2, '0')}";
+    }
+
+    String? time = missionToEdit != null ? missionToEdit['heure'] : null;
+    bool isAirConditioned = missionToEdit != null ? (missionToEdit['isAirConditioned'] ?? true) : true;
+    bool takesTollRoad = missionToEdit != null ? (missionToEdit['takesTollRoad'] ?? true) : true;
+    
     String? vehicleCapacity;
-    bool isAirConditioned = true;
-    bool takesTollRoad = true;
-    final TextEditingController placesController = TextEditingController();
-    final TextEditingController priceController = TextEditingController();
+    if (missionToEdit != null && missionToEdit['vehicule'] != null) {
+      final match = RegExp(r'\d+').firstMatch(missionToEdit['vehicule']);
+      if (match != null) {
+        vehicleCapacity = match.group(0);
+      }
+    }
+
+    final TextEditingController placesController = TextEditingController(text: missionToEdit != null ? missionToEdit['placesLibres']?.toString() : '');
+    final TextEditingController priceController = TextEditingController(text: missionToEdit != null ? (missionToEdit['pricePerSeat'] ?? 5000).toString() : '5000');
+    final TextEditingController passagersController = TextEditingController(text: missionToEdit != null ? missionToEdit['passagers']?.toString() ?? '0' : '0');
 
     final List<String> cities = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda'];
 
@@ -199,6 +266,26 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
+            final List<Map<String, String>> availableDates = _getAvailableDates();
+            if (date != null && !availableDates.any((d) => d['value'] == date)) {
+              try {
+                DateTime parsedDate = DateTime.parse(date!);
+                List<String> jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                List<String> mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+                String dayName = jours[parsedDate.weekday - 1];
+                String dayStr = parsedDate.day == 1 ? '1er' : parsedDate.day.toString();
+                String monthName = mois[parsedDate.month - 1];
+                availableDates.insert(0, {'value': date!, 'label': '$dayName $dayStr $monthName'});
+              } catch (e) {
+                availableDates.insert(0, {'value': date!, 'label': date!});
+              }
+            }
+
+            final List<String> availableHours = _getAvailableHours(date);
+            if (time != null && !availableHours.contains(time)) {
+              availableHours.insert(0, time!);
+            }
+
             return Container(
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: const BoxDecoration(
@@ -216,7 +303,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  const Text('Proposer un trajet', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(missionToEdit != null ? 'Modifier le trajet' : 'Proposer un trajet', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
                   Expanded(
                     child: SingleChildScrollView(
@@ -239,7 +326,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildDropdownObj('Date', date, _getAvailableDates(), (v) {
+                                child: _buildDropdownObj('Date', date, availableDates, (v) {
                                   setModalState(() {
                                     date = v;
                                     time = null;
@@ -248,7 +335,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildDropdown('Heure', time, _getAvailableHours(date), (v) {
+                                child: _buildDropdown('Heure', time, availableHours, (v) {
                                   setModalState(() { time = v; });
                                 }),
                               ),
@@ -272,7 +359,17 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildTextFieldController('Passagers prévus', passagersController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 0'),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 24),
                           Row(
                             children: [
@@ -328,8 +425,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 String departureTime = "${date}T$time:00Z";
 
                                 try {
-                                  final res = await http.post(
-                                    Uri.parse('http://localhost:3000/api/missions'),
+                                  final url = missionToEdit != null ? 'http://localhost:3000/api/missions/${missionToEdit['id']}' : 'http://localhost:3000/api/missions';
+                                  final requestFunc = missionToEdit != null ? http.patch : http.post;
+                                  final res = await requestFunc(
+                                    Uri.parse(url),
                                     headers: {'Content-Type': 'application/json'},
                                     body: json.encode({
                                       'originCity': originCity,
@@ -340,6 +439,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'vehicleCapacity': int.tryParse(vehicleCapacity!) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
+                                      'passagers': int.tryParse(passagersController.text) ?? 0,
                                     }),
                                   );
 
@@ -360,7 +460,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'heure': time,
                                       'vehicule': 'Voiture $vehicleCapacity Places',
                                       'statut': 'programmé',
-                                      'passagers': 0,
+                                      'passagers': int.tryParse(passagersController.text) ?? 0,
                                       'placesLibres': int.tryParse(placesLibres) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
@@ -376,7 +476,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
-                              child: const Text('Publier le trajet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              child: Text(missionToEdit != null ? 'Modifier le trajet' : 'Publier le trajet', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -697,9 +797,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 _buildActionButton(Icons.play_arrow, 'Démarrer trajet', const Color(0xFFEA580C), Colors.white, () {}),
                               if (mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
-                              _buildActionButton(Icons.location_on, 'Voir détails', const Color(0xFF1A1A1A), Colors.white, () {}, borderColor: const Color(0xFF333333)),
+                              _buildActionButton(Icons.location_on, 'Voir détails', const Color(0xFF1A1A1A), Colors.white, () {
+                                _showMissionDetailsDialog(context, mission);
+                              }, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé')
                                 _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () {}),
+                              if (mission['statut'] == 'programmé' || mission['statut'] == 'à venir')
+                                _buildActionButton(Icons.edit, 'Modifier', const Color(0xFF2563EB), Colors.white, () {
+                                  _showCreateMissionBottomSheet(context, missionToEdit: mission);
+                                }),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', const Color(0xFF1A1A1A), const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)
@@ -712,6 +818,113 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                   },
                 ),
           ),
+        ],
+      ),
+    );
+  }
+
+  void _showMissionDetailsDialog(BuildContext context, Map<String, dynamic> mission) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final statutColor = _getStatutColor(mission['statut']);
+        return Dialog(
+          backgroundColor: const Color(0xFF141414),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(mission['displayId'] ?? mission['id'], style: const TextStyle(color: Colors.white54, fontSize: 13, fontFamily: 'monospace')),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statutColor.withOpacity(0.1),
+                        border: Border.all(color: statutColor.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(mission['statut'], style: TextStyle(color: statutColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(mission['trajet'], style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time, color: Color(0xFFF97316), size: 16),
+                    const SizedBox(width: 8),
+                    Text('${mission['date']} à ${mission['heure']}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                  ],
+                ),
+                const Divider(color: Color(0xFF2A2A2A), height: 32),
+                _buildDetailRow('Véhicule', mission['vehicule']),
+                _buildDetailRow('Prix de la place', '${mission['pricePerSeat'] ?? 5000} FCFA'),
+                _buildDetailRow('Places offertes', '${(mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0)} places'),
+                _buildDetailRow('Places réservées', '${mission['placesPrises'] ?? 0} places'),
+                _buildDetailRow('Places restantes', '${mission['placesLibres'] ?? 0} places', valueColor: const Color(0xFF10B981)),
+                _buildDetailRow('Passagers prévus', '${mission['passagers'] ?? 0} passagers'),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    if (mission['isAirConditioned'] == true)
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.lightBlueAccent.withOpacity(0.1),
+                          border: Border.all(color: Colors.lightBlueAccent.withOpacity(0.2)),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('❄️ Climatisé', style: TextStyle(color: Colors.lightBlueAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    if (mission['takesTollRoad'] == true)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.indigoAccent.withOpacity(0.1),
+                          border: Border.all(color: Colors.indigoAccent.withOpacity(0.2)),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('🛣️ Autoroute', style: TextStyle(color: Colors.indigoAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Fermer', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+          Text(value, style: TextStyle(color: valueColor ?? Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
