@@ -10,32 +10,48 @@ export default function SectionLocalisation() {
 
   const [isNavigating, setIsNavigating] = useState(false);
   const [navKey, setNavKey] = useState(0);
+  const [activePassenger, setActivePassenger] = useState<any>(null);
 
   // URL par défaut (vue générale de Dakar)
   const defaultMapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr";
   
-  // URL de l'itinéraire du chauffeur vers le client (Navigation)
-  const clientLocationUrl = "https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=Mermoz,+Dakar,+Senegal&output=embed";
+  // URL de l'itinéraire du chauffeur vers le client (Navigation Interne)
+  const clientLocationUrl = activePassenger 
+    ? `https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=${encodeURIComponent(activePassenger.quartier + ', Dakar, Senegal')}&output=embed`
+    : "https://maps.google.com/maps?saddr=Avenue+Cheikh+Anta+Diop,+Dakar,+Senegal&daddr=Mermoz,+Dakar,+Senegal&output=embed";
+
+  const handleStartNavigation = (p: any) => {
+    setActivePassenger(p);
+    setIsNavigating(true);
+    setNavKey(k => k + 1);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors"><Navigation className="w-5 h-5 text-orange-500 dark:text-orange-400" /> Récupération Client</h2>
-        <span className="bg-orange-500/10 text-orange-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/20 animate-pulse">
-          {isNavigating ? 'EN ROUTE VERS LE CLIENT' : 'EN APPROCHE'}
-        </span>
+        {isNavigating && activePassenger && (
+          <span className="bg-orange-500/10 text-orange-400 px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/20 animate-pulse">
+            EN ROUTE VERS {activePassenger.nom.toUpperCase()}
+          </span>
+        )}
       </div>
 
       <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-5 transition-colors">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mb-1 transition-colors">Destination</p>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">Point de rendez-vous</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 mt-1 transition-colors"><MapPin className="w-4 h-4 text-orange-500 dark:text-orange-400" /> Mermoz, Dakar</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
+              {activePassenger ? `Rejoindre ${activePassenger.nom}` : 'Point de rendez-vous'}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1 mt-1 transition-colors">
+              <MapPin className="w-4 h-4 text-orange-500 dark:text-orange-400" /> 
+              {activePassenger ? activePassenger.quartier : 'En attente de sélection...'}
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-orange-500 dark:text-orange-400">{eta}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors">{distance}</p>
+            <p className="text-3xl font-bold text-orange-500 dark:text-orange-400">{activePassenger ? activePassenger.eta : '--'}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors">{activePassenger ? `${activePassenger.distance} km` : '--'}</p>
           </div>
         </div>
       </div>
@@ -78,10 +94,9 @@ export default function SectionLocalisation() {
         <div className={`absolute bottom-4 ${isNavigating ? 'right-4' : 'left-4 right-4'} flex gap-3 pointer-events-auto z-20`}>
           {!isNavigating ? (
             <button 
-              onClick={() => setIsNavigating(true)}
-              className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/20 text-sm flex justify-center items-center gap-2"
+              className="flex-1 bg-slate-800/80 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg text-sm flex justify-center items-center gap-2 cursor-not-allowed"
             >
-              <Navigation className="w-4 h-4" /> Démarrer Navigation Intégrée
+              <Navigation className="w-4 h-4" /> Sélectionnez un passager
             </button>
           ) : (
             <button 
@@ -99,35 +114,37 @@ export default function SectionLocalisation() {
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Voyageurs à récupérer</h3>
         {[
-          { id: 'AR-7489', nom: 'Fatou Diop', distance: 0.5, eta: '2 min', tel: '+221 77 123 45 67' },
-          { id: 'AR-8451', nom: 'Mamadou Ndiaye', distance: 1.2, eta: '5 min', tel: '+221 78 987 65 43' },
-          { id: 'AR-6201', nom: 'Awa Fall', distance: 2.8, eta: '10 min', tel: '+221 70 456 78 90' },
-          { id: 'AR-1102', nom: 'Ousmane Sow', distance: 4.5, eta: '15 min', tel: '+221 76 543 21 09' },
+          { id: 'AR-7489', nom: 'Fatou Diop', quartier: 'Mermoz', distance: 0.5, eta: '2 min', tel: '+221 77 123 45 67' },
+          { id: 'AR-8451', nom: 'Mamadou Ndiaye', quartier: 'Plateau', distance: 1.2, eta: '5 min', tel: '+221 78 987 65 43' },
+          { id: 'AR-6201', nom: 'Awa Fall', quartier: 'Almadies', distance: 2.8, eta: '10 min', tel: '+221 70 456 78 90' },
+          { id: 'AR-1102', nom: 'Ousmane Sow', quartier: 'Ouakam', distance: 4.5, eta: '15 min', tel: '+221 76 543 21 09' },
         ].sort((a, b) => a.distance - b.distance).map(p => (
-          <a 
+          <button 
             key={p.id} 
-            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.nom + ', Dakar, Senegal')}&travelmode=driving&dir_action=navigate`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between transition-colors gap-4 hover:border-orange-500/50 hover:shadow-lg group"
+            onClick={() => handleStartNavigation(p)}
+            className={`w-full text-left bg-white dark:bg-[#141414] border ${activePassenger?.id === p.id ? 'border-orange-500 shadow-orange-500/10' : 'border-slate-200 dark:border-[#2A2A2A]/80'} rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between transition-colors gap-4 hover:border-orange-500/50 hover:shadow-lg group`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg transition-colors group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 group-hover:text-orange-600 dark:group-hover:text-orange-400">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${activePassenger?.id === p.id ? 'bg-orange-500 text-white' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 group-hover:text-orange-600 dark:group-hover:text-orange-400'}`}>
                 {p.nom.charAt(0)}
               </div>
               <div>
                 <p className="font-bold text-slate-900 dark:text-white transition-colors">{p.nom}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">
+                <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors mt-0.5">
                   <MapPin className="w-3 h-3 inline mr-1 text-orange-500" />
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">{p.quartier}</span>
                   À {p.distance} km ({p.eta})
+                </p>
+                <p className="text-xs font-mono text-slate-400 dark:text-slate-500 mt-0.5">
+                  <Phone className="w-3 h-3 inline mr-1" /> {p.tel}
                 </p>
               </div>
             </div>
             <div className="flex gap-2 self-end sm:self-auto">
-              <button onClick={(e) => e.preventDefault()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors"><MessageSquare className="w-4 h-4" /></button>
-              <button onClick={(e) => e.preventDefault()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors"><Phone className="w-4 h-4" /></button>
+              <div onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4" /></div>
+              <div onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors cursor-pointer"><Phone className="w-4 h-4" /></div>
             </div>
-          </a>
+          </button>
         ))}
       </div>
 
