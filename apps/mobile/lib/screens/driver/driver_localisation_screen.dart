@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DriverLocalisationScreen extends StatefulWidget {
   const DriverLocalisationScreen({super.key});
@@ -23,6 +24,21 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
     super.initState();
     // Sort passengers by distance
     passagers.sort((a, b) => a['distance'].compareTo(b['distance']));
+  }
+
+  Future<void> _launchExternalNavigation() async {
+    if (activePassenger == null) return;
+    final query = Uri.encodeComponent('${activePassenger!['quartier']}, Dakar, Senegal');
+    final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query&travelmode=driving&dir_action=navigate');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible d\\'ouvrir Google Maps.')),
+        );
+      }
+    }
   }
 
   void _startInternalNavigation(Map<String, dynamic> passenger) {
@@ -134,15 +150,16 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                     left: 16,
                     right: 16,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: isNavigating ? _launchExternalNavigation : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isNavigating ? Colors.white.withOpacity(0.9) : Colors.orangeAccent,
-                        foregroundColor: isNavigating ? Colors.orangeAccent : Colors.black,
+                        backgroundColor: isNavigating ? Colors.orangeAccent : Colors.white.withOpacity(0.1),
+                        foregroundColor: isNavigating ? Colors.black : Colors.white54,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: isNavigating ? 8 : 0,
                       ),
-                      icon: Icon(isNavigating ? Icons.my_location : Icons.navigation),
-                      label: Text(isNavigating ? 'Recentrer' : 'Sélectionnez un passager', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      icon: const Icon(Icons.navigation),
+                      label: Text(isNavigating ? 'Démarrer le trajet (GPS Audio)' : 'Sélectionnez un passager', style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

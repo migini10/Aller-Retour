@@ -91,21 +91,22 @@ export default function SectionLocalisation() {
            </button>
         </div>
 
-        <div className={`absolute bottom-4 ${isNavigating ? 'right-4' : 'left-4 right-4'} flex gap-3 pointer-events-auto z-20`}>
-          {!isNavigating ? (
+        <div className={`absolute bottom-4 left-4 right-4 flex gap-3 pointer-events-auto z-20`}>
+          {!isNavigating || !activePassenger ? (
             <button 
-              className="flex-1 bg-slate-800/80 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg text-sm flex justify-center items-center gap-2 cursor-not-allowed"
+              className="flex-1 bg-slate-800/80 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg text-sm flex justify-center items-center gap-2 cursor-not-allowed backdrop-blur"
             >
               <Navigation className="w-4 h-4" /> Sélectionnez un passager
             </button>
           ) : (
-            <button 
-              onClick={() => setNavKey(k => k + 1)}
-              className="w-12 h-12 bg-white/90 dark:bg-[#1A1A1A]/90 backdrop-blur hover:bg-slate-100 dark:hover:bg-[#222222] text-orange-500 dark:text-orange-400 border border-slate-200 dark:border-[#333333] font-bold rounded-2xl transition-colors shadow-lg flex justify-center items-center"
-              title="Recentrer sur le client"
+            <a 
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(activePassenger.quartier + ', Dakar, Senegal')}&travelmode=driving&dir_action=navigate`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/30 text-sm flex justify-center items-center gap-2 animate-bounce"
             >
-              <Navigation className="w-5 h-5" />
-            </button>
+              <Navigation className="w-5 h-5 fill-current" /> Démarrer le trajet (GPS Audio)
+            </a>
           )}
         </div>
       </div>
