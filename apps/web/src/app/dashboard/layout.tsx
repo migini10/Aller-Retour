@@ -140,7 +140,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Contenu principal: scrolle naturellement avec la fenêtre */}
         <main 
-          className={`flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
+          className={`pt-16 flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
         >
           {children}
         </main>
