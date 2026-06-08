@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DriverMissionsScreen extends StatefulWidget {
   const DriverMissionsScreen({super.key});
@@ -11,11 +13,65 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   String selectedTab = 'Toutes';
   final List<String> tabs = ['Toutes', 'Aujourd\'hui', 'Programmées', 'Historique'];
 
-  final List<Map<String, dynamic>> missions = [
-    { 'id': 'TRIP-402', 'trajet': 'Dakar → Touba', 'date': 'Aujourd\'hui', 'heure': '14:30', 'vehicule': 'Bus 50 Places', 'statut': 'à venir', 'passagers': 45, 'placesLibres': 5, 'isAirConditioned': true, 'takesTollRoad': true },
-    { 'id': 'TRIP-398', 'trajet': 'Thiès → Dakar', 'date': 'Aujourd\'hui', 'heure': '08:00', 'vehicule': 'Bus 50 Places', 'statut': 'terminé', 'passagers': 48, 'placesLibres': 2, 'isAirConditioned': true, 'takesTollRoad': true },
-    { 'id': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'isAirConditioned': true, 'takesTollRoad': false },
-  ];
+  List<Map<String, dynamic>> missions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMissions();
+  }
+
+  Future<void> _fetchMissions() async {
+    try {
+      final res = await http.get(Uri.parse('http://localhost:3000/api/missions'));
+      if (res.statusCode == 200) {
+        final List<dynamic> data = json.decode(res.body);
+        List<Map<String, dynamic>> fetchedMissions = data.map((m) {
+          String depart = m['depart'] ?? '';
+          List<String> parts = depart.split(', ');
+          String dateStr = parts.length > 1 ? parts[0] : "Aujourd'hui";
+          String heureStr = parts.length > 1 ? parts[1] : (parts.isNotEmpty ? parts[0] : "12:00");
+          return {
+            'id': m['id'] ?? 'TRIP-XXX',
+            'trajet': m['trajet'] ?? 'Inconnu',
+            'date': dateStr,
+            'heure': heureStr,
+            'vehicule': m['transporteur'] ?? 'Véhicule',
+            'statut': m['status'] == 'disponible' ? 'programmé' : 'en cours',
+            'passagers': m['passagers'] ?? 0,
+            'placesLibres': 4,
+            'isAirConditioned': true,
+            'takesTollRoad': true,
+          };
+        }).toList();
+
+        if (mounted) {
+          setState(() {
+            missions = fetchedMissions;
+            isLoading = false;
+          });
+        }
+      } else {
+        _loadFallbackData();
+      }
+    } catch (e) {
+      _loadFallbackData();
+    }
+  }
+
+  void _loadFallbackData() {
+    if (mounted) {
+      setState(() {
+        missions = [
+          { 'id': 'TRIP-402', 'trajet': 'Dakar → Touba', 'date': 'Aujourd\'hui', 'heure': '14:30', 'vehicule': 'Bus 50 Places', 'statut': 'à venir', 'passagers': 45, 'placesLibres': 5, 'isAirConditioned': true, 'takesTollRoad': true },
+          { 'id': 'TRIP-398', 'trajet': 'Thiès → Dakar', 'date': 'Aujourd\'hui', 'heure': '08:00', 'vehicule': 'Bus 50 Places', 'statut': 'terminé', 'passagers': 48, 'placesLibres': 2, 'isAirConditioned': true, 'takesTollRoad': true },
+          { 'id': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'isAirConditioned': true, 'takesTollRoad': false },
+        ];
+        isLoading = false;
+      });
+    }
+  }
 
   Color _getStatutColor(String statut) {
     switch (statut) {
@@ -147,23 +203,68 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  missions.insert(0, {
-                                    'id': 'TRIP-NEW',
-                                    'trajet': '${originCity ?? ''} → ${destinationCity ?? ''}',
-                                    'date': date.isEmpty ? 'Non définie' : date,
-                                    'heure': time.isEmpty ? 'Non définie' : time,
-                                    'vehicule': 'Bus ${capacity.isEmpty ? '?' : capacity} Places',
-                                    'statut': 'programmé',
-                                    'passagers': 0,
-                                    'placesLibres': int.tryParse(capacity) ?? 0,
-                                    'isAirConditioned': isAirConditioned,
-                                    'takesTollRoad': takesTollRoad,
+                              onPressed: () async {
+                                if (originCity == null || destinationCity == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir le départ et l\'arrivée'), backgroundColor: Colors.redAccent));
+                                  return;
+                                }
+                                
+                                String dDate = date.isEmpty ? "Aujourd'hui" : date;
+                                String dTime = time.isEmpty ? "14:00" : time;
+                                
+                                DateTime now = DateTime.now();
+                                String isoDate = now.toIso8601String().split('T')[0];
+                                if (dDate.toLowerCase().contains("demain")) {
+                                  isoDate = now.add(const Duration(days: 1)).toIso8601String().split('T')[0];
+                                } else if (dDate.contains("-") || dDate.contains("/")) {
+                                  // Simplified logic just in case it's a real date string
+                                  isoDate = dDate.replaceAll('/', '-');
+                                }
+                                
+                                String departureTime = "${isoDate}T$dTime:00Z";
+
+                                try {
+                                  final res = await http.post(
+                                    Uri.parse('http://localhost:3333/v1/trips/create-allo-dakar'),
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: json.encode({
+                                      'originCity': originCity,
+                                      'destinationCity': destinationCity,
+                                      'pricePerSeat': int.tryParse(price) ?? 0,
+                                      'departureTime': departureTime,
+                                      'placesLibres': int.tryParse(capacity) ?? 0,
+                                      'vehicleCapacity': int.tryParse(capacity) ?? 0,
+                                      'isAirConditioned': isAirConditioned,
+                                      'takesTollRoad': takesTollRoad,
+                                    }),
+                                  );
+
+                                  if (res.statusCode == 200 || res.statusCode == 201) {
+                                    _fetchMissions();
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet créé avec succès via API !', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green));
+                                  } else {
+                                    throw Exception('API error');
+                                  }
+                                } catch(e) {
+                                  // Fallback si serveur éteint
+                                  setState(() {
+                                    missions.insert(0, {
+                                      'id': 'TRIP-NEW',
+                                      'trajet': '$originCity → $destinationCity',
+                                      'date': dDate,
+                                      'heure': dTime,
+                                      'vehicule': 'Bus ${capacity.isEmpty ? '?' : capacity} Places',
+                                      'statut': 'programmé',
+                                      'passagers': 0,
+                                      'placesLibres': int.tryParse(capacity) ?? 0,
+                                      'isAirConditioned': isAirConditioned,
+                                      'takesTollRoad': takesTollRoad,
+                                    });
                                   });
-                                });
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet programmé avec succès !', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green));
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Colors.white)), backgroundColor: Colors.orangeAccent));
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFEA580C),
@@ -364,9 +465,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           const SizedBox(height: 16),
           // List
           Expanded(
-            child: filteredMissions.isEmpty
-              ? const Center(child: Text('Aucune mission pour cette catégorie', style: TextStyle(color: Colors.white54)))
-              : ListView.builder(
+            child: isLoading 
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFFF97316)))
+              : filteredMissions.isEmpty
+                  ? const Center(child: Text('Aucune mission pour cette catégorie', style: TextStyle(color: Colors.white54)))
+                  : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: filteredMissions.length,
                   itemBuilder: (context, index) {
