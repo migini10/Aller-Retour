@@ -29,15 +29,6 @@ export default function SectionMissions() {
 
   React.useEffect(() => {
     setIsMounted(true);
-    const stored = localStorage.getItem('demo_trips');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setLocalMissions([...parsed].reverse().concat(initialMissions));
-        }
-      } catch(e) {}
-    }
 
     const handleCancelAlert = (e: any) => {
       setCancelAlertMessage(`⚠️ ALERTE : Un passager vient d'annuler sa réservation pour le trajet ${e.detail.trajet} ! Une place s'est libérée.`);
@@ -77,15 +68,12 @@ export default function SectionMissions() {
                 takesTollRoad: m.takesTollRoad ?? true
              };
           });
-          
-          // Merge avoiding duplicates by ID
-          setLocalMissions(prev => {
-             const existingIds = new Set(prev.map(p => p.id));
-             const newMissions = mappedMissions.filter((m: any) => !existingIds.has(m.id));
-             return [...newMissions, ...prev];
-          });
+          // Replace state with DB missions
+          setLocalMissions(mappedMissions);
         }
-      } catch(e) {}
+      } catch(e) {
+        console.error("Erreur lors de la récupération des missions API:", e);
+      }
     };
     
     fetchApiMissions();
@@ -206,30 +194,27 @@ export default function SectionMissions() {
 
     try {
       const departureTime = new Date(`${formData.date}T${formData.heure}`);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-      const res = await fetch(`${apiUrl}/v1/trips/create-allo-dakar`, {
+      const res = await fetch(`/api/missions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           originCity: formData.originCity,
           destinationCity: formData.destinationCity,
           pricePerSeat: formData.pricePerSeat,
-          departureTime: departureTime.toISOString(),
+          departureTime: departureTime,
           placesLibres: formData.placesLibres,
           vehicleCapacity: formData.vehicleCapacity,
           isAirConditioned: formData.isAirConditioned,
           takesTollRoad: formData.takesTollRoad
         })
       });
+
       if (res.ok) {
-        setSubmitSuccess('Trajet Allo Dakar créé avec succès sur le serveur ! Il est maintenant visible par les passagers.');
-        setLocalMissions([newMission, ...localMissions]);
-        
-        // Sauvegarde dans le localStorage pour la démo Vercel
-        const stored = localStorage.getItem('demo_trips');
-        const demoTrips = stored ? JSON.parse(stored) : [];
-        demoTrips.push(newMission);
-        localStorage.setItem('demo_trips', JSON.stringify(demoTrips));
+        // Déclencher un rechargement global car Next.js a modifié la base
+        window.location.reload();
+        setSubmitSuccess("Trajet enregistré dans la base de données !");
 
         setTimeout(() => {
           setIsModalOpen(false);
