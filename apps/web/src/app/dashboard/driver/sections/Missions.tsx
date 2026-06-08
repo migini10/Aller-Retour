@@ -40,7 +40,7 @@ export default function SectionMissions() {
     // Fetch real missions from DB
     const fetchApiMissions = async () => {
       try {
-        const res = await fetch('/api/missions');
+        const res = await fetch('/api/missions', { cache: 'no-store' });
         if (res.ok) {
           const apiData = await res.json();
           // Convert apiData to match our localMissions format
@@ -213,7 +213,7 @@ export default function SectionMissions() {
 
       if (res.ok) {
         // Refresh local missions gracefully
-        const fetchRes = await fetch('/api/missions');
+        const fetchRes = await fetch('/api/missions', { cache: 'no-store' });
         const apiData = await fetchRes.json();
         
         const mappedMissions = apiData.map((m: any) => {
@@ -479,7 +479,7 @@ export default function SectionMissions() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/50 dark:bg-black/90 backdrop-blur-sm transition-colors" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-white dark:bg-[#000000] sm:rounded-3xl border border-slate-200 dark:border-[#2A2A2A]/80 shadow-2xl p-6 animate-in zoom-in-95 duration-300 transition-colors">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-[#000000] sm:rounded-3xl border border-slate-200 dark:border-[#2A2A2A]/80 shadow-2xl p-6 animate-in zoom-in-95 duration-300 transition-colors">
             <button 
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#1A1A1A] rounded-full border border-slate-200 dark:border-[#2A2A2A] transition-colors"
