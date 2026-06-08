@@ -27,6 +27,200 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     }
   }
 
+  void _showCreateMissionBottomSheet(BuildContext context) {
+    String originCity = 'Dakar';
+    String destinationCity = 'Touba';
+    String date = 'Aujourd\'hui';
+    String time = '14:00';
+    String price = '5000';
+    String capacity = '50';
+    bool isAirConditioned = true;
+    bool takesTollRoad = true;
+
+    final List<String> cities = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: const BoxDecoration(
+                color: Color(0xFF0F172A),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 24),
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const Text('Proposer un trajet', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDropdown('Départ', originCity, cities, (v) => setModalState(() => originCity = v!)),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildDropdown('Arrivée', destinationCity, cities, (v) => setModalState(() => destinationCity = v!)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTextField('Date', date, (v) => date = v, icon: Icons.calendar_today),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildTextField('Heure', time, (v) => time = v, icon: Icons.access_time),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTextField('Prix unitaire (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildTextField('Capacité (places)', capacity, (v) => capacity = v, icon: Icons.people_outline, keyboardType: TextInputType.number),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          SwitchListTile(
+                            title: const Text('Véhicule climatisé', style: TextStyle(color: Colors.white)),
+                            value: isAirConditioned,
+                            activeColor: Colors.orangeAccent,
+                            onChanged: (val) => setModalState(() => isAirConditioned = val),
+                          ),
+                          SwitchListTile(
+                            title: const Text('Prendre l\'autoroute à péage', style: TextStyle(color: Colors.white)),
+                            value: takesTollRoad,
+                            activeColor: Colors.orangeAccent,
+                            onChanged: (val) => setModalState(() => takesTollRoad = val),
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  missions.insert(0, {
+                                    'id': 'TRIP-NEW',
+                                    'trajet': '$originCity → $destinationCity',
+                                    'date': date,
+                                    'heure': time,
+                                    'vehicule': 'Bus $capacity Places',
+                                    'statut': 'programmé',
+                                    'passagers': 0,
+                                    'placesLibres': int.tryParse(capacity) ?? 0,
+                                    'isAirConditioned': isAirConditioned,
+                                    'takesTollRoad': takesTollRoad,
+                                  });
+                                });
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet programmé avec succès !', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orangeAccent,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                              child: const Text('Publier le trajet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF334155)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              dropdownColor: const Color(0xFF1E293B),
+              icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              onChanged: onChanged,
+              items: items.map<DropdownMenuItem<String>>((String val) {
+                return DropdownMenuItem<String>(
+                  value: val,
+                  child: Text(val),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(String label, String initialValue, Function(String) onChanged, {IconData? icon, TextInputType? keyboardType}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: initialValue,
+          onChanged: onChanged,
+          keyboardType: keyboardType,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          decoration: InputDecoration(
+            prefixIcon: icon != null ? Icon(icon, color: Colors.white54, size: 20) : null,
+            filled: true,
+            fillColor: const Color(0xFF1E293B),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> filteredMissions = missions.where((m) {
@@ -64,7 +258,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ouverture du formulaire de création Allo Dakar')));
+                    _showCreateMissionBottomSheet(context);
                   },
                   icon: const Icon(Icons.directions_car, size: 16),
                   label: const Text('Proposer un Trajet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
