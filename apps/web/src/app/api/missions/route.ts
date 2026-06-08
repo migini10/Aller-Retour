@@ -23,18 +23,24 @@ export async function GET() {
     const formattedMissions = trips.map((trip) => {
       const isUrgent = new Date(trip.departureTime).getTime() - new Date().getTime() < 1000 * 60 * 60 * 24; // Less than 24h
       
+      const departStr = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(trip.departureTime);
+      
       return {
         id: `M-${trip.id.substring(0, 4).toUpperCase()}`,
         tripId: trip.id, // For patching
         trajet: `${trip.route.originStation.city} → ${trip.route.destinationStation.city}`,
-        depart: new Intl.DateTimeFormat('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(trip.departureTime),
+        depart: departStr,
         distance: `${trip.route.distanceKm} km`,
         passagers: 0, // Placeholder
+        placesLibres: trip.vehicle?.capacity ? trip.vehicle.capacity : 4,
+        vehicleCapacity: trip.vehicle?.capacity || 4,
         remuneration: `${trip.pricePerSeat} FCFA / place`,
-        transporteur: 'Aller-Retour',
+        transporteur: trip.vehicle?.type === 'TAXI_7_PLACES' ? 'Voiture 7 places' : 'Voiture 5 places',
         urgent: isUrgent,
         status: trip.status === 'SCHEDULED' ? 'disponible' : 'accepte', // Very simple mapping
-        minScore: 60
+        minScore: 60,
+        isAirConditioned: true,
+        takesTollRoad: true
       };
     });
 

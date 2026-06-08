@@ -72,9 +72,9 @@ export default function SectionMissions() {
                 vehicule: m.transporteur, // generic
                 statut: m.status === 'disponible' ? 'programmé' : 'en cours',
                 passagers: m.passagers,
-                placesLibres: 4, // placeholder
-                isAirConditioned: true,
-                takesTollRoad: true
+                placesLibres: m.placesLibres ?? 4,
+                isAirConditioned: m.isAirConditioned ?? true,
+                takesTollRoad: m.takesTollRoad ?? true
              };
           });
           

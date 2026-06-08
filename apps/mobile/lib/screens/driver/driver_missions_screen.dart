@@ -29,9 +29,28 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         final List<dynamic> data = json.decode(res.body);
         List<Map<String, dynamic>> fetchedMissions = data.map((m) {
           String depart = m['depart'] ?? '';
-          List<String> parts = depart.split(', ');
-          String dateStr = parts.length > 1 ? parts[0] : "Aujourd'hui";
-          String heureStr = parts.length > 1 ? parts[1] : (parts.isNotEmpty ? parts[0] : "12:00");
+          String dateStr = "Aujourd'hui";
+          String heureStr = "12:00";
+          
+          if (depart.contains(', ')) {
+            List<String> parts = depart.split(', ');
+            dateStr = parts[0];
+            heureStr = parts[1];
+          } else if (depart.contains(' à ')) {
+            List<String> parts = depart.split(' à ');
+            dateStr = parts[0];
+            heureStr = parts[1];
+          } else {
+            RegExp timeRegex = RegExp(r'\d{2}:\d{2}');
+            var match = timeRegex.firstMatch(depart);
+            if (match != null) {
+               heureStr = match.group(0)!;
+               dateStr = depart.replaceAll(heureStr, '').trim();
+               if (dateStr.isEmpty) dateStr = "Aujourd'hui";
+            } else {
+               dateStr = depart;
+            }
+          }
           return {
             'id': m['id'] ?? 'TRIP-XXX',
             'trajet': m['trajet'] ?? 'Inconnu',
@@ -40,9 +59,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             'vehicule': m['transporteur'] ?? 'Véhicule',
             'statut': m['status'] == 'disponible' ? 'programmé' : 'en cours',
             'passagers': m['passagers'] ?? 0,
-            'placesLibres': 4,
-            'isAirConditioned': true,
-            'takesTollRoad': true,
+            'placesLibres': m['placesLibres'] ?? 4,
+            'isAirConditioned': m['isAirConditioned'] ?? true,
+            'takesTollRoad': m['takesTollRoad'] ?? true,
           };
         }).toList();
 
