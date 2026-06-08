@@ -151,9 +151,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     String? time;
     String price = '';
     String? vehicleCapacity;
-    String placesLibres = '';
     bool isAirConditioned = true;
     bool takesTollRoad = true;
+    final TextEditingController placesController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
 
     final List<String> cities = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda'];
 
@@ -232,12 +233,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextField('Places Disponibles', placesLibres, (v) => placesLibres = v, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
+                                child: _buildTextFieldController('Places Disponibles', placesController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _buildTextField('Prix par place (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                          _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
                           const SizedBox(height: 24),
                           Row(
                             children: [
@@ -280,16 +281,21 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () async {
+                                String placesLibres = placesController.text;
+                                String price = priceController.text;
+                                
                                 if (originCity == null || destinationCity == null || date == null || time == null || vehicleCapacity == null || placesLibres.isEmpty || price.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs obligatoires'), backgroundColor: Colors.redAccent));
                                   return;
                                 }
                                 
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Création en cours...'), backgroundColor: Colors.blueAccent, duration: Duration(seconds: 1)));
+
                                 String departureTime = "${date}T$time:00Z";
 
                                 try {
                                   final res = await http.post(
-                                    Uri.parse('http://localhost:3333/v1/trips/create-allo-dakar'),
+                                    Uri.parse('http://localhost:3000/api/missions'),
                                     headers: {'Content-Type': 'application/json'},
                                     body: json.encode({
                                       'originCity': originCity,
