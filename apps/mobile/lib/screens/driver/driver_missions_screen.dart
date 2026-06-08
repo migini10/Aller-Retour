@@ -83,13 +83,56 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     }
   }
 
+  List<Map<String, String>> _getAvailableDates() {
+    List<Map<String, String>> dates = [];
+    DateTime base = DateTime.now();
+    List<String> jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    List<String> mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    
+    for (int i = 0; i < 7; i++) {
+      DateTime d = base.add(Duration(days: i));
+      String val = d.toIso8601String().split('T')[0];
+      String dayName = jours[d.weekday - 1];
+      String dayStr = d.day == 1 ? '1er' : d.day.toString();
+      String monthName = mois[d.month - 1];
+      dates.add({'value': val, 'label': '$dayName $dayStr $monthName'});
+    }
+    return dates;
+  }
+
+  List<String> _getAvailableHours(String? selectedDate) {
+    List<String> hours = [];
+    DateTime now = DateTime.now();
+    String todayStr = now.toIso8601String().split('T')[0];
+    bool isToday = selectedDate == todayStr || selectedDate == "Aujourd'hui";
+
+    int currentTotalMinutes = now.hour * 60 + now.minute;
+    const int MARGIN_MINUTES = 60;
+
+    for (int i = 0; i < 24; i++) {
+      String hourStr = i.toString().padLeft(2, '0');
+      
+      int slot00TotalMinutes = i * 60;
+      if (!isToday || slot00TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
+        hours.add('$hourStr:00');
+      }
+      
+      int slot30TotalMinutes = i * 60 + 30;
+      if (!isToday || slot30TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
+        hours.add('$hourStr:30');
+      }
+    }
+    return hours;
+  }
+
   void _showCreateMissionBottomSheet(BuildContext context) {
     String? originCity;
     String? destinationCity;
-    String date = '';
-    String time = '';
+    String? date;
+    String? time;
     String price = '';
-    String capacity = '';
+    String? vehicleCapacity;
+    String placesLibres = '';
     bool isAirConditioned = true;
     bool takesTollRoad = true;
 
@@ -142,11 +185,18 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildTextField('Date', date, (v) => date = v, icon: Icons.calendar_today, hintText: 'ex: Demain'),
+                                child: _buildDropdownObj('Date', date, _getAvailableDates(), (v) {
+                                  setModalState(() {
+                                    date = v;
+                                    time = null;
+                                  });
+                                }),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextField('Heure', time, (v) => time = v, icon: Icons.access_time, hintText: 'ex: 14:30'),
+                                child: _buildDropdown('Heure', time, _getAvailableHours(date), (v) {
+                                  setModalState(() { time = v; });
+                                }),
                               ),
                             ],
                           ),
@@ -154,14 +204,21 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildTextField('Prix unitaire (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                                child: _buildDropdownObj('Type de Voiture', vehicleCapacity, [
+                                  {'value': '5', 'label': 'Voiture 5 places'},
+                                  {'value': '7', 'label': 'Voiture 7 places'},
+                                ], (v) {
+                                  setModalState(() { vehicleCapacity = v; });
+                                }),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextField('Capacité (places)', capacity, (v) => capacity = v, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 50'),
+                                child: _buildTextField('Places Disponibles', placesLibres, (v) => placesLibres = v, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 16),
+                          _buildTextField('Prix par place (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
                           const SizedBox(height: 24),
                           Row(
                             children: [
@@ -204,24 +261,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () async {
-                                if (originCity == null || destinationCity == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir le départ et l\'arrivée'), backgroundColor: Colors.redAccent));
+                                if (originCity == null || destinationCity == null || date == null || time == null || vehicleCapacity == null || placesLibres.isEmpty || price.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs obligatoires'), backgroundColor: Colors.redAccent));
                                   return;
                                 }
                                 
-                                String dDate = date.isEmpty ? "Aujourd'hui" : date;
-                                String dTime = time.isEmpty ? "14:00" : time;
-                                
-                                DateTime now = DateTime.now();
-                                String isoDate = now.toIso8601String().split('T')[0];
-                                if (dDate.toLowerCase().contains("demain")) {
-                                  isoDate = now.add(const Duration(days: 1)).toIso8601String().split('T')[0];
-                                } else if (dDate.contains("-") || dDate.contains("/")) {
-                                  // Simplified logic just in case it's a real date string
-                                  isoDate = dDate.replaceAll('/', '-');
-                                }
-                                
-                                String departureTime = "${isoDate}T$dTime:00Z";
+                                String departureTime = "${date}T$time:00Z";
 
                                 try {
                                   final res = await http.post(
@@ -232,8 +277,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'destinationCity': destinationCity,
                                       'pricePerSeat': int.tryParse(price) ?? 0,
                                       'departureTime': departureTime,
-                                      'placesLibres': int.tryParse(capacity) ?? 0,
-                                      'vehicleCapacity': int.tryParse(capacity) ?? 0,
+                                      'placesLibres': int.tryParse(placesLibres) ?? 0,
+                                      'vehicleCapacity': int.tryParse(vehicleCapacity!) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
                                     }),
@@ -252,12 +297,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     missions.insert(0, {
                                       'id': 'TRIP-NEW',
                                       'trajet': '$originCity → $destinationCity',
-                                      'date': dDate,
-                                      'heure': dTime,
-                                      'vehicule': 'Bus ${capacity.isEmpty ? '?' : capacity} Places',
+                                      'date': date,
+                                      'heure': time,
+                                      'vehicule': 'Voiture $vehicleCapacity Places',
                                       'statut': 'programmé',
                                       'passagers': 0,
-                                      'placesLibres': int.tryParse(capacity) ?? 0,
+                                      'placesLibres': int.tryParse(placesLibres) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
                                     });
@@ -286,6 +331,41 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildDropdownObj(String label, String? value, List<Map<String, String>> items, Function(String?) onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A0A0A),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF2A2A2A)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              hint: const Text('Choisir', style: TextStyle(color: Colors.white24, fontSize: 14)),
+              isExpanded: true,
+              dropdownColor: const Color(0xFF141414),
+              icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              onChanged: onChanged,
+              items: items.map<DropdownMenuItem<String>>((Map<String, String> val) {
+                return DropdownMenuItem<String>(
+                  value: val['value'],
+                  child: Text(val['label']!),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
