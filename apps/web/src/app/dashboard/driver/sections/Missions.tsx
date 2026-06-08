@@ -189,9 +189,6 @@ export default function SectionMissions() {
     setIsLoading(true);
     setSubmitError('');
     setSubmitSuccess('');
-    
-    // Debug alert to confirm the button was clicked and the function started
-    window.alert("Clic sur Publier détecté ! Début de la validation...");
 
     const missingFields = [];
     if (!formData.originCity) missingFields.push("Ville de départ");
@@ -204,7 +201,6 @@ export default function SectionMissions() {
 
     if (missingFields.length > 0) {
       const errMsg = `Champs obligatoires manquants : ${missingFields.join(', ')}`;
-      window.alert("Erreur de validation : " + errMsg);
       setSubmitError(errMsg);
       setIsLoading(false);
       return;
@@ -212,7 +208,6 @@ export default function SectionMissions() {
 
     if (formData.placesLibres >= formData.vehicleCapacity) {
       const errMsg = 'Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).';
-      window.alert("Erreur de validation : " + errMsg);
       setSubmitError(errMsg);
       setIsLoading(false);
       return;
@@ -224,15 +219,6 @@ export default function SectionMissions() {
       if (isNaN(departureTime.getTime())) {
         throw new Error("Date ou heure de départ invalide.");
       }
-
-      window.alert("Envoi de la requête au serveur avec les paramètres :\n" + JSON.stringify({
-        originCity: formData.originCity,
-        destinationCity: formData.destinationCity,
-        pricePerSeat: formData.pricePerSeat,
-        departureTime: departureTime,
-        placesLibres: formData.placesLibres,
-        vehicleCapacity: formData.vehicleCapacity
-      }, null, 2));
 
       const res = await fetch(`/api/missions`, {
         method: 'POST',
@@ -252,7 +238,6 @@ export default function SectionMissions() {
       });
 
       if (res.ok) {
-        window.alert("Succès ! Le serveur a renvoyé un statut 200 OK.");
         setSubmitSuccess("Trajet enregistré dans la base de données !");
 
         // Refresh list of missions in background
@@ -289,7 +274,6 @@ export default function SectionMissions() {
         throw new Error(`${errorText}`);
       }
     } catch (err: any) {
-      window.alert("Exception attrapée dans catch() : " + err.message);
       console.error("Erreur de connexion au backend:", err);
       let errMsg = err.message;
       try {
