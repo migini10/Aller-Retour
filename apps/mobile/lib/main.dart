@@ -15,6 +15,7 @@ import 'screens/driver/driver_missions_screen.dart';
 import 'screens/driver/driver_scanner_screen.dart';
 import 'screens/driver/driver_vehicule_screen.dart';
 import 'screens/driver/driver_settings_screen.dart';
+import 'screens/driver/driver_localisation_screen.dart';
 import 'services/offline_db.dart';
 
 void main() async {
@@ -60,6 +61,7 @@ class AllerRetourApp extends StatelessWidget {
         '/driver/scanner': (context) => const DriverScannerScreen(),
         '/driver/vehicule': (context) => const DriverVehiculeScreen(),
         '/driver/settings': (context) => const DriverSettingsScreen(),
+        '/driver/localisation': (context) => const DriverLocalisationScreen(),
       },
     );
   }

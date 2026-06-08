@@ -288,7 +288,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                               const SizedBox(width: 12),
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/driver/missions');
+                                  Navigator.pushNamed(context, '/driver/localisation');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF1A1A1A),
