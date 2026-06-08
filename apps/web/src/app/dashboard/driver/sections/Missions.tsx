@@ -331,6 +331,70 @@ export default function SectionMissions() {
     setIsLoading(false);
   };
 
+  const handlePushBackOneHour = async (m: any) => {
+    setIsLoading(true);
+    try {
+      let currentDep = m.departureTime ? new Date(m.departureTime) : null;
+      if (!currentDep || isNaN(currentDep.getTime())) {
+        const dateStr = `${m.rawDate || getTodayStr()}T${m.heure}`;
+        currentDep = new Date(dateStr);
+      }
+      if (isNaN(currentDep.getTime())) {
+        throw new Error("Date de départ invalide.");
+      }
+
+      const newDep = new Date(currentDep.getTime() + 60 * 60 * 1000);
+      const newH = newDep.getHours().toString().padStart(2, '0');
+      const newMin = newDep.getMinutes().toString().padStart(2, '0');
+      const newHeure = `${newH}:${newMin}`;
+
+      // 1. Optimistic UI update
+      setLocalMissions(localMissions.map(m2 => m2.id === m.id ? { ...m2, heure: newHeure, departureTime: newDep.toISOString() } : m2));
+
+      // 2. Database update
+      const separator = m.trajet.includes('→') ? '→' : m.trajet.includes('->') ? '->' : m.trajet.includes(' - ') ? ' - ' : '-';
+      const parts = m.trajet.split(separator).map((s: string) => s.trim());
+      const originCity = parts[0] || '';
+      const destinationCity = parts[1] || '';
+
+      const res = await fetch(`/api/missions/${m.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          originCity,
+          destinationCity,
+          pricePerSeat: m.pricePerSeat || 5000,
+          departureTime: newDep,
+          placesLibres: m.placesLibres || 0,
+          vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,
+          passagers: m.passagers || 0,
+          isAirConditioned: m.isAirConditioned ?? true,
+          takesTollRoad: m.takesTollRoad ?? true
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Erreur de sauvegarde de l'heure sur le serveur.");
+      }
+
+      // Refresh list to sync with DB
+      const freshRes = await fetch('/api/missions', { cache: 'no-store' });
+      if (freshRes.ok) {
+        const apiData = await freshRes.ok && await freshRes.json();
+        if (apiData) {
+          setLocalMissions(apiData.map(mapApiMissionToLocal));
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Erreur de connexion.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const checkTooSoon = (dateStr: string, heureStr: string) => {
     if (dateStr === "Aujourd'hui" || dateStr === getTodayStr()) {
       const parts = heureStr.split(':');
@@ -504,12 +568,7 @@ export default function SectionMissions() {
                 </button>
                 {m.statut === 'programmé' && checkTooSoon(m.date, m.heure) && (
                   <button 
-                    onClick={() => {
-                      const parts = m.heure.split(':');
-                      const newH = (parseInt(parts[0]) + 1).toString().padStart(2, '0');
-                      const newHeure = `${newH}:${parts[1]}`;
-                      setLocalMissions(localMissions.map(m2 => m2.id === m.id ? { ...m2, heure: newHeure } : m2));
-                    }}
+                    onClick={() => handlePushBackOneHour(m)}
                     className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-600/20"
                   >
                     <Clock className="w-3.5 h-3.5" /> Repousser +1h

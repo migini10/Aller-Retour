@@ -801,7 +801,47 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 _showMissionDetailsDialog(context, mission);
                               }, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé')
-                                _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () {}),
+                                _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () async {
+                                  try {
+                                    String date = mission['rawDate'] ?? DateTime.now().toIso8601String().split('T')[0];
+                                    String time = mission['heure'] ?? '12:00';
+                                    DateTime currentDep = DateTime.parse("${date}T$time:00Z");
+                                    DateTime newDep = currentDep.add(const Duration(hours: 1));
+                                    String newDepStr = newDep.toIso8601String();
+
+                                    String trajet = mission['trajet'] ?? '';
+                                    String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
+                                    List<String> parts = trajet.split(separator);
+                                    String origin = parts.isNotEmpty ? parts[0].trim() : 'Dakar';
+                                    String destination = parts.length > 1 ? parts[1].trim() : 'Touba';
+
+                                    final url = 'http://localhost:3000/api/missions/${mission['id']}';
+                                    final res = await http.patch(
+                                      Uri.parse(url),
+                                      headers: {'Content-Type': 'application/json'},
+                                      body: json.encode({
+                                        'originCity': origin,
+                                        'destinationCity': destination,
+                                        'pricePerSeat': mission['pricePerSeat'] ?? 5000,
+                                        'departureTime': newDepStr,
+                                        'placesLibres': mission['placesLibres'] ?? 4,
+                                        'vehicleCapacity': (mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0) + 1,
+                                        'passagers': mission['passagers'] ?? 0,
+                                        'isAirConditioned': mission['isAirConditioned'] ?? true,
+                                        'takesTollRoad': mission['takesTollRoad'] ?? true,
+                                      }),
+                                    );
+
+                                    if (res.statusCode == 200 || res.statusCode == 201) {
+                                      _fetchMissions();
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet repoussé de 1h avec succès !'), backgroundColor: Colors.green));
+                                    } else {
+                                      throw Exception('API error');
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors du report: $e'), backgroundColor: Colors.redAccent));
+                                  }
+                                }),
                               if (mission['statut'] == 'programmé' || mission['statut'] == 'à venir')
                                 _buildActionButton(Icons.edit, 'Modifier', const Color(0xFF2563EB), Colors.white, () {
                                   _showCreateMissionBottomSheet(context, missionToEdit: mission);
