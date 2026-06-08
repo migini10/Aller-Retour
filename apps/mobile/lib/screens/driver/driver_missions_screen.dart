@@ -20,9 +20,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   Color _getStatutColor(String statut) {
     switch (statut) {
       case 'à venir': return const Color(0xFFF97316);
-      case 'terminé': return Colors.greenAccent;
-      case 'programmé': return Colors.blueAccent;
-      case 'en cours': return Colors.purpleAccent;
+      case 'terminé': return const Color(0xFF10B981);
+      case 'programmé': return const Color(0xFF3B82F6);
+      case 'en cours': return const Color(0xFFA855F7);
       default: return Colors.white54;
     }
   }
@@ -305,20 +305,22 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.1),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                color: const Color(0xFFF43F5E).withOpacity(0.1),
+                border: Border.all(color: const Color(0xFFF43F5E).withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
+                  Icon(Icons.warning_amber_rounded, color: Color(0xFFF43F5E), size: 20),
                   SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Attention, départ imminent !', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text('Préparez-vous à recevoir des appels.', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                        Text('Attention, votre départ est dans moins d\'une heure !', style: TextStyle(color: Color(0xFFF43F5E), fontWeight: FontWeight.bold, fontSize: 13)),
+                        SizedBox(height: 4),
+                        Text('Les réservations automatiques sont bloquées si vous ne changez pas votre heure de départ. Préparez-vous à recevoir des appels.', style: TextStyle(color: Color(0xFFF43F5E), fontSize: 12)),
                       ],
                     ),
                   ),
@@ -447,16 +449,16 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             runSpacing: 8,
                             children: [
                               if (mission['statut'] == 'à venir')
-                                _buildActionButton(Icons.play_arrow, 'Démarrer', const Color(0xFFF97316), Colors.black, () {}),
+                                _buildActionButton(Icons.play_arrow, 'Démarrer trajet', const Color(0xFFEA580C), Colors.white, () {}),
                               if (mission['statut'] == 'en cours')
-                                _buildActionButton(Icons.check_circle, 'Terminer', Colors.greenAccent, Colors.black, () {}),
-                              _buildActionButton(Icons.visibility, 'Détails', const Color(0xFF1A1A1A), Colors.white, () {}, borderColor: const Color(0xFF333333)),
+                                _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
+                              _buildActionButton(Icons.location_on, 'Voir détails', const Color(0xFF1A1A1A), Colors.white, () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé')
-                                _buildActionButton(Icons.access_time, 'Repousser +1h', Colors.indigoAccent, Colors.white, () {}),
+                                _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () {}),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
-                                _buildActionButton(Icons.warning, 'Signaler', Colors.amberAccent.withOpacity(0.1), Colors.amberAccent, () {}, borderColor: Colors.amberAccent.withOpacity(0.3)),
+                                _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', const Color(0xFF1A1A1A), const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)
-                                _buildActionButton(Icons.close, 'Supprimer', Colors.redAccent.withOpacity(0.1), Colors.redAccent, () {}, borderColor: Colors.redAccent.withOpacity(0.3)),
+                                _buildActionButton(Icons.close, 'Supprimer', const Color(0xFF1A1A1A), const Color(0xFFF43F5E), () {}, borderColor: const Color(0xFF333333)),
                             ],
                           ),
                         ],
