@@ -698,4 +698,40 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       ),
     );
   }
+
+  Widget _buildTextFieldController(String label, TextEditingController controller, {required IconData icon, TextInputType keyboardType = TextInputType.text, String hintText = ''}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF000000),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF333333)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white54, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: hintText,
+                    hintStyle: const TextStyle(color: Colors.white24),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
