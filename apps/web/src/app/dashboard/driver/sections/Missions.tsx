@@ -212,13 +212,51 @@ export default function SectionMissions() {
       });
 
       if (res.ok) {
-        // Déclencher un rechargement global car Next.js a modifié la base
-        window.location.reload();
+        // Refresh local missions gracefully
+        const fetchRes = await fetch('/api/missions');
+        const apiData = await fetchRes.json();
+        
+        const mappedMissions = apiData.map((m: any) => {
+           let dateParts = m.depart.split(', ');
+           let dateStr = "Aujourd'hui"; 
+           let heureStr = "12:00";
+           if (dateParts.length > 1) {
+             dateStr = dateParts[0];
+             heureStr = dateParts[1];
+           } else {
+             heureStr = dateParts[0];
+           }
+           return {
+              id: m.id,
+              trajet: m.trajet,
+              date: dateStr,
+              heure: heureStr,
+              vehicule: m.transporteur,
+              statut: m.status === 'disponible' ? 'programmé' : 'en cours',
+              passagers: m.passagers,
+              placesLibres: m.placesLibres ?? 4,
+              isAirConditioned: m.isAirConditioned ?? true,
+              takesTollRoad: m.takesTollRoad ?? true
+           };
+        });
+        
+        setLocalMissions(mappedMissions);
         setSubmitSuccess("Trajet enregistré dans la base de données !");
 
         setTimeout(() => {
           setIsModalOpen(false);
           setSubmitSuccess('');
+          setFormData({
+            originCity: '',
+            destinationCity: '',
+            date: '',
+            heure: '',
+            pricePerSeat: '',
+            vehicleCapacity: '',
+            placesLibres: '',
+            isAirConditioned: true,
+            takesTollRoad: true
+          });
         }, 2000);
       } else {
         const errorText = await res.text();
