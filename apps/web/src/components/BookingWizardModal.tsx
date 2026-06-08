@@ -533,10 +533,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         id: t.id,
         company: t.company?.name || "Allo Dakar Partenaire",
         price: t.pricePerSeat || 5000,
-        type: t.vehicle?.type === 'TAXI_7_PLACES' ? 'Voiture 7 places' : (t.vehicle?.type === 'VOITURE_5_PLACES' ? 'Voiture 5 places' : (t.vehicle?.type || "Voiture")),
+        type: `Voiture ${t.vehicle?.capacity || 5} places`,
         options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
         route: t.takesTollRoad !== false ? "Autoroute" : "Nationale",
         time: new Date(t.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        passagers: t.passagers ?? 0,
+        placesPrises: t.placesPrises ?? 0,
         availableSeats: t.availableSeats || 4,
         isTooSoon,
         driverPhone: t.driverPhone || '+221 77 000 00 00'
@@ -584,7 +586,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="bg-slate-100 dark:bg-[#222222] text-xs text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
                       <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {service.availableSeats} places restantes
+                        {service.passagers ?? 0} passagers prévus • {service.placesPrises ?? 0} places prises • {service.availableSeats} places restantes
                       </span>
                       {service.options === 'Climatisé' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">

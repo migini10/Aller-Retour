@@ -93,6 +93,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             'statut': m['status'] == 'disponible' ? 'programmé' : 'en cours',
             'passagers': m['passagers'] ?? 0,
             'placesLibres': m['placesLibres'] ?? 4,
+            'placesPrises': m['placesPrises'] ?? 0,
             'isAirConditioned': m['isAirConditioned'] ?? true,
             'takesTollRoad': m['takesTollRoad'] ?? true,
           };
@@ -656,7 +657,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               const Icon(Icons.directions_bus, size: 14, color: Colors.white54),
                               const SizedBox(width: 6),
                               Expanded(
-                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus ${mission['placesLibres'] != null ? '• ${mission['placesLibres']} places offertes' : ''}', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places offertes', style: const TextStyle(color: Colors.white54, fontSize: 13)),
                               ),
                             ],
                           ),

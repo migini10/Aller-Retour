@@ -57,7 +57,10 @@ export class TripsController {
       const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
       return {
         ...trip,
-        availableSeats: trip.vehicle.capacity - bookedSeats,
+        availableSeats: Math.max(0, trip.seatsOffered - bookedSeats),
+        passagers: bookedSeats,
+        placesPrises: bookedSeats,
+        seatsOffered: trip.seatsOffered,
         driverName: trip.driver?.user?.fullName || null,
         driverPhone: trip.driver?.user?.phone || null,
       };
@@ -111,6 +114,7 @@ export class TripsController {
 
     // Véhicule par défaut pour ce trajet
     const capacity = body.vehicleCapacity || 5;
+    const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id, capacity: capacity } });
     if (!vehicle) {
       vehicle = await prisma.vehicle.create({
@@ -159,6 +163,7 @@ export class TripsController {
         departureTime: body.departureTime ? new Date(body.departureTime) : new Date(),
         pricePerSeat: body.pricePerSeat || 5000,
         isMarketplace: true,
+        seatsOffered: seatsOffered,
         status: TripStatus.SCHEDULED
       }
     });

@@ -70,6 +70,7 @@ export default function SectionMissions() {
       statut: m.status === 'disponible' ? 'programmé' : 'en cours',
       passagers: m.passagers,
       placesLibres: m.placesLibres ?? 4,
+      placesPrises: m.placesPrises ?? 0,
       isAirConditioned: m.isAirConditioned ?? true,
       takesTollRoad: m.takesTollRoad ?? true
     };
@@ -408,8 +409,7 @@ export default function SectionMissions() {
                   : new Date(m.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
                 } à {m.heure}</p>
                 <p className="text-xs text-slate-500">
-                  {m.vehicule} • {m.passagers} passagers prévus
-                  {m.placesLibres ? ` • ${m.placesLibres} places offertes` : ''}
+                  {m.vehicule} • {m.passagers} passagers prévus • {m.placesPrises ?? 0} places prises • {m.placesLibres} places offertes
                 </p>
                 {/* Options (mock pour les missions statiques si pas défini) */}
                 <div className="flex flex-wrap gap-2 pt-1">

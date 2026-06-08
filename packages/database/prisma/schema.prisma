@@ -221,6 +221,7 @@ model Trip {
   status          TripStatus @default(SCHEDULED)
   pricePerSeat    Float      // Prix effectif de la place sur ce départ
   isMarketplace   Boolean    @default(false) // Trajet de chauffeur libre
+  seatsOffered    Int        @default(4)
   currentLat      Float?
   currentLng      Float?
   createdAt       DateTime   @default(now())

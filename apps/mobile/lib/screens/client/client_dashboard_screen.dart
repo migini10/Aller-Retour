@@ -852,6 +852,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      '${t['passagers'] ?? 0} passagers prévus • ${t['placesPrises'] ?? 0} places prises • ${t['availableSeats'] ?? 4} places restantes',
+                                      style: const TextStyle(color: Color(0xFFF97316), fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1481,8 +1486,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 await Future.delayed(const Duration(seconds: 1));
                                 setState(() {
                                   realTrips = [
-                                    { "id": "1", "company": "Allo Dakar VIP", "price": 5000, "type": "Voiture 7 places", "options": "Climatisé", "time": "14:00" },
-                                    { "id": "2", "company": "Fast Transit", "price": 4500, "type": "Voiture 5 places", "options": "Standard", "time": "15:30" }
+                                    { "id": "1", "company": "Allo Dakar VIP", "price": 5000, "type": "Voiture 7 places", "options": "Climatisé", "time": "14:00", "passagers": 2, "placesPrises": 2, "availableSeats": 5 },
+                                    { "id": "2", "company": "Fast Transit", "price": 4500, "type": "Voiture 5 places", "options": "Standard", "time": "15:30", "passagers": 0, "placesPrises": 0, "availableSeats": 5 }
                                   ];
                                   isSearching = false;
                                   step = 2;

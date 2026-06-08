@@ -17,6 +17,7 @@ export async function GET() {
           }
         },
         vehicle: true,
+        bookings: true,
       }
     });
 
@@ -25,6 +26,9 @@ export async function GET() {
       
       const departStr = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(trip.departureTime);
       
+      const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
+      const placesLibresRestantes = Math.max(0, trip.seatsOffered - bookedSeats);
+      
       return {
         id: `M-${trip.id.substring(0, 4).toUpperCase()}`,
         tripId: trip.id, // For patching
@@ -32,11 +36,13 @@ export async function GET() {
         depart: departStr,
         departureTime: trip.departureTime.toISOString(),
         distance: `${trip.route.distanceKm} km`,
-        passagers: 0, // Placeholder
-        placesLibres: trip.vehicle?.capacity ? trip.vehicle.capacity : 4,
-        vehicleCapacity: trip.vehicle?.capacity || 4,
+        passagers: bookedSeats,
+        placesLibres: placesLibresRestantes,
+        placesPrises: bookedSeats,
+        seatsOffered: trip.seatsOffered,
+        vehicleCapacity: trip.vehicle?.capacity || 5,
         remuneration: `${trip.pricePerSeat} FCFA / place`,
-        transporteur: trip.vehicle?.type === 'TAXI_7_PLACES' ? 'Voiture 7 places' : 'Voiture 5 places',
+        transporteur: `Voiture ${trip.vehicle?.capacity || 5} places`,
         urgent: isUrgent,
         status: trip.status === 'SCHEDULED' ? 'disponible' : 'accepte', // Very simple mapping
         minScore: 60,
@@ -58,6 +64,7 @@ export async function POST(req: Request) {
 
     const vehicleCapacity = body.vehicleCapacity ? parseInt(body.vehicleCapacity.toString(), 10) : 5;
     const pricePerSeat = body.pricePerSeat ? parseFloat(body.pricePerSeat.toString()) : 5000;
+    const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
 
     let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
     if (!company) {
@@ -122,6 +129,7 @@ export async function POST(req: Request) {
         departureTime: body.departureTime ? new Date(body.departureTime) : new Date(),
         pricePerSeat: pricePerSeat,
         isMarketplace: true,
+        seatsOffered: seatsOffered,
         status: 'SCHEDULED'
       }
     });
