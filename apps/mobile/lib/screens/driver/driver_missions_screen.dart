@@ -19,7 +19,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
   Color _getStatutColor(String statut) {
     switch (statut) {
-      case 'à venir': return Colors.orangeAccent;
+      case 'à venir': return const Color(0xFFF97316);
       case 'terminé': return Colors.greenAccent;
       case 'programmé': return Colors.blueAccent;
       case 'en cours': return Colors.purpleAccent;
@@ -117,7 +117,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       Checkbox(
                                         value: isAirConditioned,
                                         onChanged: (val) => setModalState(() => isAirConditioned = val ?? false),
-                                        activeColor: Colors.orangeAccent,
+                                        activeColor: const Color(0xFFF97316),
                                         side: const BorderSide(color: Color(0xFF333333)),
                                       ),
                                       const Text('❄️ Climatisé', style: TextStyle(color: Colors.white, fontSize: 14)),
@@ -133,7 +133,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       Checkbox(
                                         value: takesTollRoad,
                                         onChanged: (val) => setModalState(() => takesTollRoad = val ?? false),
-                                        activeColor: Colors.orangeAccent,
+                                        activeColor: const Color(0xFFF97316),
                                         side: const BorderSide(color: Color(0xFF333333)),
                                       ),
                                       const Text('🛣️ Autoroute', style: TextStyle(color: Colors.white, fontSize: 14)),
@@ -166,7 +166,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet programmé avec succès !', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green));
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orangeAccent,
+                                backgroundColor: const Color(0xFFEA580C),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -239,7 +239,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             fillColor: const Color(0xFF0A0A0A),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.orangeAccent)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF97316))),
             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           ),
         ),
@@ -277,7 +277,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.route, color: Colors.orangeAccent, size: 20),
+                    Icon(Icons.route, color: Color(0xFFF97316), size: 20),
                     SizedBox(width: 8),
                     Text('Mes Missions', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
@@ -289,7 +289,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                   icon: const Icon(Icons.directions_car, size: 16),
                   label: const Text('Proposer un Trajet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
+                    backgroundColor: const Color(0xFFEA580C),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -341,9 +341,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.orangeAccent : const Color(0xFF141414),
+                        color: isSelected ? const Color(0xFFF97316) : const Color(0xFF141414),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: isSelected ? Colors.orangeAccent : const Color(0xFF2A2A2A)),
+                        border: Border.all(color: isSelected ? const Color(0xFFF97316) : const Color(0xFF2A2A2A)),
                       ),
                       child: Text(t, style: TextStyle(
                         color: isSelected ? Colors.black : Colors.white54,
@@ -447,7 +447,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             runSpacing: 8,
                             children: [
                               if (mission['statut'] == 'à venir')
-                                _buildActionButton(Icons.play_arrow, 'Démarrer', Colors.orangeAccent, Colors.black, () {}),
+                                _buildActionButton(Icons.play_arrow, 'Démarrer', const Color(0xFFF97316), Colors.black, () {}),
                               if (mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.check_circle, 'Terminer', Colors.greenAccent, Colors.black, () {}),
                               _buildActionButton(Icons.visibility, 'Détails', const Color(0xFF1A1A1A), Colors.white, () {}, borderColor: const Color(0xFF333333)),
