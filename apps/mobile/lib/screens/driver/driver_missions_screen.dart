@@ -28,12 +28,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   }
 
   void _showCreateMissionBottomSheet(BuildContext context) {
-    String originCity = 'Dakar';
-    String destinationCity = 'Touba';
-    String date = 'Aujourd\'hui';
-    String time = '14:00';
-    String price = '5000';
-    String capacity = '50';
+    String? originCity;
+    String? destinationCity;
+    String date = '';
+    String time = '';
+    String price = '';
+    String capacity = '';
     bool isAirConditioned = true;
     bool takesTollRoad = true;
 
@@ -86,11 +86,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildTextField('Date', date, (v) => date = v, icon: Icons.calendar_today),
+                                child: _buildTextField('Date', date, (v) => date = v, icon: Icons.calendar_today, hintText: 'ex: Demain'),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextField('Heure', time, (v) => time = v, icon: Icons.access_time),
+                                child: _buildTextField('Heure', time, (v) => time = v, icon: Icons.access_time, hintText: 'ex: 14:30'),
                               ),
                             ],
                           ),
@@ -98,11 +98,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildTextField('Prix unitaire (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number),
+                                child: _buildTextField('Prix unitaire (FCFA)', price, (v) => price = v, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextField('Capacité (places)', capacity, (v) => capacity = v, icon: Icons.people_outline, keyboardType: TextInputType.number),
+                                child: _buildTextField('Capacité (places)', capacity, (v) => capacity = v, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 50'),
                               ),
                             ],
                           ),
@@ -151,10 +151,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 setState(() {
                                   missions.insert(0, {
                                     'id': 'TRIP-NEW',
-                                    'trajet': '$originCity → $destinationCity',
-                                    'date': date,
-                                    'heure': time,
-                                    'vehicule': 'Bus $capacity Places',
+                                    'trajet': '${originCity ?? ''} → ${destinationCity ?? ''}',
+                                    'date': date.isEmpty ? 'Non définie' : date,
+                                    'heure': time.isEmpty ? 'Non définie' : time,
+                                    'vehicule': 'Bus ${capacity.isEmpty ? '?' : capacity} Places',
                                     'statut': 'programmé',
                                     'passagers': 0,
                                     'placesLibres': int.tryParse(capacity) ?? 0,
@@ -188,7 +188,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, String? value, List<String> items, Function(String?) onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -204,6 +204,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
+              hint: const Text('Choisir', style: TextStyle(color: Colors.white24, fontSize: 14)),
               isExpanded: true,
               dropdownColor: const Color(0xFF141414),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
@@ -222,7 +223,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String initialValue, Function(String) onChanged, {IconData? icon, TextInputType? keyboardType}) {
+  Widget _buildTextField(String label, String initialValue, Function(String) onChanged, {IconData? icon, TextInputType? keyboardType, String? hintText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -234,6 +235,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           keyboardType: keyboardType,
           style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
             prefixIcon: icon != null ? Icon(icon, color: Colors.white54, size: 20) : null,
             filled: true,
             fillColor: const Color(0xFF0A0A0A),
