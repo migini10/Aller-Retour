@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DriverLocalisationScreen extends StatefulWidget {
   const DriverLocalisationScreen({super.key});
@@ -28,8 +29,23 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
 
   Future<void> _launchExternalNavigation() async {
     if (activePassenger == null) return;
+    
+    String originParam = '';
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        originParam = '&origin=${position.latitude},${position.longitude}';
+      }
+    } catch (e) {
+      debugPrint("Erreur GPS Flutter: $e");
+    }
+
     final query = Uri.encodeComponent('${activePassenger!['quartier']}, Dakar, Senegal');
-    final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query&travelmode=driving&dir_action=navigate');
+    final url = Uri.parse('https://www.google.com/maps/dir/?api=1$originParam&destination=$query&travelmode=driving&dir_action=navigate');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {

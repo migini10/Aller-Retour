@@ -26,6 +26,33 @@ export default function SectionLocalisation() {
     setNavKey(k => k + 1);
   };
 
+  const handleStartExternalNavigation = () => {
+    if (!activePassenger) return;
+    
+    const destination = encodeURIComponent(activePassenger.quartier + ', Dakar, Senegal');
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const url = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${destination}&travelmode=driving&dir_action=navigate`;
+          window.open(url, '_blank');
+        },
+        (error) => {
+          console.error("Erreur GPS:", error);
+          // Fallback si l'utilisateur refuse la localisation ou si erreur
+          const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving&dir_action=navigate`;
+          window.open(url, '_blank');
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    } else {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving&dir_action=navigate`;
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,14 +126,12 @@ export default function SectionLocalisation() {
               <Navigation className="w-4 h-4" /> Sélectionnez un passager
             </button>
           ) : (
-            <a 
-              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(activePassenger.quartier + ', Dakar, Senegal')}&travelmode=driving&dir_action=navigate`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button 
+              onClick={handleStartExternalNavigation}
               className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-orange-500/30 text-sm flex justify-center items-center gap-2 animate-bounce"
             >
               <Navigation className="w-5 h-5 fill-current" /> Démarrer le trajet (GPS Audio)
-            </a>
+            </button>
           )}
         </div>
       </div>
