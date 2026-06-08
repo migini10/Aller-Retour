@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DriverLocalisationScreen extends StatefulWidget {
   const DriverLocalisationScreen({super.key});
@@ -20,6 +21,20 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
     super.initState();
     // Sort passengers by distance
     passagers.sort((a, b) => a['distance'].compareTo(b['distance']));
+  }
+
+  Future<void> _launchNavigation(String name) async {
+    final query = Uri.encodeComponent('$name, Dakar, Senegal');
+    final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query&travelmode=driving&dir_action=navigate');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible d\\'ouvrir Google Maps.')),
+        );
+      }
+    }
   }
 
   @override
@@ -121,83 +136,87 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
             // Passengers List
             const Text('VOYAGEURS À RÉCUPÉRER', style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
             const SizedBox(height: 12),
-            ...passagers.map((p) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF141414),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF2A2A2A)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.greenAccent.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        p['nom'].toString().substring(0, 1),
-                        style: const TextStyle(color: Colors.greenAccent, fontSize: 20, fontWeight: FontWeight.bold),
+            ...passagers.map((p) => InkWell(
+              onTap: () => _launchNavigation(p['nom']),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141414),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF2A2A2A)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          p['nom'].toString().substring(0, 1),
+                          style: const TextStyle(color: Colors.greenAccent, fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(p['nom'], style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on, color: Colors.orangeAccent, size: 12),
+                              const SizedBox(width: 4),
+                              Text('À ${p['distance']} km (${p['eta']})', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
                       children: [
-                        Text(p['nom'], style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on, color: Colors.orangeAccent, size: 12),
-                            const SizedBox(width: 4),
-                            Text('À ${p['distance']} km (${p['eta']})', style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                          ],
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF2A2A2A)),
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.message, color: Colors.white, size: 18),
+                            onPressed: () {},
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(color: Colors.greenAccent.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+                            ],
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.phone, color: Colors.black, size: 18),
+                            onPressed: () {},
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF2A2A2A)),
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.message, color: Colors.white, size: 18),
-                          onPressed: () {},
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.greenAccent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(color: Colors.greenAccent.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
-                          ],
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.phone, color: Colors.black, size: 18),
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             )).toList(),
           ],
