@@ -104,13 +104,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       if (isDriverMode) ...[
                         _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orangeAccent, route: '/'),
-                        _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.blueAccent, route: '/driver/missions'),
+                        _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.greenAccent, route: '/driver/missions'),
+                        _buildMenuItem(context, Icons.location_on_outlined, 'Localisation Client', Colors.cyanAccent, route: '/driver/localisation'),
                         _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purpleAccent, route: '/driver/scanner'),
-                        _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amberAccent, route: '/driver/colis'),
-                        _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.greenAccent, route: '/driver/revenus'),
+                        _buildMenuItem(context, Icons.people_outline, 'Passagers', Colors.blueAccent, route: '/driver/passagers'),
+                        _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.tealAccent, route: '/driver/revenus'),
                         _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigoAccent, route: '/driver/marketplace'),
-                        _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.cyanAccent, route: '/driver/vehicule'),
-                        _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.blueGrey, route: '/driver/settings'),
+                        _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amberAccent, route: '/driver/colis'),
+                        _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.blueGrey, route: '/driver/vehicule'),
+                        _buildMenuItem(context, Icons.notifications_none_outlined, 'Notifications', Colors.redAccent, route: '/driver/notifications'),
+                        _buildMenuItem(context, Icons.help_outline, 'Support', Colors.lightBlueAccent, route: '/driver/support'),
+                        _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/driver/settings'),
                       ] else ...[
                         _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.cyanAccent, route: '/profile'),
                         _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.blueAccent, route: '/history'),
