@@ -49,7 +49,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             return Container(
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: const BoxDecoration(
-                color: Color(0xFF0F172A),
+                color: Color(0xFF141414),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
@@ -107,17 +107,41 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          SwitchListTile(
-                            title: const Text('Véhicule climatisé', style: TextStyle(color: Colors.white)),
-                            value: isAirConditioned,
-                            activeColor: Colors.orangeAccent,
-                            onChanged: (val) => setModalState(() => isAirConditioned = val),
-                          ),
-                          SwitchListTile(
-                            title: const Text('Prendre l\'autoroute à péage', style: TextStyle(color: Colors.white)),
-                            value: takesTollRoad,
-                            activeColor: Colors.orangeAccent,
-                            onChanged: (val) => setModalState(() => takesTollRoad = val),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => setModalState(() => isAirConditioned = !isAirConditioned),
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        value: isAirConditioned,
+                                        onChanged: (val) => setModalState(() => isAirConditioned = val ?? false),
+                                        activeColor: Colors.orangeAccent,
+                                        side: const BorderSide(color: Color(0xFF333333)),
+                                      ),
+                                      const Text('❄️ Climatisé', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => setModalState(() => takesTollRoad = !takesTollRoad),
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        value: takesTollRoad,
+                                        onChanged: (val) => setModalState(() => takesTollRoad = val ?? false),
+                                        activeColor: Colors.orangeAccent,
+                                        side: const BorderSide(color: Color(0xFF333333)),
+                                      ),
+                                      const Text('🛣️ Autoroute', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 32),
                           SizedBox(
@@ -173,15 +197,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF334155)),
+            border: Border.all(color: const Color(0xFF2A2A2A)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              dropdownColor: const Color(0xFF1E293B),
+              dropdownColor: const Color(0xFF141414),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
               style: const TextStyle(color: Colors.white, fontSize: 14),
               onChanged: onChanged,
@@ -212,8 +236,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           decoration: InputDecoration(
             prefixIcon: icon != null ? Icon(icon, color: Colors.white54, size: 20) : null,
             filled: true,
-            fillColor: const Color(0xFF1E293B),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            fillColor: const Color(0xFF0A0A0A),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.orangeAccent)),
             contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           ),
         ),
