@@ -125,12 +125,65 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              // Logout button (Replacing the Mode Switcher)
+              // Space Switcher button and Logout button
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Divider(color: Colors.white10),
               ),
               const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      isDriverMode = !isDriverMode;
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(isDriverMode 
+                        ? 'Basculement vers l\'Espace Chauffeur...' 
+                        : 'Basculement vers l\'Espace Voyageur...'
+                      ),
+                      backgroundColor: isDriverMode ? Colors.green : Colors.cyan,
+                    ));
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: isDriverMode 
+                        ? Colors.cyanAccent.withOpacity(0.1)
+                        : Colors.greenAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDriverMode 
+                          ? Colors.cyanAccent.withOpacity(0.3)
+                          : Colors.greenAccent.withOpacity(0.3)
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isDriverMode ? Icons.person : Icons.directions_car, 
+                          color: isDriverMode ? Colors.cyanAccent : Colors.greenAccent
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            isDriverMode ? 'Basculer vers l\'Espace Voyageur' : 'Basculer vers l\'Espace Chauffeur',
+                            style: TextStyle(
+                              color: isDriverMode ? Colors.cyanAccent : Colors.greenAccent,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: InkWell(

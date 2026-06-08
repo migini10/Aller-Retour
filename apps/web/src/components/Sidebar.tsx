@@ -237,6 +237,24 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
 
       {/* Bottom Actions Footer */}
       <div className="flex-none pt-4 border-t border-slate-200 dark:border-slate-800/80 mt-auto space-y-2">
+        {isClientPage && (
+          <Link 
+            href="/dashboard/driver"
+            className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+          >
+            <CarFront className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-bold">Espace Chauffeur</span>
+          </Link>
+        )}
+        {isDriverPage && (
+          <Link 
+            href="/dashboard/client"
+            className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition-colors"
+          >
+            <User className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-bold">Espace Voyageur</span>
+          </Link>
+        )}
         <button 
           onClick={() => setShowDevMenu(!showDevMenu)}
           className={`flex items-center gap-3 p-3 w-[230px] rounded-xl transition-colors ${showDevMenu ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white'}`}

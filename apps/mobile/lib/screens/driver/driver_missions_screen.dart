@@ -28,27 +28,60 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       if (res.statusCode == 200) {
         final List<dynamic> data = json.decode(res.body);
         List<Map<String, dynamic>> fetchedMissions = data.map((m) {
-          String depart = m['depart'] ?? '';
           String dateStr = "Aujourd'hui";
           String heureStr = "12:00";
           
-          if (depart.contains(', ')) {
-            List<String> parts = depart.split(', ');
-            dateStr = parts[0];
-            heureStr = parts[1];
-          } else if (depart.contains(' à ')) {
-            List<String> parts = depart.split(' à ');
-            dateStr = parts[0];
-            heureStr = parts[1];
+          if (m['departureTime'] != null) {
+            try {
+              DateTime d = DateTime.parse(m['departureTime']).toLocal();
+              DateTime now = DateTime.now();
+              DateTime today = DateTime(now.year, now.month, now.day);
+              DateTime tomorrow = today.add(const Duration(days: 1));
+              DateTime tripDay = DateTime(d.year, d.month, d.day);
+              
+              if (tripDay == today) {
+                dateStr = "Aujourd'hui";
+              } else if (tripDay == tomorrow) {
+                dateStr = "Demain";
+              } else {
+                List<String> jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                List<String> mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+                String dayName = jours[d.weekday - 1];
+                String dayStr = d.day == 1 ? '1er' : d.day.toString();
+                String monthName = mois[d.month - 1];
+                dateStr = '$dayName $dayStr $monthName';
+              }
+              heureStr = '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+            } catch (e) {
+              String depart = m['depart'] ?? '';
+              if (depart.contains(', ')) {
+                List<String> parts = depart.split(', ');
+                dateStr = parts[0];
+                heureStr = parts[1];
+              } else {
+                heureStr = depart;
+              }
+            }
           } else {
-            RegExp timeRegex = RegExp(r'\d{2}:\d{2}');
-            var match = timeRegex.firstMatch(depart);
-            if (match != null) {
-               heureStr = match.group(0)!;
-               dateStr = depart.replaceAll(heureStr, '').trim();
-               if (dateStr.isEmpty) dateStr = "Aujourd'hui";
+            String depart = m['depart'] ?? '';
+            if (depart.contains(', ')) {
+              List<String> parts = depart.split(', ');
+              dateStr = parts[0];
+              heureStr = parts[1];
+            } else if (depart.contains(' à ')) {
+              List<String> parts = depart.split(' à ');
+              dateStr = parts[0];
+              heureStr = parts[1];
             } else {
-               dateStr = depart;
+              RegExp timeRegex = RegExp(r'\d{2}:\d{2}');
+              var match = timeRegex.firstMatch(depart);
+              if (match != null) {
+                 heureStr = match.group(0)!;
+                 dateStr = depart.replaceAll(heureStr, '').trim();
+                 if (dateStr.isEmpty) dateStr = "Aujourd'hui";
+              } else {
+                 dateStr = depart;
+              }
             }
           }
           return {

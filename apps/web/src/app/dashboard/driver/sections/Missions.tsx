@@ -27,6 +27,54 @@ export default function SectionMissions() {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
 
+  const mapApiMissionToLocal = (m: any) => {
+    let dateStr = "Aujourd'hui";
+    let heureStr = "12:00";
+    if (m.departureTime) {
+      try {
+        const d = new Date(m.departureTime);
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        const dStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        const tomorrowStr = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' + String(tomorrow.getDate()).padStart(2, '0');
+
+        if (dStr === todayStr) {
+          dateStr = "Aujourd'hui";
+        } else if (dStr === tomorrowStr) {
+          dateStr = "Demain";
+        } else {
+          dateStr = dStr; // YYYY-MM-DD
+        }
+        heureStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        console.error("Error formatting date:", e);
+      }
+    } else {
+      let dateParts = m.depart.split(', ');
+      if (dateParts.length > 1) {
+        dateStr = dateParts[0];
+        heureStr = dateParts[1];
+      } else {
+        heureStr = dateParts[0];
+      }
+    }
+    return {
+      id: m.id,
+      trajet: m.trajet,
+      date: dateStr,
+      heure: heureStr,
+      vehicule: m.transporteur,
+      statut: m.status === 'disponible' ? 'programmé' : 'en cours',
+      passagers: m.passagers,
+      placesLibres: m.placesLibres ?? 4,
+      isAirConditioned: m.isAirConditioned ?? true,
+      takesTollRoad: m.takesTollRoad ?? true
+    };
+  };
+
   React.useEffect(() => {
     setIsMounted(true);
 
@@ -43,32 +91,7 @@ export default function SectionMissions() {
         const res = await fetch('/api/missions', { cache: 'no-store' });
         if (res.ok) {
           const apiData = await res.json();
-          // Convert apiData to match our localMissions format
-          const mappedMissions = apiData.map((m: any) => {
-             // depart format: "lundi, 14:30" or similar based on Intl.DateTimeFormat
-             let dateParts = m.depart.split(', ');
-             let dateStr = "Aujourd'hui"; // default fallback
-             let heureStr = "12:00";
-             if (dateParts.length > 1) {
-               dateStr = dateParts[0];
-               heureStr = dateParts[1];
-             } else {
-               heureStr = dateParts[0];
-             }
-             return {
-                id: m.id,
-                trajet: m.trajet,
-                date: dateStr,
-                heure: heureStr,
-                vehicule: m.transporteur, // generic
-                statut: m.status === 'disponible' ? 'programmé' : 'en cours',
-                passagers: m.passagers,
-                placesLibres: m.placesLibres ?? 4,
-                isAirConditioned: m.isAirConditioned ?? true,
-                takesTollRoad: m.takesTollRoad ?? true
-             };
-          });
-          // Replace state with DB missions
+          const mappedMissions = apiData.map(mapApiMissionToLocal);
           setLocalMissions(mappedMissions);
         }
       } catch(e) {
@@ -167,33 +190,50 @@ export default function SectionMissions() {
     setSubmitError('');
     setSubmitSuccess('');
     
-    if (!formData.originCity || !formData.destinationCity || !formData.date || !formData.heure || !formData.pricePerSeat || !formData.placesLibres || !formData.vehicleCapacity) {
-      setSubmitError('Veuillez remplir tous les champs obligatoires.');
+    // Debug alert to confirm the button was clicked and the function started
+    window.alert("Clic sur Publier détecté ! Début de la validation...");
+
+    const missingFields = [];
+    if (!formData.originCity) missingFields.push("Ville de départ");
+    if (!formData.destinationCity) missingFields.push("Ville d'arrivée");
+    if (!formData.date) missingFields.push("Date");
+    if (!formData.heure) missingFields.push("Heure");
+    if (!formData.pricePerSeat) missingFields.push("Prix par place");
+    if (!formData.placesLibres) missingFields.push("Places libres");
+    if (!formData.vehicleCapacity) missingFields.push("Type de voiture");
+
+    if (missingFields.length > 0) {
+      const errMsg = `Champs obligatoires manquants : ${missingFields.join(', ')}`;
+      window.alert("Erreur de validation : " + errMsg);
+      setSubmitError(errMsg);
       setIsLoading(false);
       return;
     }
 
     if (formData.placesLibres >= formData.vehicleCapacity) {
-      setSubmitError('Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).');
+      const errMsg = 'Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).';
+      window.alert("Erreur de validation : " + errMsg);
+      setSubmitError(errMsg);
       setIsLoading(false);
       return;
     }
 
-    const newMission = {
-      id: `TRIP-${Math.floor(Math.random() * 1000)}`,
-      trajet: `${formData.originCity} → ${formData.destinationCity}`,
-      date: formData.date,
-      heure: formData.heure,
-      vehicule: 'Voiture Allo Dakar',
-      statut: 'programmé',
-      passagers: 0,
-      placesLibres: formData.placesLibres,
-      isAirConditioned: formData.isAirConditioned,
-      takesTollRoad: formData.takesTollRoad
-    };
-
     try {
-      const departureTime = new Date(`${formData.date}T${formData.heure}`);
+      const dateStr = `${formData.date}T${formData.heure}`;
+      const departureTime = new Date(dateStr);
+      if (isNaN(departureTime.getTime())) {
+        throw new Error("Date ou heure de départ invalide.");
+      }
+
+      window.alert("Envoi de la requête au serveur avec les paramètres :\n" + JSON.stringify({
+        originCity: formData.originCity,
+        destinationCity: formData.destinationCity,
+        pricePerSeat: formData.pricePerSeat,
+        departureTime: departureTime,
+        placesLibres: formData.placesLibres,
+        vehicleCapacity: formData.vehicleCapacity
+      }, null, 2));
+
       const res = await fetch(`/api/missions`, {
         method: 'POST',
         headers: {
@@ -212,36 +252,22 @@ export default function SectionMissions() {
       });
 
       if (res.ok) {
-        // Refresh local missions gracefully
-        const fetchRes = await fetch('/api/missions', { cache: 'no-store' });
-        const apiData = await fetchRes.json();
-        
-        const mappedMissions = apiData.map((m: any) => {
-           let dateParts = m.depart.split(', ');
-           let dateStr = "Aujourd'hui"; 
-           let heureStr = "12:00";
-           if (dateParts.length > 1) {
-             dateStr = dateParts[0];
-             heureStr = dateParts[1];
-           } else {
-             heureStr = dateParts[0];
-           }
-           return {
-              id: m.id,
-              trajet: m.trajet,
-              date: dateStr,
-              heure: heureStr,
-              vehicule: m.transporteur,
-              statut: m.status === 'disponible' ? 'programmé' : 'en cours',
-              passagers: m.passagers,
-              placesLibres: m.placesLibres ?? 4,
-              isAirConditioned: m.isAirConditioned ?? true,
-              takesTollRoad: m.takesTollRoad ?? true
-           };
-        });
-        
-        setLocalMissions(mappedMissions);
+        window.alert("Succès ! Le serveur a renvoyé un statut 200 OK.");
         setSubmitSuccess("Trajet enregistré dans la base de données !");
+
+        // Refresh list of missions in background
+        fetch('/api/missions', { cache: 'no-store' })
+          .then(fetchRes => {
+            if (fetchRes.ok) {
+              return fetchRes.json();
+            }
+            throw new Error("API error");
+          })
+          .then(apiData => {
+            const mappedMissions = apiData.map(mapApiMissionToLocal);
+            setLocalMissions(mappedMissions);
+          })
+          .catch(e => console.error("Error refreshing missions list in background:", e));
 
         setTimeout(() => {
           setIsModalOpen(false);
@@ -257,12 +283,13 @@ export default function SectionMissions() {
             isAirConditioned: true,
             takesTollRoad: true
           });
-        }, 2000);
+        }, 800);
       } else {
         const errorText = await res.text();
         throw new Error(`${errorText}`);
       }
     } catch (err: any) {
+      window.alert("Exception attrapée dans catch() : " + err.message);
       console.error("Erreur de connexion au backend:", err);
       let errMsg = err.message;
       try {
@@ -661,6 +688,12 @@ export default function SectionMissions() {
                   🛣️ Autoroute
                 </label>
               </div>
+
+              {submitError && (
+                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium">
+                  {submitError}
+                </div>
+              )}
 
               <button 
                 type="submit" 
