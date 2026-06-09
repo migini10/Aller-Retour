@@ -10,7 +10,6 @@ class DriverScannerScreen extends StatefulWidget {
 
 class _DriverScannerScreenState extends State<DriverScannerScreen> {
   MobileScannerController cameraController = MobileScannerController(
-    detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
   );
   bool isScanning = true;

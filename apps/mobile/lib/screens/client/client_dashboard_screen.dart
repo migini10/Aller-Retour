@@ -542,14 +542,19 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 size: 28,
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              service['title'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.5,
+                            const SizedBox(height: 12),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                service['title'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5,
+                                ),
+                                maxLines: 1,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -563,7 +568,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 16),
+                            const Spacer(),
                             Row(
                               children: [
                                 Text(
