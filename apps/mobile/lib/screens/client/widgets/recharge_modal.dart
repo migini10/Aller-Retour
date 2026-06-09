@@ -178,13 +178,16 @@ void showRechargeModal(BuildContext context) {
                                   ),
                                   child: isLoading
                                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                      : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(step == 1 ? 'Suivant' : 'Confirmer le paiement', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                            const SizedBox(width: 8),
-                                            const Icon(Icons.chevron_right),
-                                          ],
+                                      : FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(step == 1 ? 'Suivant' : 'Confirmer le paiement', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                              const SizedBox(width: 8),
+                                              const Icon(Icons.chevron_right),
+                                            ],
+                                          ),
                                         ),
                                 ),
                               ),

@@ -847,16 +847,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
-                                      children: [
-                                        Text(t['type'], style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                                          child: Text(t['options'], style: const TextStyle(color: Colors.blueAccent, fontSize: 10)),
-                                        ),
-                                      ],
-                                    ),
+                                        children: [
+                                          Flexible(
+                                            child: Text(t['type'], style: const TextStyle(color: Colors.white70, fontSize: 12), overflow: TextOverflow.ellipsis),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                                            child: Text(t['options'], style: const TextStyle(color: Colors.blueAccent, fontSize: 10)),
+                                          ),
+                                        ],
+                                      ),
                                     const SizedBox(height: 6),
                                     Text(
                                       '${t['passagers'] ?? 0} passagers prévus • ${t['placesPrises'] ?? 0} places prises • ${t['availableSeats'] ?? 4} places restantes',
