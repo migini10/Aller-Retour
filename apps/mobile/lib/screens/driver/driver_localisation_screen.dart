@@ -98,7 +98,13 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Récupération Client', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
+            const Flexible(
+              child: Text(
+                'Récupération Client', 
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (isNavigating && activePassenger != null) ...[
               const SizedBox(width: 8),
               Container(
@@ -108,7 +114,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                   border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text('EN ROUTE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: const Text('EN ROUTE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold)),
               ),
             ]
           ],
@@ -131,23 +137,37 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('DESTINATION', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                      const SizedBox(height: 4),
-                      Text(activePassenger != null ? 'Rejoindre ${activePassenger!['nom']}' : 'Point de rendez-vous', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.orangeAccent, size: 14),
-                          const SizedBox(width: 4),
-                          Text(activePassenger != null ? '${activePassenger!['quartier']}, Dakar' : 'En attente de sélection...', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13)),
-                        ],
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('DESTINATION', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                        const SizedBox(height: 4),
+                        Text(
+                          activePassenger != null ? 'Rejoindre ${activePassenger!['nom']}' : 'Point de rendez-vous', 
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on, color: Colors.orangeAccent, size: 14),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                activePassenger != null ? '${activePassenger!['quartier']}, Dakar' : 'En attente de sélection...', 
+                                style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
