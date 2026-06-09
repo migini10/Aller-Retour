@@ -51,8 +51,32 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impossible d\\'ouvrir Google Maps.')),
+          const SnackBar(content: Text("Impossible d'ouvrir Google Maps.")),
         );
+      }
+    }
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final cleanPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
+    final Uri launchUri = Uri(scheme: 'tel', path: cleanPhone);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Impossible d'appeler ce numéro.")));
+      }
+    }
+  }
+
+  Future<void> _sendSms(String phoneNumber) async {
+    final cleanPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
+    final Uri launchUri = Uri(scheme: 'sms', path: cleanPhone);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Impossible d'envoyer un SMS.")));
       }
     }
   }
@@ -254,7 +278,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               icon: const Icon(Icons.message, color: Colors.white, size: 18),
-                              onPressed: () {},
+                              onPressed: () => _sendSms(p['tel']),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -271,7 +295,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               icon: const Icon(Icons.phone, color: Colors.black, size: 18),
-                              onPressed: () {},
+                              onPressed: () => _makePhoneCall(p['tel']),
                             ),
                           ),
                         ],

@@ -167,8 +167,8 @@ export default function SectionLocalisation() {
               </div>
             </div>
             <div className="flex gap-2 self-end sm:self-auto">
-              <div onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4" /></div>
-              <div onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors cursor-pointer"><Phone className="w-4 h-4" /></div>
+              <a href={`sms:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4" /></a>
+              <a href={`tel:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors cursor-pointer"><Phone className="w-4 h-4" /></a>
             </div>
           </button>
         ))}
