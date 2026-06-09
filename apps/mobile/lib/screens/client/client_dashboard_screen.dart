@@ -709,78 +709,65 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text('Où allez-vous avec Allo Dakar ?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  _buildPlacesAutocomplete('Ville de départ (ex: Dakar)', departController, icon: Icons.location_on),
+                  const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.03),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white10),
+                      color: const Color(0xFFF97316).withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFF97316).withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Où allez-vous avec Allo Dakar ?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 16),
-                        _buildPlacesAutocomplete('Ville de départ (ex: Dakar)', departController, icon: Icons.location_on),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF97316).withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFF97316).withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Expanded(child: Text('Adresse de prise en charge (Google Places)', style: TextStyle(color: Color(0xFFFB923C), fontSize: 12, fontWeight: FontWeight.bold))),
-                                  const SizedBox(width: 8),
-                                  GestureDetector(
-                                    onTap: isLocating ? null : () => handleGeolocate(setState),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: isLocating ? const Color(0xFFF97316).withOpacity(0.5) : const Color(0xFFF97316),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.my_location, color: Colors.white, size: 12),
-                                          const SizedBox(width: 4),
-                                          Text(isLocating ? 'Patientez...' : 'Me localiser', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              _buildPlacesAutocomplete(
-                                'Entrez l\'adresse exacte du passager',
-                                pickupController,
-                                borderRadius: 8,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPlacesAutocomplete('Ville d\'arrivée (ex: Saly)', arriveeController, icon: Icons.location_on, iconColor: const Color(0xFFF97316)),
-                        const SizedBox(height: 12),
-                        _buildPlacesAutocomplete('Quartier ou point de chute exact', quartierController, icon: Icons.pin_drop),
-                        const SizedBox(height: 12),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(child: _buildDropdownInput(Icons.calendar_month, 'Date de départ', ['Aujourd\'hui', 'Demain', 'Après-demain'], date, (val) => setState(() => date = val))),
-                            const SizedBox(width: 12),
-                            Expanded(child: _buildDropdownInput(Icons.group, 'Passagers', ['1 Passager', '2 Passagers', '3 Passagers', '4 Passagers'], passagers, (val) => setState(() => passagers = val))),
+                            const Expanded(child: Text('Adresse de prise en charge (Google Places)', style: TextStyle(color: Color(0xFFFB923C), fontSize: 12, fontWeight: FontWeight.bold))),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: isLocating ? null : () => handleGeolocate(setState),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isLocating ? const Color(0xFFF97316).withOpacity(0.5) : const Color(0xFFF97316),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.my_location, color: Colors.white, size: 12),
+                                    const SizedBox(width: 4),
+                                    Text(isLocating ? 'Patientez...' : 'Me localiser', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                        _buildPlacesAutocomplete(
+                          'Entrez l\'adresse exacte du passager',
+                          pickupController,
+                          borderRadius: 8,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildPlacesAutocomplete('Ville d\'arrivée (ex: Saly)', arriveeController, icon: Icons.location_on, iconColor: const Color(0xFFF97316)),
+                  const SizedBox(height: 12),
+                  _buildPlacesAutocomplete('Quartier ou point de chute exact', quartierController, icon: Icons.pin_drop),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: _buildDropdownInput(Icons.calendar_month, 'Date de départ', ['Aujourd\'hui', 'Demain', 'Après-demain'], date, (val) => setState(() => date = val))),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildDropdownInput(Icons.group, 'Passagers', ['1 Passager', '2 Passagers', '3 Passagers', '4 Passagers'], passagers, (val) => setState(() => passagers = val))),
+                    ],
                   ),
                 ],
               );
