@@ -478,7 +478,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.82,
+            childAspectRatio: 0.70,
           ),
           itemCount: services.length,
           itemBuilder: (context, index) {
