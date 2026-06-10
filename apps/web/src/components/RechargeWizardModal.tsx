@@ -303,7 +303,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
               ) : (
                 <>
-                  {step === 1 ? 'Suivant' : 'Confirmer le paiement'}
+                  {step === 1 ? 'Suivant' : 'Continuer'}
                   <ChevronRight className="w-5 h-5" />
                 </>
               )}

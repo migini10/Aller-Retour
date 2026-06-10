@@ -121,7 +121,9 @@ void showRechargeModal(BuildContext context) {
                                 ),
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: (step == 1 && operator == null) || isLoading
+                                  onPressed: (step == 1 && operator == null) || 
+                                             (step == 2 && (nameController.text.isEmpty || phoneController.text.isEmpty || amountController.text.isEmpty)) || 
+                                             isLoading
                                       ? null
                                       : () async {
                                           if (step == 1) {
@@ -183,7 +185,7 @@ void showRechargeModal(BuildContext context) {
                                           child: Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-                                              Text(step == 1 ? 'Suivant' : 'Confirmer le paiement', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                              Text(step == 1 ? 'Suivant' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                               const SizedBox(width: 8),
                                               const Icon(Icons.chevron_right),
                                             ],
