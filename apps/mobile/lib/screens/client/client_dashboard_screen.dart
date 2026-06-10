@@ -6,7 +6,6 @@ import 'wallet_screen.dart';
 import 'colis_screen.dart';
 import 'qr_code_screen.dart';
 import 'fidelite_screen.dart';
-import 'history_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -174,88 +173,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     ),
                   ],
                 ),
-                // Menu 3 points (PopupMenuButton)
+                // Hamburger Menu
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF0F172A).withOpacity(0.6),
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white.withOpacity(0.15)),
                   ),
-                  child: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.white, size: 26),
-                    color: const Color(0xFF1E293B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'dashboard':
-                          // Déjà sur le tableau de bord
-                          break;
-                        case 'wallet':
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen()));
-                          break;
-                        case 'colis':
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ColisScreen()));
-                          break;
-                        case 'qrcode':
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const QrCodeScreen()));
-                          break;
-                        case 'historique':
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
-                          break;
-                      }
+                  child: IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white, size: 26),
+                    onPressed: () {
+                      Scaffold.of(context).openEndDrawer();
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'dashboard',
-                        child: Row(
-                          children: [
-                            Icon(Icons.dashboard, color: Colors.cyanAccent, size: 20),
-                            SizedBox(width: 12),
-                            Text('Tableau de bord', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'wallet',
-                        child: Row(
-                          children: [
-                            Icon(Icons.account_balance_wallet, color: Colors.emerald, size: 20),
-                            SizedBox(width: 12),
-                            Text('Mon Wallet', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'colis',
-                        child: Row(
-                          children: [
-                            Icon(Icons.inventory_2, color: Colors.purpleAccent, size: 20),
-                            SizedBox(width: 12),
-                            Text('Mes Colis', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'qrcode',
-                        child: Row(
-                          children: [
-                            Icon(Icons.qr_code_scanner, color: Colors.orangeAccent, size: 20),
-                            SizedBox(width: 12),
-                            Text('QR Code & Billets', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'historique',
-                        child: Row(
-                          children: [
-                            Icon(Icons.history, color: Colors.blueAccent, size: 20),
-                            SizedBox(width: 12),
-                            Text('Historique', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ],
