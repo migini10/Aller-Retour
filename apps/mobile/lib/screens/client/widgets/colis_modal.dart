@@ -183,13 +183,20 @@ void showColisModal(BuildContext context) {
                                 ),
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: ((step == 1 && (departController.text.isEmpty || arriveeController.text.isEmpty || quartierDepartController.text.isEmpty || quartierArriveeController.text.isEmpty)) ||
-                                              (step == 2 && (destNomController.text.isEmpty || destTelController.text.isEmpty))) || isLoading
+                                  onPressed: isLoading
                                       ? null
                                       : () async {
                                           if (step == 1) {
+                                            if (departController.text.isEmpty || arriveeController.text.isEmpty) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez renseigner les adresses de départ et d\'arrivée.')));
+                                              return;
+                                            }
                                             setState(() => step = 2);
                                           } else if (step == 2) {
+                                            if (destNomController.text.isEmpty || destTelController.text.isEmpty) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir les informations du destinataire.')));
+                                              return;
+                                            }
                                             setState(() => step = 3);
                                           } else if (step == 3) {
                                             setState(() => isLoading = true);
@@ -232,7 +239,7 @@ void showColisModal(BuildContext context) {
                                       : Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text(step == 3 ? 'Valider et créer le reçu' : step == 2 ? 'Continuer vers le paiement' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                            Flexible(child: Text(step == 3 ? 'Valider et créer le reçu' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
                                             const SizedBox(width: 8),
                                             Icon(step == 3 ? Icons.check_circle : Icons.arrow_forward),
                                           ],
