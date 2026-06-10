@@ -7,7 +7,7 @@ import 'colis/colis_total_screen.dart';
 import 'colis/colis_actifs_screen.dart';
 import 'colis/colis_livres_screen.dart';
 import 'colis/colis_franchise_screen.dart';
-import '../../widgets/app_drawer.dart';
+import '../../widgets/shared_scaffold.dart';
 
 class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
@@ -264,32 +264,8 @@ class _ColisScreenState extends State<ColisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF020617), // slate-950
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.inventory_2, color: Colors.purpleAccent),
-            SizedBox(width: 12),
-            Text('Mes Colis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ],
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-            ),
-          ),
-        ],
-      ),
-      endDrawer: const AppDrawer(isDriverMode: false),
-      body: SingleChildScrollView(
+    return SharedScaffold(
+      body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

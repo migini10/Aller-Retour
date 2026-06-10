@@ -1,39 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../widgets/app_drawer.dart';
+import '../../widgets/shared_scaffold.dart';
 
 class QrCodeScreen extends StatelessWidget {
   const QrCodeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF020617), // slate-950
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.qr_code, color: Colors.orangeAccent),
-            SizedBox(width: 12),
-            Text('Mes QR codes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-            ),
-          ),
-        ],
-      ),
-      endDrawer: const AppDrawer(isDriverMode: false),
-      body: SingleChildScrollView(
+    return SharedScaffold(
+      body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
