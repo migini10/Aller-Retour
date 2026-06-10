@@ -238,8 +238,9 @@ Widget _buildRechargeStep1(String? selectedOperator, Function(String) onSelect) 
                     child: const Icon(Icons.waves, color: Colors.white, size: 32),
                   ),
                   const SizedBox(width: 16),
-                  Text('Wave', style: TextStyle(color: selectedOperator == 'wave' ? const Color(0xFF1DA1F2) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Spacer(),
+                  Expanded(
+                    child: Text('Wave', style: TextStyle(color: selectedOperator == 'wave' ? const Color(0xFF1DA1F2) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                  ),
                   if (selectedOperator == 'wave')
                     const Icon(Icons.check_circle, color: Color(0xFF1DA1F2)),
                 ],
@@ -272,8 +273,9 @@ Widget _buildRechargeStep1(String? selectedOperator, Function(String) onSelect) 
                     child: const Icon(Icons.money, color: Color(0xFFFF7900), size: 32),
                   ),
                   const SizedBox(width: 16),
-                  Text('Orange Money', style: TextStyle(color: selectedOperator == 'orange' ? const Color(0xFFFF7900) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Spacer(),
+                  Expanded(
+                    child: Text('Orange Money', style: TextStyle(color: selectedOperator == 'orange' ? const Color(0xFFFF7900) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                  ),
                   if (selectedOperator == 'orange')
                     const Icon(Icons.check_circle, color: Color(0xFFFF7900)),
                 ],
