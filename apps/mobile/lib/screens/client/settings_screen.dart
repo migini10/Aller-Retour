@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -12,7 +13,16 @@ class SettingsScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Paramètres', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

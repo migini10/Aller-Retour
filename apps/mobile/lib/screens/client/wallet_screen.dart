@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'widgets/recharge_modal.dart';
+import '../../widgets/app_drawer.dart';
+
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -21,8 +23,16 @@ class WalletScreen extends StatelessWidget {
             SizedBox(width: 12),
             Text('Mon Wallet', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
-        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

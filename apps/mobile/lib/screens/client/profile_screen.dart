@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -12,7 +13,16 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Mon Profil', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

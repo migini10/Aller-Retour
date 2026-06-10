@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -12,7 +13,16 @@ class HistoryScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Historique des trajets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: 4,

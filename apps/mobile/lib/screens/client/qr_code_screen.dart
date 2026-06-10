@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../widgets/app_drawer.dart';
 
 class QrCodeScreen extends StatelessWidget {
   const QrCodeScreen({super.key});
@@ -22,7 +23,16 @@ class QrCodeScreen extends StatelessWidget {
             Text('Mes QR codes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

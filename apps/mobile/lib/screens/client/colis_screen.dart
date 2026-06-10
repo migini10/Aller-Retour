@@ -7,6 +7,8 @@ import 'colis/colis_total_screen.dart';
 import 'colis/colis_actifs_screen.dart';
 import 'colis/colis_livres_screen.dart';
 import 'colis/colis_franchise_screen.dart';
+import '../../widgets/app_drawer.dart';
+
 class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
 
@@ -277,8 +279,16 @@ class _ColisScreenState extends State<ColisScreen> {
             SizedBox(width: 12),
             Text('Mes Colis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
-        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
