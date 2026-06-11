@@ -42,17 +42,17 @@ class _ColisLivresScreenState extends State<ColisLivresScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Colis Livrés', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        title: Text('Colis Livrés', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
       ),
       body: isLoading 
         ? const Center(child: CircularProgressIndicator(color: Colors.tealAccent))
         : colis.isEmpty 
-          ? const Center(child: Text("Aucun colis livré", style: TextStyle(color: Colors.white54)))
+          ? Center(child: Text("Aucun colis livré", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: colis.length,
@@ -62,9 +62,9 @@ class _ColisLivresScreenState extends State<ColisLivresScreen> {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
+                    border: Border.all(color: Colors.tealAccent.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,20 +72,20 @@ class _ColisLivresScreenState extends State<ColisLivresScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Réf: ${c['id']}', style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text('Réf: ${c['id']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold)),
                           const Text('LIVRÉ', style: TextStyle(color: Colors.tealAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(c['trajet'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(c['trajet'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text('À ${c['destinataire']}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                      Text('À ${c['destinataire']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                       const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(c['taille'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text(c['date'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                          Text(c['taille'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                          Text(c['date'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                         ],
                       )
                     ],

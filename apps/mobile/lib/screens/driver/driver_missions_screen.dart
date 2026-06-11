@@ -203,18 +203,18 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     bool isToday = selectedDate == todayStr || selectedDate == "Aujourd'hui";
 
     int currentTotalMinutes = now.hour * 60 + now.minute;
-    const int MARGIN_MINUTES = 60;
+    const int marginMinutes = 60;
 
     for (int i = 0; i < 24; i++) {
       String hourStr = i.toString().padLeft(2, '0');
       
       int slot00TotalMinutes = i * 60;
-      if (!isToday || slot00TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
+      if (!isToday || slot00TotalMinutes >= currentTotalMinutes + marginMinutes) {
         hours.add('$hourStr:00');
       }
       
       int slot30TotalMinutes = i * 60 + 30;
-      if (!isToday || slot30TotalMinutes >= currentTotalMinutes + MARGIN_MINUTES) {
+      if (!isToday || slot30TotalMinutes >= currentTotalMinutes + marginMinutes) {
         hours.add('$hourStr:30');
       }
     }
@@ -288,9 +288,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
             return Container(
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141414),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              decoration: BoxDecoration(color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
                 children: [
@@ -299,11 +298,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                     width: 40,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  Text(missionToEdit != null ? 'Modifier le trajet' : 'Proposer un trajet', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(missionToEdit != null ? 'Modifier le trajet' : 'Proposer un trajet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
                   Expanded(
                     child: SingleChildScrollView(
@@ -384,7 +383,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                         activeColor: const Color(0xFFF97316),
                                         side: const BorderSide(color: Color(0xFF333333)),
                                       ),
-                                      const Text('❄️ Climatisé', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                      Text('❄️ Climatisé', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
                                     ],
                                   ),
                                 ),
@@ -400,7 +399,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                         activeColor: const Color(0xFFF97316),
                                         side: const BorderSide(color: Color(0xFF333333)),
                                       ),
-                                      const Text('🛣️ Autoroute', style: TextStyle(color: Colors.white, fontSize: 14)),
+                                      Text('🛣️ Autoroute', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
                                     ],
                                   ),
                                 ),
@@ -446,7 +445,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   if (res.statusCode == 200 || res.statusCode == 201) {
                                     _fetchMissions();
                                     Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet créé avec succès via API !', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green));
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Trajet créé avec succès via API !', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.green));
                                   } else {
                                     throw Exception('API error');
                                   }
@@ -467,7 +466,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     });
                                   });
                                   Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Colors.white)), backgroundColor: Colors.orangeAccent));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.orangeAccent));
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -497,23 +496,23 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF2A2A2A)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
-              hint: const Text('Choisir', style: TextStyle(color: Colors.white24, fontSize: 14)),
+              hint: Text('Choisir', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), fontSize: 14)),
               isExpanded: true,
-              dropdownColor: const Color(0xFF141414),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              dropdownColor: Theme.of(context).cardColor,
+              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
               onChanged: onChanged,
               items: items.map<DropdownMenuItem<String>>((Map<String, String> val) {
                 return DropdownMenuItem<String>(
@@ -532,23 +531,23 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF2A2A2A)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
-              hint: const Text('Choisir', style: TextStyle(color: Colors.white24, fontSize: 14)),
+              hint: Text('Choisir', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), fontSize: 14)),
               isExpanded: true,
-              dropdownColor: const Color(0xFF141414),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              dropdownColor: Theme.of(context).cardColor,
+              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
               onChanged: onChanged,
               items: items.map<DropdownMenuItem<String>>((String val) {
                 return DropdownMenuItem<String>(
@@ -563,32 +562,6 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String initialValue, Function(String) onChanged, {IconData? icon, TextInputType? keyboardType, String? hintText}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
-        const SizedBox(height: 8),
-        TextFormField(
-          initialValue: initialValue,
-          onChanged: onChanged,
-          keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
-            prefixIcon: icon != null ? Icon(icon, color: Colors.white54, size: 20) : null,
-            filled: true,
-            fillColor: const Color(0xFF0A0A0A),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF97316))),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          ),
-        ),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -601,13 +574,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF020617),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Missions & Trajets', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Missions & Trajets', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,24 +591,24 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(Icons.route, color: Color(0xFFF97316), size: 20),
                     SizedBox(width: 8),
-                    Text('Mes Missions', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Mes Missions', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
                     _showCreateMissionBottomSheet(context);
                   },
-                  icon: const Icon(Icons.directions_car, size: 16),
-                  label: const Text('Proposer un Trajet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  icon: Icon(Icons.directions_car, size: 16),
+                  label: Text('Proposer un Trajet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEA580C),
+                    backgroundColor: Color(0xFFEA580C),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
               ],
@@ -648,11 +621,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF43F5E).withOpacity(0.1),
-                border: Border.all(color: const Color(0xFFF43F5E).withOpacity(0.3)),
+                color: const Color(0xFFF43F5E).withValues(alpha: 0.1),
+                border: Border.all(color: const Color(0xFFF43F5E).withValues(alpha: 0.3)),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.warning_amber_rounded, color: Color(0xFFF43F5E), size: 20),
@@ -686,9 +659,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFF97316) : const Color(0xFF141414),
+                        color: isSelected ? const Color(0xFFF97316) : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: isSelected ? const Color(0xFFF97316) : const Color(0xFF2A2A2A)),
+                        border: Border.all(color: isSelected ? const Color(0xFFF97316) : Theme.of(context).dividerColor),
                       ),
                       child: Text(t, style: TextStyle(
                         color: isSelected ? Colors.black : Colors.white54,
@@ -707,7 +680,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             child: isLoading 
               ? const Center(child: CircularProgressIndicator(color: Color(0xFFF97316)))
               : filteredMissions.isEmpty
-                  ? const Center(child: Text('Aucune mission pour cette catégorie', style: TextStyle(color: Colors.white54)))
+                  ? Center(child: Text('Aucune mission pour cette catégorie', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
                   : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: filteredMissions.length,
@@ -719,9 +692,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF141414),
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFF2A2A2A)),
+                        border: Border.all(color: Theme.of(context).dividerColor),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -729,12 +702,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(mission['id'], style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                              Text(mission['id'], style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: statutColor.withOpacity(0.1),
-                                  border: Border.all(color: statutColor.withOpacity(0.3)),
+                                  color: statutColor.withValues(alpha: 0.1),
+                                  border: Border.all(color: statutColor.withValues(alpha: 0.3)),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(mission['statut'], style: TextStyle(color: statutColor, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -742,22 +715,22 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Text(mission['trajet'], style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(mission['trajet'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today, size: 14, color: Colors.white54),
+                              Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 6),
-                              Text('${mission['date']} à ${mission['heure']}', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                              Text('${mission['date']} à ${mission['heure']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.directions_bus, size: 14, color: Colors.white54),
+                              Icon(Icons.directions_bus, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 6),
                               Expanded(
-                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places offertes', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places offertes', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                               ),
                             ],
                           ),
@@ -770,8 +743,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   margin: const EdgeInsets.only(right: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.lightBlueAccent.withOpacity(0.1),
-                                    border: Border.all(color: Colors.lightBlueAccent.withOpacity(0.2)),
+                                    color: Colors.lightBlueAccent.withValues(alpha: 0.1),
+                                    border: Border.all(color: Colors.lightBlueAccent.withValues(alpha: 0.2)),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Text('❄️ Climatisé', style: TextStyle(color: Colors.lightBlueAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -780,8 +753,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.indigoAccent.withOpacity(0.1),
-                                    border: Border.all(color: Colors.indigoAccent.withOpacity(0.2)),
+                                    color: Colors.indigoAccent.withValues(alpha: 0.1),
+                                    border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.2)),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Text('🛣️ Autoroute', style: TextStyle(color: Colors.indigoAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -797,7 +770,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 _buildActionButton(Icons.play_arrow, 'Démarrer trajet', const Color(0xFFEA580C), Colors.white, () {}),
                               if (mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
-                              _buildActionButton(Icons.location_on, 'Voir détails', const Color(0xFF1A1A1A), Colors.white, () {
+                              _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Colors.white, () {
                                 _showMissionDetailsDialog(context, mission);
                               }, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé')
@@ -847,9 +820,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   _showCreateMissionBottomSheet(context, missionToEdit: mission);
                                 }),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
-                                _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', const Color(0xFF1A1A1A), const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
+                                _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)
-                                _buildActionButton(Icons.close, 'Supprimer', const Color(0xFF1A1A1A), const Color(0xFFF43F5E), () {}, borderColor: const Color(0xFF333333)),
+                                _buildActionButton(Icons.close, 'Supprimer', Theme.of(context).cardColor, const Color(0xFFF43F5E), () {}, borderColor: const Color(0xFF333333)),
                             ],
                           ),
                         ],
@@ -869,7 +842,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       builder: (ctx) {
         final statutColor = _getStatutColor(mission['statut']);
         return Dialog(
-          backgroundColor: const Color(0xFF141414),
+          backgroundColor: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -880,12 +853,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(mission['displayId'] ?? mission['id'], style: const TextStyle(color: Colors.white54, fontSize: 13, fontFamily: 'monospace')),
+                    Text(mission['displayId'] ?? mission['id'], style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13, fontFamily: 'monospace')),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: statutColor.withOpacity(0.1),
-                        border: Border.all(color: statutColor.withOpacity(0.3)),
+                        color: statutColor.withValues(alpha: 0.1),
+                        border: Border.all(color: statutColor.withValues(alpha: 0.3)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(mission['statut'], style: TextStyle(color: statutColor, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -893,16 +866,16 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(mission['trajet'], style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(mission['trajet'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     const Icon(Icons.access_time, color: Color(0xFFF97316), size: 16),
                     const SizedBox(width: 8),
-                    Text('${mission['date']} à ${mission['heure']}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text('${mission['date']} à ${mission['heure']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                   ],
                 ),
-                const Divider(color: Color(0xFF2A2A2A), height: 32),
+                Divider(color: Theme.of(context).dividerColor, height: 32),
                 _buildDetailRow('Véhicule', mission['vehicule']),
                 _buildDetailRow('Prix de la place', '${mission['pricePerSeat'] ?? 5000} FCFA'),
                 _buildDetailRow('Places offertes', '${(mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0)} places'),
@@ -917,8 +890,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.lightBlueAccent.withOpacity(0.1),
-                          border: Border.all(color: Colors.lightBlueAccent.withOpacity(0.2)),
+                          color: Colors.lightBlueAccent.withValues(alpha: 0.1),
+                          border: Border.all(color: Colors.lightBlueAccent.withValues(alpha: 0.2)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text('❄️ Climatisé', style: TextStyle(color: Colors.lightBlueAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -927,8 +900,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.indigoAccent.withOpacity(0.1),
-                          border: Border.all(color: Colors.indigoAccent.withOpacity(0.2)),
+                          color: Colors.indigoAccent.withValues(alpha: 0.1),
+                          border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.2)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text('🛣️ Autoroute', style: TextStyle(color: Colors.indigoAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -941,7 +914,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(ctx),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2A2A2A),
+                      backgroundColor: Theme.of(context).dividerColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -963,7 +936,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
           Text(value, style: TextStyle(color: valueColor ?? Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
@@ -986,11 +959,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
   }
 
-  Widget _buildTextFieldController(String label, TextEditingController controller, {required IconData icon, TextInputType keyboardType = TextInputType.text, String hintText = ''}) {
+  Widget _buildTextFieldController(String label, TextEditingController controller, {required IconData icon, TextInputType? keyboardType, String? hintText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1001,17 +974,17 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           ),
           child: Row(
             children: [
-              Icon(icon, color: Colors.white54, size: 20),
+              Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: controller,
                   keyboardType: keyboardType,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: hintText,
-                    hintStyle: const TextStyle(color: Colors.white24),
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                   ),
                 ),
               ),

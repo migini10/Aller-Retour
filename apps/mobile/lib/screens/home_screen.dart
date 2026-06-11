@@ -1,10 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'client/client_dashboard_screen.dart';
-import 'client/profile_screen.dart';
-import 'client/history_screen.dart';
-import 'client/settings_screen.dart';
-import 'client/fidelite_screen.dart';
 import 'driver/driver_dashboard_screen.dart';
 import '../widgets/app_drawer.dart';
 
@@ -16,14 +13,47 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
   bool isDriverMode = false;
   bool isDrawerOpen = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF020617), // Slate 950
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        
+        // Show exit confirmation dialog
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Quitter', style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Text('Voulez-vous vraiment quitter l\'application ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Annuler', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF97316),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  
+                  exit(0);
+                },
+                child: const Text('Quitter', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Slate 950
       body: Stack(
         children: [
           isDriverMode ? const DriverDashboardScreen() : const ClientDashboardScreen(),
@@ -41,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
           isDrawerOpen = isOpen;
         });
       },
-      drawerScrimColor: Colors.black.withOpacity(0.3), // Added darker scrim
+      drawerScrimColor: Colors.black.withValues(alpha: 0.3), // Added darker scrim
       endDrawer: AppDrawer(
         isDriverMode: isDriverMode,
         onModeChanged: (newMode) {
@@ -50,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       ),
+    ),
     );
   }
 
@@ -59,9 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (_currentIndex == 1) {
       return _buildWalletScreen();
     } else if (_currentIndex == 2) {
-      return const Center(child: Text('Historique des transactions', style: TextStyle(color: Colors.white)));
+      return Center(child: Text('Historique des transactions', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
     }
-    return const Center(child: Text('Profil', style: TextStyle(color: Colors.white)));
+    return Center(child: Text('Profil', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
   }
 
   Widget _buildSearchScreen() {
@@ -86,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.location_on, color: Color(0xFF10B981), size: 18),
                     const SizedBox(width: 8),
-                    const Text('Dakar (Baux Maraîchers)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('Dakar (Baux Maraîchers)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
                 const Divider(color: Color(0xFF334155), height: 24),
@@ -96,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.location_on, color: Color(0xFF38BDF8), size: 18),
                     const SizedBox(width: 8),
-                    const Text('Touba (Gare Centrale)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('Touba (Gare Centrale)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -118,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text('Prochains Départs Réels', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+          Text('Prochains Départs Réels', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 12),
           _buildTripCard('Sénégal Express', '08:00', '11:30', '4 500 FCFA', 12),
           _buildTripCard('Salam Transport', '09:30', '13:00', '5 000 FCFA', 4),
@@ -129,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTripCard(String company, String dep, String arr, String price, int seats) {
     return Card(
-      color: const Color(0xFF0F172A),
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1E293B))),
       child: Padding(
@@ -139,18 +170,18 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(company, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(company, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                 Text(price, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981), fontSize: 16)),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Text(dep, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(dep, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                 const Expanded(child: Divider(color: Color(0xFF334155), indent: 12, endIndent: 12)),
                 const Icon(Icons.directions_bus, color: Colors.grey, size: 16),
                 const Expanded(child: Divider(color: Color(0xFF334155), indent: 12, endIndent: 12)),
-                Text(arr, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(arr, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
             const SizedBox(height: 12),
@@ -182,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Icon(Icons.qr_code_scanner, size: 80, color: Color(0xFF10B981)),
           const SizedBox(height: 16),
-          const Text('Scan Guichetier / Contrôleur', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+          Text('Scan Guichetier / Contrôleur', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
           const Text('Vérification instantanée des billets QR', style: TextStyle(color: Colors.grey)),
           const SizedBox(height: 32),

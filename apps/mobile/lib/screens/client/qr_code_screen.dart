@@ -8,53 +8,57 @@ class QrCodeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
+      title: 'QR Code & Billets',
+      subtitle: 'Vos titres de transport toujours à portée de main.',
+      icon: Icons.qr_code_scanner,
+      iconColor: Colors.purpleAccent,
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Vos billets, réservations et historiques de voyage.',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Search Bar
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: const TextField(
-                style: TextStyle(color: Colors.white),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: TextField(
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
-                  icon: Icon(Icons.search, color: Colors.white54),
+                  icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   border: InputBorder.none,
                   hintText: 'Rechercher un QR code, trajet...',
-                  hintStyle: TextStyle(color: Colors.white30),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30)),
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Liste de mes QR codes', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Liste de mes QR codes', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.15),
+                    color: Colors.orangeAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
                   ),
-                  child: const Text('1 Billet actif', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text('1 Billet actif', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Ticket 1 (Active)
             _buildTicketCard(
@@ -72,7 +76,7 @@ class QrCodeScreen extends StatelessWidget {
               vehicle: 'Bus Climatisé',
               price: '4 500 FCFA',
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Ticket 2 (History)
             Opacity(
@@ -93,7 +97,7 @@ class QrCodeScreen extends StatelessWidget {
                 price: '4 500 FCFA',
               ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 40),
           ],
         ),
       ),
@@ -117,10 +121,10 @@ class QrCodeScreen extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isActive ? Colors.orangeAccent.withOpacity(0.5) : Colors.white10),
-        boxShadow: isActive ? [BoxShadow(color: Colors.orangeAccent.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))] : null,
+        border: Border.all(color: isActive ? Colors.orangeAccent.withValues(alpha: 0.5) : Colors.white10),
+        boxShadow: isActive ? [BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))] : null,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -171,30 +175,30 @@ class QrCodeScreen extends StatelessWidget {
                             children: [
                               Icon(Icons.calendar_month, color: isActive ? Colors.orangeAccent : Colors.white54, size: 14),
                               const SizedBox(width: 4),
-                              Text(date, style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                              const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('•', style: TextStyle(color: Colors.white30))),
+                              Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                              Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text('•', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30)))),
                               Icon(Icons.access_time, color: isActive ? Colors.orangeAccent : Colors.white54, size: 14),
                               const SizedBox(width: 4),
-                              Text(time, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                              Text(time, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                             ],
                           ),
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              Text(from, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                              Text(from, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Icon(Icons.arrow_forward, color: isActive ? Colors.orangeAccent : Colors.white38, size: 20),
                               ),
-                              Text(to, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                              Text(to, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
                             ],
                           ),
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              const Icon(Icons.directions_bus, color: Colors.white38, size: 14),
+                              Icon(Icons.directions_bus, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 14),
                               const SizedBox(width: 4),
-                              const Text('Sénégal Express', style: TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w600)),
+                              Text('Sénégal Express', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w600)),
                             ],
                           ),
                         ],
@@ -204,7 +208,7 @@ class QrCodeScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                       ),
@@ -219,23 +223,23 @@ class QrCodeScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.03),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       children: [
                         Row(
                           children: [
-                            Expanded(child: _buildDetailField('N° Billet', ticketNo)),
-                            Expanded(child: _buildDetailField('Siège', seat, valueColor: Colors.orangeAccent)),
-                            Expanded(child: _buildDetailField('Passager', passenger)),
+                            Expanded(child: _buildDetailField(context, 'N° Billet', ticketNo)),
+                            Expanded(child: _buildDetailField(context, 'Siège', seat, valueColor: Colors.orangeAccent)),
+                            Expanded(child: _buildDetailField(context, 'Passager', passenger)),
                           ],
                         ),
                         const SizedBox(height: 20),
                         Row(
                           children: [
-                            Expanded(child: _buildDetailField('Véhicule', vehicle)),
-                            Expanded(flex: 2, child: _buildDetailField('Montant Payé', price)),
+                            Expanded(child: _buildDetailField(context, 'Véhicule', vehicle)),
+                            Expanded(flex: 2, child: _buildDetailField(context, 'Montant Payé', price)),
                           ],
                         ),
                       ],
@@ -251,10 +255,10 @@ class QrCodeScreen extends StatelessWidget {
                           onPressed: () {
                             _showTicketDetails(context, ref, passenger, from, to, date, time, seat, price);
                           },
-                          icon: const Icon(Icons.visibility, color: Colors.white),
-                          label: const Text('Détails', style: TextStyle(color: Colors.white)),
+                          icon: Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface),
+                          label: Text('Détails', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white24),
+                            side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -266,7 +270,7 @@ class QrCodeScreen extends StatelessWidget {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Téléchargement du billet...')));
                           },
-                          icon: const Icon(Icons.download, color: Colors.white),
+                          icon: Icon(Icons.download, color: Theme.of(context).colorScheme.onSurface),
                           label: const Text('Télécharger'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orangeAccent,
@@ -288,11 +292,11 @@ class QrCodeScreen extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Historique...')));
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white24),
+                        side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Voir l\'historique complet', style: TextStyle(color: Colors.white70)),
+                      child: Text('Voir l\'historique complet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ),
                   ),
                 ],
@@ -304,11 +308,11 @@ class QrCodeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailField(String label, String value, {Color valueColor = Colors.white}) {
+  Widget _buildDetailField(BuildContext context, String label, String value, {Color valueColor = Colors.white}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: const TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+        Text(label.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
         const SizedBox(height: 4),
         Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
       ],
@@ -321,30 +325,29 @@ class QrCodeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F172A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(24)),
               child: QRCodeBrandEngine(value: ref, size: 180),
             ),
             const SizedBox(height: 24),
-            Text('Billet N° $ref', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('Billet N° $ref', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('$from ➔ $to', style: const TextStyle(color: Colors.orangeAccent, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
-            _buildDetailRow('Passager', passenger),
-            _buildDetailRow('Date & Heure', '$date à $time'),
-            _buildDetailRow('Siège', seat),
-            _buildDetailRow('Montant payé', price),
+            _buildDetailRow(context, 'Passager', passenger),
+            _buildDetailRow(context, 'Date & Heure', '$date à $time'),
+            _buildDetailRow(context, 'Siège', seat),
+            _buildDetailRow(context, 'Montant payé', price),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -367,14 +370,14 @@ class QrCodeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 15)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 15)),
+          Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -420,7 +423,7 @@ class QRCodeBrandEngine extends StatelessWidget {
             width: size * 0.3,
             height: size * 0.3,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               borderRadius: BorderRadius.circular(size * 0.08),
               border: Border.all(color: Colors.deepOrangeAccent, width: 1.5),
             ),

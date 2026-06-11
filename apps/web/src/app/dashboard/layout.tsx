@@ -78,44 +78,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <BrandingProvider>
       <div className="min-h-[100dvh] bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full">
       {/* Topbar Fixe (Mobile & Desktop) avec Effet de Disparition */}
-      <header className={`fixed top-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-transform duration-300 ease-in-out ${showTopbar ? 'translate-y-0' : '-translate-y-full'}`}>
-        <Link href={getLogoLink()} className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-600/20 border border-orange-200 dark:border-orange-500/30 flex items-center justify-center transition-colors">
-            <CarFront className="w-4 h-4 text-orange-500" />
+      <div className="fixed top-0 left-0 right-0 z-50 h-16 pointer-events-none">
+        
+        {/* Fond de la Topbar et Logo (Disparaissent au scroll) */}
+        <header className={`absolute inset-0 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-transform duration-300 ease-in-out pointer-events-auto ${showTopbar ? 'translate-y-0' : '-translate-y-full'}`}>
+          <Link href={getLogoLink()} className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-600/20 border border-orange-200 dark:border-orange-500/30 flex items-center justify-center transition-colors">
+              <CarFront className="w-4 h-4 text-orange-500" />
+            </div>
+            <span className="text-base font-bold text-slate-900 dark:text-white transition-colors">
+              Aller<span className="text-orange-500">Retour</span>
+            </span>
+          </Link>
+          
+          <div className="flex items-center gap-3 pr-12">
+            {(!isSuperAdmin && !isDriverPage) && (
+              <button
+                onClick={() => openBookingWizard('allo-dakar')}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
+              >
+                <CarFront className="w-3.5 h-3.5" />
+                Allo Dakar
+              </button>
+            )}
+            {mounted && (
+              <button 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-white transition-colors"
+                aria-label="Changer le thème"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            )}
           </div>
-          <span className="text-base font-bold text-slate-900 dark:text-white transition-colors">
-            Aller<span className="text-orange-500">Retour</span>
-          </span>
-        </Link>
+        </header>
 
-        <div className="flex items-center gap-3">
-          {(!isSuperAdmin && !isDriverPage) && (
-            <button
-              onClick={() => openBookingWizard('allo-dakar')}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
-            >
-              <CarFront className="w-3.5 h-3.5" />
-              Allo Dakar
-            </button>
-          )}
-          {mounted && (
-            <button 
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-white transition-colors"
-              aria-label="Changer le thème"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-          )}
+        {/* Menu 3 traits (TOUJOURS VISIBLE) */}
+        <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-auto">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-xl border border-orange-200 dark:border-orange-500/30 bg-orange-50 dark:bg-orange-500/10 text-orange-500 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-600 hover:text-orange-600 dark:hover:text-white transition-colors"
+            className={`p-2 rounded-xl border transition-all duration-300 shadow-md ${
+              !showTopbar 
+                ? 'bg-white dark:bg-[#0F172A] border-slate-200 dark:border-slate-700 shadow-lg text-orange-600 dark:text-orange-400' 
+                : 'border-orange-200 dark:border-orange-500/30 bg-orange-50 dark:bg-orange-500/10 text-orange-500 dark:text-orange-400'
+            } hover:bg-orange-100 dark:hover:bg-orange-600 hover:text-orange-600 dark:hover:text-white`}
             aria-label="Ouvrir le menu"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
-      </header>
+      </div>
 
       <div className="flex flex-1 relative">
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}

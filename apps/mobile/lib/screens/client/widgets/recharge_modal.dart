@@ -12,13 +12,20 @@ void showRechargeModal(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.6),
     builder: (context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+      final headerBgColor = isDark ? const Color(0xFF141414).withValues(alpha: 0.5) : const Color(0xFFF8FAFC).withValues(alpha: 0.5);
+      final borderColor = isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0);
+      final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+      final textMutedColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
       return Stack(
         children: [
           Positioned.fill(
             child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+              filter: ui.ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
               child: const SizedBox(),
             ),
           ),
@@ -28,16 +35,13 @@ void showRechargeModal(BuildContext context) {
                 backgroundColor: Colors.transparent,
                 insetPadding: const EdgeInsets.all(16),
                 child: Container(
-                  width: 400, // Reduced from 500
-                  constraints: BoxConstraints(
-                    minHeight: 500, // Added minHeight to increase popup height
-                    maxHeight: MediaQuery.of(context).size.height * 0.9,
-                  ),
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxWidth: 500),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A), // Web dark mode bg
+                    color: bgColor,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 24, spreadRadius: 8),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 24, spreadRadius: 0),
                     ],
                   ),
                   child: Column(
@@ -46,10 +50,10 @@ void showRechargeModal(BuildContext context) {
                       // Header
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF141414), // Header bg
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                          border: Border(bottom: BorderSide(color: Color(0xFF2A2A2A))),
+                        decoration: BoxDecoration(
+                          color: headerBgColor,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                          border: Border(bottom: BorderSide(color: borderColor)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,23 +63,25 @@ void showRechargeModal(BuildContext context) {
                               children: [
                                 Text(
                                   step == 3 ? 'Recharge réussie' : 'Recharger mon Wallet',
-                                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
+                                  style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.w900),
                                 ),
                                 if (step < 3)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 4),
-                                    child: Text('Étape $step sur 2', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                                    child: Text('Étape $step sur 2', style: TextStyle(color: textMutedColor, fontSize: 14)),
                                   ),
                               ],
                             ),
                             Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF222222),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: const Color(0xFF333333)),
+                                color: isDark ? const Color(0xFF222222) : Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: borderColor),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.close, color: Colors.white70),
+                                icon: Icon(Icons.close, color: textMutedColor, size: 20),
                                 onPressed: () => Navigator.pop(context),
                               ),
                             ),
@@ -88,10 +94,10 @@ void showRechargeModal(BuildContext context) {
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.all(24),
                           child: step == 1
-                              ? _buildRechargeStep1(operator, (val) => setState(() => operator = val))
+                              ? _buildRechargeStep1(context, operator, (val) => setState(() => operator = val), isDark, borderColor)
                               : step == 2
-                                  ? _buildRechargeStep2(operator, nameController, phoneController, amountController)
-                                  : _buildRechargeStep3(context),
+                                  ? _buildRechargeStep2(context, operator, nameController, phoneController, amountController, isDark, borderColor, () => setState(() {}))
+                                  : _buildRechargeStep3(context, amountController.text, operator, isDark),
                         ),
                       ),
 
@@ -99,10 +105,10 @@ void showRechargeModal(BuildContext context) {
                       if (step < 3)
                         Container(
                           padding: const EdgeInsets.all(24),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF141414),
-                            borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-                            border: Border(top: BorderSide(color: Color(0xFF2A2A2A))),
+                          decoration: BoxDecoration(
+                            color: headerBgColor,
+                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                            border: Border(top: BorderSide(color: borderColor)),
                           ),
                           child: Row(
                             children: [
@@ -113,10 +119,10 @@ void showRechargeModal(BuildContext context) {
                                     onPressed: () => setState(() => step = 1),
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      backgroundColor: const Color(0xFF222222),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      backgroundColor: isDark ? const Color(0xFF222222) : const Color(0xFFE2E8F0),
                                     ),
-                                    child: const Text('Retour', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    child: Text('Retour', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), fontWeight: FontWeight.bold)),
                                   ),
                                 ),
                               Expanded(
@@ -130,40 +136,7 @@ void showRechargeModal(BuildContext context) {
                                             setState(() => step = 2);
                                           } else if (step == 2) {
                                             setState(() => isLoading = true);
-                                            
-                                            // PREPARATION DE L'API (À remplacer par les vrais appels backend plus tard)
-                                            final paymentData = {
-                                              'provider': operator,
-                                              'customer': {
-                                                'fullName': nameController.text,
-                                                'phone': phoneController.text,
-                                              },
-                                              'amount': int.tryParse(amountController.text) ?? 0,
-                                              'currency': 'XOF',
-                                              'reference': 'RECHARGE_${DateTime.now().millisecondsSinceEpoch}'
-                                            };
-                                            
-                                            debugPrint("Appel API de paiement préparé avec les données: $paymentData");
-                                            
-                                            // Simuler l'attente de réponse de l'API
                                             await Future.delayed(const Duration(milliseconds: 1500));
-                                            
-                                            // Simuler l'URL de redirection retournée par l'API de l'opérateur
-                                            final mockPaymentUrl = operator == 'wave' 
-                                              ? 'https://pay.wave.com/checkout?amount=${paymentData['amount']}&ref=${paymentData['reference']}'
-                                              : 'https://api.orangemoney.com/checkout?amount=${paymentData['amount']}&ref=${paymentData['reference']}';
-                                              
-                                            debugPrint("Redirection vers l'API: $mockPaymentUrl");
-                                            
-                                            if (context.mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Redirection vers $operator API simulée avec succès'),
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                              );
-                                            }
-
                                             setState(() {
                                               isLoading = false;
                                               step = 3;
@@ -171,25 +144,23 @@ void showRechargeModal(BuildContext context) {
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: operator == 'wave' ? const Color(0xFF1DA1F2) : operator == 'orange' ? const Color(0xFFFF7900) : Colors.white,
-                                    foregroundColor: operator == null ? Colors.black : Colors.white,
-                                    disabledBackgroundColor: const Color(0xFF222222),
-                                    disabledForegroundColor: Colors.white54,
+                                    backgroundColor: operator == 'wave' ? const Color(0xFF1da1f2) : operator == 'orange' ? const Color(0xFFFF7900) : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                    foregroundColor: operator == null ? (isDark ? Colors.black : Colors.white) : Colors.white,
+                                    disabledBackgroundColor: isDark ? const Color(0xFF222222) : const Color(0xFFCBD5E1),
+                                    disabledForegroundColor: isDark ? Colors.white54 : Colors.white,
                                     padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 0,
                                   ),
                                   child: isLoading
                                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                      : FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(step == 1 ? 'Suivant' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                              const SizedBox(width: 8),
-                                              const Icon(Icons.chevron_right),
-                                            ],
-                                          ),
+                                      : Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(step == 1 ? 'Suivant' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                            const SizedBox(width: 8),
+                                            const Icon(Icons.chevron_right, size: 20),
+                                          ],
                                         ),
                                 ),
                               ),
@@ -208,81 +179,20 @@ void showRechargeModal(BuildContext context) {
   );
 }
 
-Widget _buildRechargeStep1(String? selectedOperator, Function(String) onSelect) {
+Widget _buildRechargeStep1(BuildContext context, String? selectedOperator, Function(String) onSelect, bool isDark, Color borderColor) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Text('Choisissez votre opérateur', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+      Text('Choisissez votre opérateur', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.bold)),
       const SizedBox(height: 20),
-      Column(
+      Row(
         children: [
-          GestureDetector(
-            onTap: () => onSelect('wave'),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-              decoration: BoxDecoration(
-                color: selectedOperator == 'wave' ? const Color(0xFF1DA1F2).withOpacity(0.1) : Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: selectedOperator == 'wave' ? const Color(0xFF1DA1F2) : Colors.white10,
-                  width: 2,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1DA1F2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.waves, color: Colors.white, size: 32),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text('Wave', style: TextStyle(color: selectedOperator == 'wave' ? const Color(0xFF1DA1F2) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                  ),
-                  if (selectedOperator == 'wave')
-                    const Icon(Icons.check_circle, color: Color(0xFF1DA1F2)),
-                ],
-              ),
-            ),
+          Expanded(
+            child: _buildOperatorCard('wave', selectedOperator, onSelect, isDark, borderColor),
           ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => onSelect('orange'),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-              decoration: BoxDecoration(
-                color: selectedOperator == 'orange' ? const Color(0xFFFF7900).withOpacity(0.1) : Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: selectedOperator == 'orange' ? const Color(0xFFFF7900) : Colors.white10,
-                  width: 2,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFF7900).withOpacity(0.3)),
-                    ),
-                    child: const Icon(Icons.money, color: Color(0xFFFF7900), size: 32),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text('Orange Money', style: TextStyle(color: selectedOperator == 'orange' ? const Color(0xFFFF7900) : Colors.white70, fontSize: 18, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                  ),
-                  if (selectedOperator == 'orange')
-                    const Icon(Icons.check_circle, color: Color(0xFFFF7900)),
-                ],
-              ),
-            ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildOperatorCard('orange', selectedOperator, onSelect, isDark, borderColor),
           ),
         ],
       ),
@@ -290,17 +200,85 @@ Widget _buildRechargeStep1(String? selectedOperator, Function(String) onSelect) 
   );
 }
 
-Widget _buildRechargeStep2(String? operator, TextEditingController nameCtrl, TextEditingController phoneCtrl, TextEditingController amountCtrl) {
-  Color opColor = operator == 'wave' ? const Color(0xFF1DA1F2) : const Color(0xFFFF7900);
+Widget _buildOperatorCard(String op, String? selectedOperator, Function(String) onSelect, bool isDark, Color borderColor) {
+  final isWave = op == 'wave';
+  final isSelected = selectedOperator == op;
+  final mainColor = isWave ? const Color(0xFF1da1f2) : const Color(0xFFFF7900);
+  
+  return GestureDetector(
+    onTap: () => onSelect(op),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isSelected ? mainColor.withValues(alpha: 0.05) : (isDark ? const Color(0xFF141414) : Colors.white),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected ? mainColor : borderColor,
+          width: 2,
+        ),
+      ),
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: isWave ? mainColor : Colors.black,
+                  borderRadius: isWave ? BorderRadius.circular(32) : BorderRadius.circular(16),
+                  border: isWave ? null : Border.all(color: mainColor.withValues(alpha: 0.2)),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
+                  ]
+                ),
+                child: CustomPaint(
+                  painter: isWave ? WavePainter() : OrangePainter(),
+                ),
+              ),
+              if (isSelected)
+                Positioned(
+                  top: -8,
+                  right: -8,
+                  child: Container(
+                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                    child: Icon(Icons.check_circle, color: mainColor, size: 24),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isWave ? 'Wave Mobile Money' : 'Orange Money',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? mainColor : (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildRechargeStep2(BuildContext context, String? operator, TextEditingController nameCtrl, TextEditingController phoneCtrl, TextEditingController amountCtrl, bool isDark, Color borderColor, VoidCallback onInputChanged) {
+  final isWave = operator == 'wave';
+  final opColor = isWave ? const Color(0xFF1da1f2) : const Color(0xFFFF7900);
+  final inputBg = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white10),
+          color: isDark ? const Color(0xFF141414) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
           children: [
@@ -308,99 +286,188 @@ Widget _buildRechargeStep2(String? operator, TextEditingController nameCtrl, Tex
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: operator == 'wave' ? opColor : Colors.black,
+                color: isWave ? opColor : Colors.black,
                 borderRadius: BorderRadius.circular(12),
-                border: operator == 'orange' ? Border.all(color: opColor.withOpacity(0.3)) : null,
+                border: isWave ? null : Border.all(color: opColor.withValues(alpha: 0.3)),
               ),
-              child: Icon(operator == 'wave' ? Icons.waves : Icons.money, color: operator == 'wave' ? Colors.white : opColor),
+              child: CustomPaint(
+                painter: isWave ? WavePainter() : OrangePainter(),
+              ),
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Recharge via', style: TextStyle(color: Colors.white54, fontSize: 13)),
-                Text(operator == 'wave' ? 'Wave Mobile Money' : 'Orange Money', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('Recharge via', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 14)),
+                Text(isWave ? 'Wave Mobile Money' : 'Orange Money', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             )
           ],
         ),
       ),
       const SizedBox(height: 24),
-      _buildWizardInput('Nom Complet', Icons.person, 'Ex: Abdou Bakhe', controller: nameCtrl),
+      _buildWizardInput(context, 'Nom Complet', Icons.person, 'Ex: Abdou Bakhe', controller: nameCtrl, isDark: isDark, borderColor: borderColor, inputBg: inputBg, onChanged: (_) => onInputChanged()),
       const SizedBox(height: 16),
-      _buildWizardInput('Numéro de Téléphone', Icons.phone, 'Ex: 77 123 45 67', isNumber: true, controller: phoneCtrl),
+      _buildWizardInput(context, 'Numéro de Téléphone', Icons.phone, 'Ex: 77 123 45 67', isNumber: true, controller: phoneCtrl, isDark: isDark, borderColor: borderColor, inputBg: inputBg, onChanged: (_) => onInputChanged()),
       const SizedBox(height: 16),
-      _buildWizardInput('Montant à Recharger (FCFA)', Icons.credit_card, 'Ex: 10000', isNumber: true, isLarge: true, controller: amountCtrl),
+      _buildWizardInput(context, 'Montant à Recharger (FCFA)', Icons.credit_card, 'Ex: 10000', isNumber: true, isLarge: true, controller: amountCtrl, isDark: isDark, borderColor: borderColor, inputBg: inputBg, onChanged: (_) => onInputChanged()),
     ],
   );
 }
 
-Widget _buildRechargeStep3(BuildContext context) {
+Widget _buildRechargeStep3(BuildContext context, String amount, String? operator, bool isDark) {
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 40),
+    padding: const EdgeInsets.symmetric(vertical: 32),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 100,
-          height: 100,
+          width: 96,
+          height: 96,
           decoration: BoxDecoration(
-            color: Colors.greenAccent.withOpacity(0.1),
+            color: const Color(0xFF10B981).withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.check_circle, color: Colors.greenAccent, size: 60),
+          child: const Icon(Icons.check_circle, color: const Color(0xFF10B981), size: 48),
         ),
         const SizedBox(height: 24),
-        const Text('Demande Envoyée !', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
-        const SizedBox(height: 12),
-        const Text('Veuillez valider le paiement sur votre téléphone.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 16)),
-        const SizedBox(height: 40),
+        Text('Demande Envoyée !', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 8),
+        Text(
+          'Veuillez valider le paiement de $amount FCFA sur votre téléphone via l\'application ${operator == 'wave' ? 'Wave' : 'Orange Money'}.', 
+          textAlign: TextAlign.center, 
+          style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B), fontSize: 16)
+        ),
+        const SizedBox(height: 24),
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            backgroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
+            foregroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('Retour au Wallet', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+          child: const Text('Retour au Wallet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         ),
       ],
     ),
   );
 }
 
-Widget _buildWizardInput(String label, IconData icon, String hint, {bool isNumber = false, bool isLarge = false, TextEditingController? controller}) {
+Widget _buildWizardInput(BuildContext context, String label, IconData icon, String hint, {TextEditingController? controller, bool isNumber = false, bool isLarge = false, required bool isDark, required Color borderColor, required Color inputBg, void Function(String)? onChanged}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
+      Text(label, style: TextStyle(color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155), fontSize: 14, fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       TextField(
         controller: controller,
+        onChanged: onChanged,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        style: TextStyle(color: Colors.white, fontSize: isLarge ? 20 : 16, fontWeight: isLarge ? FontWeight.w900 : FontWeight.w600),
+        style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: isLarge ? 18 : 16, fontWeight: isLarge ? FontWeight.w900 : FontWeight.w500),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
-          prefixIcon: Icon(icon, color: Colors.white54),
+          fillColor: inputBg,
+          prefixIcon: Icon(icon, color: const Color(0xFF94A3B8)),
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white30),
+          hintStyle: TextStyle(color: const Color(0xFF94A3B8), fontWeight: FontWeight.normal),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFF333333)), // Gray border like Web
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFF333333)),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.orangeAccent),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: const Color(0xFF64748B)),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
         ),
       ),
     ],
   );
+}
+
+class WavePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Wave viewBox is 0 0 200 260. We will scale to fill our container nicely.
+    final double scale = size.width / 260; // Slightly smaller to add padding
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(scale, scale);
+    canvas.translate(-100, -130);
+    
+    final Paint blackPaint = Paint()..color = Colors.black;
+    final Paint whitePaint = Paint()..color = Colors.white;
+    final Paint orangePaint = Paint()..color = const Color(0xFFF7931E);
+    
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(50, 20, 100, 190), const Radius.circular(50)), blackPaint);
+    
+    canvas.save();
+    canvas.translate(20, 80);
+    canvas.rotate(-40 * 3.14159 / 180);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, 40, 90), const Radius.circular(20)), blackPaint);
+    canvas.restore();
+    
+    canvas.drawOval(const Rect.fromLTWH(100 - 28, 140 - 55, 56, 110), whitePaint);
+    canvas.drawCircle(const Offset(82, 55), 7, whitePaint);
+    canvas.drawCircle(const Offset(118, 55), 7, whitePaint);
+    
+    final Path orangePath = Path()
+      ..moveTo(75, 80)
+      ..quadraticBezierTo(100, 98, 125, 80)
+      ..quadraticBezierTo(100, 70, 75, 80)
+      ..close();
+    canvas.drawPath(orangePath, orangePaint);
+    
+    canvas.drawOval(const Rect.fromLTWH(75 - 22, 220 - 12, 44, 24), orangePaint);
+    canvas.drawOval(const Rect.fromLTWH(125 - 22, 220 - 12, 44, 24), orangePaint);
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class OrangePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Orange viewBox is 0 0 500 300
+    final double scale = size.width / 600;
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(scale, scale);
+    canvas.translate(-250, -150);
+    
+    final Paint whitePaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
+    final Paint orangePaint = Paint()..color = const Color(0xFFFF7900)..style = PaintingStyle.fill;
+    
+    canvas.save();
+    canvas.translate(40, 20);
+    final Path p1 = Path()
+      ..moveTo(40, 170)..lineTo(170, 40)..lineTo(170, 90)
+      ..quadraticBezierTo(170, 120, 200, 120)
+      ..quadraticBezierTo(230, 120, 230, 90)
+      ..lineTo(230, 20)..quadraticBezierTo(230, 0, 210, 0)
+      ..lineTo(140, 0)..quadraticBezierTo(110, 0, 110, 30)
+      ..quadraticBezierTo(110, 60, 140, 60)
+      ..lineTo(10, 190)..quadraticBezierTo(-10, 210, 10, 230)
+      ..quadraticBezierTo(30, 250, 50, 230)..close();
+    canvas.drawPath(p1, whitePaint);
+    canvas.restore();
+    
+    canvas.save();
+    canvas.translate(250, 20);
+    final Path p2 = Path()
+      ..moveTo(0, 20)..quadraticBezierTo(0, 0, 20, 0)
+      ..quadraticBezierTo(40, 0, 40, 20)..lineTo(40, 130)
+      ..lineTo(170, 0)..quadraticBezierTo(190, -10, 210, 10)
+      ..quadraticBezierTo(230, 30, 220, 50)..lineTo(90, 180)
+      ..lineTo(200, 180)..quadraticBezierTo(230, 180, 230, 210)
+      ..quadraticBezierTo(230, 240, 200, 240)..lineTo(20, 240)
+      ..quadraticBezierTo(0, 240, 0, 220)..close();
+    canvas.drawPath(p2, orangePaint);
+    canvas.restore();
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -21,7 +21,9 @@ class AppDrawer extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
           child: Container(
-            color: const Color(0xFF0F172A).withOpacity(0.65), // translucent slate
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF0B0F19).withValues(alpha: 0.95)
+                : Colors.white.withValues(alpha: 0.95),
             child: SafeArea(
               child: Column(
                 children: [
@@ -38,7 +40,7 @@ class AppDrawer extends StatelessWidget {
                           ),
                           child: CircleAvatar(
                             radius: 28,
-                            backgroundColor: Colors.cyanAccent.withOpacity(0.2),
+                            backgroundColor: Colors.cyanAccent.withValues(alpha: 0.2),
                             child: const Text('AB', style: TextStyle(color: Colors.cyanAccent, fontSize: 20, fontWeight: FontWeight.bold)),
                           ),
                         ),
@@ -47,14 +49,14 @@ class AppDrawer extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Abdou Bakhe', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                              Text('Abdou Bakhe', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.orangeAccent.withOpacity(0.2),
+                                  color: Colors.orangeAccent.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.orangeAccent.withOpacity(0.5)),
+                                  border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.5)),
                                 ),
                                 child: Text(isDriverMode ? 'Chauffeur Pro' : 'Voyageur Gold', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                               ),
@@ -64,9 +66,9 @@ class AppDrawer extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Divider(color: Colors.white10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Divider(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                   ),
                   const SizedBox(height: 16),
                   // Menu Items
@@ -75,26 +77,26 @@ class AppDrawer extends StatelessWidget {
                       child: Column(
                         children: [
                           if (isDriverMode) ...[
-                            _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orangeAccent, route: '/'),
-                            _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.greenAccent, route: '/driver/missions'),
-                            _buildMenuItem(context, Icons.location_on_outlined, 'Localisation Client', Colors.cyanAccent, route: '/driver/localisation'),
-                            _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purpleAccent, route: '/driver/scanner'),
-                            _buildMenuItem(context, Icons.people_outline, 'Passagers', Colors.blueAccent, route: '/driver/passagers'),
-                            _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.tealAccent, route: '/driver/revenus'),
-                            _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigoAccent, route: '/driver/marketplace'),
-                            _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amberAccent, route: '/driver/colis'),
+                            _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orange, route: '/'),
+                            _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.green, route: '/driver/missions'),
+                            _buildMenuItem(context, Icons.location_on_outlined, 'Localisation Client', Colors.cyan, route: '/driver/localisation'),
+                            _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purple, route: '/driver/scanner'),
+                            _buildMenuItem(context, Icons.people_outline, 'Passagers', Colors.blue, route: '/driver/passagers'),
+                            _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.teal, route: '/driver/revenus'),
+                            _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigo, route: '/driver/marketplace'),
+                            _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amber, route: '/driver/colis'),
                             _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.blueGrey, route: '/driver/vehicule'),
-                            _buildMenuItem(context, Icons.notifications_none_outlined, 'Notifications', Colors.redAccent, route: '/driver/notifications'),
-                            _buildMenuItem(context, Icons.help_outline, 'Support', Colors.lightBlueAccent, route: '/driver/support'),
+                            _buildMenuItem(context, Icons.notifications_none_outlined, 'Notifications', Colors.red, route: '/driver/notifications'),
+                            _buildMenuItem(context, Icons.help_outline, 'Support', Colors.lightBlue, route: '/driver/support'),
                             _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/driver/settings'),
                           ] else ...[
-                            _buildMenuItem(context, Icons.dashboard_outlined, 'Tableau de bord', Colors.cyanAccent, route: '/'),
-                            _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.blueAccent, route: '/profile'),
-                            _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Mon Wallet', Colors.greenAccent, route: '/wallet'),
-                            _buildMenuItem(context, Icons.inventory_2_outlined, 'Mes Colis', Colors.purpleAccent, route: '/colis'),
-                            _buildMenuItem(context, Icons.qr_code_scanner_outlined, 'QR Code & Billets', Colors.orangeAccent, route: '/qrcode'),
-                            _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.greenAccent, route: '/fidelite'),
-                            _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.indigoAccent, route: '/history'),
+                            _buildMenuItem(context, Icons.dashboard_outlined, 'Tableau de bord', Colors.cyan, route: '/'),
+                            _buildMenuItem(context, Icons.person_outline, 'Mon Profil', Colors.blue, route: '/profile'),
+                            _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Mon Wallet', Colors.green, route: '/wallet'),
+                            _buildMenuItem(context, Icons.inventory_2_outlined, 'Mes Colis', Colors.purple, route: '/colis'),
+                            _buildMenuItem(context, Icons.qr_code_scanner_outlined, 'QR Code & Billets', Colors.orange, route: '/qrcode'),
+                            _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.green, route: '/fidelite'),
+                            _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.indigo, route: '/history'),
                             _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/settings'),
                           ],
                         ],
@@ -102,9 +104,9 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
                   // Space Switcher button and Logout button
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Divider(color: Colors.white10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Divider(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                   ),
                   const SizedBox(height: 16),
                   Padding(
@@ -120,39 +122,44 @@ class AppDrawer extends StatelessWidget {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(isDriverMode 
-                            ? 'Basculement vers l\'Espace Chauffeur...' 
-                            : 'Basculement vers l\'Espace Voyageur...'
+                            ? 'Basculement vers l\'Espace Voyageur...' 
+                            : 'Basculement vers l\'Espace Chauffeur...'
                           ),
-                          backgroundColor: isDriverMode ? Colors.green : Colors.cyan,
+                          backgroundColor: isDriverMode ? Colors.cyan : Colors.green,
                         ));
                       },
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
                           color: isDriverMode 
-                            ? Colors.cyanAccent.withOpacity(0.1)
-                            : Colors.greenAccent.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
+                            ? Colors.cyanAccent.withValues(alpha: 0.1)
+                            : Colors.greenAccent.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isDriverMode 
-                              ? Colors.cyanAccent.withOpacity(0.3)
-                              : Colors.greenAccent.withOpacity(0.3)
+                              ? Colors.cyanAccent.withValues(alpha: 0.2)
+                              : Colors.greenAccent.withValues(alpha: 0.2)
                           ),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               isDriverMode ? Icons.person : Icons.directions_car, 
-                              color: isDriverMode ? Colors.cyanAccent : Colors.greenAccent
+                              color: isDriverMode 
+                                ? (Theme.of(context).brightness == Brightness.dark ? Colors.cyanAccent : Colors.cyan.shade600)
+                                : (Theme.of(context).brightness == Brightness.dark ? Colors.greenAccent : Colors.green.shade600),
+                              size: 20,
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                isDriverMode ? 'Basculer vers l\'Espace Voyageur' : 'Basculer vers l\'Espace Chauffeur',
+                                isDriverMode ? 'Espace Voyageur' : 'Espace Chauffeur',
                                 style: TextStyle(
-                                  color: isDriverMode ? Colors.cyanAccent : Colors.greenAccent,
-                                  fontSize: 15,
+                                  color: isDriverMode 
+                                    ? (Theme.of(context).brightness == Brightness.dark ? Colors.cyanAccent : Colors.cyan.shade600)
+                                    : (Theme.of(context).brightness == Brightness.dark ? Colors.greenAccent : Colors.green.shade600),
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -162,7 +169,6 @@ class AppDrawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
@@ -170,25 +176,20 @@ class AppDrawer extends StatelessWidget {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
                       },
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
-                        ),
-                        child: const Row(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        child: Row(
                           children: [
-                            Icon(Icons.logout, color: Colors.redAccent),
-                            const SizedBox(width: 16),
+                            Icon(Icons.logout, color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : const Color(0xFF64748B), size: 20),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 'Se déconnecter',
                                 style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : const Color(0xFF64748B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -209,56 +210,77 @@ class AppDrawer extends StatelessWidget {
 
   Widget _buildMenuItem(BuildContext context, IconData icon, String title, Color color, {bool isLogout = false, String? route}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        hoverColor: color.withOpacity(0.1),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Icon(icon, color: color, size: 22),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isLogout ? Colors.redAccent : Colors.white,
-            fontWeight: isLogout ? FontWeight.bold : FontWeight.w600,
-            fontSize: 15,
-          ),
-        ),
-        trailing: isLogout ? null : const Icon(Icons.chevron_right, color: Colors.white38, size: 20),
-        onTap: () {
-          if (route != null) {
-            Navigator.pop(context); // Close drawer
-            
-            // Check if we are already on this route to avoid pushing duplicates
-            bool isAlreadyOnRoute = false;
-            Navigator.popUntil(context, (r) {
-              if (r.settings.name == route) {
-                isAlreadyOnRoute = true;
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          hoverColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.02),
+          onTap: () {
+            if (route != null) {
+              Navigator.pop(context); // Close drawer
+              
+              // Check if we are already on this route to avoid pushing duplicates
+              bool isAlreadyOnRoute = false;
+              Navigator.popUntil(context, (r) {
+                if (r.settings.name == route) {
+                  isAlreadyOnRoute = true;
+                }
+                return true;
+              });
+              
+              if (!isAlreadyOnRoute) {
+                if (route == '/') {
+                  Navigator.pushNamedAndRemoveUntil(context, route, (r) => false);
+                } else {
+                  Navigator.pushNamed(context, route);
+                }
               }
-              return true;
-            });
-            
-            if (!isAlreadyOnRoute) {
-              if (route == '/') {
-                Navigator.pushNamedAndRemoveUntil(context, route, (r) => false);
-              } else {
-                Navigator.pushReplacementNamed(context, route);
-              }
-            }
-          } else {
-            if (isLogout) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title bientôt disponible !')));
+              if (isLogout) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title bientôt disponible !')));
+              }
             }
-          }
-        },
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: isLogout 
+                        ? Colors.redAccent 
+                        : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFF475569)),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                if (!isLogout)
+                  Icon(Icons.chevron_right, color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26, size: 18),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

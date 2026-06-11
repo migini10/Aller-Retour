@@ -6,12 +6,12 @@ class ColisFranchiseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Franchise Incluse', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        title: Text('Franchise Incluse', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -21,25 +21,25 @@ class ColisFranchiseScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Colors.blueAccent, Colors.indigo]),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(colors: [Colors.blueAccent, Colors.indigo]),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: Colors.blueAccent.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))
+                  BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.3), blurRadius: 10, offset: Offset(0, 4))
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Reste disponible', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  Text('Reste disponible', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                   const SizedBox(height: 8),
-                  const Text('15 kg', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
+                  Text('15 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Text('Utilisé: 5 kg', style: TextStyle(color: Colors.white)),
-                      Text('Total: 20 kg', style: TextStyle(color: Colors.white)),
+                      Text('Utilisé: 5 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      Text('Total: 20 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -56,29 +56,28 @@ class ColisFranchiseScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Comment ça marche ?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Comment ça marche ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text(
+              child: Text(
                 "En tant que client Premium Allo Dakar, vous bénéficiez d'une franchise de 20 kg par mois pour l'envoi de vos petits colis interurbains sans frais supplémentaires.",
-                style: TextStyle(color: Colors.white70, height: 1.5),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text(
-                "Votre franchise est réinitialisée automatiquement le 1er de chaque mois. Les kilos non utilisés ne sont pas reportés au mois suivant.",
-                style: TextStyle(color: Colors.white70, height: 1.5),
+              child: Text(
+                "Votre franchise est réinitialisée automatiquement le 1er de chaque mois. Les kilos non utilisés ne sont pas reportés au mois suivant.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
           ],

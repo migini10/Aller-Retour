@@ -11,7 +11,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -43,7 +43,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            const Text('Historique des gains', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Historique des gains', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ListView.builder(
               shrinkWrap: true,
@@ -53,11 +53,11 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
-                    backgroundColor: Colors.greenAccent.withOpacity(0.2),
+                    backgroundColor: Colors.greenAccent.withValues(alpha: 0.2),
                     child: const Icon(Icons.attach_money, color: Colors.greenAccent),
                   ),
-                  title: const Text('Course Dakar → Touba', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Aujourd\'hui, 14:30', style: TextStyle(color: Colors.white54)),
+                  title: Text('Course Dakar → Touba', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                  subtitle: Text('Aujourd\'hui, 14:30', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   trailing: const Text('+ 45 000 FCFA', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
                 );
               },

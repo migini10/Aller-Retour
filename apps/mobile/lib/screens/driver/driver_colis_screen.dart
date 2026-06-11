@@ -97,12 +97,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 24),
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF141414),
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
@@ -113,8 +113,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                       children: [
                         Text(
                           nextStatut == 'Accepté' ? 'Contrat de Responsabilité' : 'Code de sécurité',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -127,9 +126,9 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.only(bottom: 24),
                             decoration: BoxDecoration(
-                              color: Colors.redAccent.withOpacity(0.1),
+                              color: Colors.redAccent.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                              border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                             ),
                             child: RichText(
                               textAlign: TextAlign.center,
@@ -146,12 +145,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
                         RichText(
                           textAlign: TextAlign.center,
-                          text: const TextSpan(
-                            style: TextStyle(color: Colors.white70, fontSize: 14),
+                          text: TextSpan(
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                             children: [
-                              TextSpan(text: 'Veuillez entrer votre code d\'accès chauffeur (ex: '),
-                              TextSpan(text: '1234', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'monospace')),
-                              TextSpan(text: ') pour valider cette action.'),
+                              const TextSpan(text: 'Veuillez entrer votre code d\'accès chauffeur (ex: '),
+                              TextSpan(text: '1234', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontFamily: 'monospace')),
+                              const TextSpan(text: ') pour valider cette action.'),
                             ],
                           ),
                         ),
@@ -163,8 +162,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           maxLength: 4,
                           obscureText: true,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 16,
@@ -172,12 +170,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           decoration: InputDecoration(
                             counterText: '',
                             hintText: '••••',
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+                            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
                             filled: true,
-                            fillColor: const Color(0xFF1A1A1A),
+                            fillColor: Theme.of(context).cardColor,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -212,12 +210,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                 onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: Colors.white.withOpacity(0.05),
+                                  backgroundColor: Colors.white.withValues(alpha: 0.05),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                 ),
                                 child: Text(
                                   nextStatut == 'Accepté' ? 'Refuser' : 'Annuler',
-                                  style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                               ),
                             ),
@@ -316,13 +314,13 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.greenAccent.withOpacity(0.1),
-          border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+          color: Colors.greenAccent.withValues(alpha: 0.1),
+          border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(Icons.check_circle, color: Colors.greenAccent, size: 18),
             SizedBox(width: 8),
             Text('Terminé', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
@@ -351,15 +349,15 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617), // slate-950
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // slate-950
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Gestion des Colis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Gestion des Colis', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
@@ -368,11 +366,10 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.inventory_2, size: 80, color: Colors.white.withOpacity(0.1)),
+                      Icon(Icons.inventory_2, size: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Aucun colis disponible',
-                        style: TextStyle(color: Colors.white54, fontSize: 16),
+                      Text(
+                        'Aucun colis disponible', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
                       ),
                     ],
                   ),
@@ -389,10 +386,10 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E293B), // slate-800
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: badgeColor.withOpacity(0.3), width: 1.5),
+                        border: Border.all(color: badgeColor.withValues(alpha: 0.3), width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.4),
+                            color: Colors.black.withValues(alpha: 0.4),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
@@ -411,7 +408,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                 child: Icon(
                                   Icons.inventory_2,
                                   size: 140,
-                                  color: Colors.white.withOpacity(0.03),
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                                 ),
                               ),
                             ),
@@ -427,18 +424,18 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
-                                          color: badgeColor.withOpacity(0.1),
+                                          color: badgeColor.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(color: badgeColor.withOpacity(0.3)),
+                                          border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
                                         ),
                                         child: Icon(Icons.inventory_2, color: badgeColor, size: 28),
                                       ),
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: badgeColor.withOpacity(0.15),
+                                          color: badgeColor.withValues(alpha: 0.15),
                                           borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: badgeColor.withOpacity(0.3)),
+                                          border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
                                         ),
                                         child: Text(
                                           (c['statut'] ?? '').toUpperCase(),
@@ -455,8 +452,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   const SizedBox(height: 20),
                                   Text(
                                     c['trajet'] ?? 'Trajet Inconnu',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: -0.5,
@@ -466,7 +462,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   Text(
                                     '${c['id'] ?? 'INCONNU'} • ${c['taille'] ?? ''}\n${c['date'] ?? ''}',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.6),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                       fontSize: 13,
                                       height: 1.4,
                                     ),
@@ -480,7 +476,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.03),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Row(
@@ -489,10 +485,10 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              const Text('DESTINATAIRE', style: TextStyle(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                              Text('DESTINATAIRE', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                                               const SizedBox(height: 4),
-                                              Text(c['destinataire'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                              Text(c['tel'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                                              Text(c['destinataire'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                              Text(c['tel'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
                                             ],
                                           ),
                                         ),

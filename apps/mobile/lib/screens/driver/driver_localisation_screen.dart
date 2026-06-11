@@ -91,17 +91,17 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Flexible(
+            Flexible(
               child: Text(
                 'Récupération Client', 
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -110,8 +110,8 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orangeAccent.withOpacity(0.1),
-                  border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+                  color: Colors.orangeAccent.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text('EN ROUTE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -120,7 +120,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
           ],
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -131,9 +131,9 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF141414),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFF2A2A2A)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,11 +143,11 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('DESTINATION', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                        Text('DESTINATION', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                         const SizedBox(height: 4),
                         Text(
                           activePassenger != null ? 'Rejoindre ${activePassenger!['nom']}' : 'Point de rendez-vous', 
-                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
@@ -158,7 +158,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                             Expanded(
                               child: Text(
                                 activePassenger != null ? '${activePassenger!['quartier']}, Dakar' : 'En attente de sélection...', 
-                                style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -172,7 +172,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(activePassenger != null ? activePassenger!['eta'] : '--', style: const TextStyle(color: Colors.orangeAccent, fontSize: 24, fontWeight: FontWeight.bold)),
-                      Text(activePassenger != null ? '${activePassenger!['distance']} km' : '--', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13)),
+                      Text(activePassenger != null ? '${activePassenger!['distance']} km' : '--', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13)),
                     ],
                   ),
                 ],
@@ -184,9 +184,9 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
             Container(
               height: 250,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFF2A2A2A)),
+                border: Border.all(color: Theme.of(context).dividerColor),
                 image: const DecorationImage(
                   image: AssetImage('assets/images/dakar_map_bg.png'), // Placeholder image if exists, or transparent
                   fit: BoxFit.cover,
@@ -212,7 +212,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                     child: ElevatedButton.icon(
                       onPressed: isNavigating ? _launchExternalNavigation : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isNavigating ? Colors.orangeAccent : Colors.white.withOpacity(0.1),
+                        backgroundColor: isNavigating ? Colors.orangeAccent : Colors.white.withValues(alpha: 0.1),
                         foregroundColor: isNavigating ? Colors.black : Colors.white54,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -228,7 +228,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
             const SizedBox(height: 24),
 
             // Passengers List
-            const Text('VOYAGEURS À RÉCUPÉRER', style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+            Text('VOYAGEURS À RÉCUPÉRER', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
             const SizedBox(height: 12),
             ...passagers.map((p) {
               final isActive = activePassenger?.cast<String, dynamic>()['id'] == p['id'];
@@ -239,10 +239,10 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF141414),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isActive ? Colors.orangeAccent : const Color(0xFF2A2A2A)),
-                    boxShadow: isActive ? [BoxShadow(color: Colors.orangeAccent.withOpacity(0.1), blurRadius: 10)] : null,
+                    border: Border.all(color: isActive ? Colors.orangeAccent : Theme.of(context).dividerColor),
+                    boxShadow: isActive ? [BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.1), blurRadius: 10)] : null,
                   ),
                   child: Row(
                     children: [
@@ -250,7 +250,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: isActive ? Colors.orangeAccent : Colors.greenAccent.withOpacity(0.2),
+                          color: isActive ? Colors.orangeAccent : Colors.greenAccent.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -265,21 +265,21 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(p['nom'], style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text(p['nom'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 const Icon(Icons.location_on, color: Colors.orangeAccent, size: 12),
                                 const SizedBox(width: 4),
-                                Expanded(child: Text('${p['quartier']} • À ${p['distance']} km (${p['eta']})', style: const TextStyle(color: Colors.white54, fontSize: 12), overflow: TextOverflow.ellipsis)),
+                                Expanded(child: Text('${p['quartier']} • À ${p['distance']} km (${p['eta']})', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12), overflow: TextOverflow.ellipsis)),
                               ],
                             ),
                             const SizedBox(height: 2),
                             Row(
                               children: [
-                                const Icon(Icons.phone, color: Colors.white38, size: 12),
+                                Icon(Icons.phone, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 12),
                                 const SizedBox(width: 4),
-                                Text(p['tel'], style: const TextStyle(color: Colors.white38, fontSize: 11, fontFamily: 'monospace')),
+                                Text(p['tel'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11, fontFamily: 'monospace')),
                               ],
                             ),
                           ],
@@ -291,13 +291,13 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1A1A1A),
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF2A2A2A)),
+                              border: Border.all(color: Theme.of(context).dividerColor),
                             ),
                             child: IconButton(
                               padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.message, color: Colors.white, size: 18),
+                              icon: Icon(Icons.message, color: Theme.of(context).colorScheme.onSurface, size: 18),
                               onPressed: () => _sendSms(p['tel']),
                             ),
                           ),
@@ -309,7 +309,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                               color: Colors.greenAccent,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
-                                BoxShadow(color: Colors.greenAccent.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+                                BoxShadow(color: Colors.greenAccent.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4)),
                               ],
                             ),
                             child: IconButton(
@@ -324,7 +324,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

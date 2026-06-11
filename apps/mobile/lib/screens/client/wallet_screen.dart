@@ -9,6 +9,10 @@ class WalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
+      title: 'Mon Wallet',
+      subtitle: 'Gérez vos fonds et vos paiements en toute sécurité.',
+      icon: Icons.account_balance_wallet,
+      iconColor: Colors.blueAccent,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -21,10 +25,10 @@ class WalletScreen extends StatelessWidget {
                 onPressed: () {
                   showRechargeModal(context);
                 },
-                icon: const Icon(Icons.add, color: Colors.white),
+                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
                 label: const Text('Recharger le compte'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: const Color(0xFF2563EB), // blue-600
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -39,13 +43,13 @@ class WalletScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Colors.blueAccent, Colors.indigo],
+                  colors: [Color(0xFF2563EB), Color(0xFF4338CA)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
-                  BoxShadow(color: Colors.blueAccent.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                  BoxShadow(color: const Color(0xFF1E3A8A).withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5)),
                 ],
               ),
               child: Column(
@@ -57,29 +61,29 @@ class WalletScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withOpacity(0.3)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.auto_awesome, color: Colors.white, size: 14),
-                            SizedBox(width: 6),
-                            Text('COMPTE PRINCIPAL', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                            Icon(Icons.auto_awesome, color: const Color(0xFFBFDBFE), size: 14),
+                            const SizedBox(width: 6),
+                            Text('COMPTE PRINCIPAL', style: const TextStyle(color: Color(0xFFEFF6FF), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                           ],
                         ),
                       ),
-                      const Icon(Icons.account_balance_wallet, color: Colors.white70),
+                      Icon(Icons.account_balance_wallet, color: const Color(0xFFBFDBFE).withValues(alpha: 0.8)),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const Text('Solde disponible', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  Text('Solde disponible', style: const TextStyle(color: Color(0xFFDBEAFE), fontSize: 14)),
                   const SizedBox(height: 4),
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       children: [
-                        TextSpan(text: '45 000 ', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
-                        TextSpan(text: 'FCFA', style: TextStyle(color: Colors.white70, fontSize: 20, fontWeight: FontWeight.bold)),
+                        TextSpan(text: '45 000 ', style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
+                        TextSpan(text: 'FCFA', style: const TextStyle(color: Color(0xFFBFDBFE), fontSize: 20, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -90,11 +94,11 @@ class WalletScreen extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Module d\'envoi...')));
                       },
-                      icon: const Icon(Icons.call_made, color: Colors.blueAccent),
-                      label: const Text('Envoyer du solde'),
+                      icon: const Icon(Icons.call_made, color: Color(0xFF2563EB)),
+                      label: const Text('Envoyer du solde', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2563EB))),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.blueAccent,
+                        foregroundColor: const Color(0xFF2563EB),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         textStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -110,18 +114,18 @@ class WalletScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.analytics_outlined, color: Colors.white54, size: 20),
-                      SizedBox(width: 8),
-                      Text('Statistiques du mois', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Icon(Icons.analytics_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                      const SizedBox(width: 8),
+                      Text('Statistiques du mois', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -129,15 +133,15 @@ class WalletScreen extends StatelessWidget {
                   // Dépenses Progress
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Dépenses', style: TextStyle(color: Colors.white54, fontSize: 14)),
-                      Text('12 500 FCFA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    children: [
+                      Text('Dépenses', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
+                      Text('12 500 FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Stack(
                     children: [
-                      Container(height: 8, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4))),
+                      Container(height: 8, width: double.infinity, decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(4))),
                       Container(height: 8, width: 140, decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
@@ -146,15 +150,15 @@ class WalletScreen extends StatelessWidget {
                   // Recharges Progress
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Recharges', style: TextStyle(color: Colors.white54, fontSize: 14)),
-                      Text('25 000 FCFA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    children: [
+                      Text('Recharges', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
+                      Text('25 000 FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Stack(
                     children: [
-                      Container(height: 8, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4))),
+                      Container(height: 8, width: double.infinity, decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(4))),
                       Container(height: 8, width: 220, decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(4))),
                     ],
                   ),
@@ -167,10 +171,10 @@ class WalletScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Dernières Transactions', 
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -187,6 +191,7 @@ class WalletScreen extends StatelessWidget {
             
             // Transaction 1
             _buildTransactionItem(
+              context: context,
               icon: Icons.arrow_downward,
               iconColor: Colors.blueAccent,
               title: 'Dépôt Wave Mobile Money',
@@ -199,6 +204,7 @@ class WalletScreen extends StatelessWidget {
             
             // Transaction 2
             _buildTransactionItem(
+              context: context,
               icon: Icons.arrow_upward,
               iconColor: Colors.orangeAccent,
               title: 'Réservation Dakar ➔ Touba',
@@ -211,6 +217,7 @@ class WalletScreen extends StatelessWidget {
             
             // Transaction 3
             _buildTransactionItem(
+              context: context,
               icon: Icons.credit_card,
               iconColor: Colors.purpleAccent,
               title: 'Paiement Colis Express',
@@ -229,11 +236,11 @@ class WalletScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Historique...')));
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white24, style: BorderStyle.solid),
+                  side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), style: BorderStyle.solid),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Voir tout l\'historique', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
+                child: Text('Voir tout l\'historique', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 40),
@@ -244,6 +251,7 @@ class WalletScreen extends StatelessWidget {
   }
 
   Widget _buildTransactionItem({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -257,16 +265,16 @@ class WalletScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF1E293B)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
+              color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: iconColor, size: 24),
@@ -276,9 +284,9 @@ class WalletScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(date, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
               ],
             ),
           ),
@@ -290,9 +298,9 @@ class WalletScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
+                  color: statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: statusColor.withOpacity(0.3)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold)),
               ),

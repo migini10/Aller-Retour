@@ -7,14 +7,17 @@ class FideliteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
+      title: 'Fidélité',
+      subtitle: 'Cumulez des points et profitez d\'avantages exclusifs.',
+      icon: Icons.stars,
+      iconColor: Colors.amberAccent,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Gagnez des points à chaque trajet et débloquez des récompenses.',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+            Text(
+              'Gagnez des points à chaque trajet et débloquez des récompenses.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
             ),
             const SizedBox(height: 24),
             
@@ -30,7 +33,7 @@ class FideliteScreen extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
-                  BoxShadow(color: Colors.teal.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                  BoxShadow(color: Colors.teal.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
                 ],
               ),
               child: Column(
@@ -42,29 +45,29 @@ class FideliteScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withOpacity(0.3)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.workspace_premium, color: Colors.amberAccent, size: 14),
-                            SizedBox(width: 6),
-                            Text('STATUT GOLD', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                            const Icon(Icons.workspace_premium, color: Colors.amberAccent, size: 14),
+                            const SizedBox(width: 6),
+                            Text('STATUT GOLD', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                           ],
                         ),
                       ),
-                      const Icon(Icons.workspace_premium_outlined, color: Colors.white70, size: 28),
+                      Icon(Icons.workspace_premium_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 28),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const Text('Solde actuel', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  Text('Solde actuel', style: const TextStyle(color: Color(0xFFD1FAE5), fontSize: 14)),
                   const SizedBox(height: 4),
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       children: [
-                        TextSpan(text: '450 ', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900)),
-                        TextSpan(text: 'PTS', style: TextStyle(color: Colors.white70, fontSize: 24, fontWeight: FontWeight.bold)),
+                        TextSpan(text: '450 ', style: const TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900)),
+                        TextSpan(text: 'PTS', style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 24, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -74,24 +77,24 @@ class FideliteScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Row(
                               children: [
-                                Icon(Icons.track_changes, color: Colors.white, size: 16),
+                                Icon(Icons.track_changes, color: const Color(0xFFD1FAE5), size: 16),
                                 SizedBox(width: 8),
-                                Text('Prochain Palier', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                Text('Prochain Palier', style: const TextStyle(color: Color(0xFFD1FAE5), fontWeight: FontWeight.bold, fontSize: 12)),
                               ],
                             ),
-                            Text('550 PTS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                            Text('550 PTS', style: const TextStyle(color: Color(0xFFD1FAE5), fontWeight: FontWeight.bold, fontSize: 12)),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -109,7 +112,7 @@ class FideliteScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        const Text('Plus que 100 PTS pour un trajet Dakar ➔ Thiès gratuit !', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text('Plus que 100 PTS pour un trajet Dakar ➔ Thiès gratuit !', style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 11, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -123,6 +126,7 @@ class FideliteScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildInfoCard(
+                    context,
                     Icons.bolt,
                     Colors.tealAccent,
                     'Comment gagner des points ?',
@@ -132,6 +136,7 @@ class FideliteScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildInfoCard(
+                    context,
                     Icons.star,
                     Colors.amberAccent,
                     'Avantages VIP',
@@ -143,17 +148,18 @@ class FideliteScreen extends StatelessWidget {
             const SizedBox(height: 32),
             
             // Rewards List
-            const Row(
+            Row(
               children: [
-                Icon(Icons.card_giftcard, color: Colors.tealAccent),
-                SizedBox(width: 8),
-                Text('Récompenses', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const Icon(Icons.card_giftcard, color: Colors.tealAccent),
+                const SizedBox(width: 8),
+                Text('Récompenses', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 16),
             
             // Reward 1
             _buildRewardItem(
+              context: context,
               title: 'Billet Gratuit (Thiès)',
               desc: 'Valable pour 1 trajet simple',
               points: '550 pts',
@@ -161,11 +167,12 @@ class FideliteScreen extends StatelessWidget {
               buttonText: 'Bientôt',
               buttonColor: Colors.grey.shade800,
               textColor: Colors.white54,
-              borderColor: Colors.teal.withOpacity(0.3),
+              borderColor: Colors.teal.withValues(alpha: 0.3),
             ),
             
             // Reward 2
             _buildRewardItem(
+              context: context,
               title: 'Billet Gratuit (Touba)',
               desc: 'Valable pour 1 trajet simple',
               points: '800 pts',
@@ -178,6 +185,7 @@ class FideliteScreen extends StatelessWidget {
             
             // Reward 3
             _buildRewardItem(
+              context: context,
               title: 'Franchise Colis (10kg)',
               desc: 'Envoyez 10kg gratuitement',
               points: '300 pts',
@@ -194,13 +202,13 @@ class FideliteScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(IconData icon, Color iconColor, String title, String desc) {
+  Widget _buildInfoCard(BuildContext context, IconData icon, Color iconColor, String title, String desc) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,21 +216,22 @@ class FideliteScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
+              color: iconColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(height: 12),
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
           const SizedBox(height: 4),
-          Text(desc, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          Text(desc, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
         ],
       ),
     );
   }
 
   Widget _buildRewardItem({
+    required BuildContext context,
     required String title,
     required String desc,
     required String points,
@@ -236,16 +245,16 @@ class FideliteScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
           const SizedBox(height: 4),
-          Text(desc, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          Text(desc, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

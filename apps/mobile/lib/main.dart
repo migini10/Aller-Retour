@@ -17,13 +17,21 @@ import 'screens/driver/driver_vehicule_screen.dart';
 import 'screens/driver/driver_settings_screen.dart';
 import 'screens/driver/driver_localisation_screen.dart';
 import 'services/offline_db.dart';
+import 'theme/app_theme.dart';
+import 'theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
     await OfflineDatabase.instance.init();
   }
-  runApp(const AllerRetourApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const AllerRetourApp(),
+    ),
+  );
 }
 
 class AllerRetourApp extends StatelessWidget {
@@ -31,20 +39,16 @@ class AllerRetourApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'Aller-Retour Mobile',
       debugShowCheckedModeBanner: false,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch, PointerDeviceKind.stylus, PointerDeviceKind.unknown},
       ),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF10B981), // Emerald 500
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),

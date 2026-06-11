@@ -72,9 +72,8 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF141414),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              decoration: BoxDecoration(color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               padding: EdgeInsets.only(
                 top: 24, left: 24, right: 24, 
@@ -87,19 +86,19 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Libérer la mission ?', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text('Libérer la mission ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close, color: Colors.white54),
+                        icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text('Veuillez préciser la raison de votre annulation.', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  Text('Veuillez préciser la raison de votre annulation.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                   const SizedBox(height: 24),
                   ...['Panne de véhicule', 'Client injoignable', 'Retard imprévu', 'Autre'].map((reason) {
                     return RadioListTile<String>(
-                      title: Text(reason, style: const TextStyle(color: Colors.white)),
+                      title: Text(reason, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       value: reason,
                       groupValue: selectedReason,
                       activeColor: Colors.orangeAccent,
@@ -109,18 +108,18 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                         });
                       },
                     );
-                  }).toList(),
+                  }),
                   if (selectedReason == 'Autre')
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 16),
                       child: TextField(
                         controller: customReasonController,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                         decoration: InputDecoration(
                           hintText: 'Précisez la raison...',
-                          hintStyle: const TextStyle(color: Colors.white54),
+                          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                           filled: true,
-                          fillColor: const Color(0xFF1A1A1A),
+                          fillColor: Theme.of(context).cardColor,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                         ),
                         maxLines: 3,
@@ -148,7 +147,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: const Text('Confirmer la libération', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      child: Text('Confirmer la libération', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                     ),
                   ),
                 ],
@@ -163,7 +162,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -177,9 +176,9 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: driverReliabilityScore < 70 ? Colors.redAccent.withOpacity(0.1) : Colors.greenAccent.withOpacity(0.1),
+              color: driverReliabilityScore < 70 ? Colors.redAccent.withValues(alpha: 0.1) : Colors.greenAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: driverReliabilityScore < 70 ? Colors.redAccent.withOpacity(0.3) : Colors.greenAccent.withOpacity(0.3)),
+              border: Border.all(color: driverReliabilityScore < 70 ? Colors.redAccent.withValues(alpha: 0.3) : Colors.greenAccent.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -206,7 +205,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                         driverReliabilityScore < 70 
                           ? 'Votre score est faible (annulations ou refus). L\'accès à certaines missions est restreint.' 
                           : 'Bon travail ! Vous avez accès à toutes les missions.',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                       ),
                     ],
                   ),
@@ -226,25 +225,25 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                   ),
                 
                 if (missions.isNotEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 16),
-                    child: Text('Missions & Trajets', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text('Missions & Trajets', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ...missions.map((mission) {
                   final isAccepted = mission['status'] == 'accepte';
                   final isLocked = (mission['minScore'] ?? 0) > driverReliabilityScore;
                   return _buildItemCard(mission, false, isAccepted, isLocked);
-                }).toList(),
+                }),
 
                 if (colis.isNotEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16, bottom: 16),
-                    child: Text('Colis Disponibles', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 16),
+                    child: Text('Colis Disponibles', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ...colis.map((c) {
                   final isAccepted = c['statut'] == 'Accepté' || c['statut'] == 'En transit';
                   return _buildItemCard(c, true, isAccepted, false);
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -258,17 +257,17 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF141414),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: isAccepted 
-                        ? Colors.greenAccent.withOpacity(0.3) 
+                        ? Colors.greenAccent.withValues(alpha: 0.3) 
                         : isLocked 
-                          ? Colors.redAccent.withOpacity(0.2) 
-                          : const Color(0xFF2A2A2A)
+                          ? Colors.redAccent.withValues(alpha: 0.2) 
+                          : Theme.of(context).dividerColor
                     ),
                     boxShadow: isAccepted ? [
-                      BoxShadow(color: Colors.greenAccent.withOpacity(0.1), blurRadius: 15)
+                      BoxShadow(color: Colors.greenAccent.withValues(alpha: 0.1), blurRadius: 15)
                     ] : [],
                   ),
                   child: Stack(
@@ -281,12 +280,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(isColis ? 'Colis ${item['id']}' : 'Mission ${item['id']}', style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: 'monospace')),
+                                Text(isColis ? 'Colis ${item['id']}' : 'Mission ${item['id']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
                                 if (isAccepted)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.greenAccent.withOpacity(0.2),
+                                      color: Colors.greenAccent.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: const Text('ACCEPTÉ', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -294,13 +293,13 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            Text(isColis ? '${item['destinataire']} - ${item['tel']}' : item['trajet'], style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text(isColis ? '${item['destinataire']} - ${item['tel']}' : item['trajet'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(isColis ? Icons.scale : Icons.calendar_today, size: 14, color: Colors.white54),
+                                Icon(isColis ? Icons.scale : Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 6),
-                                Text(isColis ? item['taille'] : item['depart'], style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                                Text(isColis ? item['taille'] : item['depart'], style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -310,7 +309,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Rémunération', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                    Text('Rémunération', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                                     Text(isColis ? item['prix'] : item['remuneration'], style: const TextStyle(color: Colors.orangeAccent, fontSize: 18, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
@@ -353,18 +352,18 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.redAccent.withOpacity(0.9),
+                                color: Colors.redAccent.withValues(alpha: 0.9),
                                 borderRadius: BorderRadius.circular(12),
-                                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10)],
+                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 10)],
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.lock, color: Colors.white, size: 18),
+                                  Icon(Icons.lock, color: Theme.of(context).colorScheme.onSurface, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Score de ${item['minScore']}% requis', 
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)
                                   ),
                                 ],
                               ),

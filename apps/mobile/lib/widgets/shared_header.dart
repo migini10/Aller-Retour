@@ -62,12 +62,12 @@ class SharedHeader extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.4),
+                    color: Colors.orange.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.deepOrange.shade400, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -88,7 +88,7 @@ class SharedHeader extends StatelessWidget {
                       ],
                     ),
                     children: [
-                      const TextSpan(text: 'Aller-', style: TextStyle(color: Colors.white)),
+                      TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
                     ],
                   ),
@@ -99,12 +99,31 @@ class SharedHeader extends StatelessWidget {
           // Hamburger Menu
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withOpacity(0.6),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.15)),
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.orange.shade500.withValues(alpha: 0.1) 
+                  : Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.orange.shade500.withValues(alpha: 0.3) 
+                    : Colors.orange.shade200,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white, size: 26),
+              icon: Icon(
+                Icons.menu, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.orange.shade400 
+                    : Colors.orange.shade500, 
+                size: 24,
+              ),
               onPressed: () {
                 Scaffold.of(context).openEndDrawer();
               },

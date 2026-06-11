@@ -2,12 +2,9 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'widgets/colis_modal.dart';
 import 'colis/colis_total_screen.dart';
-import 'colis/colis_actifs_screen.dart';
-import 'colis/colis_livres_screen.dart';
-import 'colis/colis_franchise_screen.dart';
 import '../../widgets/shared_scaffold.dart';
+import 'widgets/colis_modal.dart';
 
 class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
@@ -29,8 +26,7 @@ class _ColisScreenState extends State<ColisScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF111111),
+          decoration: BoxDecoration(color: Theme.of(context).dividerColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           ),
           padding: const EdgeInsets.all(24),
@@ -44,13 +40,13 @@ class _ColisScreenState extends State<ColisScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Suivi de Colis', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
-                      Text(colis['id'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 14, fontFamily: 'monospace')),
+                      Text('Suivi de Colis', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
+                      Text(colis['id'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14, fontFamily: 'monospace')),
                     ],
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.white54),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   )
                 ],
               ),
@@ -58,16 +54,16 @@ class _ColisScreenState extends State<ColisScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.purpleAccent.withOpacity(0.1),
+                  color: Colors.purpleAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.purpleAccent.withOpacity(0.2)),
+                  border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(color: Colors.purpleAccent, borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.inventory_2, color: Colors.white),
+                      child: Icon(Icons.inventory_2, color: Theme.of(context).colorScheme.onSurface),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -76,8 +72,8 @@ class _ColisScreenState extends State<ColisScreen> {
                         children: [
                           const Text('DESTINATAIRE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                           const SizedBox(height: 2),
-                          Text(colis['destinataire'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(colis['tel'] ?? '', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                          Text(colis['destinataire'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(colis['tel'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                         ],
                       ),
                     ),
@@ -91,26 +87,26 @@ class _ColisScreenState extends State<ColisScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.1),
+                    color: Colors.orangeAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.2)),
+                    border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(color: Colors.orangeAccent, borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.local_shipping, color: Colors.white),
+                        child: Icon(Icons.local_shipping, color: Colors.white),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('CHAUFFEUR EN CHARGE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                            SizedBox(height: 2),
-                            Text('Ousmane Diop', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text('+221 77 987 65 43', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                            const Text('CHAUFFEUR EN CHARGE', style: TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                            const SizedBox(height: 2),
+                            Text('Ousmane Diop', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text('+221 77 987 65 43', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                           ],
                         ),
                       ),
@@ -162,11 +158,11 @@ class _ColisScreenState extends State<ColisScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.1),
+                    backgroundColor: Colors.white.withValues(alpha: 0.1),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('Fermer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text('Fermer', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                 ),
               )
             ],
@@ -189,17 +185,17 @@ class _ColisScreenState extends State<ColisScreen> {
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: isActive ? color : (isDone ? color.withOpacity(0.5) : Colors.white10),
+                    color: isActive ? color : (isDone ? color.withValues(alpha: 0.5) : Colors.white10),
                     shape: BoxShape.circle,
                     border: Border.all(color: isActive ? Colors.white : Colors.transparent, width: 3),
-                    boxShadow: isActive ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, spreadRadius: 4)] : [],
+                    boxShadow: isActive ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, spreadRadius: 4)] : [],
                   ),
                 ),
                 if (!isLast)
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: Colors.white10,
+                      color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
                       margin: const EdgeInsets.symmetric(vertical: 4),
                     ),
                   ),
@@ -265,6 +261,10 @@ class _ColisScreenState extends State<ColisScreen> {
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
+      title: 'Mes Colis',
+      subtitle: 'Suivez et expédiez vos colis en toute simplicité.',
+      icon: Icons.local_shipping,
+      iconColor: Colors.orangeAccent,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -274,11 +274,11 @@ class _ColisScreenState extends State<ColisScreen> {
             Row(
               children: [
                 Expanded(child: _buildStatCard(Icons.inventory_2, Colors.purpleAccent, 'TOTAL', '12', 'Colis envoyés (Année)', onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisTotalScreen()));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
                 const SizedBox(width: 12),
                 Expanded(child: _buildStatCard(Icons.access_time, Colors.amber, 'ACTIF', '1', 'En cours d\'expédition', onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisActifsScreen()));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
               ],
             ),
@@ -286,11 +286,11 @@ class _ColisScreenState extends State<ColisScreen> {
             Row(
               children: [
                 Expanded(child: _buildStatCard(Icons.check_circle, Colors.greenAccent, '', '11', 'Colis livrés', onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisLivresScreen()));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
                 const SizedBox(width: 12),
                 Expanded(child: _buildStatCard(Icons.local_shipping, Colors.blueAccent, '', '15kg', 'Franchise restante', onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisFranchiseScreen()));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
               ],
             ),
@@ -302,13 +302,13 @@ class _ColisScreenState extends State<ColisScreen> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Colors.orangeAccent, Colors.pinkAccent],
+                  colors: [Color(0xFFF97316), Color(0xFFF43F5E)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
-                  BoxShadow(color: Colors.orangeAccent.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                  BoxShadow(color: const Color(0xFFEA580C).withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
                 ],
               ),
               child: Column(
@@ -322,7 +322,7 @@ class _ColisScreenState extends State<ColisScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text('Gérez et suivez l\'expédition de vos colis à travers le pays.', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                  const Text('Gérez et suivez l\'expédition de vos colis à travers le pays.', style: TextStyle(color: Color(0xFFFFF7ED), fontSize: 13)),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -337,7 +337,7 @@ class _ColisScreenState extends State<ColisScreen> {
                       label: const Text('Envoyer un colis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.orangeAccent,
+                        foregroundColor: const Color(0xFFEA580C),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -354,7 +354,7 @@ class _ColisScreenState extends State<ColisScreen> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Colors.deepPurpleAccent, Colors.indigo],
+                  colors: [Color(0xFF9333EA), Color(0xFF312E81)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -365,23 +365,23 @@ class _ColisScreenState extends State<ColisScreen> {
                 children: [
                   const Text('Suivre un colis', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  const Text('Entrez le numéro de suivi pour connaître son statut en temps réel.', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  const Text('Entrez le numéro de suivi pour connaître son statut en temps réel.', style: TextStyle(color: Color(0xFFE9D5FF), fontSize: 14)),
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white30),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: TextField(
-                      controller: searchController,
-                      style: const TextStyle(color: Colors.white),
+                          controller: searchController,
+                          style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.search, color: Colors.white70),
+                        icon: Icon(Icons.search, color: Color(0xFFD8B4FE)),
                         border: InputBorder.none,
                         hintText: 'Ex: COL-894-D15',
-                        hintStyle: TextStyle(color: Colors.white54),
+                        hintStyle: TextStyle(color: Color(0xFFD8B4FE)),
                       ),
                     ),
                   ),
@@ -402,7 +402,7 @@ class _ColisScreenState extends State<ColisScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Rechercher', style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+                      child: const Text('Rechercher', style: TextStyle(color: Color(0xFF9333EA), fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -411,7 +411,7 @@ class _ColisScreenState extends State<ColisScreen> {
             const SizedBox(height: 40),
 
             // Active Parcels List
-            const Text('Colis Récents', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('Colis Récents', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             
             ...localColis.map((c) {
@@ -451,7 +451,7 @@ class _ColisScreenState extends State<ColisScreen> {
                   const SizedBox(height: 16),
                 ],
               );
-            }).toList(),
+            }),
             
             // Active Parcel 1 (Mock)
             if (localColis.isEmpty)
@@ -500,14 +500,14 @@ class _ColisScreenState extends State<ColisScreen> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // slate-800
+        color: Theme.of(context).dividerColor, // slate-800
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -524,7 +524,7 @@ class _ColisScreenState extends State<ColisScreen> {
                 child: Icon(
                   icon,
                   size: 80,
-                  color: Colors.white.withOpacity(0.04),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                 ),
               ),
             ),
@@ -539,9 +539,9 @@ class _ColisScreenState extends State<ColisScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
+                          color: color.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: color.withOpacity(0.3)),
+                          border: Border.all(color: color.withValues(alpha: 0.3)),
                         ),
                         child: Icon(icon, color: color, size: 20),
                       ),
@@ -549,18 +549,18 @@ class _ColisScreenState extends State<ColisScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: color.withOpacity(0.3)),
+                            border: Border.all(color: color.withValues(alpha: 0.3)),
                           ),
                           child: Text(badge, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                         ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                  Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 4),
-                  Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -576,13 +576,13 @@ class _ColisScreenState extends State<ColisScreen> {
     required String title,
     required String status,
     required Color statusColor,
-    double progressValue = 0.5,
     required String ref,
     required String dest,
-    String? phone,
     required bool showProgress,
     required String actionLabel,
     required VoidCallback onTapAction,
+    double progressValue = 0.0,
+    String? phone,
   }) {
     return GestureDetector(
       onTap: onTapAction,
@@ -590,14 +590,14 @@ class _ColisScreenState extends State<ColisScreen> {
         width: double.infinity,
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B), // slate-800
+          color: Theme.of(context).dividerColor, // slate-800
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
+          border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               blurRadius: 15,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -614,7 +614,7 @@ class _ColisScreenState extends State<ColisScreen> {
                   child: Icon(
                     icon,
                     size: 140,
-                    color: Colors.white.withOpacity(0.03),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                   ),
                 ),
               ),
@@ -630,18 +630,18 @@ class _ColisScreenState extends State<ColisScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: iconColor.withOpacity(0.1),
+                            color: iconColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: iconColor.withOpacity(0.3)),
+                            border: Border.all(color: iconColor.withValues(alpha: 0.3)),
                           ),
                           child: Icon(icon, color: iconColor, size: 28),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.15),
+                            color: statusColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: statusColor.withOpacity(0.3)),
+                            border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             status,
@@ -658,8 +658,7 @@ class _ColisScreenState extends State<ColisScreen> {
                     const SizedBox(height: 20),
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
                         letterSpacing: -0.5,
@@ -669,7 +668,7 @@ class _ColisScreenState extends State<ColisScreen> {
                     Text(
                       '$ref\nDestinataire: $dest${phone != null ? ' ($phone)' : ''}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 13,
                         height: 1.4,
                       ),
@@ -688,7 +687,7 @@ class _ColisScreenState extends State<ColisScreen> {
                                   Container(
                                     height: 6,
                                     width: double.infinity,
-                                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3)),
+                                    decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(3)),
                                   ),
                                   Container(
                                     height: 6,
@@ -698,7 +697,7 @@ class _ColisScreenState extends State<ColisScreen> {
                                       borderRadius: BorderRadius.circular(3),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: statusColor.withOpacity(0.5),
+                                          color: statusColor.withValues(alpha: 0.5),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
