@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import '../../widgets/app_drawer.dart';
 
 class ParrainageScreen extends StatefulWidget {
   const ParrainageScreen({super.key});
@@ -67,21 +68,19 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Parrainage', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      extendBodyBehindAppBar: true,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 56, bottom: 40),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Hero Section
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      endDrawer: const AppDrawer(isDriverMode: false),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 80, bottom: 40),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Hero Section
               Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -272,8 +271,85 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
           ),
         ),
       ),
-    );
-  }
+      // Custom Header with Back Button, Logo, and Hamburger Menu
+      Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.deepOrange.shade400, width: 2),
+                    ),
+                    child: Icon(Icons.directions_car, color: Colors.deepOrange.shade400, size: 18),
+                  ),
+                  const SizedBox(width: 10),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900, 
+                        fontSize: 20,
+                        letterSpacing: -0.5,
+                        fontFamily: 'Roboto',
+                      ),
+                      children: [
+                        TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                        TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              _buildHamburgerMenu(context, isDark),
+            ],
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+);
+}
+
+Widget _buildHamburgerMenu(BuildContext context, bool isDark) {
+  return Container(
+    decoration: BoxDecoration(
+      color: isDark ? const Color(0xFFF97316).withValues(alpha: 0.1) : const Color(0xFFFFF7ED),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: isDark ? const Color(0xFFF97316).withValues(alpha: 0.3) : const Color(0xFFFED7AA), width: 1),
+      boxShadow: [
+        if (!isDark) BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 3)),
+      ],
+    ),
+    child: Builder(
+      builder: (innerContext) {
+        return IconButton(
+          icon: Icon(Icons.menu, color: isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316), size: 20),
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(),
+          onPressed: () {
+            Scaffold.of(innerContext).openEndDrawer();
+          },
+        );
+      }
+    ),
+  );
+}
 
   Widget _buildStepCard({
     required IconData icon,
