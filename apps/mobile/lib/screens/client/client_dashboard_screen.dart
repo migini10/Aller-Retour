@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 import 'dart:ui'; // for ImageFilter
 import 'dart:ui' as ui;
-import 'dart:typed_data';
-import 'wallet_screen.dart';
-import 'colis_screen.dart';
-import 'qr_code_screen.dart';
-import 'fidelite_screen.dart';
+import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:typed_data';
+import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/rendering.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'widgets/recharge_modal.dart';
 
 class ClientDashboardScreen extends StatefulWidget {
@@ -26,6 +24,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   AnimationController? _pulseController;
   Animation<double>? _pulseAnimation;
   final ScrollController _scrollController = ScrollController();
+  final PageController _promoController = PageController(viewportFraction: 0.85);
+  Timer? _carouselTimer;
 
   @override
   void initState() {
@@ -35,10 +35,26 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     _pulseAnimation = Tween<double>(begin: 0.2, end: 0.6).animate(_pulseController!);
+
+    _carouselTimer = Timer.periodic(const Duration(seconds: 6), (Timer timer) {
+      if (_promoController.hasClients) {
+        int nextPage = _promoController.page!.round() + 1;
+        if (nextPage > 1) { // We only have 2 pages
+          nextPage = 0;
+        }
+        _promoController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _carouselTimer?.cancel();
+    _promoController.dispose();
     _scrollController.dispose();
     _pulseController?.dispose();
     super.dispose();
@@ -46,8 +62,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   final List<Map<String, dynamic>> services = [
     {
-      'title': 'Colis',
-      'description': 'Gérez vos franchises et suivez l\'expédition.',
       'title': 'Colis Express',
       'description': 'Envoyez vos colis.',
       'icon': Icons.inventory_2,
@@ -80,198 +94,226 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020617), // slate-950
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // slate-950
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 550),
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedBuilder(
-                  animation: _scrollController,
-                  builder: (context, child) {
-                    double offset = _scrollController.hasClients ? _scrollController.offset : 0;
-                    // Disparaît rapidement
-                    double opacity = (1 - (offset / 35)).clamp(0.0, 1.0);
-                    // Translation latérale (glisse vers la gauche agressivement)
-                    double translateX = -(offset * 3).clamp(0.0, 200.0);
-                    
-                    return Opacity(
-                      opacity: opacity,
-                      child: Transform.translate(
-                        offset: Offset(translateX, 0),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: _buildHeader(context),
+          child: Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(milliseconds: 1500));
+                },
+                color: Colors.orangeAccent,
+                backgroundColor: Theme.of(context).cardColor,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _scrollController,
+                      builder: (context, child) {
+                        double offset = _scrollController.hasClients ? _scrollController.offset : 0;
+                        // Disparaît rapidement
+                        double opacity = (1 - (offset / 35)).clamp(0.0, 1.0);
+                        // Translation latérale (glisse vers la gauche agressivement)
+                        double translateX = -(offset * 3).clamp(0.0, 200.0);
+                        
+                        return Opacity(
+                          opacity: opacity,
+                          child: Transform.translate(
+                            offset: Offset(translateX, 0),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _buildHeaderLogo(context),
+                    ),
+                    _buildHeroWithWalletAndButtons(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                      child: _buildLiveStatusSection(context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: _buildServicesSection(context),
+                    ),
+                    const SizedBox(height: 32.0),
+                    _buildPromoCarousel(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+                      child: _buildRecentHistory(context),
+                    ),
+                    _buildPopularDestinations(context),
+                    SizedBox(height: MediaQuery.of(context).padding.bottom + 40),
+                  ],
                 ),
-                _buildHeroWithWalletAndButtons(context),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-                  child: _buildServicesSection(context),
-                ),
-                const SizedBox(height: 40),
-              ],
-            ),
+              ),
+              ),
+              // Fixed Hamburger Menu
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 16,
+                right: 20,
+                child: _buildHamburgerMenu(context),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeaderLogo(BuildContext context) {
     return Container(
       color: Colors.transparent, // 0% opacity
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
         bottom: 16,
         left: 20,
-        right: 20,
+        right: 80, // Space for the fixed hamburger menu
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-                // Logo
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.deepOrange.shade400, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(Icons.directions_car, color: Colors.deepOrange.shade400, size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900, 
-                          fontSize: 24,
-                          letterSpacing: -0.5,
-                          fontFamily: 'Roboto',
-                          shadows: [
-                            Shadow(color: Colors.black87, blurRadius: 6, offset: Offset(0, 2)),
-                          ],
-                        ),
-                        children: [
-                          const TextSpan(text: 'Aller-', style: TextStyle(color: Colors.white)),
-                          TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // Hamburger Menu
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.6),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.15)),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white, size: 26),
-                    onPressed: () {
-                      Scaffold.of(context).openEndDrawer();
-                    },
-                  ),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.deepOrange.shade400, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-    );
-  }
-
-  Widget _buildHeroWithWalletAndButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40), // Fully rounded corners
-        child: Stack(
-        children: [
-          // Background Image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/peugeot_406_hero.png',
-              fit: BoxFit.cover,
-            ),
+            child: Icon(Icons.directions_car, color: Colors.deepOrange.shade400, size: 18),
           ),
-          // Gradient Overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xFF020617).withOpacity(0.3),
-                    const Color(0xFF020617).withOpacity(0.4),
-                    const Color(0xFF020617).withOpacity(0.85), // Darker only at the very bottom
-                  ],
-                  stops: const [0.0, 0.6, 1.0],
-                ),
-              ),
-            ),
-          ),
-          // Content
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 30, 20, 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Espace Voyageur',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 40,
-                      letterSpacing: -1.0,
-                      shadows: [
-                        Shadow(color: Colors.black, blurRadius: 10),
-                        Shadow(color: Colors.black, blurRadius: 25),
-                        Shadow(color: Colors.black, blurRadius: 50),
-                        Shadow(color: Colors.black87, blurRadius: 80),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Bienvenue sur votre tableau de bord.\nGérez vos réservations et votre wallet en toute simplicité.',
-                    style: TextStyle(
-                      color: Colors.white, // Solid white for better readability
-                      fontSize: 16,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                      shadows: [
-                        Shadow(color: Colors.black, blurRadius: 8),
-                        Shadow(color: Colors.black, blurRadius: 20),
-                        Shadow(color: Colors.black, blurRadius: 40),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildPremiumWalletCard(context),
-                  const SizedBox(height: 24),
-                  _buildActionButtons(),
+          const SizedBox(width: 10),
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontWeight: FontWeight.w900, 
+                fontSize: 24,
+                letterSpacing: -0.5,
+                fontFamily: 'Roboto',
+                shadows: [
+                  Shadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 1)),
                 ],
               ),
+              children: [
+                TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
+              ],
             ),
           ),
         ],
       ),
-     ),
+    );
+  }
+
+  Widget _buildHamburgerMenu(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFFF97316).withValues(alpha: 0.1) : const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? const Color(0xFFF97316).withValues(alpha: 0.3) : const Color(0xFFFED7AA), width: 1),
+        boxShadow: [
+          if (!isDark) BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 3)),
+        ],
+      ),
+      child: Builder(
+        builder: (innerContext) {
+          return IconButton(
+            icon: Icon(Icons.menu, color: isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316), size: 20),
+            padding: const EdgeInsets.all(8),
+            constraints: const BoxConstraints(),
+            onPressed: () {
+              Scaffold.of(innerContext).openEndDrawer();
+            },
+          );
+        }
+      ),
+    );
+  }
+
+  Widget _buildHeroWithWalletAndButtons(BuildContext context) {
+    // Calculate the exact height for the hero to stop right above the Android footer.
+    final screenHeight = MediaQuery.of(context).size.height;
+    final topPadding = MediaQuery.of(context).padding.top;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
+    // Header logo height is approximately 16 (top padding) + 16 (bottom padding) + 30 (avatar size) = 62.
+    // We want the hero to take the remaining height minus some margin (16 for top margin, 16 for bottom margin).
+    final heroHeight = screenHeight - topPadding - 62 - bottomPadding - 32;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(40), // Fully rounded corners
+        child: SizedBox(
+          height: heroHeight > 550 ? heroHeight : 550, // Fallback for very small screens
+          child: Stack(
+            children: [
+              // Background Image
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/peugeot_406_hero.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // Overlay pour assombrir l'image et rendre le texte lisible (plus de dégradé)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.5), 
+                ),
+              ),
+              // Content
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 30, 20, 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Espace Voyageur', 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 32, // Diminué
+                          letterSpacing: -1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Bienvenue sur votre tableau de bord.\nGérez vos réservations et votre wallet en toute simplicité.', 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 13, // Diminué
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Spacer(flex: 2),
+                      _buildPremiumWalletCard(context),
+                      const Spacer(flex: 3),
+                      _buildActionButtons(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -287,17 +329,32 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A).withOpacity(0.2), // slightly darker to see the blur
+                color: Colors.black.withValues(alpha: 0.15), 
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: Colors.cyanAccent.withOpacity(_pulseAnimation!.value),
-                  width: 1.5,
+                  color: Colors.cyanAccent.withValues(alpha: 0.4 + (_pulseAnimation!.value * 0.6)), // Base opacity + pulse
+                  width: 2.0,
                 ),
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.cyanAccent.withValues(alpha: _pulseAnimation!.value * 0.20),
+                    Colors.transparent,
+                  ],
+                  radius: 1.5,
+                  center: Alignment.centerLeft,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyanAccent.withValues(alpha: _pulseAnimation!.value * 0.25),
+                    blurRadius: 15,
+                    spreadRadius: 1,
+                  ),
+                ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0), // subtle blur
+                  filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5), // Très léger flou
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
             child: Row(
@@ -305,12 +362,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.cyanAccent.withOpacity(0.2),
+                        color: Colors.cyanAccent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.cyanAccent.withOpacity(0.5)),
+                        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.5)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.cyanAccent.withOpacity(0.2),
+                            color: Colors.cyanAccent.withValues(alpha: 0.2),
                             blurRadius: 10,
                           ),
                         ],
@@ -326,35 +383,38 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Solde Wallet (XOF)',
                             style: TextStyle(
-                              color: Colors.grey[400],
+                              color: Colors.white70,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: const [
-                              Text(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
                                 '45 000',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 32,
                                   fontWeight: FontWeight.w900,
+                                  letterSpacing: -1.0,
                                 ),
                               ),
-                              SizedBox(width: 6),
-                              Text(
-                                'FCFA',
-                                style: TextStyle(
-                                  color: Colors.cyanAccent,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              const SizedBox(width: 6),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  'FCFA',
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent.withValues(alpha: 0.9),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
@@ -364,8 +424,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             onTap: () {
                               Navigator.pushNamed(context, '/wallet');
                             },
-                            child: Row(
-                              children: const [
+                            child: const Row(
+                              children: [
                                 Text(
                                   'Voir mon compte',
                                   style: TextStyle(
@@ -404,7 +464,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               onPressed: () {
                 showRechargeModal(context);
               },
-              icon: const Icon(Icons.flash_on, color: Colors.white),
+              icon: Icon(Icons.flash_on, color: Theme.of(context).colorScheme.onSurface),
               label: const Text('Recharger via Wave ou OM'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepOrangeAccent,
@@ -415,7 +475,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 ),
                 textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 elevation: 8,
-                shadowColor: Colors.orange.withOpacity(0.5),
+                shadowColor: Colors.orange.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -460,10 +520,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Vos Services',
-              style: TextStyle(
-                color: Colors.white,
+            Text(
+              'Vos Services', style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -491,16 +549,19 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               },
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white, 
+                      Theme.of(context).cardColor
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: service['color'].withOpacity(0.3), width: 1.5),
+                  border: Border.all(color: service['color'].withValues(alpha: 0.3), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.05),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -519,7 +580,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           child: Icon(
                             service['icon'],
                             size: 100,
-                            color: Colors.white.withOpacity(0.04),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                           ),
                         ),
                       ),
@@ -548,8 +609,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 service['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -0.5,
@@ -561,7 +621,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             Text(
                               service['description'],
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 fontSize: 12,
                                 height: 1.3,
                               ),
@@ -597,24 +657,107 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     );
   }
 
-  // --- NOUVELLES SECTIONS PREMIUM ---
+  Widget _buildActivitySummarySection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF97316).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.analytics_rounded, color: Color(0xFFF97316), size: 20),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              "Aperçu de l'activité", style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _buildActivityCard(context, 'Points Cumulés', 'X', Icons.stars_rounded, const Color(0xFFEAB308)),
+        const SizedBox(height: 12),
+        _buildActivityCard(context, 'Dernier Billet', 'X', Icons.directions_car_rounded, const Color(0xFF3B82F6)),
+        const SizedBox(height: 12),
+        _buildActivityCard(context, 'Dernier Colis', 'X', Icons.local_shipping_rounded, const Color(0xFF10B981)),
+      ],
+    );
+  }
+
+  Widget _buildActivityCard(BuildContext context, String title, String value, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildLiveStatusSection(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark ? [const Color(0xFF1E293B), const Color(0xFF0F172A)] : [const Color(0xFFF0FDF4), Colors.white],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? const Color(0xFF22C55E).withValues(alpha: 0.3) : const Color(0xFFBBF7D0)),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black.withValues(alpha: 0.4) : const Color(0xFF22C55E).withValues(alpha: 0.1),
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -624,11 +767,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF22C55E).withValues(alpha: 0.2),
+            decoration: const BoxDecoration(
+              color: Color(0xFF3B82F6),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_shipping_rounded, color: Color(0xFF22C55E), size: 28),
+            child: const Icon(Icons.directions_car, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -636,7 +779,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Colis en transit',
+                  'En route vers Dakar',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
@@ -645,65 +788,70 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Dakar → Touba • Arrivée estimée : 14h30',
+                  'Arrivée estimée dans 45 min',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 12,
+                    fontSize: 13,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.5)),
-            ),
-            child: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF22C55E), size: 14),
-          ),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF3B82F6)),
         ],
       ),
     );
   }
 
   Widget _buildPromoCarousel(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return SizedBox(
-      height: 160,
-      child: PageView(
-        controller: PageController(viewportFraction: 0.9),
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            'Offres Exclusives',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 140,
+          child: PageView(
+            controller: _promoController,
+            children: [
           _buildPromoCard(
             context,
-            'Parrainez un proche !',
-            'Gagnez 2000 FCFA sur votre prochain trajet pour chaque parrainage.',
+            'Parrainez un proche',
+            'Gagnez 2000 FCFA sur votre prochain trajet',
             const Color(0xFFF97316),
-            Icons.card_giftcard_rounded,
-            isDark,
+            Icons.card_giftcard,
           ),
           _buildPromoCard(
             context,
-            'Nouveau Service',
-            'Suivez désormais vos colis en temps réel sur la carte.',
-            const Color(0xFF3B82F6),
-            Icons.map_rounded,
-            isDark,
+            'Voyagez Léger',
+            '-10% sur les envois de colis cette semaine',
+            const Color(0xFF10B981),
+            Icons.local_offer,
           ),
         ],
       ),
+    ),
+      ],
     );
   }
 
-  Widget _buildPromoCard(BuildContext context, String title, String desc, Color color, IconData icon, bool isDark) {
+  Widget _buildPromoCard(BuildContext context, String title, String subtitle, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color, color.withValues(alpha: 0.8)],
+          colors: [color.withValues(alpha: 0.8), color],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -716,56 +864,53 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           ),
         ],
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Icon(icon, size: 100, color: Colors.white.withValues(alpha: 0.2)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                child: const Text('NOUVEAU', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 12),
-              Text(title, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(desc, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 60),
         ],
       ),
     );
   }
 
   Widget _buildRecentHistory(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Activité Récente', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
-            Text('Voir tout', style: TextStyle(color: const Color(0xFFF97316), fontSize: 14, fontWeight: FontWeight.bold)),
-          ],
+        Text(
+          'Historique Récent',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 24),
-        _buildTimelineItem(context, 'Colis livré', 'Dakar → Thiès', 'Hier, 14:30', Icons.check_circle_rounded, const Color(0xFF22C55E), true),
-        _buildTimelineItem(context, 'Trajet terminé', 'Aller-Retour : Dakar → Touba', '10 Juin, 08:00', Icons.directions_car_rounded, const Color(0xFF3B82F6), false),
+        const SizedBox(height: 20),
+        _buildTimelineItem(context, 'Réservation confirmée', 'Dakar - Touba', 'Il y a 2h', Icons.check_circle, const Color(0xFF10B981), isLast: false),
+        _buildTimelineItem(context, 'Colis livré', 'Touba - Dakar', 'Hier', Icons.local_shipping, const Color(0xFF3B82F6), isLast: true),
       ],
     );
   }
 
-  Widget _buildTimelineItem(BuildContext context, String title, String subtitle, String time, IconData icon, Color color, bool isLast) {
+  Widget _buildTimelineItem(BuildContext context, String title, String subtitle, String time, IconData icon, Color color, {required bool isLast}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -773,15 +918,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: color, size: 16),
             ),
-            if (isLast)
+            if (!isLast)
               Container(
                 width: 2,
-                height: 40,
+                height: 30,
                 color: Theme.of(context).dividerColor,
-                margin: const EdgeInsets.symmetric(vertical: 4),
               ),
           ],
         ),
@@ -790,83 +937,140 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13)),
-              if (isLast) const SizedBox(height: 20),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 13,
+                ),
+              ),
+              if (!isLast) const SizedBox(height: 20),
             ],
           ),
         ),
-        Text(time, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(
+          time,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildPopularDestinations(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final destinations = [
-      {'city': 'Touba', 'price': 'À partir de 4000 FCFA', 'color': const Color(0xFFF59E0B)},
-      {'city': 'Thiès', 'price': 'À partir de 2000 FCFA', 'color': const Color(0xFF10B981)},
-      {'city': 'Mbour', 'price': 'À partir de 2500 FCFA', 'color': const Color(0xFF06B6D4)},
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text('Destinations Populaires', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Destinations Populaires',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 140,
-          child: ListView.builder(
+          height: 180,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: destinations.length,
-            itemBuilder: (context, index) {
-              final dest = destinations[index];
-              final color = dest['color'] as Color;
-              return Container(
-                width: 140,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [color.withValues(alpha: 0.8), color],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -10,
-                      bottom: -10,
-                      child: Icon(Icons.location_city_rounded, size: 80, color: Colors.white.withValues(alpha: 0.2)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(dest['city'] as String, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text(dest['price'] as String, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 10)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+            children: [
+              _buildDestinationCard(context, 'Dakar', '4000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/African_Renaissance_Monument_%285502494604%29.jpg/960px-African_Renaissance_Monument_%285502494604%29.jpg'),
+              const SizedBox(width: 16),
+              _buildDestinationCard(context, 'Touba', '5000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/La_grande_mosqu%C3%A9e_de_Touba.jpg/960px-La_grande_mosqu%C3%A9e_de_Touba.jpg'),
+              const SizedBox(width: 16),
+              _buildDestinationCard(context, 'Thiès', '2500 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Thi%C3%A8sCarrefour.JPG/960px-Thi%C3%A8sCarrefour.JPG'),
+              const SizedBox(width: 16),
+              _buildDestinationCard(context, 'Mbour', '3000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/M%27bour_harbor.jpeg/960px-M%27bour_harbor.jpeg'),
+              const SizedBox(width: 16),
+              _buildDestinationCard(context, 'Kaolack', '4500 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KaolackCommerce.JPG/960px-KaolackCommerce.JPG'),
+              const SizedBox(width: 16),
+              _buildDestinationCard(context, 'Saint-Louis', '6000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Saintlouis_pont_Faidherbe.jpg/960px-Saintlouis_pont_Faidherbe.jpg'),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDestinationCard(BuildContext context, String city, String price, String imageUrl) {
+    return Container(
+      width: 140,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.network(
+              imageUrl,
+              headers: const {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'},
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    city,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF97316),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      price,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -965,8 +1169,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF000000) : Colors.white;
+        final headerBgColor = isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF8FAFC);
+        final borderColor = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE2E8F0);
+        final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+        final textMutedColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
         return Stack(
           children: [
             Positioned.fill(
@@ -981,16 +1191,16 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Où allez-vous avec Allo Dakar ?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Où allez-vous avec Allo Dakar ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildPlacesAutocomplete('Ville de départ (ex: Dakar)', departController, icon: Icons.location_on),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF97316).withOpacity(0.05),
+                      color: const Color(0xFFF97316).withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFF97316).withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1005,14 +1215,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isLocating ? const Color(0xFFF97316).withOpacity(0.5) : const Color(0xFFF97316),
+                                  color: isLocating ? const Color(0xFFF97316).withValues(alpha: 0.5) : const Color(0xFFF97316),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.my_location, color: Colors.white, size: 12),
+                                    Icon(Icons.my_location, color: Theme.of(context).colorScheme.onSurface, size: 12),
                                     const SizedBox(width: 4),
-                                    Text(isLocating ? 'Patientez...' : 'Me localiser', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                    Text(isLocating ? 'Patientez...' : 'Me localiser', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
@@ -1046,106 +1256,72 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             }
 
             Widget buildStep2() {
+              List<Widget> tripWidgets = [];
+              for (var t in realTrips) {
+                tripWidgets.add(
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedTrip = t;
+                        step = 3;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
+                        border: Border.all(color: borderColor),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(t['company'] as String, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Text('${t['type']} • ${t['options']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('${t['price']} FCFA', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                              const SizedBox(height: 4),
+                              Text('Départ à ${t['time']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(bottom: 12),
-                    child: Text('Choix du véhicule Allo Dakar', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text('Choix du véhicule Allo Dakar', style: TextStyle(color: textMutedColor, fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                   if (realTrips.isEmpty)
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A1A1A),
-                        border: Border.all(color: const Color(0xFF2A2A2A)),
+                        color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
+                        border: Border.all(color: borderColor),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Center(
-                        child: Text("Aucun trajet trouvé pour cette date.", style: TextStyle(color: Colors.white70)),
+                      child: Center(
+                        child: Text("Aucun trajet trouvé pour cette date.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       ),
                     )
                   else
-                    ...realTrips.map<Widget>((t) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedTrip = t;
-                            step = 3;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            border: Border.all(color: const Color(0xFF2A2A2A)),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF97316).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: const Color(0xFFF97316).withOpacity(0.3)),
-                                          ),
-                                          child: Text(t['time'], style: const TextStyle(color: Color(0xFFFB923C), fontWeight: FontWeight.bold)),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(child: Text(t['company'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(t['type'], style: const TextStyle(color: Colors.white70, fontSize: 12), overflow: TextOverflow.ellipsis),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                                            child: Text(t['options'], style: const TextStyle(color: Colors.blueAccent, fontSize: 10)),
-                                          ),
-                                        ],
-                                      ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      '${t['passagers'] ?? 0} passagers prévus • ${t['placesPrises'] ?? 0} places prises • ${t['availableSeats'] ?? 4} places restantes',
-                                      style: const TextStyle(color: Color(0xFFF97316), fontSize: 11, fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text("${t['price']} FCFA", style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 18)),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF97316).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Text('Choisir', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                    ...tripWidgets,
                 ],
               );
             }
@@ -1154,12 +1330,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               if (ticketPour == null) {
                 return Column(
                   children: [
-                    const Icon(Icons.person, size: 64, color: Color(0xFFF97316)),
-                    const SizedBox(height: 16),
-                    const Text('Pour qui est ce billet ?', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text('Veuillez sélectionner le bénéficiaire.', style: TextStyle(color: Colors.white70)),
-                    const SizedBox(height: 32),
+                    Icon(Icons.person, size: 64, color: Color(0xFFF97316)),
+                    SizedBox(height: 16),
+                    Text('Pour qui est ce billet ?', style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 8),
+                    Text('Veuillez sélectionner le bénéficiaire.', style: TextStyle(color: textMutedColor)),
+                    SizedBox(height: 32),
                     Row(
                       children: [
                         Expanded(
@@ -1170,24 +1346,24 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               telephone = '+221 77 123 45 67';
                             }),
                             child: Container(
-                              padding: const EdgeInsets.all(24),
+                              padding: EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF222222).withOpacity(0.5),
-                                border: Border.all(color: const Color(0xFF333333), width: 2),
+                                color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC).withValues(alpha: 0.5),
+                                border: Border.all(color: borderColor, width: 2),
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: Column(
                                 children: [
-                                  const Icon(Icons.person, color: Colors.white70, size: 32),
-                                  const SizedBox(height: 12),
-                                  const Text("C'est pour moi", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  const Text("Mon profil", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                  Icon(Icons.person, color: textMutedColor, size: 32),
+                                  SizedBox(height: 12),
+                                  Text("C'est pour moi", style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+                                  Text("Mon profil", style: TextStyle(color: textMutedColor, fontSize: 12)),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Expanded(
                           child: GestureDetector(
                             onTap: () => setState(() {
@@ -1196,18 +1372,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               telephone = '';
                             }),
                             child: Container(
-                              padding: const EdgeInsets.all(24),
+                              padding: EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF222222).withOpacity(0.5),
-                                border: Border.all(color: const Color(0xFF333333), width: 2),
+                                color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC).withValues(alpha: 0.5),
+                                border: Border.all(color: borderColor, width: 2),
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: Column(
                                 children: [
-                                  const Icon(Icons.group, color: Colors.white70, size: 32),
-                                  const SizedBox(height: 12),
-                                  const Text("Pour un proche", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  const Text("Nouvelles infos", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                  Icon(Icons.group, color: textMutedColor, size: 32),
+                                  SizedBox(height: 12),
+                                  Text("Pour un proche", style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+                                  Text("Nouvelles infos", style: TextStyle(color: textMutedColor, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -1225,8 +1401,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(color: const Color(0xFF2A2A2A)),
+                      color: isDark ? const Color(0xFF141414) : Colors.white,
+                      border: Border.all(color: borderColor),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -1236,15 +1412,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: const Color(0xFFF97316).withOpacity(0.1), shape: BoxShape.circle),
-                              child: Icon(ticketPour == 'moi' ? Icons.person : Icons.group, color: const Color(0xFFF97316), size: 20),
+                              decoration: const BoxDecoration(color: Color(0xFFF97316), shape: BoxShape.circle),
+                              child: Icon(ticketPour == 'moi' ? Icons.person : Icons.group, color: Colors.white, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Billet destiné à', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                                Text(ticketPour == 'moi' ? 'Moi-même' : 'Un proche', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Billet destiné à', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                                Text(ticketPour == 'moi' ? 'Moi-même' : 'Un proche', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],
@@ -1257,33 +1433,33 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text('Nom Complet', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Nom Complet', style: TextStyle(color: textMutedColor, fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: TextEditingController(text: nom)..selection = TextSelection.collapsed(offset: nom.length),
                     onChanged: (v) => setState(() => nom = v),
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: textColor),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.black,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+                      fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
                       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF97316))),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Téléphone', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Téléphone', style: TextStyle(color: textMutedColor, fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: TextEditingController(text: telephone)..selection = TextSelection.collapsed(offset: telephone.length),
                     onChanged: (v) => setState(() => telephone = v),
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: textColor),
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.black,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+                      fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
                       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF97316))),
                     ),
                   ),
@@ -1292,18 +1468,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             }
 
             Widget buildStep4() {
-              int passagersCount = int.tryParse(passagers?.split(' ')[0] ?? '1') ?? 1;
+              int passagersCount = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
               int basePrice = selectedTrip?['price'] ?? 5000;
               int total = basePrice * passagersCount;
 
-              Widget _buildPaymentMethodOption(String id, String name, IconData icon, Color color) {
+              Widget buildPaymentMethodOption(String id, String name, IconData icon, Color color) {
                 bool isSelected = paymentMethod == id;
                 return GestureDetector(
                   onTap: () => setState(() => paymentMethod = id),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected ? color.withOpacity(0.1) : const Color(0xFF1A1A1A),
-                      border: Border.all(color: isSelected ? color : const Color(0xFF2A2A2A), width: isSelected ? 2 : 1),
+                      color: isSelected ? color.withValues(alpha: 0.1) : Theme.of(context).cardColor,
+                      border: Border.all(color: isSelected ? color : Theme.of(context).dividerColor, width: isSelected ? 2 : 1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1324,38 +1500,38 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A1A),
-                      border: Border.all(color: const Color(0xFF2A2A2A)),
+                      color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
+                      border: Border.all(color: borderColor),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Résumé de la commande', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text('Résumé de la commande', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Billet ${selectedTrip?['company'] ?? ''}', style: const TextStyle(color: Colors.white70)),
-                            Text('${basePrice * passagersCount} FCFA', style: const TextStyle(color: Colors.white)),
+                            Text('Billet ${selectedTrip?['company'] ?? ''}', style: TextStyle(color: textMutedColor)),
+                            Text('${basePrice * passagersCount} FCFA', style: TextStyle(color: textColor)),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Taxes et frais', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                            const Text('0 FCFA', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                            Text('Taxes et frais', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                            Text('0 FCFA', style: TextStyle(color: textMutedColor, fontSize: 12)),
                           ],
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Divider(color: Color(0xFF2A2A2A)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Divider(color: borderColor),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Total à payer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text('Total à payer', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                             Text('$total FCFA', style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 18)),
                           ],
                         ),
@@ -1363,7 +1539,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text('Moyen de paiement', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text('Moyen de paiement', style: TextStyle(color: textMutedColor, fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: 2,
@@ -1373,10 +1549,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     crossAxisSpacing: 12,
                     childAspectRatio: 2.5,
                     children: [
-                      _buildPaymentMethodOption('wave', 'Wave', Icons.phone_android, const Color(0xFF2563EB)),
-                      _buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316)),
-                      _buildPaymentMethodOption('wallet', 'Wallet', Icons.account_balance_wallet, const Color(0xFF9CA3AF)),
-                      _buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
+                      buildPaymentMethodOption('wave', 'Wave', Icons.phone_android, const Color(0xFF2563EB)),
+                      buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316)),
+                      buildPaymentMethodOption('wallet', 'Wallet', Icons.account_balance_wallet, const Color(0xFF9CA3AF)),
+                      buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
                     ],
                   ),
                 ],
@@ -1384,7 +1560,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             }
 
             Widget buildStep5() {
-              int passagersCount = int.tryParse(passagers?.split(' ')[0] ?? '1') ?? 1;
+              int passagersCount = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
               int basePrice = selectedTrip?['price'] ?? 5000;
               int total = basePrice * passagersCount;
               String departCity = departController.text.isNotEmpty ? departController.text : 'Dakar, Sénégal';
@@ -1398,7 +1574,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xFF0F172A),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
@@ -1418,12 +1594,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 children: [
                                   const Icon(Icons.directions_car, color: Color(0xFFF97316)),
                                   const SizedBox(width: 8),
-                                  const Text('Aller', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                  Text('Aller', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                                   const Text('Retour', style: TextStyle(color: Color(0xFFF97316), fontSize: 20, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('Demande en attente : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                              Text('Demande en attente : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -1441,29 +1617,29 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('DÉPART', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text(departCity.split(',')[0], style: const TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
-                                        const Text('Sénégal', style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('DÉPART', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text(departCity.split(',')[0], style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('Sénégal', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.arrow_forward, color: Color(0xFFF97316)),
+                                  Icon(Icons.arrow_forward, color: Color(0xFFF97316)),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        const Text('ARRIVÉE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text(arriveeCity.split(',')[0], style: const TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
-                                        const Text('Sénégal', style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('ARRIVÉE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text(arriveeCity.split(',')[0], style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('Sénégal', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                               
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16),
                                 child: Text('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -', style: TextStyle(color: Color(0xFFE2E8F0)), maxLines: 1, overflow: TextOverflow.clip),
                               ),
@@ -1475,9 +1651,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('PASSAGER', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text(nom, style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text('PASSAGER', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text(nom, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
@@ -1485,16 +1661,16 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('PLACES', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text('$passagersCount', style: const TextStyle(color: Color(0xFFEA580C), fontSize: 16, fontWeight: FontWeight.bold)),
+                                        Text('PLACES', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text('$passagersCount', style: TextStyle(color: Color(0xFFEA580C), fontSize: 16, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                               
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               
                               // Infos 2
                               Row(
@@ -1503,9 +1679,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('DATE & HEURE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text('$dateStr à\nFlexible', style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text('DATE & HEURE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text('$dateStr à\nFlexible', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
@@ -1513,27 +1689,27 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('PRIX TOTAL', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text('$total FCFA', style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text('PRIX TOTAL', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 4),
+                                        Text('$total FCFA', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                               
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16),
                                 child: Text('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -', style: TextStyle(color: Color(0xFFE2E8F0)), maxLines: 1, overflow: TextOverflow.clip),
                               ),
                               
                               // QR Code
                               Container(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: const Color(0xFFFFF7ED), width: 4),
+                                  border: Border.all(color: Colors.white, width: 4),
                                 ),
                                 child: Stack(
                                   alignment: Alignment.center,
@@ -1543,11 +1719,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                       version: QrVersions.auto,
                                       size: 160.0,
                                       padding: EdgeInsets.zero,
-                                      dataModuleStyle: const QrDataModuleStyle(
+                                      dataModuleStyle: QrDataModuleStyle(
                                         dataModuleShape: QrDataModuleShape.circle,
                                         color: Colors.black,
                                       ),
-                                      eyeStyle: const QrEyeStyle(
+                                      eyeStyle: QrEyeStyle(
                                         eyeShape: QrEyeShape.square,
                                         color: Colors.black,
                                       ),
@@ -1555,16 +1731,16 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     Container(
                                       width: 40,
                                       height: 40,
-                                      color: const Color(0xFFEA580C),
+                                      color: Color(0xFFEA580C),
                                       alignment: Alignment.center,
-                                      child: const Text('AR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                      child: Text('AR', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
                                     ),
                                   ],
                                 ),
                               ),
                               
-                              const SizedBox(height: 16),
-                              const Text('Recherche de chauffeurs en cours...', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 16),
+                              Text('Recherche de chauffeurs en cours...', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -1587,8 +1763,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
                             } catch (e) {}
                           },
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF222222), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.download, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('Billet', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).cardColor, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.download, size: 16, color: textColor), const SizedBox(width: 4), Flexible(child: Text('Billet', style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -1604,8 +1780,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
                             } catch (e) {}
                           },
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF222222), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.share, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('Partager', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).cardColor, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.share, size: 16, color: textColor), const SizedBox(width: 4), Flexible(child: Text('Partager', style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -1616,7 +1792,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             try { await launchUrl(url); } catch (e) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur WhatsApp'))); }
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat, size: 16, color: Colors.white), SizedBox(width: 4), Flexible(child: Text('WhatsApp', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat, size: 16, color: textColor), const SizedBox(width: 4), Flexible(child: Text('WhatsApp', style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis))]),
                         ),
                       ),
                     ],
@@ -1627,11 +1803,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF222222),
+                        backgroundColor: Theme.of(context).cardColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: const Text('Retour à l\'accueil', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text('Retour à l\'accueil', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -1650,10 +1826,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   maxHeight: MediaQuery.of(context).size.height * 0.9,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A1A), // Web dark mode bg
+                  color: bgColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 24, spreadRadius: 8),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 24, spreadRadius: 0),
                   ],
                 ),
                 child: Column(
@@ -1663,10 +1839,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     if (step < 5)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF141414), // Header bg
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                          border: Border(bottom: BorderSide(color: Color(0xFF2A2A2A))),
+                        decoration: BoxDecoration(color: headerBgColor,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                          border: Border(bottom: BorderSide(color: borderColor)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1674,12 +1849,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             if (step > 1)
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF222222),
+                                  color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
                                   borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: const Color(0xFF333333)),
+                                  border: Border.all(color: borderColor),
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.arrow_back, color: Colors.white70),
+                                  icon: Icon(Icons.arrow_back, color: textMutedColor),
                                   onPressed: () => setState(() => step--),
                                 ),
                               )
@@ -1688,20 +1863,20 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           Expanded(
                             child: Column(
                               children: [
-                                const Text('Nouvelle Demande', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                Text('Nouvelle Demande', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 4),
-                                Text('Étape $step sur 4 : $stepTitle', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                                Text('Étape $step sur 4 : $stepTitle', style: TextStyle(color: textMutedColor, fontSize: 12)),
                               ],
                             ),
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF222222),
+                              color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: const Color(0xFF333333)),
+                              border: Border.all(color: borderColor),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white70),
+                              icon: Icon(Icons.close, color: textMutedColor),
                               onPressed: () => Navigator.pop(context),
                             ),
                           ),
@@ -1714,7 +1889,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       Container(
                         height: 4,
                         width: double.infinity,
-                        color: const Color(0xFF1A1A1A),
+                        color: borderColor,
                         alignment: Alignment.centerLeft,
                         child: FractionallySizedBox(
                           widthFactor: step / 4,
@@ -1738,10 +1913,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     if (step < 5 && (step == 1 || (step == 3 && ticketPour != null) || step == 4))
                       Container(
                         padding: const EdgeInsets.all(24),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF141414), // Footer bg
-                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-                          border: Border(top: BorderSide(color: Color(0xFF2A2A2A))),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC), // Footer bg
+                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                          border: Border(top: BorderSide(color: borderColor)),
                         ),
                         child: SizedBox(
                           width: double.infinity,
@@ -1771,15 +1945,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               }
                             },
                             icon: isSearching 
-                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
-                              : Icon(step == 4 ? Icons.payment : (step == 3 ? Icons.check_circle : Icons.search), color: Colors.white),
-                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : 'Payer maintenant', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: textColor, strokeWidth: 2)) 
+                              : Icon(step == 4 ? Icons.payment : (step == 3 ? Icons.check_circle : Icons.search), color: textColor),
+                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : 'Payer maintenant', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF97316),
+                              disabledBackgroundColor: isDark ? const Color(0xFF222222) : const Color(0xFFCBD5E1),
+                              disabledForegroundColor: isDark ? Colors.white54 : Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               elevation: 8,
-                              shadowColor: const Color(0xFFF97316).withOpacity(0.5),
+                              shadowColor: const Color(0xFFF97316).withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -1800,20 +1976,20 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   Widget _buildBookingInput(IconData icon, String hint, {Color iconColor = Colors.white54, TextEditingController? controller}) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.black, // bg-black
+        fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
         prefixIcon: Icon(icon, color: iconColor, size: 20),
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white70),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1828,21 +2004,21 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     return DropdownButtonFormField<String>(
       isExpanded: true,
       value: value?.isEmpty == true ? null : value,
-      hint: Text(hint, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+      hint: Text(hint, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
       items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14)))).toList(),
       onChanged: onChanged,
-      dropdownColor: const Color(0xFF1A1A1A),
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      dropdownColor: Theme.of(context).cardColor,
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.black,
-        prefixIcon: Icon(icon, color: Colors.white54, size: 20),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+        fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF97316))),
         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       ),
-      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54),
+      icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
     );
   }
 
@@ -1878,15 +2054,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         return TextField(
           controller: textEditingController,
           focusNode: focusNode,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black,
+            fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
             prefixIcon: icon != null ? Icon(icon, color: iconColor, size: 20) : null,
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white70),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius), borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(borderRadius), borderSide: const BorderSide(color: Color(0xFFF97316))),
             contentPadding: contentPadding,
           ),
@@ -1898,7 +2074,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 8,
-            color: const Color(0xFF1A1A1A),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             child: Container(
               width: 330,
@@ -1913,10 +2089,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     onTap: () => onSelected(option),
                     child: Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Color(0xFF2A2A2A))),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
                       ),
-                      child: Text(option, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      child: Text(option, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
                     ),
                   );
                 },

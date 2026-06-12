@@ -1,12 +1,29 @@
 'use client';
 
-import React from 'react';
-import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCircle2, Gift, Map, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (carouselRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+        // Si on est à la fin, on revient au début, sinon on avance d'une carte (env. 320px + gap)
+        if (scrollLeft >= maxScroll - 10) {
+          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          carouselRef.current.scrollBy({ left: 336, behavior: 'smooth' });
+        }
+      }
+    }, 6000); // 6 secondes comme sur Flutter
+    return () => clearInterval(interval);
+  }, []);
 
   const sections = [
     {
@@ -152,25 +169,78 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-        {/* Carrousel Promo */}
-        <div className="pt-8 -mx-5 px-5 overflow-x-auto no-scrollbar">
-          <div className="flex gap-4 min-w-max pb-4">
-            {/* Promo 1 */}
-            <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20">
-              <Gift className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20" />
-              <div className="relative z-10 flex flex-col justify-center h-full">
-                <span className="bg-white/30 text-white text-[10px] font-bold px-2.5 py-1 rounded-full w-max mb-3">NOUVEAU</span>
-                <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche !</h3>
-                <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet pour chaque parrainage.</p>
+        {/* Aperçu de l'activité (added to sync with Flutter) */}
+        <div className="pt-8">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
+            Aperçu de l'activité
+          </h2>
+          <div className="flex flex-col gap-4">
+            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                <Award className="text-orange-500 w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-900 dark:text-white">Points Cumulés</h3>
+              </div>
+              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
+                <span className="font-bold text-slate-900 dark:text-white">X</span>
               </div>
             </div>
-            {/* Promo 2 */}
-            <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-400 p-6 relative overflow-hidden shadow-lg shadow-blue-500/20">
-              <Map className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20" />
-              <div className="relative z-10 flex flex-col justify-center h-full">
-                <span className="bg-white/30 text-white text-[10px] font-bold px-2.5 py-1 rounded-full w-max mb-3">NOUVEAU</span>
-                <h3 className="text-white font-bold text-xl mb-1">Nouveau Service</h3>
-                <p className="text-white/90 text-sm line-clamp-2">Suivez désormais vos colis en temps réel sur la carte.</p>
+            
+            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <QrCode className="text-blue-500 w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-900 dark:text-white">Dernier Billet</h3>
+              </div>
+              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
+                <span className="font-bold text-slate-900 dark:text-white">X</span>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                <Package className="text-purple-500 w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-900 dark:text-white">Dernier Colis</h3>
+              </div>
+              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
+                <span className="font-bold text-slate-900 dark:text-white">X</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Offres Exclusives */}
+        <div className="pt-8">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
+            Offres Exclusives
+          </h2>
+          <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
+            <div className="flex gap-4 min-w-max pb-4">
+              {/* Promo 1 */}
+              <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20" style={{ scrollSnapAlign: 'start' }}>
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+                </div>
+                <div className="relative z-10 flex flex-col justify-center h-full">
+                  <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche</h3>
+                  <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet</p>
+                </div>
+              </div>
+              {/* Promo 2 */}
+              <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20" style={{ scrollSnapAlign: 'start' }}>
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                </div>
+                <div className="relative z-10 flex flex-col justify-center h-full">
+                  <h3 className="text-white font-bold text-xl mb-1">Voyagez Léger</h3>
+                  <p className="text-white/90 text-sm line-clamp-2">-10% sur les envois de colis cette semaine</p>
+                </div>
               </div>
             </div>
           </div>
@@ -181,40 +251,39 @@ export default function ClientDashboard() {
           <div className="flex justify-between items-end mb-6">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
-              Activité Récente
+              Historique Récent
             </h2>
-            <button className="text-orange-500 font-bold text-sm">Voir tout</button>
           </div>
           <div className="flex flex-col">
             {/* Item 1 */}
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-green-500/15 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 </div>
                 <div className="w-[2px] h-10 bg-slate-200 dark:bg-slate-800 my-1"></div>
               </div>
               <div className="flex-1 pb-4 flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis livré</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Dakar &rarr; Thiès</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Réservation confirmée</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Dakar - Touba</p>
                 </div>
-                <span className="text-slate-400 text-xs font-bold">Hier, 14:30</span>
+                <span className="text-slate-400 text-xs font-bold">Il y a 2h</span>
               </div>
             </div>
             {/* Item 2 */}
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0">
-                  <CarFront className="w-4 h-4 text-blue-500" />
+                  <Package className="w-4 h-4 text-blue-500" />
                 </div>
               </div>
               <div className="flex-1 pb-4 flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Trajet terminé</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Aller-Retour : Dakar &rarr; Touba</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis livré</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Touba - Dakar</p>
                 </div>
-                <span className="text-slate-400 text-xs font-bold">10 Juin, 08:00</span>
+                <span className="text-slate-400 text-xs font-bold">Hier</span>
               </div>
             </div>
           </div>
@@ -227,21 +296,48 @@ export default function ClientDashboard() {
             Destinations Populaires
           </h2>
           <div className="-mx-5 px-5 overflow-x-auto no-scrollbar">
-            <div className="flex gap-3 min-w-max pb-4">
-              <div className="w-36 h-36 rounded-[20px] bg-gradient-to-br from-amber-500/80 to-amber-500 relative overflow-hidden shadow-lg shadow-amber-500/20 p-4 flex flex-col justify-end">
-                <Building2 className="absolute -bottom-4 -right-4 w-20 h-20 text-white/20" />
+            <div className="flex gap-4 min-w-max pb-4">
+              {/* Dakar */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/African_Renaissance_Monument_%285502494604%29.jpg/960px-African_Renaissance_Monument_%285502494604%29.jpg" alt="Dakar" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <h3 className="text-white font-bold text-lg relative z-10">Dakar</h3>
+                <p className="text-white/90 text-xs relative z-10 mt-1">4000 FCFA</p>
+              </div>
+              {/* Touba */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/La_grande_mosqu%C3%A9e_de_Touba.jpg/960px-La_grande_mosqu%C3%A9e_de_Touba.jpg" alt="Touba" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Touba</h3>
-                <p className="text-white/90 text-[10px] relative z-10 mt-1">À partir de 4000 FCFA</p>
+                <p className="text-white/90 text-xs relative z-10 mt-1">5000 FCFA</p>
               </div>
-              <div className="w-36 h-36 rounded-[20px] bg-gradient-to-br from-emerald-500/80 to-emerald-500 relative overflow-hidden shadow-lg shadow-emerald-500/20 p-4 flex flex-col justify-end">
-                <Building2 className="absolute -bottom-4 -right-4 w-20 h-20 text-white/20" />
+              {/* Thiès */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Thi%C3%A8sCarrefour.JPG/960px-Thi%C3%A8sCarrefour.JPG" alt="Thiès" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Thiès</h3>
-                <p className="text-white/90 text-[10px] relative z-10 mt-1">À partir de 2000 FCFA</p>
+                <p className="text-white/90 text-xs relative z-10 mt-1">2500 FCFA</p>
               </div>
-              <div className="w-36 h-36 rounded-[20px] bg-gradient-to-br from-cyan-500/80 to-cyan-500 relative overflow-hidden shadow-lg shadow-cyan-500/20 p-4 flex flex-col justify-end">
-                <Building2 className="absolute -bottom-4 -right-4 w-20 h-20 text-white/20" />
+              {/* Mbour */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/M%27bour_harbor.jpeg/960px-M%27bour_harbor.jpeg" alt="Mbour" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Mbour</h3>
-                <p className="text-white/90 text-[10px] relative z-10 mt-1">À partir de 2500 FCFA</p>
+                <p className="text-white/90 text-xs relative z-10 mt-1">3000 FCFA</p>
+              </div>
+              {/* Kaolack */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KaolackCommerce.JPG/960px-KaolackCommerce.JPG" alt="Kaolack" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <h3 className="text-white font-bold text-lg relative z-10">Kaolack</h3>
+                <p className="text-white/90 text-xs relative z-10 mt-1">4500 FCFA</p>
+              </div>
+              {/* Saint-Louis */}
+              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Saintlouis_pont_Faidherbe.jpg/960px-Saintlouis_pont_Faidherbe.jpg" alt="Saint-Louis" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <h3 className="text-white font-bold text-lg relative z-10">Saint-Louis</h3>
+                <p className="text-white/90 text-xs relative z-10 mt-1">6000 FCFA</p>
               </div>
             </div>
           </div>
