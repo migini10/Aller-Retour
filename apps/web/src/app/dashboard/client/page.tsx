@@ -299,42 +299,42 @@ export default function ClientDashboard() {
             <div className="flex gap-4 min-w-max pb-4">
               {/* Dakar */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/African_Renaissance_Monument_%285502494604%29.jpg/960px-African_Renaissance_Monument_%285502494604%29.jpg" alt="Dakar" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/dakar.jpg" alt="Dakar" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Dakar</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">4000 FCFA</p>
               </div>
               {/* Touba */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/La_grande_mosqu%C3%A9e_de_Touba.jpg/960px-La_grande_mosqu%C3%A9e_de_Touba.jpg" alt="Touba" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/touba.jpg" alt="Touba" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Touba</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">5000 FCFA</p>
               </div>
               {/* Thiès */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Thi%C3%A8sCarrefour.JPG/960px-Thi%C3%A8sCarrefour.JPG" alt="Thiès" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/thies.jpg" alt="Thiès" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Thiès</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">2500 FCFA</p>
               </div>
               {/* Mbour */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/M%27bour_harbor.jpeg/960px-M%27bour_harbor.jpeg" alt="Mbour" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/mbour.jpg" alt="Mbour" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Mbour</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">3000 FCFA</p>
               </div>
               {/* Kaolack */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KaolackCommerce.JPG/960px-KaolackCommerce.JPG" alt="Kaolack" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/kaolack.jpg" alt="Kaolack" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Kaolack</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">4500 FCFA</p>
               </div>
               {/* Saint-Louis */}
               <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Saintlouis_pont_Faidherbe.jpg/960px-Saintlouis_pont_Faidherbe.jpg" alt="Saint-Louis" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img src="/images/destinations/saint_louis.jpg" alt="Saint-Louis" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <h3 className="text-white font-bold text-lg relative z-10">Saint-Louis</h3>
                 <p className="text-white/90 text-xs relative z-10 mt-1">6000 FCFA</p>

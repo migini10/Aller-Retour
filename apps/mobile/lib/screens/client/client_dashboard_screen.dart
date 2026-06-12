@@ -991,17 +991,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             children: [
-              _buildDestinationCard(context, 'Dakar', '4000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/African_Renaissance_Monument_%285502494604%29.jpg/960px-African_Renaissance_Monument_%285502494604%29.jpg'),
+              _buildDestinationCard(context, 'Dakar', '4000 FCFA', 'assets/images/destinations/dakar.jpg'),
               const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Touba', '5000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/La_grande_mosqu%C3%A9e_de_Touba.jpg/960px-La_grande_mosqu%C3%A9e_de_Touba.jpg'),
+              _buildDestinationCard(context, 'Touba', '5000 FCFA', 'assets/images/destinations/touba.jpg'),
               const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Thiès', '2500 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Thi%C3%A8sCarrefour.JPG/960px-Thi%C3%A8sCarrefour.JPG'),
+              _buildDestinationCard(context, 'Thiès', '2500 FCFA', 'assets/images/destinations/thies.jpg'),
               const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Mbour', '3000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/M%27bour_harbor.jpeg/960px-M%27bour_harbor.jpeg'),
+              _buildDestinationCard(context, 'Mbour', '3000 FCFA', 'assets/images/destinations/mbour.jpg'),
               const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Kaolack', '4500 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KaolackCommerce.JPG/960px-KaolackCommerce.JPG'),
+              _buildDestinationCard(context, 'Kaolack', '4500 FCFA', 'assets/images/destinations/kaolack.jpg'),
               const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Saint-Louis', '6000 FCFA', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Saintlouis_pont_Faidherbe.jpg/960px-Saintlouis_pont_Faidherbe.jpg'),
+              _buildDestinationCard(context, 'Saint-Louis', '6000 FCFA', 'assets/images/destinations/saint_louis.jpg'),
             ],
           ),
         ),
@@ -1028,9 +1028,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
+            Image.asset(
               imageUrl,
-              headers: const {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'},
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
             ),
