@@ -28,11 +28,12 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
     if (code == null) {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       Random rnd = Random();
-      code = 'AR-';
+      String newCode = 'AR-';
       for (int i = 0; i < 6; i++) {
-        code += chars[rnd.nextInt(chars.length)];
+        newCode += chars[rnd.nextInt(chars.length)];
       }
-      await prefs.setString('aller_retour_referral_code', code);
+      await prefs.setString('aller_retour_referral_code', newCode);
+      code = newCode;
     }
 
     setState(() {
