@@ -16,6 +16,7 @@ import 'screens/driver/driver_scanner_screen.dart';
 import 'screens/driver/driver_vehicule_screen.dart';
 import 'screens/driver/driver_settings_screen.dart';
 import 'screens/driver/driver_localisation_screen.dart';
+import 'screens/client/parrainage_screen.dart';
 import 'services/offline_db.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
@@ -68,6 +69,7 @@ class AllerRetourApp extends StatelessWidget {
         '/driver/vehicule': (context) => const DriverVehiculeScreen(),
         '/driver/settings': (context) => const DriverSettingsScreen(),
         '/driver/localisation': (context) => const DriverLocalisationScreen(),
+        '/parrainage': (context) => const ParrainageScreen(),
       },
     );
   }

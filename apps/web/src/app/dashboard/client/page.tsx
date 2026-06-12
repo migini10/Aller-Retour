@@ -254,7 +254,7 @@ export default function ClientDashboard() {
           <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
             <div className="flex gap-4 min-w-max pb-4">
               {/* Promo 1 */}
-              <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20" style={{ scrollSnapAlign: 'start' }}>
+              <Link href="/dashboard/parrainage" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
                 </div>
@@ -262,9 +262,9 @@ export default function ClientDashboard() {
                   <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche</h3>
                   <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet</p>
                 </div>
-              </div>
+              </Link>
               {/* Promo 2 */}
-              <div className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20" style={{ scrollSnapAlign: 'start' }}>
+              <Link href="/dashboard/colis" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                 </div>
@@ -272,7 +272,7 @@ export default function ClientDashboard() {
                   <h3 className="text-white font-bold text-xl mb-1">Voyagez Léger</h3>
                   <p className="text-white/90 text-sm line-clamp-2">-10% sur les envois de colis cette semaine</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>

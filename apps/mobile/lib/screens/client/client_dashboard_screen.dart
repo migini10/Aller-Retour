@@ -911,19 +911,25 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           child: PageView(
             controller: _promoController,
             children: [
-          _buildPromoCard(
-            context,
-            'Parrainez un proche',
-            'Gagnez 2000 FCFA sur votre prochain trajet',
-            const Color(0xFFF97316),
-            Icons.card_giftcard,
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/parrainage'),
+            child: _buildPromoCard(
+              context,
+              'Parrainez un proche',
+              'Gagnez 2000 FCFA sur votre prochain trajet',
+              const Color(0xFFF97316),
+              Icons.card_giftcard,
+            ),
           ),
-          _buildPromoCard(
-            context,
-            'Voyagez Léger',
-            '-10% sur les envois de colis cette semaine',
-            const Color(0xFF10B981),
-            Icons.local_offer,
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/colis'),
+            child: _buildPromoCard(
+              context,
+              'Voyagez Léger',
+              '-10% sur les envois de colis cette semaine',
+              const Color(0xFF10B981),
+              Icons.local_offer,
+            ),
           ),
         ],
       ),
