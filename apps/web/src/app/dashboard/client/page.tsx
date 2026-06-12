@@ -169,50 +169,6 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-        {/* Aperçu de l'activité (added to sync with Flutter) */}
-        <div className="pt-8">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
-            Aperçu de l'activité
-          </h2>
-          <div className="flex flex-col gap-4">
-            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                <Award className="text-orange-500 w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white">Points Cumulés</h3>
-              </div>
-              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
-                <span className="font-bold text-slate-900 dark:text-white">X</span>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <QrCode className="text-blue-500 w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white">Dernier Billet</h3>
-              </div>
-              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
-                <span className="font-bold text-slate-900 dark:text-white">X</span>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Package className="text-purple-500 w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white">Dernier Colis</h3>
-              </div>
-              <div className="bg-slate-100 dark:bg-[#0F172A] px-4 py-2 rounded-xl">
-                <span className="font-bold text-slate-900 dark:text-white">X</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Offres Exclusives */}
         <div className="pt-8">
