@@ -10,18 +10,33 @@ class BiometricLockScreen extends StatefulWidget {
   State<BiometricLockScreen> createState() => _BiometricLockScreenState();
 }
 
-class _BiometricLockScreenState extends State<BiometricLockScreen> {
+class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTickerProviderStateMixin {
   final LocalAuthentication auth = LocalAuthentication();
   bool _isAuthenticating = false;
-  String _message = 'Appuyez pour déverrouiller';
+  String _message = 'Code PIN ou Biométrie';
+  String _pin = '';
+  bool _error = false;
+  late AnimationController _shakeController;
+
+  final String _correctPin = '1234'; // Default PIN for demonstration
 
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     // Start authentication automatically after a tiny delay
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authenticate();
     });
+  }
+
+  @override
+  void dispose() {
+    _shakeController.dispose();
+    super.dispose();
   }
 
   Future<void> _authenticate() async {
@@ -29,25 +44,22 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
     try {
       setState(() {
         _isAuthenticating = true;
-        _message = 'Vérification...';
+        _message = 'Vérification biométrique...';
       });
 
       authenticated = await auth.authenticate(
         localizedReason: 'Veuillez vous authentifier pour accéder à Aller-Retour',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        persistAcrossBackgrounding: true,
+        biometricOnly: true,
       );
     } on PlatformException catch (e) {
       debugPrint("Error authenticating: \$e");
-      setState(() {
-        _message = 'Erreur biométrique ou non configurée';
-        _isAuthenticating = false;
-      });
-      // Fallback: If no biometrics exist, we might let them pass or require PIN.
-      // For this prototype, if it fails because it's not enrolled, we just let them pass
-      // or we can show a button to bypass. Let's show a bypass for development.
+      if (mounted) {
+        setState(() {
+          _message = 'Entrez votre code PIN';
+          _isAuthenticating = false;
+        });
+      }
       return;
     }
 
@@ -57,8 +69,52 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       setState(() {
-        _message = 'Authentification échouée, réessayez';
+        _message = 'Biométrie échouée, utilisez le code PIN';
         _isAuthenticating = false;
+      });
+    }
+  }
+
+  void _handleNumberPress(String number) {
+    if (_pin.length < 4) {
+      setState(() {
+        _pin += number;
+        _error = false;
+        _message = 'Code PIN ou Biométrie';
+      });
+
+      if (_pin.length == 4) {
+        _verifyPin();
+      }
+    }
+  }
+
+  void _handleBackspace() {
+    if (_pin.isNotEmpty) {
+      setState(() {
+        _pin = _pin.substring(0, _pin.length - 1);
+        _error = false;
+      });
+    }
+  }
+
+  void _verifyPin() {
+    if (_pin == _correctPin) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      });
+    } else {
+      setState(() {
+        _error = true;
+        _message = 'Code PIN incorrect';
+      });
+      _shakeController.forward(from: 0.0);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            _pin = '';
+          });
+        }
       });
     }
   }
@@ -70,106 +126,216 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0B0F19) : Colors.white,
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo Hero
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 2),
-                ),
-                child: const Icon(Icons.directions_car, size: 80, color: Colors.orange),
-              ),
-              const SizedBox(height: 32),
-              
-              // App Name
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900, 
-                    fontSize: 36,
-                    letterSpacing: -1,
-                    fontFamily: 'Roboto',
-                  ),
-                  children: [
-                    TextSpan(text: 'Aller-', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Espace Sécurisé',
-                style: TextStyle(
-                  color: isDark ? Colors.white54 : Colors.black54,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 2,
-                ),
-              ),
-              
-              const SizedBox(height: 80),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Header Section
+                      Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 2),
+                            ),
+                            child: const Icon(Icons.directions_car, size: 50, color: Colors.orange),
+                          ),
+                          const SizedBox(height: 16),
+                          RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900, 
+                                fontSize: 28,
+                                letterSpacing: -1,
+                                fontFamily: 'Roboto',
+                              ),
+                              children: [
+                                TextSpan(text: 'Aller-', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+                                TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.lock_outline, size: 16, color: isDark ? Colors.white54 : Colors.black54),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Espace Sécurisé',
+                                style: TextStyle(
+                                  color: isDark ? Colors.white54 : Colors.black54,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
 
-              // Biometric Icon / Button
-              GestureDetector(
-                onTap: _isAuthenticating ? null : _authenticate,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: _isAuthenticating 
-                        ? Colors.blueAccent.withValues(alpha: 0.1)
-                        : (isDark ? Colors.grey[900] : Colors.grey[100]),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      if (!_isAuthenticating)
-                        BoxShadow(
-                          color: isDark ? Colors.black54 : Colors.grey[300]!,
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        )
+                      // PIN Indicators & Message
+                      Column(
+                        children: [
+                          AnimatedBuilder(
+                            animation: _shakeController,
+                            builder: (context, child) {
+                              final dx = 10 * _shakeController.value * ((_shakeController.value * 4 * 3.14).sin());
+                              return Transform.translate(
+                                offset: Offset(dx, 0),
+                                child: child,
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(4, (index) {
+                                bool isFilled = index < _pin.length;
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isFilled 
+                                      ? (_error ? Colors.redAccent : Colors.orange)
+                                      : (isDark ? Colors.grey[800] : Colors.grey[300]),
+                                    boxShadow: isFilled ? [
+                                      BoxShadow(
+                                        color: (_error ? Colors.redAccent : Colors.orange).withValues(alpha: 0.5),
+                                        blurRadius: 10,
+                                      )
+                                    ] : null,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            _message,
+                            style: TextStyle(
+                              color: _error 
+                                ? Colors.redAccent 
+                                : (_isAuthenticating ? Colors.blueAccent : (isDark ? Colors.white54 : Colors.black54)),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Numpad & Biometric
+                      Column(
+                        children: [
+                          Container(
+                            constraints: const BoxConstraints(maxWidth: 280),
+                            child: GridView.count(
+                              crossAxisCount: 3,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              childAspectRatio: 1.2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              children: [
+                                for (var i = 1; i <= 9; i++) _buildNumButton(i.toString(), isDark),
+                                // Bottom row: Biometric, 0, Backspace
+                                _buildBiometricButton(isDark),
+                                _buildNumButton('0', isDark),
+                                _buildBackspaceButton(isDark),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+                            child: const Text('Bypass (Dev)', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          )
+                        ],
+                      ),
                     ],
-                    border: Border.all(
-                      color: _isAuthenticating ? Colors.blueAccent : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.fingerprint,
-                    size: 64,
-                    color: _isAuthenticating 
-                        ? Colors.blueAccent 
-                        : (isDark ? Colors.white70 : Colors.black87),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+            );
+          }
+        ),
+      ),
+    );
+  }
 
-              Text(
-                _message,
-                style: TextStyle(
-                  color: _isAuthenticating ? Colors.blueAccent : (isDark ? Colors.white54 : Colors.black54),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+  Widget _buildNumButton(String number, bool isDark) {
+    return InkWell(
+      onTap: () => _handleNumberPress(number),
+      borderRadius: BorderRadius.circular(40),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isDark ? Colors.grey[900] : Colors.white,
+          border: Border.all(color: isDark ? Colors.grey[800]! : Colors.grey[200]!),
+        ),
+        child: Center(
+          child: Text(
+            number,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-              // DEV BYPASS BUTTON (useful for emulators without biometrics setup)
-              const SizedBox(height: 60),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/home');
-                },
-                child: const Text(
-                  'Bypass (Mode Dev)',
-                  style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),
-                ),
-              )
-            ],
+  Widget _buildBiometricButton(bool isDark) {
+    return InkWell(
+      onTap: _isAuthenticating ? null : _authenticate,
+      borderRadius: BorderRadius.circular(40),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: _isAuthenticating 
+            ? Colors.blueAccent.withValues(alpha: 0.1)
+            : (isDark ? Colors.grey[800] : Colors.grey[100]),
+          border: Border.all(color: _isAuthenticating ? Colors.blueAccent : Colors.transparent),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.fingerprint,
+            size: 32,
+            color: _isAuthenticating 
+              ? Colors.blueAccent 
+              : (isDark ? Colors.orangeAccent : Colors.orange),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackspaceButton(bool isDark) {
+    return InkWell(
+      onTap: _handleBackspace,
+      borderRadius: BorderRadius.circular(40),
+      child: Container(
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.transparent,
+        ),
+        child: Center(
+          child: Icon(
+            Icons.backspace_outlined,
+            size: 28,
+            color: isDark ? Colors.white54 : Colors.black54,
           ),
         ),
       ),

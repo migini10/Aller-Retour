@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { CarFront, Lock, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CarFront, Lock, ShieldCheck, Fingerprint } from 'lucide-react';
 
 interface PinLockScreenProps {
   onUnlock: () => void;
@@ -10,8 +10,57 @@ interface PinLockScreenProps {
 export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   const correctPin = '1234'; // Simulated PIN code for this demonstration
+
+  useEffect(() => {
+    // Check if WebAuthn is available
+    if (window.PublicKeyCredential) {
+      window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+        .then((available) => setBiometricAvailable(available))
+        .catch(() => setBiometricAvailable(false));
+    }
+  }, []);
+
+  const handleBiometricAuth = async () => {
+    try {
+      setIsAuthenticating(true);
+      
+      // We generate a dummy challenge just to trigger the local OS biometric prompt
+      const challenge = new Uint8Array(32);
+      window.crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: challenge,
+          rp: { name: "Aller-Retour Security", id: window.location.hostname },
+          user: {
+            id: new Uint8Array(16),
+            name: "user@aller-retour.app",
+            displayName: "Utilisateur"
+          },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required"
+          },
+          timeout: 60000,
+        }
+      });
+
+      if (credential) {
+        onUnlock();
+      }
+    } catch (err) {
+      console.error("Biometric auth failed or cancelled", err);
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
 
   const handleNumberClick = (num: number) => {
     if (pin.length < 4) {
@@ -77,7 +126,19 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
               {num}
             </button>
           ))}
-          <div /> {/* Empty cell */}
+          
+          <button
+            onClick={biometricAvailable ? handleBiometricAuth : undefined}
+            disabled={!biometricAvailable || isAuthenticating}
+            className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors active:scale-95 ${
+              biometricAvailable 
+                ? 'text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20' 
+                : 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
+            }`}
+          >
+            <Fingerprint className={`w-8 h-8 ${isAuthenticating ? 'animate-pulse' : ''}`} />
+          </button>
+          
           <button
             onClick={() => handleNumberClick(0)}
             className="w-16 h-16 rounded-full bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 text-2xl font-semibold text-slate-800 dark:text-white flex items-center justify-center hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-500/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors active:scale-95"
