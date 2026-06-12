@@ -15,11 +15,31 @@ class ParrainageScreen extends StatefulWidget {
 class _ParrainageScreenState extends State<ParrainageScreen> {
   String _referralCode = 'CHARGEMENT...';
   bool _copied = false;
+  final ScrollController _scrollController = ScrollController();
+  double _lastScrollY = 0;
+  bool _showTopbar = true;
 
   @override
   void initState() {
     super.initState();
     _loadOrGenerateCode();
+    _scrollController.addListener(() {
+      final currentScrollY = _scrollController.offset;
+      if (currentScrollY < 10) {
+        if (!_showTopbar) setState(() => _showTopbar = true);
+      } else if (currentScrollY > _lastScrollY && currentScrollY > 60) {
+        if (_showTopbar) setState(() => _showTopbar = false);
+      } else if (currentScrollY < _lastScrollY) {
+        if (!_showTopbar) setState(() => _showTopbar = true);
+      }
+      _lastScrollY = currentScrollY;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadOrGenerateCode() async {
@@ -74,6 +94,7 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
         child: Stack(
           children: [
             SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.only(top: 80, bottom: 40),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -272,12 +293,14 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
         ),
       ),
       // Custom Header with Back Button, Logo, and Hamburger Menu
-      Positioned(
-        top: 0,
+      AnimatedPositioned(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        top: _showTopbar ? 0 : -100, // Slide up to disappear
         left: 0,
         right: 0,
         child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
