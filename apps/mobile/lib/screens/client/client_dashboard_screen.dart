@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'widgets/recharge_modal.dart';
 
 class ClientDashboardScreen extends StatefulWidget {
@@ -26,10 +27,24 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   final ScrollController _scrollController = ScrollController();
   final PageController _promoController = PageController(viewportFraction: 0.85);
   Timer? _carouselTimer;
+  
+  String? _currentCity;
+  List<Map<String, String>> _destinations = [];
+  
+  final List<Map<String, String>> _allDestinations = [
+    {'id': 'dakar', 'name': 'Dakar', 'price': '4000 FCFA', 'image': 'assets/images/destinations/dakar.jpg'},
+    {'id': 'touba', 'name': 'Touba', 'price': '5000 FCFA', 'image': 'assets/images/destinations/touba.jpg'},
+    {'id': 'thies', 'name': 'Thiès', 'price': '2500 FCFA', 'image': 'assets/images/destinations/thies.jpg'},
+    {'id': 'mbour', 'name': 'Mbour', 'price': '3000 FCFA', 'image': 'assets/images/destinations/mbour.jpg'},
+    {'id': 'kaolack', 'name': 'Kaolack', 'price': '4500 FCFA', 'image': 'assets/images/destinations/kaolack.jpg'},
+    {'id': 'saint_louis', 'name': 'Saint-Louis', 'price': '6000 FCFA', 'image': 'assets/images/destinations/saint_louis.jpg'},
+  ];
 
   @override
   void initState() {
     super.initState();
+    _destinations = List.from(_allDestinations);
+    _fetchLocationAndDestinations();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -48,6 +63,78 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           curve: Curves.easeInOut,
         );
       }
+    });
+  }
+
+  Future<void> _fetchLocationAndDestinations() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+
+      if (permission == LocationPermission.deniedForever) return;
+
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+      final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+      if (apiKey == null || apiKey.isEmpty) return;
+
+      final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['results'] != null && data['results'].isNotEmpty) {
+          final components = data['results'][0]['address_components'] as List;
+          final locality = components.firstWhere(
+            (c) => (c['types'] as List).contains('locality') || (c['types'] as List).contains('administrative_area_level_2'),
+            orElse: () => null,
+          );
+
+          if (locality != null) {
+            String city = locality['long_name'];
+            _updateDestinationsBasedOnCity(city);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Geocoding error: $e');
+    }
+  }
+
+  void _updateDestinationsBasedOnCity(String currentCity) {
+    setState(() {
+      _currentCity = currentCity;
+      String normalized = currentCity.toLowerCase();
+      
+      var filtered = _allDestinations.where((d) => !normalized.contains(d['name']!.toLowerCase().replaceAll('è', 'e'))).toList();
+      
+      if (normalized.contains('dakar')) {
+        filtered.sort((a, b) {
+          const popular = ['touba', 'thiès', 'mbour'];
+          int aIndex = popular.indexOf(a['name']!.toLowerCase());
+          int bIndex = popular.indexOf(b['name']!.toLowerCase());
+          if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
+          if (aIndex != -1) return -1;
+          if (bIndex != -1) return 1;
+          return 0;
+        });
+      } else if (normalized.contains('touba')) {
+        filtered.sort((a, b) {
+          const popular = ['dakar', 'thiès', 'kaolack'];
+          int aIndex = popular.indexOf(a['name']!.toLowerCase());
+          int bIndex = popular.indexOf(b['name']!.toLowerCase());
+          if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
+          if (aIndex != -1) return -1;
+          if (bIndex != -1) return 1;
+          return 0;
+        });
+      }
+      _destinations = filtered;
     });
   }
 
@@ -987,22 +1074,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         const SizedBox(height: 16),
         SizedBox(
           height: 180,
-          child: ListView(
+          child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
-            children: [
-              _buildDestinationCard(context, 'Dakar', '4000 FCFA', 'assets/images/destinations/dakar.jpg'),
-              const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Touba', '5000 FCFA', 'assets/images/destinations/touba.jpg'),
-              const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Thiès', '2500 FCFA', 'assets/images/destinations/thies.jpg'),
-              const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Mbour', '3000 FCFA', 'assets/images/destinations/mbour.jpg'),
-              const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Kaolack', '4500 FCFA', 'assets/images/destinations/kaolack.jpg'),
-              const SizedBox(width: 16),
-              _buildDestinationCard(context, 'Saint-Louis', '6000 FCFA', 'assets/images/destinations/saint_louis.jpg'),
-            ],
+            itemCount: _destinations.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final dest = _destinations[index];
+              return _buildDestinationCard(context, dest['name']!, dest['price']!, dest['image']!);
+            },
           ),
         ),
       ],

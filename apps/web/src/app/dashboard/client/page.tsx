@@ -1,13 +1,88 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCircle2, Gift, Map, Building2 } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCircle2, Gift, Map, Building2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
+
+const ALL_DESTINATIONS = [
+  { id: 'dakar', name: 'Dakar', price: '4000 FCFA', image: '/images/destinations/dakar.jpg' },
+  { id: 'touba', name: 'Touba', price: '5000 FCFA', image: '/images/destinations/touba.jpg' },
+  { id: 'thies', name: 'Thiès', price: '2500 FCFA', image: '/images/destinations/thies.jpg' },
+  { id: 'mbour', name: 'Mbour', price: '3000 FCFA', image: '/images/destinations/mbour.jpg' },
+  { id: 'kaolack', name: 'Kaolack', price: '4500 FCFA', image: '/images/destinations/kaolack.jpg' },
+  { id: 'saint_louis', name: 'Saint-Louis', price: '6000 FCFA', image: '/images/destinations/saint_louis.jpg' },
+];
+
+const getPopularDestinations = (currentCity: string) => {
+  if (!currentCity) return ALL_DESTINATIONS;
+  const normalizedCity = currentCity.toLowerCase();
+  
+  let filtered = ALL_DESTINATIONS.filter(d => !normalizedCity.includes(d.name.toLowerCase().replace('è', 'e')));
+  
+  if (normalizedCity.includes('dakar')) {
+    filtered.sort((a, b) => {
+      const popular = ['touba', 'thiès', 'mbour'];
+      const aIndex = popular.indexOf(a.name.toLowerCase());
+      const bIndex = popular.indexOf(b.name.toLowerCase());
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return 0;
+    });
+  } else if (normalizedCity.includes('touba')) {
+    filtered.sort((a, b) => {
+      const popular = ['dakar', 'thiès', 'kaolack'];
+      const aIndex = popular.indexOf(a.name.toLowerCase());
+      const bIndex = popular.indexOf(b.name.toLowerCase());
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return 0;
+    });
+  }
+  return filtered;
+};
 
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
   const carouselRef = useRef<HTMLDivElement>(null);
+  
+  const [currentCity, setCurrentCity] = useState<string | null>(null);
+  const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
+
+  useEffect(() => {
+    // 1. Get location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            // 2. Reverse Geocode with Google Maps
+            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+            if (!apiKey) return;
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`);
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+              const addressComponents = data.results[0].address_components;
+              const localityObj = addressComponents.find((c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2'));
+              if (localityObj) {
+                const city = localityObj.long_name;
+                setCurrentCity(city);
+                setDestinations(getPopularDestinations(city));
+              }
+            }
+          } catch (e) {
+            console.error("Geocoding error:", e);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -252,50 +327,14 @@ export default function ClientDashboard() {
             Destinations Populaires
           </h2>
           <div className="-mx-5 px-5 overflow-x-auto no-scrollbar">
-            <div className="flex gap-4 min-w-max pb-4">
-              {/* Dakar */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/dakar.jpg" alt="Dakar" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Dakar</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">4000 FCFA</p>
-              </div>
-              {/* Touba */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/touba.jpg" alt="Touba" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Touba</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">5000 FCFA</p>
-              </div>
-              {/* Thiès */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/thies.jpg" alt="Thiès" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Thiès</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">2500 FCFA</p>
-              </div>
-              {/* Mbour */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/mbour.jpg" alt="Mbour" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Mbour</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">3000 FCFA</p>
-              </div>
-              {/* Kaolack */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/kaolack.jpg" alt="Kaolack" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Kaolack</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">4500 FCFA</p>
-              </div>
-              {/* Saint-Louis */}
-              <div className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group">
-                <img src="/images/destinations/saint_louis.jpg" alt="Saint-Louis" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <h3 className="text-white font-bold text-lg relative z-10">Saint-Louis</h3>
-                <p className="text-white/90 text-xs relative z-10 mt-1">6000 FCFA</p>
-              </div>
-            </div>
+              {destinations.map((dest) => (
+                <div key={dest.id} className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0">
+                  <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                  <h3 className="text-white font-bold text-lg relative z-10">{dest.name}</h3>
+                  <p className="text-white/90 text-xs relative z-10 mt-1">{dest.price}</p>
+                </div>
+              ))}
           </div>
         </div>
 
