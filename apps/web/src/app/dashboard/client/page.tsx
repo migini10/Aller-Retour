@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront } from 'lucide-react';
+import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, Gift, Map, CheckCircle2, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 
