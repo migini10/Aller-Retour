@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'screens/auth/biometric_lock_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/client/wallet_screen.dart';
 import 'screens/client/colis_screen.dart';
@@ -52,8 +54,10 @@ class AllerRetourApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      initialRoute: '/',
+      initialRoute: '/lock',
       routes: {
+        '/lock': (context) => const BiometricLockScreen(),
+        '/home': (context) => const HomeScreen(),
         '/': (context) => const HomeScreen(),
         '/wallet': (context) => const WalletScreen(),
         '/colis': (context) => const ColisScreen(),

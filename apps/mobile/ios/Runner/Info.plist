@@ -8,6 +8,8 @@
 	<string>Cette application a besoin de votre position pour vous localiser et trouver des trajets près de chez vous.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Cette application a besoin de votre position pour vous localiser.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Cette application utilise Face ID pour sécuriser votre accès et vos données de paiement.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
