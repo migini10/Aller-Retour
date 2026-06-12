@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useModal } from './ModalContext';
 import { 
   User, 
@@ -36,7 +36,8 @@ interface SidebarProps {
 
 export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
-  const { openBookingWizard } = useModal();
+  const router = useRouter();
+  const { openBookingWizard, showDevMenu, setShowDevMenu } = useModal();
   
   const [hash, setHash] = React.useState('');
   
@@ -265,7 +266,15 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Mode Dev</span>
         </button>
 
-        <button className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-slate-500 dark:text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 dark:hover:text-rose-400 transition-colors">
+        <button 
+          onClick={() => {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userPhone');
+            router.push('/auth/login');
+          }}
+          className="flex items-center gap-3 p-3 w-[230px] rounded-xl text-slate-500 dark:text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
+        >
           <LogOut className="w-5 h-5 shrink-0" />
           <span className="text-sm font-semibold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Se déconnecter</span>
         </button>

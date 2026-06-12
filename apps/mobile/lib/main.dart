@@ -2,7 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/auth/biometric_lock_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/client/wallet_screen.dart';
 import 'screens/client/colis_screen.dart';
@@ -31,16 +34,22 @@ void main() async {
   if (!kIsWeb) {
     await OfflineDatabase.instance.init();
   }
+  
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
-      child: const AllerRetourApp(),
+      child: AllerRetourApp(isLoggedIn: isLoggedIn),
     ),
   );
 }
 
 class AllerRetourApp extends StatelessWidget {
-  const AllerRetourApp({super.key});
+  final bool isLoggedIn;
+  
+  const AllerRetourApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +63,10 @@ class AllerRetourApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      initialRoute: '/lock',
+      initialRoute: isLoggedIn ? '/lock' : '/login',
       routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
         '/lock': (context) => const BiometricLockScreen(),
         '/home': (context) => const HomeScreen(),
         '/': (context) => const HomeScreen(),

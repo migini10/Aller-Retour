@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Sidebar from '../../components/Sidebar';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const { openBookingWizard } = useModal();
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showTopbar, setShowTopbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -23,7 +24,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Authentication check
+    const isAuth = localStorage.getItem('isAuthenticated');
+    if (!isAuth) {
+      router.push('/auth/login');
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhone');
+    router.push('/auth/login');
+  };
 
   const isSuperAdmin = pathname.startsWith('/dashboard/admin');
   const isDriverPage = pathname.startsWith('/dashboard/driver');

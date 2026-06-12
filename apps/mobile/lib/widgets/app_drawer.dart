@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppDrawer extends StatelessWidget {
   final bool isDriverMode;
@@ -99,6 +100,26 @@ class AppDrawer extends StatelessWidget {
                             _buildMenuItem(context, Icons.card_giftcard, 'Parrainage', Colors.red, route: '/parrainage'),
                             _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.indigo, route: '/history'),
                             _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/settings'),
+                            const Divider(color: Colors.white24, height: 32),
+                            ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.logout, color: Colors.red, size: 20),
+                              ),
+                              title: const Text('Se déconnecter', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                              onTap: () async {
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('isLoggedIn', false);
+                                await prefs.remove('userPhone');
+                                if (context.mounted) {
+                                  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                                }
+                              },
+                            ),
                           ],
                         ],
                       ),
