@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
 
-void showRechargeModal(BuildContext context) {
+void showRechargeModal(BuildContext context) async {
   int step = 1;
   String? operator;
   bool isLoading = false;
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final amountController = TextEditingController();
+
+  final prefs = await SharedPreferences.getInstance();
+  final userName = prefs.getString('userName') ?? '';
+  final userPhone = prefs.getString('userPhone') ?? '';
+  
+  nameController.text = userName;
+  phoneController.text = userPhone;
+
+  if (!context.mounted) return;
 
   showDialog(
     context: context,

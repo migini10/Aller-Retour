@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   final bool isDriverMode;
   final ValueChanged<bool>? onModeChanged;
 
@@ -11,6 +11,36 @@ class AppDrawer extends StatelessWidget {
     required this.isDriverMode,
     this.onModeChanged,
   });
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String _userName = 'Utilisateur';
+  String _userInitials = 'U';
+  String _userPhone = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Utilisateur';
+      _userPhone = prefs.getString('userPhone') ?? '';
+      _userInitials = _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
+      if (_userName.contains(' ')) {
+        final parts = _userName.split(' ');
+        if (parts.length > 1 && parts[1].isNotEmpty) {
+          _userInitials += parts[1].substring(0, 1).toUpperCase();
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +72,7 @@ class AppDrawer extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 28,
                             backgroundColor: Colors.cyanAccent.withValues(alpha: 0.2),
-                            child: const Text('AB', style: TextStyle(color: Colors.cyanAccent, fontSize: 20, fontWeight: FontWeight.bold)),
+                            child: Text(_userInitials, style: const TextStyle(color: Colors.cyanAccent, fontSize: 20, fontWeight: FontWeight.bold)),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -50,7 +80,7 @@ class AppDrawer extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Abdou Bakhe', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
+                              Text(_userName, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -59,7 +89,7 @@ class AppDrawer extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.5)),
                                 ),
-                                child: Text(isDriverMode ? 'Chauffeur Pro' : 'Voyageur Gold', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                                child: Text(widget.isDriverMode ? 'Chauffeur Pro' : 'Voyageur Gold', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
@@ -77,7 +107,7 @@ class AppDrawer extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          if (isDriverMode) ...[
+                          if (widget.isDriverMode) ...[
                             _buildMenuItem(context, Icons.dashboard_outlined, 'Accueil', Colors.orange, route: '/'),
                             _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.green, route: '/driver/missions'),
                             _buildMenuItem(context, Icons.location_on_outlined, 'Localisation Client', Colors.cyan, route: '/driver/localisation'),

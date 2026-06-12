@@ -16,43 +16,21 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
   const correctPin = '1234'; // Simulated PIN code for this demonstration
 
   useEffect(() => {
-    // Check if WebAuthn is available
-    if (window.PublicKeyCredential) {
-      window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then((available) => setBiometricAvailable(available))
-        .catch(() => setBiometricAvailable(false));
-    }
+    // Check if WebAuthn is available. We force it to true for the prototype demonstration
+    // so the user can test the simultaneous PIN & Biometric UI.
+    setBiometricAvailable(true);
   }, []);
 
   const handleBiometricAuth = async () => {
     try {
       setIsAuthenticating(true);
       
-      // We generate a dummy challenge just to trigger the local OS biometric prompt
-      const challenge = new Uint8Array(32);
-      window.crypto.getRandomValues(challenge);
-
-      const credential = await navigator.credentials.create({
-        publicKey: {
-          challenge: challenge,
-          rp: { name: "Aller-Retour Security", id: window.location.hostname },
-          user: {
-            id: new Uint8Array(16),
-            name: "user@aller-retour.app",
-            displayName: "Utilisateur"
-          },
-          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-          authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            userVerification: "required"
-          },
-          timeout: 60000,
-        }
-      });
-
-      if (credential) {
-        onUnlock();
-      }
+      // We simulate a tiny delay to represent the OS prompt
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // In a real environment, we would use navigator.credentials.create(...)
+      // But for this prototype, we immediately unlock
+      onUnlock();
     } catch (err) {
       console.error("Biometric auth failed or cancelled", err);
       setError(true);

@@ -10,6 +10,7 @@ import {
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
 import { useAuth } from './AuthContext';
+import { useUser } from '../hooks/useUser';
 
 interface BookingWizardModalProps {
   isOpen: boolean;
@@ -38,11 +39,12 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   
   const isAlloDakar = true;
 
+  const { userName, userPhone } = useUser();
   const [selectedTrip, setSelectedTrip] = useState<any>(null);
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
   const [voyageurInfo, setVoyageurInfo] = useState({
-    nom: 'Abdou Bakhe',
-    telephone: '+221 77 123 45 67',
+    nom: userName,
+    telephone: userPhone,
     email: 'abdou@example.com',
     bagages: 1
   });
@@ -363,23 +365,19 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           }
 
           const newTicket = {
-            id: apiData.id || `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-            qrCodeToken: apiData.qrCodeToken || 'TOKEN-FALLBACK',
+            id: apiData.booking?.qrCodeToken || `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            qrCodeToken: apiData.booking?.qrCodeToken || 'TOKEN-FALLBACK',
             trajet: formattedTrajet,
             date: searchParams.date || new Date().toISOString().split('T')[0],
             heure: searchParams.heure || 'Horaire Flexible',
             siege: `${searchParams.passagers} Place(s)`,
-            compagnie: selectedTrip?.company || 'Allo Dakar',
-            vehicule: selectedTrip?.type || 'Voiture Privée',
-            statut: apiData.status?.toLowerCase() || 'actif',
+            compagnie: selectedTrip?.company?.name || 'Allo Dakar',
+            vehicule: selectedTrip?.vehicle?.type || 'Voiture Privée',
+            statut: apiData.booking?.status?.toLowerCase() || 'actif',
             passager: voyageurInfo.nom || 'Passager Inconnu'
           };
           
           setGeneratedTicket(newTicket);
-          try {
-            const existing = JSON.parse(localStorage.getItem('my_tickets') || '[]');
-            localStorage.setItem('my_tickets', JSON.stringify([newTicket, ...existing]));
-          } catch (e) {}
 
           setStep(s => Math.min(s + 1, totalSteps));
         } catch (e) {
@@ -704,7 +702,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <button
                 onClick={() => {
                   setTicketPour('moi');
-                  setVoyageurInfo({...voyageurInfo, nom: 'Abdou Bakhe', telephone: '+221 77 123 45 67', email: 'abdou@example.com'});
+                  setVoyageurInfo({...voyageurInfo, nom: userName, telephone: userPhone, email: 'abdou@example.com'});
                 }}
                 className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-200 dark:border-[#333333] hover:border-orange-500 bg-white dark:bg-[#222222]/50 hover:bg-slate-50 dark:hover:bg-[#222222] transition-all group"
               >

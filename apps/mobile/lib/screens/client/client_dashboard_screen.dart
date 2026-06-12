@@ -28,6 +28,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   final PageController _promoController = PageController(viewportFraction: 0.85);
   Timer? _carouselTimer;
   
+  String _userName = 'Utilisateur';
+  String _userPhone = '';
+  
   String? _currentCity;
   List<Map<String, String>> _destinations = [];
   
@@ -44,6 +47,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   void initState() {
     super.initState();
     _destinations = List.from(_allDestinations);
+    _loadUserData();
     _fetchLocationAndDestinations();
     _pulseController = AnimationController(
       vsync: this,
@@ -53,7 +57,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
     _carouselTimer = Timer.periodic(const Duration(seconds: 6), (Timer timer) {
       if (_promoController.hasClients) {
-        int nextPage = _promoController.page!.round() + 1;
+        int nextPage = (_promoController.page?.round() ?? 0) + 1;
         if (nextPage > 1) { // We only have 2 pages
           nextPage = 0;
         }
@@ -63,6 +67,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           curve: Curves.easeInOut,
         );
       }
+    });
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Utilisateur';
+      _userPhone = prefs.getString('userPhone') ?? '';
     });
   }
 
@@ -1168,8 +1180,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     String? selectedSeat;
     String? ticketPour;
     String? paymentMethod;
-    String nom = 'Abdou Bakhe';
-    String telephone = '+221 77 123 45 67';
+    String nom = _userName;
+    String telephone = _userPhone;
     String email = 'abdou@example.com';
     int bagages = 0;
 
@@ -1427,8 +1439,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           child: GestureDetector(
                             onTap: () => setState(() {
                               ticketPour = 'moi';
-                              nom = 'Abdou Bakhe';
-                              telephone = '+221 77 123 45 67';
+                              nom = _userName;
+                              telephone = _userPhone;
                             }),
                             child: Container(
                               padding: EdgeInsets.all(24),
@@ -2008,22 +2020,68 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             onPressed: (step == 3 && (nom.isEmpty || telephone.isEmpty)) ? null : () async {
                               if (step == 1) {
                                 setState(() => isSearching = true);
-                                await Future.delayed(const Duration(seconds: 1));
-                                setState(() {
-                                  realTrips = [
-                                    { "id": "1", "company": "Allo Dakar VIP", "price": 5000, "type": "Voiture 7 places", "options": "Climatisé", "time": "14:00", "passagers": 2, "placesPrises": 2, "availableSeats": 5 },
-                                    { "id": "2", "company": "Fast Transit", "price": 4500, "type": "Voiture 5 places", "options": "Standard", "time": "15:30", "passagers": 0, "placesPrises": 0, "availableSeats": 5 }
-                                  ];
-                                  isSearching = false;
-                                  step = 2;
-                                });
+                                try {
+                                  final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                  final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$date');
+                                  final response = await http.get(uri);
+                                  if (response.statusCode == 200) {
+                                    final List<dynamic> data = jsonDecode(response.body);
+                                    setState(() {
+                                      realTrips = data.map((e) => {
+                                        "id": e['id'],
+                                        "company": e['company'] != null ? e['company']['name'] : "Aller-Retour",
+                                        "price": e['price'] ?? 5000,
+                                        "type": e['vehicle'] != null ? e['vehicle']['type'] : "Voiture",
+                                        "options": "Climatisé",
+                                        "time": DateTime.parse(e['departureTime']).toLocal().toString().substring(11, 16),
+                                        "passagers": 0,
+                                        "placesPrises": e['bookedSeats'] ?? 0,
+                                        "availableSeats": e['availableSeats'] ?? 5
+                                      }).toList();
+                                      isSearching = false;
+                                      step = 2;
+                                    });
+                                  } else {
+                                    setState(() { isSearching = false; });
+                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur de recherche')));
+                                  }
+                                } catch (e) {
+                                  setState(() { isSearching = false; });
+                                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau')));
+                                }
                               } else if (step == 3) {
                                 if (nom.isNotEmpty && telephone.isNotEmpty) {
                                   setState(() => step = 4);
                                 }
                               } else if (step == 4) {
                                 if (paymentMethod != null) {
-                                  setState(() => step = 5);
+                                  setState(() => isSearching = true);
+                                  try {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    final token = prefs.getString('auth_token');
+                                    final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                    final response = await http.post(
+                                      Uri.parse('$apiUrl/v1/bookings'),
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        if (token != null) 'Authorization': 'Bearer $token'
+                                      },
+                                      body: jsonEncode({
+                                        'tripId': selectedTrip!['id'],
+                                        'seatNumber': 1,
+                                        'paymentMethod': paymentMethod!.toUpperCase()
+                                      })
+                                    );
+                                    if (response.statusCode == 201 || response.statusCode == 200) {
+                                      setState(() { isSearching = false; step = 5; });
+                                    } else {
+                                      setState(() { isSearching = false; });
+                                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur de réservation')));
+                                    }
+                                  } catch (e) {
+                                    setState(() { isSearching = false; });
+                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau')));
+                                  }
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez choisir un moyen de paiement')));
                                 }

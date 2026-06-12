@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 import 'package:local_auth/local_auth.dart';
 import '../home_screen.dart';
 
@@ -47,16 +48,31 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
         _message = 'Vérification biométrique...';
       });
 
+      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        if (mounted) {
+          setState(() {
+            _message = 'Biométrie non disponible. Utilisez le code PIN.';
+            _isAuthenticating = false;
+          });
+        }
+        return;
+      }
+
       authenticated = await auth.authenticate(
         localizedReason: 'Veuillez vous authentifier pour accéder à Aller-Retour',
-        persistAcrossBackgrounding: true,
-        biometricOnly: true,
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
       );
-    } on PlatformException catch (e) {
-      debugPrint("Error authenticating: \$e");
+    } catch (e) {
+      debugPrint("Error authenticating: $e");
       if (mounted) {
         setState(() {
-          _message = 'Entrez votre code PIN';
+          _message = 'Erreur biométrique. Utilisez le PIN.';
           _isAuthenticating = false;
         });
       }
@@ -190,7 +206,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
                           AnimatedBuilder(
                             animation: _shakeController,
                             builder: (context, child) {
-                              final dx = 10 * _shakeController.value * ((_shakeController.value * 4 * 3.14).sin());
+                              final dx = 10 * _shakeController.value * math.sin(_shakeController.value * 4 * math.pi);
                               return Transform.translate(
                                 offset: Offset(dx, 0),
                                 child: child,
@@ -298,9 +314,9 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
   }
 
   Widget _buildBiometricButton(bool isDark) {
-    return InkWell(
+    return GestureDetector(
       onTap: _isAuthenticating ? null : _authenticate,
-      borderRadius: BorderRadius.circular(40),
+      behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,

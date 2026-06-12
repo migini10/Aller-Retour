@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, Param } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Param, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { BookingsService } from './bookings.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -41,5 +41,13 @@ export class BookingsController {
   @ApiOperation({ summary: 'Scanner et valider un billet QR Code en gare' })
   async verifyQr(@Param('token') token: string) {
     return this.bookingsService.verifyQrAtBoarding(token);
+  }
+
+  @Get('my-tickets')
+  @Roles(UserRole.PASSENGER)
+  @Permissions('bookings:read')
+  @ApiOperation({ summary: 'Récupérer les billets (QR Codes) de l\'utilisateur connecté' })
+  async getMyTickets(@Req() req: any) {
+    return this.bookingsService.getUserBookings(req.user.id);
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -28,6 +29,34 @@ import 'theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+class InactivityTimer {
+  static Timer? _timer;
+  static const int _timeoutMinutes = 10;
+  static bool _isLocked = false;
+
+  static void resetTimer() {
+    _timer?.cancel();
+    _timer = Timer(const Duration(minutes: _timeoutMinutes), () {
+      _isLocked = true;
+      if (navigatorKey.currentState != null) {
+        // Prevent pushing multiple lock screens
+        bool canPush = true;
+        navigatorKey.currentState!.popUntil((route) {
+          if (route.settings.name == '/lock' || route.settings.name == '/' || route.settings.name == '/login' || route.settings.name == '/register') {
+            canPush = false;
+          }
+          return true; // Don't actually pop anything
+        });
+        if (canPush) {
+          navigatorKey.currentState!.pushNamed('/lock');
+        }
+      }
+    });
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -55,6 +84,15 @@ class AllerRetourApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
+      navigatorKey: navigatorKey,
+      builder: (context, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTapDown: (_) => InactivityTimer.resetTimer(),
+          onPanDown: (_) => InactivityTimer.resetTimer(),
+          child: child,
+        );
+      },
       title: 'Aller-Retour Mobile',
       debugShowCheckedModeBanner: false,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
@@ -63,13 +101,13 @@ class AllerRetourApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      initialRoute: isLoggedIn ? '/lock' : '/login',
+      initialRoute: '/',
       routes: {
+        '/': (context) => isLoggedIn ? const BiometricLockScreen() : const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/lock': (context) => const BiometricLockScreen(),
         '/home': (context) => const HomeScreen(),
-        '/': (context) => const HomeScreen(),
         '/wallet': (context) => const WalletScreen(),
         '/colis': (context) => const ColisScreen(),
         '/fidelite': (context) => const FideliteScreen(),

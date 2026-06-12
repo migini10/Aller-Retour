@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, ChevronRight, Phone, User, CreditCard } from 'lucide-react';
+import { useUser } from '../hooks/useUser';
 
 interface RechargeWizardModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface RechargeWizardModalProps {
 }
 
 export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardModalProps) {
+  const { userName, userPhone, isLoaded } = useUser();
   const [operator, setOperator] = useState<'wave' | 'orange' | null>(null);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -35,6 +37,13 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
       return () => clearTimeout(timer);
     }
   }, [step, handleCloseAndReset]);
+
+  useEffect(() => {
+    if (isOpen && isLoaded) {
+      setFullName(userName);
+      setPhone(userPhone);
+    }
+  }, [isOpen, isLoaded, userName, userPhone]);
 
   if (!isOpen) return null;
 

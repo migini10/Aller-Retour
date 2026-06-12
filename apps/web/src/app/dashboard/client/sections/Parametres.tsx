@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, User, Lock, Globe, CreditCard, Trash2, Save, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useUser } from '../../../../hooks/useUser';
 
 const sections = ['Profil', 'Sécurité', 'Préférences', 'Paiements', 'Compte'];
 
@@ -10,8 +11,25 @@ export default function SectionParametres() {
   const [showPwd, setShowPwd] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { userName, userPhone, updateUser, isLoaded } = useUser();
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  
+  useEffect(() => {
+    if (isLoaded) {
+      setEditName(userName);
+      setEditPhone(userPhone);
+    }
+  }, [isLoaded, userName, userPhone]);
 
   useEffect(() => setMounted(true), []);
+
+  const handleSave = () => {
+    updateUser(editName, editPhone);
+    alert('Profil mis à jour avec succès !');
+  };
+
+  const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
 
   return (
     <div className="space-y-5">
@@ -27,20 +45,28 @@ export default function SectionParametres() {
         {tab === 'Profil' && (
           <div className="space-y-4">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-[#003B73]/10 dark:bg-orange-600/20 border border-[#003B73]/20 dark:border-orange-500/30 flex items-center justify-center text-2xl font-bold text-[#003B73] dark:text-orange-400">AB</div>
+              <div className="w-16 h-16 rounded-2xl bg-[#003B73]/10 dark:bg-orange-600/20 border border-[#003B73]/20 dark:border-orange-500/30 flex items-center justify-center text-2xl font-bold text-[#003B73] dark:text-orange-400">{initials}</div>
               <div>
-                <p className="text-slate-900 dark:text-white font-bold transition-colors">Abdou Bakhe</p>
+                <p className="text-slate-900 dark:text-white font-bold transition-colors">{userName}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">Client Allo Dakar</p>
                 <button className="text-xs text-[#003B73] dark:text-orange-400 hover:text-[#002D59] dark:hover:text-orange-300 mt-1 transition-colors">Changer photo</button>
               </div>
             </div>
-            {[{ label: 'Nom complet', val: 'Abdou Bakhe' }, { label: 'Email', val: 'abdou@example.com' }, { label: 'Téléphone', val: '+221 77 000 00 00' }, { label: 'Date de naissance', val: '1990-01-01' }].map(f => (
-              <div key={f.label}>
-                <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block transition-colors">{f.label}</label>
-                <input defaultValue={f.val} className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] focus:border-[#003B73] dark:focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition-colors" />
-              </div>
-            ))}
-            <button className="flex items-center gap-2 bg-[#003B73] dark:bg-orange-600 hover:bg-[#002D59] dark:hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-lg shadow-blue-900/10">
+            
+            <div>
+              <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block transition-colors">Nom complet</label>
+              <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] focus:border-[#003B73] dark:focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition-colors" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block transition-colors">Email</label>
+              <input defaultValue="abdou@example.com" disabled className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] focus:border-[#003B73] dark:focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-500 outline-none transition-colors opacity-50 cursor-not-allowed" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block transition-colors">Téléphone</label>
+              <input value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] focus:border-[#003B73] dark:focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition-colors" />
+            </div>
+
+            <button onClick={handleSave} className="flex items-center gap-2 bg-[#003B73] dark:bg-orange-600 hover:bg-[#002D59] dark:hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-lg shadow-blue-900/10">
               <Save className="w-4 h-4" /> Sauvegarder
             </button>
           </div>

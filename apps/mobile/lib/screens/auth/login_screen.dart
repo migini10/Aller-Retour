@@ -34,11 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('userPhone', _phoneController.text);
 
     if (mounted) {
-      // Go directly to the lock screen (or dashboard depending on flow)
-      // Actually, since they just typed a password, they shouldn't need a biometric prompt immediately,
-      // but to stick to the architecture, let's go to '/lock' to set up their session or just '/home'.
-      // Usually, after login, we go straight to home. Biometric is for subsequent app opens.
-      Navigator.pushReplacementNamed(context, '/home');
+      // Go directly to the lock screen to verify or establish biometric session
+      Navigator.pushReplacementNamed(context, '/lock');
     }
   }
 
@@ -145,8 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text('Nouveau sur Aller-Retour ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
                   TextButton(

@@ -1,9 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../widgets/shared_scaffold.dart';
 
-class QrCodeScreen extends StatelessWidget {
+class QrCodeScreen extends StatefulWidget {
   const QrCodeScreen({super.key});
+
+  @override
+  State<QrCodeScreen> createState() => _QrCodeScreenState();
+}
+
+class _QrCodeScreenState extends State<QrCodeScreen> {
+  String _userName = 'Utilisateur';
+  List<dynamic> _tickets = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Utilisateur';
+    });
+    
+    final token = prefs.getString('auth_token');
+    if (token != null) {
+      try {
+        final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+        final response = await http.get(
+          Uri.parse('$apiUrl/v1/bookings/my-tickets'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        if (response.statusCode == 200) {
+          setState(() {
+            _tickets = jsonDecode(response.body);
+            _isLoading = false;
+          });
+        } else {
+          setState(() => _isLoading = false);
+        }
+      } catch (e) {
+        setState(() => _isLoading = false);
+      }
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,49 +103,65 @@ class QrCodeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
                   ),
-                  child: Text('1 Billet actif', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text('${_tickets.where((t) => t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED').length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
             SizedBox(height: 16),
             
-            // Ticket 1 (Active)
-            _buildTicketCard(
-              context,
-              isActive: true,
-              status: 'Confirmé (Escrow)',
-              ref: 'AR-74892374',
-              date: '18 Mai 2026',
-              time: '08:00',
-              from: 'Dakar',
-              to: 'Touba',
-              ticketNo: 'TKT-0014',
-              seat: '#14 (VIP)',
-              passenger: 'Abdou Bakhe',
-              vehicle: 'Bus Climatisé',
-              price: '4 500 FCFA',
-            ),
-            SizedBox(height: 24),
-            
-            // Ticket 2 (History)
-            Opacity(
-              opacity: 0.6,
-              child: _buildTicketCard(
-                context,
-                isActive: false,
-                status: 'Terminé',
-                ref: 'AR-12984756',
-                date: '10 Mai 2026',
-                time: '14:30',
-                from: 'Touba',
-                to: 'Dakar',
-                ticketNo: 'TKT-0089',
-                seat: '#02 (VIP)',
-                passenger: 'Abdou Bakhe',
-                vehicle: 'Minibus',
-                price: '4 500 FCFA',
-              ),
-            ),
+            if (_isLoading)
+              Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
+            else if (_tickets.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(32),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.qr_code, size: 64, color: Theme.of(context).dividerColor),
+                    const SizedBox(height: 16),
+                    Text("Aucun billet trouvé", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text("Vous n'avez pas encore effectué de réservation.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+                  ],
+                ),
+              )
+            else
+              ..._tickets.map((t) {
+                final isPast = t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED';
+                final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
+                final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
+                final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
+                final origin = t['trip']['route']['originStation']['city'];
+                final dest = t['trip']['route']['destinationStation']['city'];
+                final company = t['trip']['company'] != null ? t['trip']['company']['name'] : 'Aller-Retour';
+                final vehicle = t['trip']['vehicle'] != null ? t['trip']['vehicle']['type'] : 'Voiture';
+                
+                final card = _buildTicketCard(
+                  context,
+                  isActive: !isPast,
+                  status: t['status'],
+                  ref: t['qrCodeToken'],
+                  date: dateStr,
+                  time: timeStr,
+                  from: origin,
+                  to: dest,
+                  ticketNo: t['id'].toString().substring(0, 11).toUpperCase(),
+                  seat: '#${t['seatNumber']}',
+                  passenger: _userName,
+                  vehicle: vehicle,
+                  price: '${t['amountPaid']} FCFA',
+                );
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: isPast ? Opacity(opacity: 0.6, child: card) : card,
+                );
+              }),
             SizedBox(height: 40),
           ],
         ),

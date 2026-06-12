@@ -65,4 +65,26 @@ export class BookingsService {
 
     return { success: true, message: "Embarquement validé avec succès !", booking: updated };
   }
+
+  async getUserBookings(userId: string) {
+    const bookings = await prisma.booking.findMany({
+      where: { userId },
+      include: {
+        trip: {
+          include: {
+            route: {
+              include: {
+                originStation: true,
+                destinationStation: true,
+              }
+            },
+            company: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return bookings;
+  }
 }

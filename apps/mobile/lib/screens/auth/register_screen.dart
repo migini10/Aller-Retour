@@ -35,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await prefs.setString('userPhone', _phoneController.text);
 
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/lock');
     }
   }
 
@@ -136,8 +136,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text('Vous avez déjà un compte ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
                   TextButton(

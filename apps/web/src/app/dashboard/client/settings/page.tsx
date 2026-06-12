@@ -4,14 +4,28 @@ import React, { useState } from 'react';
 import { ArrowLeft, User, Mail, Phone, Lock, Bell, Shield, Camera, LogOut, AlertTriangle, ChevronRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthContext';
+import { useUser } from '@/hooks/useUser';
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
+  const { userName, userPhone, updateUser, isLoaded } = useUser();
+  
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
   const [isSaved, setIsSaved] = useState(false);
 
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+
+  React.useEffect(() => {
+    if (isLoaded) {
+      setEditName(userName);
+      setEditPhone(userPhone);
+    }
+  }, [isLoaded, userName, userPhone]);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    updateUser(editName, editPhone);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
@@ -105,13 +119,9 @@ export default function SettingsPage() {
 
                   <form onSubmit={handleSave} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Prénom</label>
-                        <input type="text" defaultValue={user?.firstName || 'Abdou'} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Nom</label>
-                        <input type="text" defaultValue={user?.lastName || 'Niane'} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Nom complet</label>
+                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
                       </div>
                     </div>
 
@@ -131,7 +141,7 @@ export default function SettingsPage() {
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <Phone className="w-5 h-5 text-slate-400" />
                         </div>
-                        <input type="tel" defaultValue="+221 77 123 45 67" className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
+                        <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
                       </div>
                     </div>
 

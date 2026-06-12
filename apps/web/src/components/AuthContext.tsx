@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { X, Smartphone, User, Lock, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import PinLockScreen from './PinLockScreen';
 
 interface UserData {
   id: string;
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLocked, setIsLocked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [authCallback, setAuthCallback] = useState<(() => void) | null>(null);
@@ -44,9 +46,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
+        setIsLocked(true); // Lock the app if restoring an existing session
       }
     } catch (e) {}
   }, []);
+
+  // Inactivity Timer (10 minutes)
+  useEffect(() => {
+    if (!token || isLocked) return;
+
+    let timeout: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsLocked(true);
+      }, 10 * 60 * 1000); // 10 minutes
+    };
+
+    resetTimer();
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [token, isLocked]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
 
@@ -102,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('ar_auth_user');
     setToken(null);
     setUser(null);
+    setIsLocked(false);
   };
 
   const openAuthModal = (callback?: () => void) => {
@@ -141,6 +169,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal }}>
       {children}
+
+      {!!token && isLocked && (
+        <PinLockScreen onUnlock={() => setIsLocked(false)} />
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center animate-in fade-in duration-300">
