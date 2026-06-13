@@ -315,6 +315,8 @@ model Parcel {
   weightKg        Float
   price           Float
   trackingCode    String       @unique
+  deliveryCode    String?
+
   status          ParcelStatus @default(REGISTERED)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt

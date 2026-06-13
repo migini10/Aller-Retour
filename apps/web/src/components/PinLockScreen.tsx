@@ -139,7 +139,7 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
         {/* Info */}
         <div className="mt-auto pt-12 flex items-center gap-2 text-xs text-slate-400">
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          Protégé par le système de sécurité Aller-Retour
+          Protégé par le système de sécurité Allogoo
         </div>
       </div>
     </div>

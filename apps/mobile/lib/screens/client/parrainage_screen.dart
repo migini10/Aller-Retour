@@ -78,8 +78,8 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
 
   void _handleShare() {
     Share.share(
-      'Inscris-toi sur Aller-Retour avec mon code $_referralCode et gagne 2000 FCFA sur ton premier trajet !\nhttps://aller-retour.app',
-      subject: 'Rejoins Aller-Retour',
+      'Inscris-toi sur Allogoo avec mon code $_referralCode et gagne 2000 FCFA sur ton premier trajet !\nhttps://allogoo.com',
+      subject: 'Rejoins Allogoo',
     );
   }
 

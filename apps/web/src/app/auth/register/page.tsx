@@ -42,7 +42,7 @@ export default function RegisterPage() {
           Créer un <span className="text-orange-500">Compte</span>
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-          Rejoignez Aller-Retour pour réserver vos trajets facilement
+          Rejoignez Allogoo pour réserver vos trajets facilement
         </p>
       </div>
 

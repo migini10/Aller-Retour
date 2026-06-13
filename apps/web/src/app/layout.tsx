@@ -5,7 +5,7 @@ import { AuthProvider } from '../components/AuthContext';
 import { ThemeProvider } from '../components/ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'Aller-Retour | SaaS & Marketplace Transport Inter-Urbain Afrique',
+  title: 'Allogoo | SaaS & Marketplace Transport Inter-Urbain Afrique',
   description: 'Réservez votre trajet inter-urbain au Sénégal et en Afrique avec horaires garantis, QR Code et paiement Wave/Orange Money.',
 };
 

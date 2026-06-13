@@ -374,7 +374,7 @@ export default function ClientDashboard() {
             {/* Bottom Section: Logo, Copyright & Version */}
             <div className="flex flex-row justify-between items-center w-full text-[11px] sm:text-xs">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-black text-slate-900 dark:text-white">Aller-Retour</span>
+                <span className="font-black text-slate-900 dark:text-white">Allogoo</span>
                 <span>© {new Date().getFullYear()}</span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">

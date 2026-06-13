@@ -54,7 +54,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const isDriverPage = pathname.startsWith('/dashboard/driver');
 
   const roleNavItems = [
-    { name: 'Allo Dakar', path: 'https://aller-retour-web-ynja.vercel.app/', icon: User, badge: 'Premium', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
+    { name: 'Allo Dakar', path: 'https://allogoo.com/', icon: User, badge: 'Premium', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
     { name: 'Espace Voyageur', path: '/dashboard/client', icon: User, badge: 'Client', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-500/15', borderClass: 'border-cyan-500/30' },
     { name: 'Espace Chauffeur', path: '/dashboard/driver', icon: CarFront, badge: 'Driver', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-500/15', borderClass: 'border-emerald-500/30' },
     { name: 'Transporteur (GIE)', path: '/dashboard/carrier', icon: Building2, badge: 'Tenant', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/15', borderClass: 'border-blue-500/30' },

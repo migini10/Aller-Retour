@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,17 +28,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+      final response = await http.post(
+        Uri.parse('$apiUrl/v1/auth/login-mobile'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'phone': _phoneController.text.trim(),
+          'pin': _passwordController.text.trim()
+        }),
+      );
 
-    // For this prototype, we accept any non-empty credentials
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userPhone', _phoneController.text);
+      final data = jsonDecode(response.body);
 
-    if (mounted) {
-      // Go directly to the lock screen to verify or establish biometric session
-      Navigator.pushReplacementNamed(context, '/lock');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userPhone', _phoneController.text);
+        if (data['token'] != null) {
+          await prefs.setString('auth_token', data['token']);
+        }
+
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/lock');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Erreur de connexion')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de contacter le serveur')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -146,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text('Nouveau sur Aller-Retour ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                  Text('Nouveau sur Allogoo ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
                   TextButton(
                     onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                     child: const Text('Créer un compte', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),

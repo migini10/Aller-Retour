@@ -53,7 +53,7 @@ export class TripsController {
     });
 
     // Calcul des places disponibles
-    return trips.map(trip => {
+    const formattedTrips = trips.map(trip => {
       const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
       const totalPassengers = trip.initialPassengers + bookedSeats;
       return {
@@ -67,6 +67,8 @@ export class TripsController {
         driverPhone: trip.driver?.user?.phone || null,
       };
     });
+
+    return formattedTrips;
   }
 
   @Get(':id/manifest')

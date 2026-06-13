@@ -12,6 +12,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/orange_money_logo.dart';
 import 'widgets/recharge_modal.dart';
 
 class ClientDashboardScreen extends StatefulWidget {
@@ -1170,11 +1172,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       ),
     );
   }
-
-  void _showReservationBottomSheet(BuildContext context) {
+void _showReservationBottomSheet(BuildContext context) {
     bool isLocating = false;
     int step = 1;
     bool isSearching = false;
+    String errorMessage = '';
     List<dynamic> realTrips = [];
     dynamic selectedTrip;
     String? selectedSeat;
@@ -1569,7 +1571,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               int basePrice = selectedTrip?['price'] ?? 5000;
               int total = basePrice * passagersCount;
 
-              Widget buildPaymentMethodOption(String id, String name, IconData icon, Color color) {
+              Widget buildPaymentMethodOption(String id, String name, IconData icon, Color color, {Widget? customIcon}) {
                 bool isSelected = paymentMethod == id;
                 return GestureDetector(
                   onTap: () => setState(() => paymentMethod = id),
@@ -1582,7 +1584,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(icon, color: isSelected ? color : Colors.white70, size: 20),
+                        customIcon ?? Icon(icon, color: isSelected ? color : Colors.white70, size: 20),
                         const SizedBox(width: 8),
                         Flexible(child: Text(name, style: TextStyle(color: isSelected ? color : Colors.white70, fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal), overflow: TextOverflow.ellipsis)),
                       ],
@@ -1647,7 +1649,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     childAspectRatio: 2.5,
                     children: [
                       buildPaymentMethodOption('wave', 'Wave', Icons.phone_android, const Color(0xFF2563EB)),
-                      buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316)),
+                      buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316), customIcon: const OrangeMoneyLogo(size: 20)),
                       buildPaymentMethodOption('wallet', 'Wallet', Icons.account_balance_wallet, const Color(0xFF9CA3AF)),
                       buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
                     ],
@@ -2029,7 +2031,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     setState(() {
                                       realTrips = data.map((e) => {
                                         "id": e['id'],
-                                        "company": e['company'] != null ? e['company']['name'] : "Aller-Retour",
+                                        "company": e['company'] != null ? e['company']['name'] : "Allogoo",
                                         "price": e['price'] ?? 5000,
                                         "type": e['vehicle'] != null ? e['vehicle']['type'] : "Voiture",
                                         "options": "Climatisé",
@@ -2043,11 +2045,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     });
                                   } else {
                                     setState(() { isSearching = false; });
-                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur de recherche')));
+                                    setState(() { isSearching = false; errorMessage = 'Erreur de recherche'; });
                                   }
                                 } catch (e) {
-                                  setState(() { isSearching = false; });
-                                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau')));
+                                  setState(() { isSearching = false; errorMessage = 'Erreur réseau: Vérifiez votre connexion'; });
                                 }
                               } else if (step == 3) {
                                 if (nom.isNotEmpty && telephone.isNotEmpty) {
@@ -2060,6 +2061,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     final prefs = await SharedPreferences.getInstance();
                                     final token = prefs.getString('auth_token');
                                     final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                    
                                     final response = await http.post(
                                       Uri.parse('$apiUrl/v1/bookings'),
                                       headers: {
@@ -2075,15 +2077,13 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     if (response.statusCode == 201 || response.statusCode == 200) {
                                       setState(() { isSearching = false; step = 5; });
                                     } else {
-                                      setState(() { isSearching = false; });
-                                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur de réservation')));
+                                      setState(() { isSearching = false; errorMessage = 'Erreur de réservation (Non autorisé)'; });
                                     }
                                   } catch (e) {
-                                    setState(() { isSearching = false; });
-                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau')));
+                                    setState(() { isSearching = false; errorMessage = 'Erreur réseau: Impossible de contacter le serveur'; });
                                   }
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez choisir un moyen de paiement')));
+                                  setState(() => errorMessage = 'Veuillez choisir un moyen de paiement');
                                 }
                               }
                             },
@@ -2103,6 +2103,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           ),
                         ),
                       ),
+                      if (errorMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            errorMessage,
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                   ],
                 ),
               ),

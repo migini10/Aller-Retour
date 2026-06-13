@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma, ParcelStatus } from '@aller-retour/database';
+import { sendDeliveryCodeEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -35,6 +36,7 @@ export async function GET() {
         taille: `${p.weightKg} kg`,
         prix: `${p.price} FCFA`,
         senderName: p.senderName,
+        deliveryCode: p.deliveryCode,
       };
     });
 
@@ -115,9 +117,19 @@ export async function POST(request: Request) {
         weightKg: data.taille === 'Moyen (5-15kg)' ? 10 : (data.taille === 'Petit (0-5kg)' ? 3 : 20),
         price: 3000,
         trackingCode: `TRK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        deliveryCode: Math.floor(1000 + Math.random() * 9000).toString(),
         status: ParcelStatus.REGISTERED,
       }
     });
+
+    // Envoi de l'e-mail (on simule l'email du client s'il n'est pas fourni)
+    const emailTo = data.email || 'allogoosn@gmail.com'; // Fallback pour tester
+    await sendDeliveryCodeEmail(
+      emailTo,
+      data.destinataire,
+      parcel.trackingCode,
+      parcel.deliveryCode!
+    );
 
     return NextResponse.json({ success: true, parcel });
   } catch (error) {

@@ -44,8 +44,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
+  const port = process.env.PORT || 3333;
+  await app.listen(port, '0.0.0.0');
   console.log(`🚀 Aller-Retour API démarrée avec succès sur le port ${port}`);
   console.log(`📚 Documentation OpenAPI disponible sur: http://localhost:${port}/docs`);
 }

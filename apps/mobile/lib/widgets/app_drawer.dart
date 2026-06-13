@@ -145,6 +145,8 @@ class _AppDrawerState extends State<AppDrawer> {
                                 final prefs = await SharedPreferences.getInstance();
                                 await prefs.setBool('isLoggedIn', false);
                                 await prefs.remove('userPhone');
+                                await prefs.remove('auth_token');
+                                await prefs.remove('userName');
                                 if (context.mounted) {
                                   Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                                 }
@@ -165,31 +167,31 @@ class _AppDrawerState extends State<AppDrawer> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
                       onTap: () {
-                        if (onModeChanged != null) {
-                          onModeChanged!(!isDriverMode);
+                        if (widget.onModeChanged != null) {
+                          widget.onModeChanged!(!widget.isDriverMode);
                         } else {
                           // Si on est sur une autre page, on retourne à l'accueil pour switcher
                           Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                         }
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(isDriverMode 
+                          content: Text(widget.isDriverMode 
                             ? 'Basculement vers l\'Espace Voyageur...' 
                             : 'Basculement vers l\'Espace Chauffeur...'
                           ),
-                          backgroundColor: isDriverMode ? Colors.cyan : Colors.green,
+                          backgroundColor: widget.isDriverMode ? Colors.cyan : Colors.green,
                         ));
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
-                          color: isDriverMode 
+                          color: widget.isDriverMode 
                             ? Colors.cyanAccent.withValues(alpha: 0.1)
                             : Colors.greenAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isDriverMode 
+                            color: widget.isDriverMode 
                               ? Colors.cyanAccent.withValues(alpha: 0.2)
                               : Colors.greenAccent.withValues(alpha: 0.2)
                           ),
@@ -197,8 +199,8 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: Row(
                           children: [
                             Icon(
-                              isDriverMode ? Icons.person : Icons.directions_car, 
-                              color: isDriverMode 
+                              widget.isDriverMode ? Icons.person : Icons.directions_car, 
+                              color: widget.isDriverMode 
                                 ? (Theme.of(context).brightness == Brightness.dark ? Colors.cyanAccent : Colors.cyan.shade600)
                                 : (Theme.of(context).brightness == Brightness.dark ? Colors.greenAccent : Colors.green.shade600),
                               size: 20,
@@ -206,9 +208,9 @@ class _AppDrawerState extends State<AppDrawer> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                isDriverMode ? 'Espace Voyageur' : 'Espace Chauffeur',
+                                widget.isDriverMode ? 'Espace Voyageur' : 'Espace Chauffeur',
                                 style: TextStyle(
-                                  color: isDriverMode 
+                                  color: widget.isDriverMode 
                                     ? (Theme.of(context).brightness == Brightness.dark ? Colors.cyanAccent : Colors.cyan.shade600)
                                     : (Theme.of(context).brightness == Brightness.dark ? Colors.greenAccent : Colors.green.shade600),
                                   fontSize: 14,
@@ -224,9 +226,17 @@ class _AppDrawerState extends State<AppDrawer> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isLoggedIn', false);
+                        await prefs.remove('userPhone');
+                        await prefs.remove('auth_token');
+                        await prefs.remove('userName');
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                        }
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(

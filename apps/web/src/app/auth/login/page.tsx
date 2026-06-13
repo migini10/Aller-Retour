@@ -37,7 +37,7 @@ export default function LoginPage() {
           </div>
         </div>
         <h2 className="text-center text-3xl font-extrabold text-slate-900 dark:text-white">
-          Bienvenue sur <span className="text-orange-500">Aller-Retour</span>
+          Bienvenue sur <span className="text-orange-500">Allogoo</span>
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
           Connectez-vous pour accéder à votre espace sécurisé
@@ -142,7 +142,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white dark:bg-slate-900/50 text-slate-500">
-                  Nouveau sur Aller-Retour ?
+                  Nouveau sur Allogoo ?
                 </span>
               </div>
             </div>

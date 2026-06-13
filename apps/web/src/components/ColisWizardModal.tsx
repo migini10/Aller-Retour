@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
 import html2canvas from 'html2canvas';
+import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 
 interface ColisWizardModalProps {
   isOpen: boolean;
@@ -363,7 +364,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         <div className="space-y-3">
           {[
             { id: 'Wave', icon: Smartphone, title: 'Wave', desc: 'Payer via l\'application Wave', color: 'cyan' },
-            { id: 'Orange Money', icon: Smartphone, title: 'Orange Money', desc: 'Payer via Orange Money', color: 'orange' },
+            { id: 'Orange Money', customIcon: OrangeMoneyLogo, title: 'Orange Money', desc: 'Payer via Orange Money', color: 'orange' },
             { id: 'Wallet', icon: Wallet, title: 'Mon Solde', desc: 'Paiement instantané via votre portefeuille', color: 'blue' }
           ].map(method => (
             <div 
@@ -380,7 +381,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                   ? 'bg-orange-500 text-white' 
                   : 'bg-slate-100 dark:bg-[#222222] text-slate-500 dark:text-slate-400'
               }`}>
-                <method.icon className="w-5 h-5" />
+                {method.customIcon ? <method.customIcon className="w-5 h-5" /> : (method.icon && <method.icon className="w-5 h-5" />)}
               </div>
               <div className="flex-1">
                 <p className={`font-bold text-sm ${colisParams.modePaiement === method.id ? 'text-orange-700 dark:text-orange-400' : 'text-slate-900 dark:text-white'}`}>
@@ -453,7 +454,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
         <div className="mt-8 flex justify-center relative z-10">
           <div className="bg-white p-3 rounded-2xl shadow-xl">
-            <QRCodeBrandEngine value={`https://aller-retour.sn/verify/${generatedTicket?.id}`} size={160} />
+            <QRCodeBrandEngine value={`https://allogoo.com/verify/${generatedTicket?.id}`} size={160} />
           </div>
         </div>
         <p className="text-center text-xs text-slate-500 mt-4 font-medium relative z-10">

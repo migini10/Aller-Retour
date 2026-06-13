@@ -66,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Rejoignez Aller-Retour pour réserver vos trajets facilement',
+                'Rejoignez Allogoo pour réserver vos trajets facilement',
                 style: TextStyle(fontSize: 16, color: isDark ? Colors.white54 : Colors.black54),
               ),
               const SizedBox(height: 40),

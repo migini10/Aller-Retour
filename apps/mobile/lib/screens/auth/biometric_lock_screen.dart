@@ -62,11 +62,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
       }
 
       authenticated = await auth.authenticate(
-        localizedReason: 'Veuillez vous authentifier pour accéder à Aller-Retour',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        localizedReason: 'Veuillez vous authentifier pour accéder à Allogoo',
       );
     } catch (e) {
       debugPrint("Error authenticating: $e");

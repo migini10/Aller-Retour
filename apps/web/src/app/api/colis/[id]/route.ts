@@ -14,6 +14,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (data.statut === 'En transit') dbStatus = ParcelStatus.IN_TRANSIT;
     if (data.statut === 'Livré') dbStatus = ParcelStatus.DELIVERED;
 
+    if (dbStatus === ParcelStatus.DELIVERED) {
+      const parcel = await prisma.parcel.findUnique({ where: { trackingCode: id } });
+      if (!parcel) {
+        return NextResponse.json({ error: 'Colis introuvable' }, { status: 404 });
+      }
+      if (parcel.deliveryCode && data.pin !== parcel.deliveryCode) {
+        return NextResponse.json({ error: 'Code de livraison incorrect' }, { status: 400 });
+      }
+    }
+
     const updated = await prisma.parcel.update({
       where: { trackingCode: id },
       data: { status: dbStatus }

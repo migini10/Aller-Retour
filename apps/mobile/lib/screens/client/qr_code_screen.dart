@@ -138,7 +138,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
                 final origin = t['trip']['route']['originStation']['city'];
                 final dest = t['trip']['route']['destinationStation']['city'];
-                final company = t['trip']['company'] != null ? t['trip']['company']['name'] : 'Aller-Retour';
+                final company = t['trip']['company'] != null ? t['trip']['company']['name'] : 'Allogoo';
                 final vehicle = t['trip']['vehicle'] != null ? t['trip']['vehicle']['type'] : 'Voiture';
                 
                 final card = _buildTicketCard(

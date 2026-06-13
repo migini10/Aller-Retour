@@ -240,7 +240,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-200 dark:border-[#333]">
                       <div>
                         <h4 className="font-bold text-slate-900 dark:text-white">Promotions et offres</h4>
-                        <p className="text-xs text-slate-500 mt-1">Réductions exclusives et actualités d'Aller-Retour.</p>
+                        <p className="text-xs text-slate-500 mt-1">Réductions exclusives et actualités d'Allogoo.</p>
                       </div>
                       <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                         <input type="checkbox" name="toggle" id="toggle3" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-slate-300 dark:border-slate-600 appearance-none cursor-pointer checked:right-0 checked:border-orange-500" style={{ right: '24px', transition: 'right 0.2s ease-in' }} />

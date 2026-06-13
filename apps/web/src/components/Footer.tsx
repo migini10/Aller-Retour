@@ -62,7 +62,7 @@ export const defaultFooterConfig = {
   },
   contact: {
     phone: "+221 33 800 00 00",
-    email: "contact@aller-retour.sn",
+    email: "contact@allogoo.com",
     address: "Point E, Dakar",
     country: "Sénégal",
     hours: "Lun-Dim: 24h/24, 7j/7"
@@ -76,7 +76,7 @@ export const defaultFooterConfig = {
   ],
   bottom: {
     year: "2026",
-    companyName: "Aller-Retour Inc.",
+    companyName: "Allogoo Inc.",
     version: "v2.4.1"
   }
 };

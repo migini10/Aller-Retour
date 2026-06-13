@@ -5,7 +5,7 @@ import { Wallet, TrendingUp, Download, Calendar, DollarSign, PieChart } from 'lu
 const transactions = [
   { id: '1', desc: 'Ventes Billets - TRIP-402', date: 'Aujourd\'hui, 14:30', mnt: 145000, type: 'in' },
   { id: '2', desc: 'Paiement Chauffeur (Moussa Ndiaye)', date: 'Hier, 18:00', mnt: -25000, type: 'out' },
-  { id: '3', desc: 'Commission SaaS Aller-Retour', date: 'Hier, 18:00', mnt: -7250, type: 'out' },
+  { id: '3', desc: 'Commission SaaS Allogoo', date: 'Hier, 18:00', mnt: -7250, type: 'out' },
   { id: '4', desc: 'Ventes Billets - TRIP-398', date: '04 Déc 2026', mnt: 85000, type: 'in' },
 ];
 

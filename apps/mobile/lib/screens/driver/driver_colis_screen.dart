@@ -51,12 +51,15 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
     }
   }
 
-  Future<void> _updateStatut(String id, String nextStatut) async {
+  Future<void> _updateStatut(String id, String nextStatut, {String? pin}) async {
     try {
+      final body = {'statut': nextStatut};
+      if (pin != null) body['pin'] = pin;
+
       final response = await http.patch(
         Uri.parse('http://localhost:3000/api/colis/$id'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'statut': nextStatut}),
+        body: jsonEncode(body),
       );
       if (response.statusCode == 200) {
         await _loadColis();
@@ -66,7 +69,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
       } else {
         debugPrint('Error status code: ${response.statusCode} - ${response.body}');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur serveur: ${response.statusCode}'), backgroundColor: Colors.red));
+          String errMsg = 'Erreur serveur: ${response.statusCode}';
+          try {
+            final data = jsonDecode(response.body);
+            if (data['error'] != null) errMsg = data['error'];
+          } catch (_) {}
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errMsg), backgroundColor: Colors.red));
         }
       }
     } catch (e) {
@@ -147,11 +155,17 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
-                            children: [
-                              const TextSpan(text: 'Veuillez entrer votre code d\'accès chauffeur (ex: '),
-                              TextSpan(text: '1234', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontFamily: 'monospace')),
-                              const TextSpan(text: ') pour valider cette action.'),
-                            ],
+                            children: nextStatut == 'Livré'
+                                ? [
+                                    const TextSpan(text: 'Demandez au destinataire de vous fournir son '),
+                                    TextSpan(text: 'Code Secret de Livraison', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                                    const TextSpan(text: ' pour confirmer la remise du colis.'),
+                                  ]
+                                : [
+                                    const TextSpan(text: 'Veuillez entrer votre code d\'accès chauffeur (ex: '),
+                                    TextSpan(text: '1234', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontFamily: 'monospace')),
+                                    const TextSpan(text: ') pour valider cette action.'),
+                                  ],
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -223,13 +237,24 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  if (pinController.text.trim() == '1234') {
-                                    Navigator.pop(context);
-                                    _updateStatut(colisId, nextStatut);
+                                  if (nextStatut == 'Livré') {
+                                    if (pinController.text.trim().length == 4) {
+                                      Navigator.pop(context);
+                                      _updateStatut(colisId, nextStatut, pin: pinController.text.trim());
+                                    } else {
+                                      setStateModal(() {
+                                        errorMsg = 'Le code doit contenir 4 chiffres.';
+                                      });
+                                    }
                                   } else {
-                                    setStateModal(() {
-                                      errorMsg = 'Code de sécurité incorrect. (Saisi: "${pinController.text}")';
-                                    });
+                                    if (pinController.text.trim() == '1234') {
+                                      Navigator.pop(context);
+                                      _updateStatut(colisId, nextStatut);
+                                    } else {
+                                      setStateModal(() {
+                                        errorMsg = 'Code de sécurité incorrect. (Saisi: "${pinController.text}")';
+                                      });
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(

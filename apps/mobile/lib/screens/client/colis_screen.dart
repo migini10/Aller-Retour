@@ -26,13 +26,15 @@ class _ColisScreenState extends State<ColisScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: BoxDecoration(color: Theme.of(context).dividerColor,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(context).padding.bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,6 +120,32 @@ class _ColisScreenState extends State<ColisScreen> {
               else 
                 const SizedBox(height: 16),
               
+              if (colis['statut'] != 'Livré' && colis['deliveryCode'] != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.lock_outline, color: Colors.blueAccent, size: 20),
+                          SizedBox(width: 8),
+                          Text('Code Secret de Livraison', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(colis['deliveryCode'] ?? '', style: const TextStyle(color: Colors.blueAccent, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 8)),
+                      const SizedBox(height: 8),
+                      Text('Communiquez ce code au chauffeur uniquement lors de la réception de votre colis.', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                    ],
+                  ),
+                ),
               // Timeline
               _buildTimelineStep(
                 title: 'En attente de prise en charge',
@@ -158,21 +186,29 @@ class _ColisScreenState extends State<ColisScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    backgroundColor: Theme.of(context).dividerColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
                   ),
                   child: Text('Fermer', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                 ),
               )
             ],
           ),
-        );
+        ));
       },
     );
   }
 
   Widget _buildTimelineStep({required String title, required String subtitle, required bool isActive, required bool isDone, required Color color, required bool isLast}) {
+    final textColor = isActive 
+        ? Theme.of(context).colorScheme.onSurface 
+        : (isDone ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3));
+    final subtitleColor = isActive 
+        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) 
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3);
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,9 +221,9 @@ class _ColisScreenState extends State<ColisScreen> {
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: isActive ? color : (isDone ? color.withValues(alpha: 0.5) : Colors.white10),
+                    color: isActive ? color : (isDone ? color.withValues(alpha: 0.5) : Theme.of(context).dividerColor),
                     shape: BoxShape.circle,
-                    border: Border.all(color: isActive ? Colors.white : Colors.transparent, width: 3),
+                    border: Border.all(color: isActive ? Theme.of(context).cardColor : Colors.transparent, width: 3),
                     boxShadow: isActive ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, spreadRadius: 4)] : [],
                   ),
                 ),
@@ -195,7 +231,7 @@ class _ColisScreenState extends State<ColisScreen> {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+                      color: Theme.of(context).dividerColor,
                       margin: const EdgeInsets.symmetric(vertical: 4),
                     ),
                   ),
@@ -209,11 +245,11 @@ class _ColisScreenState extends State<ColisScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(color: isActive ? Colors.white : (isDone ? Colors.white70 : Colors.white30), fontWeight: FontWeight.bold, fontSize: 15)),
+                  Text(title, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 15)),
                   if (subtitle.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text(subtitle, style: TextStyle(color: isActive ? Colors.white70 : Colors.white30, fontSize: 12)),
+                      child: Text(subtitle, style: TextStyle(color: subtitleColor, fontSize: 12)),
                     ),
                 ],
               ),

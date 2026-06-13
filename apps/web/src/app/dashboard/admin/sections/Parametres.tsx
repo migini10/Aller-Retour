@@ -33,11 +33,11 @@ export default function SectionParametres() {
           <div className="space-y-4">
             <div>
               <label className="text-xs text-slate-500 font-semibold mb-1 block">Nom de la Plateforme SaaS</label>
-              <input type="text" value="Aller-Retour OS" readOnly className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2 text-sm text-white outline-none" />
+              <input type="text" value="Allogoo OS" readOnly className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2 text-sm text-white outline-none" />
             </div>
             <div>
               <label className="text-xs text-slate-500 font-semibold mb-1 block">Email Contact Support (Public)</label>
-              <input type="email" value="support@aller-retour.sn" readOnly className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2 text-sm text-white outline-none" />
+              <input type="email" value="support@allogoo.com" readOnly className="w-full bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-2 text-sm text-white outline-none" />
             </div>
           </div>
         </div>

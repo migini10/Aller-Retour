@@ -102,7 +102,7 @@ export default function SectionScanner() {
                 <p className="text-rose-400 font-bold mt-1 uppercase tracking-wider text-sm">Accès Refusé</p>
               </div>
               <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-5 text-center">
-                <p className="text-rose-200">QR Code invalide ou n'appartenant pas au réseau Aller-Retour. Veuillez rediriger le voyageur vers le guichet.</p>
+                <p className="text-rose-200">QR Code invalide ou n'appartenant pas au réseau Allogoo. Veuillez rediriger le voyageur vers le guichet.</p>
               </div>
             </div>
           )}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
+import '../../../widgets/orange_money_logo.dart';
 
 void showRechargeModal(BuildContext context) async {
   int step = 1;
@@ -244,9 +245,7 @@ Widget _buildOperatorCard(String op, String? selectedOperator, Function(String) 
                     BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
                   ]
                 ),
-                child: CustomPaint(
-                  painter: isWave ? WavePainter() : OrangePainter(),
-                ),
+                child: isWave ? CustomPaint(painter: WavePainter()) : const OrangeMoneyLogo(size: 64),
               ),
               if (isSelected)
                 Positioned(
@@ -300,9 +299,7 @@ Widget _buildRechargeStep2(BuildContext context, String? operator, TextEditingCo
                 borderRadius: BorderRadius.circular(12),
                 border: isWave ? null : Border.all(color: opColor.withValues(alpha: 0.3)),
               ),
-              child: CustomPaint(
-                painter: isWave ? WavePainter() : OrangePainter(),
-              ),
+              child: isWave ? CustomPaint(painter: WavePainter()) : const OrangeMoneyLogo(size: 48),
             ),
             const SizedBox(width: 16),
             Column(
@@ -434,49 +431,6 @@ class WavePainter extends CustomPainter {
     
     canvas.drawOval(const Rect.fromLTWH(75 - 22, 220 - 12, 44, 24), orangePaint);
     canvas.drawOval(const Rect.fromLTWH(125 - 22, 220 - 12, 44, 24), orangePaint);
-  }
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
-class OrangePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Orange viewBox is 0 0 500 300
-    final double scale = size.width / 600;
-    canvas.translate(size.width / 2, size.height / 2);
-    canvas.scale(scale, scale);
-    canvas.translate(-250, -150);
-    
-    final Paint whitePaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
-    final Paint orangePaint = Paint()..color = const Color(0xFFFF7900)..style = PaintingStyle.fill;
-    
-    canvas.save();
-    canvas.translate(40, 20);
-    final Path p1 = Path()
-      ..moveTo(40, 170)..lineTo(170, 40)..lineTo(170, 90)
-      ..quadraticBezierTo(170, 120, 200, 120)
-      ..quadraticBezierTo(230, 120, 230, 90)
-      ..lineTo(230, 20)..quadraticBezierTo(230, 0, 210, 0)
-      ..lineTo(140, 0)..quadraticBezierTo(110, 0, 110, 30)
-      ..quadraticBezierTo(110, 60, 140, 60)
-      ..lineTo(10, 190)..quadraticBezierTo(-10, 210, 10, 230)
-      ..quadraticBezierTo(30, 250, 50, 230)..close();
-    canvas.drawPath(p1, whitePaint);
-    canvas.restore();
-    
-    canvas.save();
-    canvas.translate(250, 20);
-    final Path p2 = Path()
-      ..moveTo(0, 20)..quadraticBezierTo(0, 0, 20, 0)
-      ..quadraticBezierTo(40, 0, 40, 20)..lineTo(40, 130)
-      ..lineTo(170, 0)..quadraticBezierTo(190, -10, 210, 10)
-      ..quadraticBezierTo(230, 30, 220, 50)..lineTo(90, 180)
-      ..lineTo(200, 180)..quadraticBezierTo(230, 180, 230, 210)
-      ..quadraticBezierTo(230, 240, 200, 240)..lineTo(20, 240)
-      ..quadraticBezierTo(0, 240, 0, 220)..close();
-    canvas.drawPath(p2, orangePaint);
-    canvas.restore();
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;

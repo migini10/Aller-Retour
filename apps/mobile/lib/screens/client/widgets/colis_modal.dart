@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../widgets/orange_money_logo.dart';
 
 void showColisModal(BuildContext context) {
   int step = 1;
@@ -347,14 +348,14 @@ Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(St
       
       _buildPaymentOption(context, 'Wave', 'Payer via l\'application Wave', Icons.phone_android, modePaiement, onModeSelected),
       const SizedBox(height: 12),
-      _buildPaymentOption(context, 'Orange Money', 'Payer via Orange Money', Icons.phone_android, modePaiement, onModeSelected),
+      _buildPaymentOption(context, 'Orange Money', 'Payer via Orange Money', Icons.phone_android, modePaiement, onModeSelected, customIcon: const OrangeMoneyLogo(size: 20)),
       const SizedBox(height: 12),
       _buildPaymentOption(context, 'Wallet', 'Paiement instantané via votre portefeuille', Icons.account_balance_wallet, modePaiement, onModeSelected),
     ],
   );
 }
 
-Widget _buildPaymentOption(BuildContext context, String id, String desc, IconData icon, String currentMode, Function(String) onModeSelected) {
+Widget _buildPaymentOption(BuildContext context, String id, String desc, IconData icon, String currentMode, Function(String) onModeSelected, {Widget? customIcon}) {
   bool isSelected = currentMode == id;
   return InkWell(
     onTap: () => onModeSelected(id),
@@ -374,7 +375,7 @@ Widget _buildPaymentOption(BuildContext context, String id, String desc, IconDat
               color: isSelected ? Colors.orangeAccent : const Color(0xFF222222),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: isSelected ? Colors.white : Colors.white54, size: 20),
+            child: customIcon ?? Icon(icon, color: isSelected ? Colors.white : Colors.white54, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

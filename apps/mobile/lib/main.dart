@@ -65,7 +65,8 @@ void main() async {
   }
   
   final prefs = await SharedPreferences.getInstance();
-  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  final hasToken = prefs.getString('auth_token') != null;
+  final isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
 
   runApp(
     ChangeNotifierProvider(
@@ -93,7 +94,7 @@ class AllerRetourApp extends StatelessWidget {
           child: child,
         );
       },
-      title: 'Aller-Retour Mobile',
+      title: 'Allogoo Mobile',
       debugShowCheckedModeBanner: false,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch, PointerDeviceKind.stylus, PointerDeviceKind.unknown},

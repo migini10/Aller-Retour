@@ -38,9 +38,9 @@ export default function ParrainagePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Rejoins Aller-Retour',
-          text: `Inscris-toi sur Aller-Retour avec mon code ${referralCode} et gagne 2000 FCFA sur ton premier trajet !`,
-          url: 'https://aller-retour.app',
+          title: 'Rejoins Allogoo',
+          text: `Inscris-toi sur Allogoo avec mon code ${referralCode} et gagne 2000 FCFA sur ton premier trajet !`,
+          url: 'https://allogoo.com',
         });
       } catch (err) {
         console.error('Share failed:', err);
@@ -173,7 +173,7 @@ export default function ParrainagePage() {
             {/* Bottom Section: Logo, Copyright & Version */}
             <div className="flex flex-row justify-between items-center w-full text-[11px] sm:text-xs">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-black text-slate-900 dark:text-white">Aller-Retour</span>
+                <span className="font-black text-slate-900 dark:text-white">Allogoo</span>
                 <span>© {new Date().getFullYear()}</span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">

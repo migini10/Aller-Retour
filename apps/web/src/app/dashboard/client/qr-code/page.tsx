@@ -130,7 +130,7 @@ export default function QrCodePage() {
                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                              <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}
                            </p>
-                           <p className={`text-xs mt-1 ${isPast ? 'text-slate-500' : 'text-slate-500 font-medium'}`}>{t.trip.company?.name || 'Aller-Retour'} • {userName}</p>
+                           <p className={`text-xs mt-1 ${isPast ? 'text-slate-500' : 'text-slate-500 font-medium'}`}>{t.trip.company?.name || 'Allogoo'} • {userName}</p>
                         </div>
                      </div>
                      <div className="flex items-center gap-2 md:shrink-0 mt-2 md:mt-0">
@@ -161,7 +161,7 @@ export default function QrCodePage() {
                  const timeStr = tripDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                  const origin = t.trip.route.originStation.city;
                  const dest = t.trip.route.destinationStation.city;
-                 const companyName = t.trip.company?.name || 'Aller-Retour';
+                 const companyName = t.trip.company?.name || 'Allogoo';
 
                  if (isPast) {
                    return (

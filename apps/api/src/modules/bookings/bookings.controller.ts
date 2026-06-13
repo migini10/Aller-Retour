@@ -22,12 +22,12 @@ export class CreateBookingDto {
 
 @ApiTags('Bookings & QR Tickets')
 @Controller('bookings')
-@UseGuards(AuthGuard('jwt'), RbacGuard)
 @ApiBearerAuth()
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.PASSENGER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN)
   @Permissions('bookings:create')
   @ApiOperation({ summary: 'Réserver un siège sur un trajet' })
@@ -36,6 +36,7 @@ export class BookingsController {
   }
 
   @Post('verify-qr/:token')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.DISPATCHER, UserRole.DRIVER, UserRole.TENANT_ADMIN, UserRole.SUPER_ADMIN)
   @Permissions('bookings:scan')
   @ApiOperation({ summary: 'Scanner et valider un billet QR Code en gare' })
@@ -44,6 +45,7 @@ export class BookingsController {
   }
 
   @Get('my-tickets')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.PASSENGER)
   @Permissions('bookings:read')
   @ApiOperation({ summary: 'Récupérer les billets (QR Codes) de l\'utilisateur connecté' })

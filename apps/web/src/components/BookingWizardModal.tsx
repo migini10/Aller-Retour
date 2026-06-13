@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
+import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 import { useAuth } from './AuthContext';
 import { useUser } from '../hooks/useUser';
 
@@ -280,7 +281,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const handleShare = async () => {
     const shareData = {
       title: 'Ma Demande Allo Dakar',
-      text: `J'ai fait une demande de covoiturage Allo Dakar ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.\n👉 https://aller-retour.sn`,
+      text: `J'ai fait une demande de covoiturage Allo Dakar ! Départ de ${searchParams.depart || 'Dakar'} vers ${searchParams.arrivee || 'Touba'}.\n👉 https://allogoo.com`,
     };
     
     try {
@@ -295,7 +296,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   };
 
   const handleWhatsApp = async () => {
-    const text = `🎫 *Ma Demande Allo Dakar*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n\n👉 https://aller-retour.sn`;
+    const text = `🎫 *Ma Demande Allo Dakar*\n\n🚍 Départ: ${searchParams.depart || 'Dakar'}\n📍 Arrivée: ${searchParams.arrivee || 'Touba'}\n👥 Passagers: ${searchParams.passagers}\n\n👉 https://allogoo.com`;
       
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -361,7 +362,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             });
             if (res.ok) {
               apiData = await res.json();
+            } else {
+              const errorData = await res.json();
+              setGlobalError(errorData.message || 'Erreur de réservation');
+              return;
             }
+          } else {
+             setGlobalError("Vous devez être connecté pour réserver.");
+             return;
           }
 
           const newTicket = {
@@ -849,7 +857,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="grid grid-cols-2 gap-3">
             {[
               { id: 'wave', name: 'Wave', color: 'bg-blue-600 text-white border-blue-500', icon: Smartphone },
-              { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', icon: Smartphone },
+              { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', customIcon: OrangeMoneyLogo },
               { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white border-slate-300 dark:border-[#333333]', icon: Wallet },
               { id: 'card', name: 'Carte Bancaire', color: 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white border-slate-300 dark:border-[#333333]', icon: CreditCard },
               ...(isAlloDakar ? [{ id: 'cash', name: 'Espèces à l\'arrivée', color: 'bg-emerald-600 text-white border-emerald-500', icon: Banknote }] : [])
@@ -860,7 +868,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
                   ${paymentMethod === method.id ? method.color + ' ring-2 ring-orange-500/50 dark:ring-white/20' : 'bg-white dark:bg-[#1A1A1A] border-slate-200 dark:border-[#2A2A2A] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-[#333333]'}`}
               >
-                <method.icon className="w-6 h-6" />
+                {method.customIcon ? <method.customIcon className="w-6 h-6" /> : (method.icon && <method.icon className="w-6 h-6" />)}
                 <span className="text-xs font-bold">{method.name}</span>
               </button>
             ))}
