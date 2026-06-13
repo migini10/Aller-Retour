@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../home_screen.dart';
 
 class BiometricLockScreen extends StatefulWidget {
@@ -28,10 +29,21 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    // Start authentication automatically after a tiny delay
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _authenticate();
-    });
+    _loadBiometricSettings();
+  }
+
+  Future<void> _loadBiometricSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final useBiometrics = prefs.getBool('useBiometrics') ?? false;
+    if (useBiometrics) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _authenticate();
+      });
+    } else {
+      setState(() {
+        _message = 'Veuillez saisir votre code PIN pour déverrouiller';
+      });
+    }
   }
 
   @override

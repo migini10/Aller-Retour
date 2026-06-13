@@ -1,10 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/theme_provider.dart';
 import '../../widgets/shared_scaffold.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _useBiometrics = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _useBiometrics = prefs.getBool('useBiometrics') ?? false;
+    });
+  }
+
+  Future<void> _toggleBiometrics(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useBiometrics', value);
+    setState(() {
+      _useBiometrics = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +116,15 @@ class SettingsScreen extends StatelessWidget {
           Text('Sécurité', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
           const SizedBox(height: 16),
           _buildSettingsTile(Icons.lock_outline, 'Mot de passe', 'Modifier votre mot de passe', context),
-          _buildSettingsTile(Icons.fingerprint, 'Biométrie', 'Connexion avec Face ID / Touch ID', context, isSwitch: true),
+          _buildSettingsTile(
+            Icons.fingerprint, 
+            'Biométrie', 
+            'Connexion avec Face ID / Touch ID', 
+            context, 
+            isSwitch: true,
+            switchValue: _useBiometrics,
+            onSwitchChanged: _toggleBiometrics,
+          ),
           
           const SizedBox(height: 32),
           Text('À propos', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
@@ -100,7 +137,16 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsTile(IconData icon, String title, String subtitle, BuildContext context, {bool isSwitch = false, VoidCallback? onTap}) {
+  Widget _buildSettingsTile(
+    IconData icon, 
+    String title, 
+    String subtitle, 
+    BuildContext context, {
+      bool isSwitch = false, 
+      bool? switchValue,
+      ValueChanged<bool>? onSwitchChanged,
+      VoidCallback? onTap
+    }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -121,7 +167,7 @@ class SettingsScreen extends StatelessWidget {
         title: Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
         subtitle: subtitle.isNotEmpty ? Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)) : null,
         trailing: isSwitch 
-            ? Switch(value: true, onChanged: (val) {}, activeThumbColor: Colors.cyanAccent)
+            ? Switch(value: switchValue ?? false, onChanged: onSwitchChanged, activeThumbColor: Colors.cyanAccent)
             : Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
         onTap: isSwitch ? null : (onTap ?? () {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title en développement')));
