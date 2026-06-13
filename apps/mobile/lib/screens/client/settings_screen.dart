@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../theme/theme_provider.dart';
 import '../../widgets/shared_scaffold.dart';
 
@@ -27,12 +30,126 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  Future<bool> _showPinConfirmationDialog() async {
+    final pinController = TextEditingController();
+    bool isVerifying = false;
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF141824) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Confirmation de sécurité', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Veuillez saisir votre code PIN à 6 chiffres pour confirmer cette modification.', style: TextStyle(fontSize: 14)),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: pinController,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    autofocus: true,
+                    style: TextStyle(
+                      letterSpacing: 8, 
+                      fontSize: 18, 
+                      fontFamily: 'monospace',
+                      color: isDark ? Colors.white : Colors.black87
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '******',
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isVerifying ? null : () => Navigator.pop(context, false),
+                  child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  onPressed: isVerifying ? null : () async {
+                    if (pinController.text.length != 6) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Le code PIN doit comporter 6 chiffres')),
+                      );
+                      return;
+                    }
+                    
+                    setDialogState(() => isVerifying = true);
+                    
+                    try {
+                      final prefs = await SharedPreferences.getInstance();
+                      final phone = prefs.getString('userPhone') ?? '';
+                      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                      
+                      final response = await http.post(
+                        Uri.parse('$apiUrl/v1/auth/login-mobile'),
+                        headers: {'Content-Type': 'application/json'},
+                        body: jsonEncode({
+                          'phone': phone,
+                          'pin': pinController.text.trim()
+                        }),
+                      );
+                      
+                      if (response.statusCode == 200 || response.statusCode == 201) {
+                        Navigator.pop(context, true);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Code PIN incorrect')),
+                        );
+                        Navigator.pop(context, false);
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Impossible de contacter le serveur')),
+                      );
+                      Navigator.pop(context, false);
+                    } finally {
+                      setDialogState(() => isVerifying = false);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: isVerifying 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Confirmer'),
+                ),
+              ],
+            );
+          }
+        );
+      }
+    );
+    return confirmed ?? false;
+  }
+
   Future<void> _toggleBiometrics(bool value) async {
+    final isConfirmed = await _showPinConfirmationDialog();
+    if (!isConfirmed) return;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('useBiometrics', value);
     setState(() {
       _useBiometrics = value;
     });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(value ? 'Biométrie activée' : 'Biométrie désactivée')),
+      );
+    }
   }
 
   @override
