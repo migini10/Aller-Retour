@@ -61,7 +61,7 @@ export class AuthService {
     }
 
     // Validation du PIN (en prod avec hash bcrypt)
-    if (user.passwordHash !== pin && pin !== '123456') {
+    if (user.passwordHash !== pin) {
       throw new UnauthorizedException("Code PIN incorrect.");
     }
 

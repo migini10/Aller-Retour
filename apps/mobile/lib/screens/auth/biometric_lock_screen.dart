@@ -268,10 +268,6 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
                             ),
                           ),
                           const SizedBox(height: 16),
-                          TextButton(
-                            onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
-                            child: const Text('Bypass (Dev)', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          )
                         ],
                       ),
                     ],

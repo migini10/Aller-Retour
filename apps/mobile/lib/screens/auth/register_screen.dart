@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -24,18 +27,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (_passwordController.text.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Le code PIN doit comporter exactement 6 chiffres.')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+      final response = await http.post(
+        Uri.parse('$apiUrl/v1/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'phone': _phoneController.text.trim(),
+          'fullName': _nameController.text.trim(),
+          'pin': _passwordController.text.trim()
+        }),
+      );
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userName', _nameController.text);
-    await prefs.setString('userPhone', _phoneController.text);
+      final data = jsonDecode(response.body);
 
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/lock');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userName', _nameController.text);
+        await prefs.setString('userPhone', _phoneController.text);
+        if (data['token'] != null) {
+          await prefs.setString('auth_token', data['token']);
+        }
+
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/lock');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Erreur d\'inscription')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de contacter le serveur')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
