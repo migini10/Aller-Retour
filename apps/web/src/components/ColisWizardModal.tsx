@@ -41,32 +41,32 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     if (!isOpen || step !== 1) return;
 
     const initAutocomplete = () => {
-      if (!window.google || !window.google.maps || !window.google.maps.places) return;
+      if (!(window as any).google || !(window as any).google.maps || !(window as any).google.maps.places) return;
       const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
 
       if (departInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(departInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(departInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, depart: place.formatted_address || '' }));
         });
       }
       if (quartierDepartInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(quartierDepartInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierDepartInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, quartierDepart: place.formatted_address || '' }));
         });
       }
       if (arriveeInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(arriveeInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(arriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
         });
       }
       if (quartierArriveeInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
@@ -74,7 +74,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       }
     };
 
-    if (!window.google) {
+    if (!(window as any).google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
       script.async = true;
@@ -173,8 +173,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          if (window.google && window.google.maps) {
-            const geocoder = new window.google.maps.Geocoder();
+          if ((window as any).google && (window as any).google.maps) {
+            const geocoder = new (window as any).google.maps.Geocoder();
             geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
               if (status === 'OK' && results && results[0]) {
                 const components = results[0].address_components || [];

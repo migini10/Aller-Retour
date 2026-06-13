@@ -216,32 +216,32 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     if (!isOpen || step !== 1) return;
 
     const initAutocomplete = () => {
-      if (!window.google || !window.google.maps || !window.google.maps.places) return;
+      if (!(window as any).google || !(window as any).google.maps || !(window as any).google.maps.places) return;
       const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
 
       if (departInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(departInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(departInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, depart: place.formatted_address || '' }));
         });
       }
       if (arriveeInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(arriveeInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(arriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
         });
       }
       if (pickupInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(pickupInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(pickupInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setPickupLocation(place.formatted_address || '');
         });
       }
       if (quartierArriveeInputRef.current) {
-        const autocomplete = new window.google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
@@ -249,7 +249,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       }
     };
 
-    if (!window.google) {
+    if (!(window as any).google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
       script.async = true;

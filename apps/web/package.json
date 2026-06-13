@@ -2,11 +2,14 @@
   "name": "web",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "dev": "npx --yes next dev",
-    "build": "npx --yes next build",
-    "start": "npx --yes next start",
-    "lint": "npx --yes next lint"
+    "dev": "next dev",
+    "build": "npx prisma generate --schema=../../packages/database/prisma/schema.prisma && next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@aller-retour/database": "*",

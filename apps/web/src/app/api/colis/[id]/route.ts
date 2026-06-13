@@ -9,7 +9,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const { id } = params; // This is the trackingCode because we use it as ID in frontend
     const data = await request.json();
 
-    let dbStatus = ParcelStatus.REGISTERED;
+    let dbStatus: ParcelStatus = ParcelStatus.REGISTERED;
     if (data.statut === 'Accepté') dbStatus = ParcelStatus.ACCEPTED;
     if (data.statut === 'En transit') dbStatus = ParcelStatus.IN_TRANSIT;
     if (data.statut === 'Livré') dbStatus = ParcelStatus.DELIVERED;
