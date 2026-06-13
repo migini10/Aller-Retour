@@ -37,7 +37,7 @@ interface SidebarProps {
 export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { openBookingWizard, showDevMenu, setShowDevMenu } = useModal();
+  const { openBookingWizard } = useModal();
   
   const [hash, setHash] = React.useState('');
   
