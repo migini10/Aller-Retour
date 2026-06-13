@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev",
-    "build": "npx next build",
-    "start": "npx next start",
-    "lint": "npx next lint"
+    "dev": "npx --yes next dev",
+    "build": "npx --yes next build",
+    "start": "npx --yes next start",
+    "lint": "npx --yes next lint"
   },
   "dependencies": {
     "@aller-retour/database": "*",
