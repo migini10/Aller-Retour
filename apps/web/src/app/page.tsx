@@ -92,20 +92,11 @@ export default function HomePage() {
             <a href="#services" className="hover:text-orange-500 dark:hover:text-white transition-colors">Nos Services</a>
             <a href="#partners" className="hover:text-orange-500 dark:hover:text-white transition-colors">Transporteurs / GIE</a>
             <a href="#testimonials" className="hover:text-orange-500 dark:hover:text-white transition-colors">Témoignages</a>
-            <Link href="/dashboard/admin" className="hover:text-orange-500 dark:hover:text-white transition-colors text-orange-500 font-bold border-l border-slate-200 dark:border-slate-800 pl-4">Admin</Link>
           </nav>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             
-            {/* Admin Quick Link */}
-            <Link 
-              href="/dashboard/admin" 
-              className="px-3.5 py-2.5 rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-500 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:text-white font-bold transition-all text-xs"
-            >
-              Admin
-            </Link>
-
             {/* Theme Toggle */}
             <button 
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
