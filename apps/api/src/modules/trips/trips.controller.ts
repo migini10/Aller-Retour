@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param, Post, Body, Patch } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, Body, Patch, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { prisma, TripStatus } from '@aller-retour/database';
 
@@ -245,5 +245,23 @@ export class TripsController {
     });
 
     return { success: true, trip: updatedTrip };
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Supprimer un trajet' })
+  async deleteTrip(@Param('id') id: string) {
+    try {
+      // Supprime les réservations, les colis et les verrous de sièges associés pour éviter les erreurs de clés étrangères
+      await prisma.booking.deleteMany({ where: { tripId: id } });
+      await prisma.parcel.deleteMany({ where: { tripId: id } });
+      await prisma.seatLock.deleteMany({ where: { tripId: id } });
+      
+      await prisma.trip.delete({
+        where: { id }
+      });
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error?.message || 'Erreur lors de la suppression de la mission' };
+    }
   }
 }

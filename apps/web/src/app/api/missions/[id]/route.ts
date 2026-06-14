@@ -79,3 +79,35 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Erreur lors de la modification de la mission' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const { id } = params;
+
+    const existingTrip = await prisma.trip.findUnique({
+      where: { id }
+    });
+
+    if (!existingTrip) {
+      return NextResponse.json({ error: 'Trajet non trouvé' }, { status: 404 });
+    }
+
+    // Delete associated bookings, parcels, and seat locks first to prevent foreign key constraint violations
+    await prisma.booking.deleteMany({ where: { tripId: id } });
+    await prisma.parcel.deleteMany({ where: { tripId: id } });
+    await prisma.seatLock.deleteMany({ where: { tripId: id } });
+
+    await prisma.trip.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('DELETE Missions Error:', error);
+    return NextResponse.json({ 
+      error: 'Erreur lors de la suppression de la mission',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  }
+}
+

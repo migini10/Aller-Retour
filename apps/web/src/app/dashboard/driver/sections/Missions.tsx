@@ -609,19 +609,37 @@ export default function SectionMissions() {
                 )}
                 {m.statut === 'programmé' && m.passagers === 0 && (
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       if (confirm("Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.")) {
-                        const updatedMissions = localMissions.filter(m2 => m2.id !== m.id);
-                        setLocalMissions(updatedMissions);
-                        
-                        // Si c'est un trajet demo, on le supprime du localStorage
-                        const stored = localStorage.getItem('demo_trips');
-                        if (stored) {
-                          try {
-                            const parsed = JSON.parse(stored);
-                            const updatedStorage = parsed.filter((p: any) => p.id !== m.id);
-                            localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
-                          } catch(e) {}
+                        try {
+                          const res = await fetch(`/api/missions/${m.id}`, {
+                            method: 'DELETE'
+                          });
+
+                          if (res.ok) {
+                            const updatedMissions = localMissions.filter(m2 => m2.id !== m.id);
+                            setLocalMissions(updatedMissions);
+                            
+                            // Si c'est un trajet demo, on le supprime du localStorage
+                            const stored = localStorage.getItem('demo_trips');
+                            if (stored) {
+                              try {
+                                const parsed = JSON.parse(stored);
+                                const updatedStorage = parsed.filter((p: any) => p.id !== m.id);
+                                localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
+                              } catch(e) {}
+                            }
+                          } else {
+                            const errText = await res.text();
+                            let errMsg = "Erreur lors de la suppression";
+                            try {
+                              const parsedErr = JSON.parse(errText);
+                              errMsg = parsedErr.details || parsedErr.error || errMsg;
+                            } catch (e) {}
+                            alert(`Impossible de supprimer le trajet : ${errMsg}`);
+                          }
+                        } catch (err: any) {
+                          alert(`Erreur de connexion au serveur : ${err.message}`);
                         }
                       }
                     }}
