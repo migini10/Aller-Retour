@@ -613,8 +613,33 @@ export default function HomePage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Réservez vos voyages et expédiez vos colis en quelques clics.</p>
                   </div>
                   <div className="flex gap-2 mt-6">
-                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">Google Play</a>
-                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">App Store</a>
+                    {/* Google Play */}
+                    <a 
+                      href="#" 
+                      className="flex-1 bg-black hover:bg-slate-900 text-white rounded-xl py-2 px-2.5 flex items-center gap-1.5 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.04a1.82 1.82 0 00-.33.1L13.88 12 4.92 20.86a1.82 1.82 0 00.33.1c.36.03.73-.08 1.03-.3l13.6-7.85c.66-.38.66-1.4 0-1.78l-13.6-7.85c-.3-.22-.67-.33-1.03-.3zM4 4.3v15.4c0 .32.08.62.24.87l8.28-8.28-8.28-8.28A1.8 1.8 0 004 4.3z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[7px] uppercase tracking-wider text-slate-400 leading-none">DISPONIBLE SUR</p>
+                        <p className="text-[10px] font-black tracking-tight mt-0.5">Google Play</p>
+                      </div>
+                    </a>
+
+                    {/* App Store */}
+                    <a 
+                      href="#" 
+                      className="flex-1 bg-black hover:bg-slate-900 text-white rounded-xl py-2 px-2.5 flex items-center gap-1.5 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.63.73-1.18 1.87-1.03 2.97 1.12.09 2.27-.6 2.98-1.41z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[7px] uppercase tracking-wider text-slate-400 leading-none">Télécharger dans l'</p>
+                        <p className="text-[10px] font-black tracking-tight mt-0.5">App Store</p>
+                      </div>
+                    </a>
                   </div>
                 </div>
 
@@ -625,43 +650,50 @@ export default function HomePage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Gérez votre flotte, validez vos passagers et encaissez vos revenus.</p>
                   </div>
                   <div className="flex gap-2 mt-6">
-                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">Google Play</a>
-                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">App Store</a>
+                    {/* Google Play */}
+                    <a 
+                      href="#" 
+                      className="flex-1 bg-black hover:bg-slate-900 text-white rounded-xl py-2 px-2.5 flex items-center gap-1.5 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.04a1.82 1.82 0 00-.33.1L13.88 12 4.92 20.86a1.82 1.82 0 00.33.1c.36.03.73-.08 1.03-.3l13.6-7.85c.66-.38.66-1.4 0-1.78l-13.6-7.85c-.3-.22-.67-.33-1.03-.3zM4 4.3v15.4c0 .32.08.62.24.87l8.28-8.28-8.28-8.28A1.8 1.8 0 004 4.3z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[7px] uppercase tracking-wider text-slate-400 leading-none">DISPONIBLE SUR</p>
+                        <p className="text-[10px] font-black tracking-tight mt-0.5">Google Play</p>
+                      </div>
+                    </a>
+
+                    {/* App Store */}
+                    <a 
+                      href="#" 
+                      className="flex-1 bg-black hover:bg-slate-900 text-white rounded-xl py-2 px-2.5 flex items-center gap-1.5 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.63.73-1.18 1.87-1.03 2.97 1.12.09 2.27-.6 2.98-1.41z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[7px] uppercase tracking-wider text-slate-400 leading-none">Télécharger dans l'</p>
+                        <p className="text-[10px] font-black tracking-tight mt-0.5">App Store</p>
+                      </div>
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Phone Illustrations */}
+            {/* Right: Clean Showcase Illustration resembling the Hero section */}
             <div className="relative justify-center hidden lg:flex">
-              <div className="relative w-80 h-[480px] rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden transform rotate-3">
-                <div className="absolute top-0 inset-x-0 h-4 bg-slate-900 z-30 flex items-center justify-center">
-                  <div className="w-16 h-2 rounded-full bg-black"></div>
-                </div>
-                <div className="w-full h-full bg-[#0B0F19] p-4 pt-6 flex flex-col justify-between text-white">
-                  <div className="text-center mt-4 space-y-2">
-                    <p className="text-xs font-bold text-orange-500">Allogoo Passager</p>
-                    <p className="text-sm font-black">Réservez en 1 clic</p>
-                  </div>
-                  <div className="w-48 h-48 bg-orange-500/10 border border-orange-500/20 rounded-full blur-2xl mx-auto"></div>
-                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs space-y-2 mb-2 text-left">
-                    <div className="flex justify-between font-bold"><span>Dakar ➔ Touba</span><span className="text-orange-500">5 000 F</span></div>
-                    <p className="text-[10px] text-slate-500">Départ aujourd'hui à 14:30</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="absolute top-12 left-12 w-80 h-[480px] rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden transform -rotate-3 z-10">
-                <div className="absolute top-0 inset-x-0 h-4 bg-slate-900 z-30 flex items-center justify-center">
-                  <div className="w-16 h-2 rounded-full bg-black"></div>
-                </div>
-                <div className="w-full h-full bg-white p-4 pt-6 flex flex-col justify-between text-slate-900">
-                  <div className="text-center mt-4 space-y-2">
-                    <p className="text-xs font-bold text-orange-500">Allogoo Conducteur</p>
-                    <p className="text-sm font-black">Validez les passagers</p>
-                  </div>
-                  <div className="w-32 h-32 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto"><QrCode className="w-16 h-16 text-orange-500" /></div>
-                  <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-[10px] text-center font-bold text-emerald-500 mb-2">Chauffeur en ligne</div>
+              <div className="relative group w-full max-w-[440px]">
+                {/* Ambient glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-blue-500 rounded-[32px] blur-xl opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+                
+                <div className="relative bg-white dark:bg-[#111622] border border-slate-200/80 dark:border-slate-800/60 rounded-[32px] overflow-hidden shadow-2xl p-2 transition-transform duration-500 hover:scale-[1.01]">
+                  <img 
+                    src="/images/allogoo_apps_showcase.png" 
+                    alt="Allogoo applications passager et chauffeur" 
+                    className="w-full h-auto rounded-[24px] object-cover"
+                  />
                 </div>
               </div>
             </div>
