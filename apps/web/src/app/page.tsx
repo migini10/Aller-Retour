@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -23,9 +23,47 @@ export default function HomePage() {
   const [depart, setDepart] = useState('Dakar');
   const [arrivee, setArrivee] = useState('Touba');
 
+  const heroDepartRef = useRef<HTMLInputElement>(null);
+  const heroArriveeRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const initHeroAutocomplete = () => {
+      if (!(window as any).google || !(window as any).google.maps || !(window as any).google.maps.places) return;
+      const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
+
+      if (heroDepartRef.current) {
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(heroDepartRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setDepart(place.formatted_address);
+        });
+      }
+      if (heroArriveeRef.current) {
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(heroArriveeRef.current, options);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setArrivee(place.formatted_address);
+        });
+      }
+    };
+
+    if (!(window as any).google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = initHeroAutocomplete;
+      document.head.appendChild(script);
+    } else {
+      setTimeout(initHeroAutocomplete, 500);
+    }
+  }, [mounted]);
 
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
@@ -44,7 +82,7 @@ export default function HomePage() {
               <Car className="w-5 h-5 text-orange-500" />
             </div>
             <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-              Aller<span className="text-orange-500">Retour</span>
+              Allo<span className="text-orange-500">goo</span>
             </span>
           </Link>
 
@@ -126,6 +164,18 @@ export default function HomePage() {
                 Réservez vos trajets interurbains avec horaires garantis, billets QR Code sécurisés et paiement mobile Wave & Orange Money instantané.
               </p>
 
+              {/* Download Quick Badges */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                <a href="#" className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md transform hover:-translate-y-0.5">
+                  <Smartphone className="w-4 h-4 text-orange-500 shrink-0" />
+                  <span>Télécharger Passager (Android/iOS)</span>
+                </a>
+                <a href="#" className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md transform hover:-translate-y-0.5">
+                  <Smartphone className="w-4 h-4 text-orange-500 shrink-0" />
+                  <span>Télécharger Chauffeur (Android)</span>
+                </a>
+              </div>
+
               {/* Search Widget */}
               <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl max-w-xl mx-auto lg:mx-0 transition-colors">
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -135,17 +185,14 @@ export default function HomePage() {
                     <MapPin className="w-5 h-5 text-orange-500 shrink-0" />
                     <div className="text-left w-full">
                       <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Départ</label>
-                      <select 
+                      <input 
+                        ref={heroDepartRef}
+                        type="text" 
+                        placeholder="Ex: Dakar"
                         value={depart} 
                         onChange={(e) => setDepart(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-slate-800 dark:text-white outline-none w-full cursor-pointer"
-                      >
-                        <option value="Dakar">Dakar</option>
-                        <option value="Touba">Touba</option>
-                        <option value="Thiès">Thiès</option>
-                        <option value="Mbour">Mbour</option>
-                        <option value="Saint-Louis">Saint-Louis</option>
-                      </select>
+                        className="bg-transparent text-sm font-bold text-slate-800 dark:text-white outline-none w-full border-none focus:ring-0 p-0"
+                      />
                     </div>
                   </div>
 
@@ -154,18 +201,14 @@ export default function HomePage() {
                     <MapPin className="w-5 h-5 text-emerald-500 shrink-0" />
                     <div className="text-left w-full">
                       <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Arrivée</label>
-                      <select 
+                      <input 
+                        ref={heroArriveeRef}
+                        type="text" 
+                        placeholder="Ex: Touba"
                         value={arrivee} 
                         onChange={(e) => setArrivee(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-slate-800 dark:text-white outline-none w-full cursor-pointer"
-                      >
-                        <option value="Touba">Touba</option>
-                        <option value="Dakar">Dakar</option>
-                        <option value="Mbour">Mbour</option>
-                        <option value="Thiès">Thiès</option>
-                        <option value="Saint-Louis">Saint-Louis</option>
-                        <option value="Ziguinchor">Ziguinchor</option>
-                      </select>
+                        className="bg-transparent text-sm font-bold text-slate-800 dark:text-white outline-none w-full border-none focus:ring-0 p-0"
+                      />
                     </div>
                   </div>
 
@@ -173,11 +216,15 @@ export default function HomePage() {
 
                 {/* Primary CTA */}
                 <button 
-                  onClick={() => openBookingWizard('allo-dakar')}
+                  onClick={() => {
+                    localStorage.setItem('ar_search_depart', depart);
+                    localStorage.setItem('ar_search_arrivee', arrivee);
+                    openBookingWizard('allo-dakar');
+                  }}
                   className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] shadow-lg shadow-orange-600/20"
                 >
                   <Search className="w-5 h-5" />
-                  <span>Rechercher un trajet {depart} - {arrivee}</span>
+                  <span>Rechercher un trajet</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -525,7 +572,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500"><Truck className="w-5 h-5" /></div>
                   <div>
-                    <h3 className="font-extrabold text-white text-base">Aller-Retour Pro</h3>
+                    <h3 className="font-extrabold text-white text-base">Allogoo Pro</h3>
                     <p className="text-[10px] text-slate-500 font-bold uppercase">Système de gestion de flotte</p>
                   </div>
                 </div>
@@ -543,7 +590,7 @@ export default function HomePage() {
                 </div>
 
                 <p className="text-xs text-slate-400 leading-relaxed italic">
-                  "Depuis que nous utilisons Aller-Retour pour le GIE de Dakar, nous avons réduit de 40% l'attente en gare routière et éliminé la fraude sur les billets."
+                  "Depuis que nous utilisons Allogoo pour le GIE de Dakar, nous avons réduit de 40% l'attente en gare routière et éliminé la fraude sur les billets."
                 </p>
                 <div className="flex items-center gap-3 border-t border-slate-800 pt-4">
                   <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 text-xs font-bold">MD</div>
@@ -558,6 +605,86 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 6.5 Apps Download Section */}
+      <section className="py-24 bg-gradient-to-b from-slate-50 to-white dark:from-[#0B0F19] dark:to-slate-950 border-t border-slate-200/50 dark:border-slate-800/40 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left: Text & Badges */}
+            <div className="space-y-6 text-center lg:text-left">
+              <span className="text-xs font-bold text-orange-500 uppercase tracking-widest font-mono">Applications Mobiles Allogoo</span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                Emportez Allogoo dans votre poche
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xl mx-auto lg:mx-0">
+                Que vous soyez passager ou chauffeur, profitez d'une expérience optimisée, rapide et fluide directement sur votre smartphone Android ou iOS.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start pt-4">
+                {/* Passenger app card */}
+                <div className="bg-white dark:bg-[#111622] border border-slate-200/60 dark:border-slate-800/40 p-6 rounded-3xl text-left shadow-sm flex flex-col justify-between max-w-xs mx-auto sm:mx-0 w-full">
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Allogoo Passager</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Réservez vos voyages et expédiez vos colis en quelques clics.</p>
+                  </div>
+                  <div className="flex gap-2 mt-6">
+                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">Google Play</a>
+                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">App Store</a>
+                  </div>
+                </div>
+
+                {/* Driver app card */}
+                <div className="bg-white dark:bg-[#111622] border border-slate-200/60 dark:border-slate-800/40 p-6 rounded-3xl text-left shadow-sm flex flex-col justify-between max-w-xs mx-auto sm:mx-0 w-full">
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Allogoo Conducteur</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Gérez votre flotte, validez vos passagers et encaissez vos revenus.</p>
+                  </div>
+                  <div className="flex gap-2 mt-6">
+                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">Google Play</a>
+                    <a href="#" className="flex-1 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white p-2.5 rounded-xl text-center text-xs font-bold transition-all transform hover:-translate-y-0.5">App Store</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Phone Illustrations */}
+            <div className="relative justify-center hidden lg:flex">
+              <div className="relative w-80 h-[480px] rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden transform rotate-3">
+                <div className="absolute top-0 inset-x-0 h-4 bg-slate-900 z-30 flex items-center justify-center">
+                  <div className="w-16 h-2 rounded-full bg-black"></div>
+                </div>
+                <div className="w-full h-full bg-[#0B0F19] p-4 pt-6 flex flex-col justify-between text-white">
+                  <div className="text-center mt-4 space-y-2">
+                    <p className="text-xs font-bold text-orange-500">Allogoo Passager</p>
+                    <p className="text-sm font-black">Réservez en 1 clic</p>
+                  </div>
+                  <div className="w-48 h-48 bg-orange-500/10 border border-orange-500/20 rounded-full blur-2xl mx-auto"></div>
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-xs space-y-2 mb-2 text-left">
+                    <div className="flex justify-between font-bold"><span>Dakar ➔ Touba</span><span className="text-orange-500">5 000 F</span></div>
+                    <p className="text-[10px] text-slate-500">Départ aujourd'hui à 14:30</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute top-12 left-12 w-80 h-[480px] rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden transform -rotate-3 z-10">
+                <div className="absolute top-0 inset-x-0 h-4 bg-slate-900 z-30 flex items-center justify-center">
+                  <div className="w-16 h-2 rounded-full bg-black"></div>
+                </div>
+                <div className="w-full h-full bg-white p-4 pt-6 flex flex-col justify-between text-slate-900">
+                  <div className="text-center mt-4 space-y-2">
+                    <p className="text-xs font-bold text-orange-500">Allogoo Conducteur</p>
+                    <p className="text-sm font-black">Validez les passagers</p>
+                  </div>
+                  <div className="w-32 h-32 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto"><QrCode className="w-16 h-16 text-orange-500" /></div>
+                  <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-[10px] text-center font-bold text-emerald-500 mb-2">Chauffeur en ligne</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* 6. Testimonials Section */}
       <section id="testimonials" className="py-24 bg-slate-50 dark:bg-[#0B0F19] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -565,7 +692,7 @@ export default function HomePage() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Témoignages</h2>
             <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Ce qu'en disent nos voyageurs</p>
-            <p className="text-slate-500 dark:text-slate-400 mt-4 font-medium">Des milliers d'utilisateurs font confiance à Aller-Retour chaque jour pour leurs trajets et envois.</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-4 font-medium">Des milliers d'utilisateurs font confiance à Allogoo chaque jour pour leurs trajets et envois.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -647,7 +774,7 @@ export default function HomePage() {
               },
               {
                 q: "Comment le chauffeur valide-t-il la montée ?",
-                a: "Chaque passager reçoit un billet électronique contenant un QR Code unique et sécurisé. À la montée, le chauffeur scanne votre QR Code avec son application mobile Aller-Retour Driver pour valider votre présence en temps réel."
+                a: "Chaque passager reçoit un billet électronique contenant un QR Code unique et sécurisé. À la montée, le chauffeur scanne votre QR Code avec son application mobile Allogoo Driver pour valider votre présence en temps réel."
               },
               {
                 q: "Puis-je envoyer un colis sans voyager moi-même ?",
@@ -692,7 +819,7 @@ export default function HomePage() {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
                   <Car className="w-4 h-4 text-orange-500" />
                 </div>
-                <span className="text-lg font-black text-white">Aller-Retour</span>
+                <span className="text-lg font-black text-white">Allogoo</span>
               </div>
               <p className="text-xs leading-relaxed">
                 La plateforme technologique panafricaine qui modernise le transport interurbain et la logistique.
@@ -725,7 +852,7 @@ export default function HomePage() {
             <div className="space-y-4">
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">Contact & Support</h4>
               <ul className="space-y-2 text-xs">
-                <li>Email : support@aller-retour.com</li>
+                <li>Email : support@allogoo.sn</li>
                 <li>Téléphone : +221 33 800 00 00</li>
                 <li>Dakar, Sénégal</li>
               </ul>
@@ -734,7 +861,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-            <p>&copy; {new Date().getFullYear()} Aller-Retour. Tous droits réservés.</p>
+            <p>&copy; {new Date().getFullYear()} Allogoo. Tous droits réservés.</p>
             <p className="flex items-center gap-2">
               <Smartphone className="w-4 h-4 text-orange-500" />
               <span>Disponible sur Android & iOS</span>

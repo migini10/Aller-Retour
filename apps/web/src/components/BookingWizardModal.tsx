@@ -307,7 +307,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       setStep(1);
       setIsClosing(false);
       setTicketPour(null);
-      setSearchParams(s => ({ ...s, type: initialType }));
+      
+      const storedDepart = localStorage.getItem('ar_search_depart') || '';
+      const storedArrivee = localStorage.getItem('ar_search_arrivee') || '';
+
+      setSearchParams(s => ({ 
+        ...s, 
+        type: initialType,
+        depart: storedDepart || s.depart,
+        arrivee: storedArrivee || s.arrivee
+      }));
     } else {
       document.body.style.overflow = 'unset';
     }
