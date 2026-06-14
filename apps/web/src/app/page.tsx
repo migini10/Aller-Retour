@@ -164,17 +164,6 @@ export default function HomePage() {
                 Réservez vos trajets interurbains avec horaires garantis, billets QR Code sécurisés et paiement mobile Wave & Orange Money instantané.
               </p>
 
-              {/* Download Quick Badges */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                <a href="#" className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md transform hover:-translate-y-0.5">
-                  <Smartphone className="w-4 h-4 text-orange-500 shrink-0" />
-                  <span>Télécharger Passager (Android/iOS)</span>
-                </a>
-                <a href="#" className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-orange-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md transform hover:-translate-y-0.5">
-                  <Smartphone className="w-4 h-4 text-orange-500 shrink-0" />
-                  <span>Télécharger Chauffeur (Android)</span>
-                </a>
-              </div>
 
               {/* Search Widget */}
               <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl max-w-xl mx-auto lg:mx-0 transition-colors">
