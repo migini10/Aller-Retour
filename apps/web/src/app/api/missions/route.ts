@@ -140,8 +140,15 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, trip });
-  } catch (error) {
-    console.error('POST Missions Error:', error);
-    return NextResponse.json({ error: 'Erreur lors de la création de la mission' }, { status: 500 });
+  } catch (error: any) {
+    console.error('POST Missions Error Details:', {
+      message: error?.message,
+      stack: error?.stack,
+      raw: error
+    });
+    return NextResponse.json({ 
+      error: 'Erreur lors de la création de la mission', 
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
   }
 }

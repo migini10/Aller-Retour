@@ -324,7 +324,7 @@ export default function SectionMissions() {
       let errMsg = err.message;
       try {
         const parsed = JSON.parse(errMsg);
-        errMsg = parsed.message || parsed.error || errMsg;
+        errMsg = parsed.message || (parsed.details ? `${parsed.error} (${parsed.details})` : parsed.error) || errMsg;
       } catch (e) {}
       setSubmitError(typeof errMsg === 'string' ? errMsg : "Impossible de joindre le serveur. Assurez-vous que l'API est en ligne.");
     }
