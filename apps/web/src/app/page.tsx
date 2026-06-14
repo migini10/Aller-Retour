@@ -98,6 +98,14 @@ export default function HomePage() {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             
+            {/* Admin Quick Link */}
+            <Link 
+              href="/dashboard/admin" 
+              className="px-3.5 py-2.5 rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-500 dark:text-orange-400 hover:bg-orange-600 hover:text-white dark:hover:text-white font-bold transition-all text-xs"
+            >
+              Admin
+            </Link>
+
             {/* Theme Toggle */}
             <button 
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
