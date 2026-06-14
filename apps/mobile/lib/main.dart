@@ -38,7 +38,12 @@ class InactivityTimer {
 
   static void resetTimer() {
     _timer?.cancel();
-    _timer = Timer(const Duration(minutes: _timeoutMinutes), () {
+    _timer = Timer(const Duration(minutes: _timeoutMinutes), () async {
+      final prefs = await SharedPreferences.getInstance();
+      final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
+      if (!isLoggedIn || !appLockEnabled) return; // Only lock if logged in and app lock is enabled
+      
       _isLocked = true;
       if (navigatorKey.currentState != null) {
         // Prevent pushing multiple lock screens
@@ -67,19 +72,21 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasToken = prefs.getString('auth_token') != null;
   final isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
+  final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
 
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
-      child: AllerRetourApp(isLoggedIn: isLoggedIn),
+      child: AllerRetourApp(isLoggedIn: isLoggedIn, appLockEnabled: appLockEnabled),
     ),
   );
 }
 
 class AllerRetourApp extends StatelessWidget {
   final bool isLoggedIn;
+  final bool appLockEnabled;
   
-  const AllerRetourApp({super.key, required this.isLoggedIn});
+  const AllerRetourApp({super.key, required this.isLoggedIn, required this.appLockEnabled});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +111,9 @@ class AllerRetourApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       initialRoute: '/',
       routes: {
-        '/': (context) => isLoggedIn ? const BiometricLockScreen() : const LoginScreen(),
+        '/': (context) => isLoggedIn 
+            ? (appLockEnabled ? const BiometricLockScreen() : const HomeScreen())
+            : const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/lock': (context) => const BiometricLockScreen(),

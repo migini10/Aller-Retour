@@ -4,29 +4,42 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CarFront, Phone, Lock, Eye, EyeOff, User, ArrowRight } from 'lucide-react';
+import { useAuth } from '../../../components/AuthContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone || !password) return;
 
+    if (password.length !== 6) {
+      setErrorMsg('Le code PIN doit comporter exactement 6 chiffres.');
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Set authenticated state in localStorage
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userPhone', phone);
-    
-    router.push('/dashboard/client');
+    setErrorMsg('');
+
+    try {
+      const res = await register(phone.trim(), name.trim(), password.trim());
+      if (res.success) {
+        router.push('/dashboard/client');
+      } else {
+        setErrorMsg(res.message || "Erreur lors de l'inscription.");
+      }
+    } catch (err) {
+      setErrorMsg('Impossible de se connecter au serveur.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -48,6 +61,11 @@ export default function RegisterPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-slate-900/50 py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-slate-200 dark:border-slate-800/50">
+          {errorMsg && (
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs text-center font-medium">
+              {errorMsg}
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleRegister}>
             
             <div>

@@ -60,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
 
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/lock');
+          Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
         if (mounted) {

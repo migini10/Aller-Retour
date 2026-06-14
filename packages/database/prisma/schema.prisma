@@ -70,6 +70,9 @@ model User {
   wallets       Wallet[]
   seatLocks     SeatLock[]
 
+  failedAttempts Int       @default(0)
+  blockedUntil   DateTime?
+
   @@index([phone])
   @@index([companyId])
   @@map("users")

@@ -110,11 +110,11 @@ export async function POST(request: Request) {
     const parcel = await prisma.parcel.create({
       data: {
         tripId: trip.id,
-        senderName: "Client Demo",
-        senderPhone: "+221771111111",
+        senderName: data.senderName || "Expéditeur Anonyme",
+        senderPhone: data.senderPhone || "+221770000000",
         recipientName: data.destinataire,
         recipientPhone: data.tel,
-        weightKg: data.taille === 'Moyen (5-15kg)' ? 10 : (data.taille === 'Petit (0-5kg)' ? 3 : 20),
+        weightKg: data.taille === 'Moyen' ? 10 : (data.taille === 'Petit' ? 3 : (data.taille === 'Enveloppe' ? 0.5 : 25)),
         price: 3000,
         trackingCode: `TRK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         deliveryCode: Math.floor(1000 + Math.random() * 9000).toString(),

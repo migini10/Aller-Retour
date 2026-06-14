@@ -8,6 +8,7 @@ import {
 import QRCodeBrandEngine from './QRCodeBrandEngine';
 import html2canvas from 'html2canvas';
 import { OrangeMoneyLogo } from './OrangeMoneyLogo';
+import { useAuth } from './AuthContext';
 
 interface ColisWizardModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface ColisWizardModalProps {
 export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalProps) {
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
+  const { isAuthenticated, openAuthModal, user } = useAuth();
 
   const [colisParams, setColisParams] = useState({
     depart: '',
@@ -115,6 +117,15 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
   };
 
   const nextStep = async () => {
+    if (step === 2) {
+      if (!isAuthenticated) {
+        openAuthModal(() => {
+          setStep(3);
+        });
+        return;
+      }
+    }
+
     if (step === 3) {
       try {
         const res = await fetch('/api/colis', {
@@ -123,7 +134,10 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           body: JSON.stringify({
             destinataire: colisParams.destinataireNom,
             tel: colisParams.destinataireTel,
-            taille: colisParams.taille
+            taille: colisParams.taille,
+            senderName: user?.fullName || 'Expéditeur Anonyme',
+            senderPhone: user?.phone || '+221770000000',
+            email: user?.email || 'allogoosn@gmail.com'
           })
         });
         if (res.ok) {

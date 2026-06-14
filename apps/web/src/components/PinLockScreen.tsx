@@ -10,26 +10,19 @@ interface PinLockScreenProps {
 export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const [errorText, setErrorText] = useState('Code PIN incorrect');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
-  const correctPin = '1234'; // Simulated PIN code for this demonstration
-
-  useEffect(() => {
-    // Check if WebAuthn is available. We force it to true for the prototype demonstration
-    // so the user can test the simultaneous PIN & Biometric UI.
-    setBiometricAvailable(true);
-  }, []);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
 
   const handleBiometricAuth = async () => {
     try {
       setIsAuthenticating(true);
       
-      // We simulate a tiny delay to represent the OS prompt
+      // Simulate OS biometric prompt delay
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // In a real environment, we would use navigator.credentials.create(...)
-      // But for this prototype, we immediately unlock
       onUnlock();
     } catch (err) {
       console.error("Biometric auth failed or cancelled", err);
@@ -40,18 +33,47 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
     }
   };
 
-  const handleNumberClick = (num: number) => {
-    if (pin.length < 4) {
+  useEffect(() => {
+    const useBiometrics = localStorage.getItem('ar_use_biometrics') === 'true';
+    if (useBiometrics) {
+      setBiometricAvailable(true);
+      // Put biometrics first: automatically trigger biometric prompt on load
+      handleBiometricAuth();
+    } else {
+      setBiometricAvailable(false);
+    }
+  }, []);
+
+  const handleNumberClick = async (num: number) => {
+    if (pin.length < 6) {
       const newPin = pin + num.toString();
       setPin(newPin);
       setError(false);
       
-      if (newPin.length === 4) {
-        if (newPin === correctPin) {
-          setTimeout(onUnlock, 300);
-        } else {
+      if (newPin.length === 6) {
+        setIsAuthenticating(true);
+        try {
+          const phone = localStorage.getItem('userPhone') || '';
+          const res = await fetch(`${API_URL}/auth/login-mobile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, pin: newPin })
+          });
+          
+          if (res.ok) {
+            setTimeout(onUnlock, 300);
+          } else {
+            const data = await res.json();
+            setErrorText(data.message || 'Code PIN incorrect');
+            setError(true);
+            setTimeout(() => setPin(''), 500);
+          }
+        } catch (err) {
+          setErrorText('Impossible de contacter le serveur');
           setError(true);
           setTimeout(() => setPin(''), 500);
+        } finally {
+          setIsAuthenticating(false);
         }
       }
     }
@@ -79,7 +101,7 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
 
         {/* PIN Indicators */}
         <div className={`flex gap-4 mb-12 ${error ? 'animate-shake' : ''}`}>
-          {[...Array(4)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <div 
               key={i} 
               className={`w-4 h-4 rounded-full transition-all duration-300 ${
@@ -132,8 +154,8 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
         </div>
 
         {/* Error Message */}
-        <div className={`mt-8 text-sm font-medium text-rose-500 h-5 transition-opacity ${error ? 'opacity-100' : 'opacity-0'}`}>
-          Code PIN incorrect (Essayer 1234)
+        <div className={`mt-8 text-sm font-medium text-rose-500 text-center max-w-xs transition-opacity ${error ? 'opacity-100' : 'opacity-0'}`}>
+          {errorText}
         </div>
 
         {/* Info */}

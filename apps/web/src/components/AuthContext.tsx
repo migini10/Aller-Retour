@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { X, Smartphone, User, Lock, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import PinLockScreen from './PinLockScreen';
 
@@ -24,6 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [user, setUser] = useState<UserData | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -43,10 +45,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const storedToken = localStorage.getItem('ar_auth_token');
       const storedUser = localStorage.getItem('ar_auth_user');
+      const appLockEnabled = localStorage.getItem('ar_app_lock_enabled') === 'true';
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-        setIsLocked(true); // Lock the app if restoring an existing session
+        if (appLockEnabled) {
+          setIsLocked(true);
+        } else {
+          setIsLocked(false);
+        }
       }
     } catch (e) {}
   }, []);
@@ -60,7 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const resetTimer = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        setIsLocked(true);
+        const appLockEnabled = localStorage.getItem('ar_app_lock_enabled') === 'true';
+        if (appLockEnabled) {
+          setIsLocked(true);
+        }
       }, 10 * 60 * 1000); // 10 minutes
     };
 
@@ -80,6 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const saveAuth = (tokenData: string, userData: any) => {
     localStorage.setItem('ar_auth_token', tokenData);
     localStorage.setItem('ar_auth_user', JSON.stringify(userData));
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userName', userData.fullName || 'Utilisateur');
+    localStorage.setItem('userPhone', userData.phone || '');
+    if (localStorage.getItem('ar_app_lock_enabled') === null) {
+      localStorage.setItem('ar_app_lock_enabled', 'false');
+    }
+    if (localStorage.getItem('ar_use_biometrics') === null) {
+      localStorage.setItem('ar_use_biometrics', 'false');
+    }
     setToken(tokenData);
     setUser(userData);
   };
@@ -127,6 +146,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem('ar_auth_token');
     localStorage.removeItem('ar_auth_user');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhone');
     setToken(null);
     setUser(null);
     setIsLocked(false);
@@ -170,7 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal }}>
       {children}
 
-      {!!token && isLocked && (
+      {!!token && isLocked && pathname?.startsWith('/dashboard') && (
         <PinLockScreen onUnlock={() => setIsLocked(false)} />
       )}
 

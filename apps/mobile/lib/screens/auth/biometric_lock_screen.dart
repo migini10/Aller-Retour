@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../home_screen.dart';
 
 class BiometricLockScreen extends StatefulWidget {
@@ -20,8 +23,6 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
   bool _error = false;
   late AnimationController _shakeController;
 
-  final String _correctPin = '1234'; // Default PIN for demonstration
-
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,13 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
 
   Future<void> _loadBiometricSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // Legacy migration: Reset biometrics to false if not initialized in this version
+    if (prefs.getBool('biometrics_initialized_v2') != true) {
+      await prefs.setBool('useBiometrics', false);
+      await prefs.setBool('biometrics_initialized_v2', true);
+    }
+
     final useBiometrics = prefs.getBool('useBiometrics') ?? false;
     if (useBiometrics) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -100,14 +108,14 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
   }
 
   void _handleNumberPress(String number) {
-    if (_pin.length < 4) {
+    if (_pin.length < 6) {
       setState(() {
         _pin += number;
         _error = false;
-        _message = 'Code PIN ou Biométrie';
+        _message = 'Saisie du code PIN...';
       });
 
-      if (_pin.length == 4) {
+      if (_pin.length == 6) {
         _verifyPin();
       }
     }
@@ -118,27 +126,67 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
       setState(() {
         _pin = _pin.substring(0, _pin.length - 1);
         _error = false;
+        _message = 'Saisie du code PIN...';
       });
     }
   }
 
-  void _verifyPin() {
-    if (_pin == _correctPin) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) Navigator.pushReplacementNamed(context, '/home');
-      });
-    } else {
+  Future<void> _verifyPin() async {
+    setState(() {
+      _isAuthenticating = true;
+      _message = 'Vérification du code PIN...';
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final phone = prefs.getString('userPhone') ?? '';
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+
+      final response = await http.post(
+        Uri.parse('$apiUrl/v1/auth/login-mobile'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'phone': phone,
+          'pin': _pin
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        if (data['token'] != null) {
+          await prefs.setString('auth_token', data['token']);
+        }
+        await prefs.setBool('isLoggedIn', true);
+        
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) Navigator.pushReplacementNamed(context, '/home');
+        });
+      } else {
+        String errorMsg = 'Code PIN incorrect';
+        try {
+          final data = jsonDecode(response.body);
+          if (data['message'] != null) {
+            errorMsg = data['message'];
+          }
+        } catch (_) {}
+
+        setState(() {
+          _error = true;
+          _message = errorMsg;
+          _pin = '';
+        });
+        _shakeController.forward(from: 0.0);
+      }
+    } catch (e) {
       setState(() {
         _error = true;
-        _message = 'Code PIN incorrect';
+        _message = 'Erreur de connexion au serveur';
+        _pin = '';
       });
       _shakeController.forward(from: 0.0);
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          setState(() {
-            _pin = '';
-          });
-        }
+    } finally {
+      setState(() {
+        _isAuthenticating = false;
       });
     }
   }
@@ -222,7 +270,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(4, (index) {
+                              children: List.generate(6, (index) {
                                 bool isFilled = index < _pin.length;
                                 return Container(
                                   margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -319,7 +367,21 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
 
   Widget _buildBiometricButton(bool isDark) {
     return GestureDetector(
-      onTap: _isAuthenticating ? null : _authenticate,
+      onTap: () async {
+        final prefs = await SharedPreferences.getInstance();
+        final useBiometrics = prefs.getBool('useBiometrics') ?? false;
+        if (!useBiometrics) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Veuillez d\'abord activer la biométrie dans les paramètres.')),
+            );
+          }
+          return;
+        }
+        if (!_isAuthenticating) {
+          _authenticate();
+        }
+      },
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(

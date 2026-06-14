@@ -60,13 +60,82 @@ export class AuthService {
       throw new UnauthorizedException("Numéro de téléphone incorrect ou compte inactif.");
     }
 
-    // Validation du PIN (en prod avec hash bcrypt)
+    const now = new Date();
+
+    // 1. Check if the user is currently blocked
+    if (user.blockedUntil && user.blockedUntil > now) {
+      const remainingMs = user.blockedUntil.getTime() - now.getTime();
+      const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
+      throw new UnauthorizedException(
+        `Votre compte est bloqué suite à 4 tentatives incorrectes. Veuillez contacter le service client ou réessayer dans ${remainingHours} heure(s).`
+      );
+    }
+
+    // 2. If blockedUntil is set but the 24h time has elapsed, automatically unblock the account
+    let currentFailedAttempts = user.failedAttempts;
+    if (user.blockedUntil && user.blockedUntil <= now) {
+      currentFailedAttempts = 0;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedAttempts: 0,
+          blockedUntil: null,
+        },
+      });
+    }
+
+    // 3. Validation of PIN
     if (user.passwordHash !== pin) {
-      throw new UnauthorizedException("Code PIN incorrect.");
+      const newAttempts = currentFailedAttempts + 1;
+      let blockedUntilDate: Date | null = null;
+      let message = "";
+
+      if (newAttempts >= 4) {
+        blockedUntilDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Block for 24h
+        message = "Votre compte est bloqué pour 24h suite à 4 tentatives infructueuses. Veuillez contacter le service client ou réesssayez plus tard.";
+      } else {
+        message = `Code PIN incorrect. Tentative ${newAttempts}/4.`;
+      }
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedAttempts: newAttempts,
+          blockedUntil: blockedUntilDate,
+        },
+      });
+
+      throw new UnauthorizedException(message);
+    }
+
+    // 4. Correct login: Reset attempts & blocked status
+    if (user.failedAttempts > 0 || user.blockedUntil !== null) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedAttempts: 0,
+          blockedUntil: null,
+        },
+      });
     }
 
     const token = this.generateToken(user);
     return { success: true, user, token };
+  }
+
+  async unblockUser(phone: string) {
+    const user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) {
+      throw new BadRequestException("Aucun utilisateur trouvé avec ce numéro.");
+    }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedAttempts: 0,
+        blockedUntil: null,
+      },
+    });
+    return { success: true, message: "Le compte a été débloqué avec succès." };
   }
 
   private generateToken(user: any) {

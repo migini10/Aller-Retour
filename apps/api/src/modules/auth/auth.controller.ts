@@ -23,7 +23,7 @@ export class RegisterDto {
   fullName!: string;
 
   @IsString()
-  @Length(4, 4)
+  @Length(6, 6)
   pin!: string;
 }
 
@@ -42,5 +42,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Connexion par numéro de téléphone et PIN Wave/OM' })
   async loginMobile(@Body() dto: LoginDto) {
     return this.authService.loginWithMobile(dto.phone, dto.pin);
+  }
+
+  @Post('unblock')
+  @ApiOperation({ summary: 'Débloquer un compte utilisateur (Service Client)' })
+  async unblock(@Body() dto: { phone: string }) {
+    return this.authService.unblockUser(dto.phone);
   }
 }

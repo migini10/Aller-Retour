@@ -15,6 +15,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool _appLockEnabled = false;
   bool _useBiometrics = false;
 
   @override
@@ -26,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
+      _appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
       _useBiometrics = prefs.getBool('useBiometrics') ?? false;
     });
   }
@@ -103,8 +105,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       if (response.statusCode == 200 || response.statusCode == 201) {
                         Navigator.pop(context, true);
                       } else {
+                        String errorMsg = 'Code PIN incorrect';
+                        try {
+                          final data = jsonDecode(response.body);
+                          if (data['message'] != null) {
+                            errorMsg = data['message'];
+                          }
+                        } catch (_) {}
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Code PIN incorrect')),
+                          SnackBar(content: Text(errorMsg)),
                         );
                         Navigator.pop(context, false);
                       }
@@ -133,6 +143,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     );
     return confirmed ?? false;
+  }
+
+  Future<void> _toggleAppLock(bool value) async {
+    final isConfirmed = await _showPinConfirmationDialog();
+    if (!isConfirmed) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('appLockEnabled', value);
+    if (!value) {
+      await prefs.setBool('useBiometrics', false);
+    }
+    setState(() {
+      _appLockEnabled = value;
+      if (!value) {
+        _useBiometrics = false;
+      }
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(value ? 'Verrouillage activé' : 'Verrouillage désactivé')),
+      );
+    }
   }
 
   Future<void> _toggleBiometrics(bool value) async {
@@ -234,14 +267,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _buildSettingsTile(Icons.lock_outline, 'Mot de passe', 'Modifier votre mot de passe', context),
           _buildSettingsTile(
-            Icons.fingerprint, 
-            'Biométrie', 
-            'Connexion avec Face ID / Touch ID', 
+            Icons.phonelink_lock, 
+            'Verrouillage de l\'application', 
+            'Activer le verrouillage automatique (PIN/Biométrie)', 
             context, 
             isSwitch: true,
-            switchValue: _useBiometrics,
-            onSwitchChanged: _toggleBiometrics,
+            switchValue: _appLockEnabled,
+            onSwitchChanged: _toggleAppLock,
           ),
+          if (_appLockEnabled)
+            _buildSettingsTile(
+              Icons.fingerprint, 
+              'Biométrie', 
+              'Connexion avec Face ID / Touch ID', 
+              context, 
+              isSwitch: true,
+              switchValue: _useBiometrics,
+              onSwitchChanged: _toggleBiometrics,
+            ),
           
           const SizedBox(height: 32),
           Text('À propos', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),

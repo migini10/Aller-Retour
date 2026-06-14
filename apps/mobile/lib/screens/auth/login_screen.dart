@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/lock');
+          Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
         if (mounted) {

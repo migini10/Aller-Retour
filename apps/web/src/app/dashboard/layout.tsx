@@ -9,7 +9,6 @@ import { CarFront, Ticket, Sun, Moon } from 'lucide-react';
 import { BrandingProvider } from '../../components/BrandingContext';
 import { useModal } from '../../components/ModalContext';
 import { useTheme } from 'next-themes';
-import PinLockScreen from '../../components/PinLockScreen';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,10 +19,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mounted, setMounted] = useState(false);
   const [showTopbar, setShowTopbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
     // Authentication check
     const isAuth = localStorage.getItem('isAuthenticated');
     if (!isAuth) {
@@ -69,15 +68,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (pathname.startsWith('/dashboard/traveller')) {
     return (
       <BrandingProvider>
-        {!isUnlocked ? (
-          <PinLockScreen onUnlock={() => setIsUnlocked(true)} />
-        ) : (
-          <div className="h-[100dvh] overflow-hidden bg-slate-50 flex flex-col text-slate-900">
-            <main className="flex-1 min-w-0 flex flex-col h-full relative">
-              {children}
-            </main>
-          </div>
-        )}
+        <div className="h-[100dvh] overflow-hidden bg-slate-50 flex flex-col text-slate-900">
+          <main className="flex-1 min-w-0 flex flex-col h-full relative">
+            {children}
+          </main>
+        </div>
       </BrandingProvider>
     );
   }
@@ -94,9 +89,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      {!isUnlocked ? (
-        <PinLockScreen onUnlock={() => setIsUnlocked(true)} />
-      ) : (
       <div className="min-h-[100dvh] bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full">
       {/* Topbar Fixe (Mobile & Desktop) avec Effet de Disparition */}
       <div className="fixed top-0 left-0 right-0 z-50 h-16 pointer-events-none">
@@ -179,7 +171,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
       </div>
-      )}
     </BrandingProvider>
   );
 }
