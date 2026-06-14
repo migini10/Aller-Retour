@@ -309,23 +309,27 @@ export default function HomePage() {
 
                 </div>
 
-                {/* Floating Widget 1 */}
-                <div className="absolute top-12 -left-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xl flex items-center gap-3 transition-transform hover:scale-105 duration-300">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500"><Users className="w-5 h-5" /></div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase">Voyageurs</p>
-                    <p className="text-xs font-extrabold text-slate-800 dark:text-white">50k+ Actifs</p>
-                  </div>
-                </div>
+                {/* Floating Button 1 - Télécharger Passager */}
+                <a 
+                  href="#apps-download"
+                  className="absolute top-16 -left-20 bg-[#0A0E1A] hover:bg-[#12192C] border border-slate-800/80 hover:border-orange-500/50 rounded-full px-5 py-3 shadow-2xl flex items-center gap-3 transition-all hover:scale-105 duration-300 group z-10 cursor-pointer animate-fade-in"
+                >
+                  <Smartphone className="w-5 h-5 text-orange-500 shrink-0" />
+                  <span className="text-xs font-bold text-white whitespace-nowrap">
+                    Télécharger Passager (Android/iOS)
+                  </span>
+                </a>
 
-                {/* Floating Widget 2 */}
-                <div className="absolute bottom-20 -right-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xl flex items-center gap-3 transition-transform hover:scale-105 duration-300">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500"><Shield className="w-5 h-5" /></div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase">Sécurité</p>
-                    <p className="text-xs font-extrabold text-slate-800 dark:text-white">Billet Garanti</p>
-                  </div>
-                </div>
+                {/* Floating Button 2 - Télécharger Chauffeur */}
+                <a 
+                  href="#apps-download"
+                  className="absolute bottom-24 -right-16 bg-[#0A0E1A] hover:bg-[#12192C] border border-slate-800/80 hover:border-orange-500/50 rounded-full px-5 py-3 shadow-2xl flex items-center gap-3 transition-all hover:scale-105 duration-300 group z-10 cursor-pointer animate-fade-in"
+                >
+                  <Smartphone className="w-5 h-5 text-orange-500 shrink-0" />
+                  <span className="text-xs font-bold text-white whitespace-nowrap">
+                    Télécharger Chauffeur (Android)
+                  </span>
+                </a>
 
               </div>
             </div>
@@ -606,7 +610,7 @@ export default function HomePage() {
       </section>
 
       {/* 6.5 Apps Download Section */}
-      <section className="py-24 bg-gradient-to-b from-slate-50 to-white dark:from-[#0B0F19] dark:to-slate-950 border-t border-slate-200/50 dark:border-slate-800/40 transition-colors">
+      <section id="apps-download" className="py-24 bg-gradient-to-b from-slate-50 to-white dark:from-[#0B0F19] dark:to-slate-950 border-t border-slate-200/50 dark:border-slate-800/40 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             

@@ -118,7 +118,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
           </div>
           <div className="lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap flex-1">
             <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-              Aller<span className="text-orange-500 font-extrabold">Retour</span>
+              Allo<span className="text-orange-500 font-extrabold">goo</span>
             </h1>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 transition-colors">
               Panafrican SaaS

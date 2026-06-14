@@ -145,7 +145,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="flex-1 w-full flex flex-col items-center">
-      <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 pt-24 pb-12 space-y-8 animate-fade-in mx-auto">
+      <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-12 space-y-8 animate-fade-in mx-auto">
         
         {/* Header & Wallet Quick Look with Hero Background */}
         <div className="relative rounded-3xl overflow-hidden mb-8 shadow-xl">
@@ -253,10 +253,10 @@ export default function ClientDashboard() {
               <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
               Offres Exclusives
             </h2>
-            <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-              <div className="flex gap-4 min-w-max pb-4">
+            <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto lg:overflow-x-visible no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
+              <div className="flex lg:grid lg:grid-cols-2 gap-4 min-w-max lg:min-w-0 pb-4 lg:pb-0">
                 {/* Promo 1 */}
-                <Link href="/dashboard/parrainage" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
+                <Link href="/dashboard/parrainage" className="w-80 lg:w-full h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20 block hover:scale-[1.02] transition-all" style={{ scrollSnapAlign: 'start' }}>
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
                   </div>
@@ -266,7 +266,7 @@ export default function ClientDashboard() {
                   </div>
                 </Link>
                 {/* Promo 2 */}
-                <Link href="/dashboard/colis" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
+                <Link href="/dashboard/colis" className="w-80 lg:w-full h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-all" style={{ scrollSnapAlign: 'start' }}>
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                   </div>

@@ -32,7 +32,7 @@ export default function ColisTotalPage() {
 
   return (
     <div className="flex-1 w-full pb-20 bg-slate-50 dark:bg-black transition-colors duration-300">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
         
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

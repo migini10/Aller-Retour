@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <CarFront className="w-4 h-4 text-orange-500" />
             </div>
             <span className="text-base font-bold text-slate-900 dark:text-white transition-colors">
-              Aller<span className="text-orange-500">Retour</span>
+              Allo<span className="text-orange-500">goo</span>
             </span>
           </Link>
           

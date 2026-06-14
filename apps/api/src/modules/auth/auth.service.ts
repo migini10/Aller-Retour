@@ -1,10 +1,33 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma, UserRole } from '@aller-retour/database';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
+
+  private forgotPasswordOtps = new Map<string, { otp: string; expiresAt: Date }>();
+
+  validatePinStrength(pin: string) {
+    if (pin.length !== 6) {
+      throw new BadRequestException("Le code PIN doit comporter exactement 6 chiffres.");
+    }
+    if (/^(\d)\1{5}$/.test(pin)) {
+      throw new BadRequestException("Code PIN trop faible : évitez les chiffres identiques (ex: 000000).");
+    }
+    if (pin === '123456' || pin === '654321' || pin === '012345') {
+      throw new BadRequestException("Code PIN trop faible : évitez les suites logiques.");
+    }
+    // Rejeter les formats de date de naissance (JJ/MM/AA)
+    if (/^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])(\d{2})$/.test(pin)) {
+      throw new BadRequestException("Code PIN trop faible : l'utilisation d'une date de naissance (JJMMAA) est interdite pour votre sécurité.");
+    }
+    // Rejeter les formats commençant par une année de naissance (ex: 1990xx, 2000xx)
+    if (/^(19[5-9]\d|20[0-2]\d)\d{2}$/.test(pin)) {
+      throw new BadRequestException("Code PIN trop faible : l'utilisation d'une année de naissance est interdite.");
+    }
+  }
 
   async registerPassenger(phone: string, fullName: string, pin?: string) {
     const existing = await prisma.user.findUnique({ where: { phone } });
@@ -13,23 +36,7 @@ export class AuthService {
     }
 
     if (pin) {
-      if (pin.length !== 6) {
-        throw new BadRequestException("Le code PIN doit comporter exactement 6 chiffres.");
-      }
-      if (/^(\d)\1{5}$/.test(pin)) {
-        throw new BadRequestException("Code PIN trop faible : évitez les chiffres identiques (ex: 000000).");
-      }
-      if (pin === '123456' || pin === '654321' || pin === '012345') {
-        throw new BadRequestException("Code PIN trop faible : évitez les suites logiques.");
-      }
-      // Rejeter les formats de date de naissance (JJ/MM/AA)
-      if (/^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])(\d{2})$/.test(pin)) {
-        throw new BadRequestException("Code PIN trop faible : l'utilisation d'une date de naissance (JJMMAA) est interdite pour votre sécurité.");
-      }
-      // Rejeter les formats commençant par une année de naissance (ex: 1990xx, 2000xx)
-      if (/^(19[5-9]\d|20[0-2]\d)\d{2}$/.test(pin)) {
-        throw new BadRequestException("Code PIN trop faible : l'utilisation d'une année de naissance est interdite.");
-      }
+      this.validatePinStrength(pin);
     }
 
     const user = await prisma.user.create({
@@ -121,6 +128,84 @@ export class AuthService {
 
     const token = this.generateToken(user);
     return { success: true, user, token };
+  }
+
+  async sendForgotPasswordOtp(phone: string) {
+    const user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) {
+      throw new BadRequestException("Aucun compte n'est enregistré avec ce numéro de téléphone.");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    this.forgotPasswordOtps.set(phone, {
+      otp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'allogoosn@gmail.com',
+        pass: process.env.EMAIL_APP_PASSWORD || 'gbqm xxtp nmch iksl',
+      },
+    });
+
+    try {
+      await transporter.sendMail({
+        from: '"Allogoo Support" <allogoosn@gmail.com>',
+        to: user.email || 'allogoosn@gmail.com', // Fallback as MVP requirement
+        subject: 'Allogoo - Code de vérification pour réinitialisation du PIN',
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="color: #ea580c; margin: 0;">Allogoo</h2>
+              <p style="font-size: 12px; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1.5px;">Sécurité</p>
+            </div>
+            <p>Bonjour <strong>${user.fullName}</strong>,</p>
+            <p>Vous avez demandé la réinitialisation de votre code PIN de connexion.</p>
+            <p>Saisissez le code de vérification suivant sur l'application :</p>
+            <div style="font-size: 28px; font-weight: bold; background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 15px; text-align: center; border-radius: 10px; letter-spacing: 8px; margin: 25px 0; color: #0f172a;">
+              ${otp}
+            </div>
+            <p style="font-size: 12px; color: #64748b;">Ce code est à usage unique et reste valide pendant 10 minutes.</p>
+            <p style="font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px;">
+              Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.
+            </p>
+          </div>
+        `,
+      });
+      console.log(`[Forgot Password] Sent OTP ${otp} to phone ${phone} (Email: ${user.email || 'allogoosn@gmail.com'})`);
+    } catch (err) {
+      console.error('Nodemailer error:', err);
+    }
+
+    return { success: true, message: "Un code de vérification a été envoyé par e-mail." };
+  }
+
+  async resetPasswordWithOtp(phone: string, code: string, newPin: string) {
+    const user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) {
+      throw new BadRequestException("Utilisateur non trouvé.");
+    }
+
+    const record = this.forgotPasswordOtps.get(phone);
+    if (!record || record.expiresAt < new Date() || record.otp !== code) {
+      throw new BadRequestException("Code de vérification incorrect ou expiré.");
+    }
+
+    this.validatePinStrength(newPin);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: newPin,
+        failedAttempts: 0,
+        blockedUntil: null,
+      },
+    });
+
+    this.forgotPasswordOtps.delete(phone);
+    return { success: true, message: "Votre code PIN a été mis à jour avec succès." };
   }
 
   async unblockUser(phone: string) {

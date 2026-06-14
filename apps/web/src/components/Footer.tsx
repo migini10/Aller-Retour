@@ -12,7 +12,7 @@ import {
 // Configuration exportable pour permettre l'édition depuis le BackOffice
 export const defaultFooterConfig = {
   identity: {
-    logoText: "AllerRetour",
+    logoText: "Allogoo",
     slogan: "Voyagez plus simplement partout au Sénégal et bientôt dans toute l'Afrique.",
     certification: "Certifié ISO 27001 - Plateforme Sécurisée",
   },
@@ -148,8 +148,17 @@ export default function Footer({ config = defaultFooterConfig }) {
               </div>
               <div>
                 <h2 className="text-2xl font-bold tracking-tight text-white">
-                  {config.identity.logoText.replace('Retour', '')}
-                  <span className="text-orange-500">Retour</span>
+                  {config.identity.logoText.endsWith('goo') ? (
+                    <>
+                      {config.identity.logoText.replace('goo', '')}
+                      <span className="text-orange-500">goo</span>
+                    </>
+                  ) : (
+                    <>
+                      {config.identity.logoText.replace('Retour', '')}
+                      <span className="text-orange-500">Retour</span>
+                    </>
+                  )}
                 </h2>
                 <p className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">Mobilité & Escrow</p>
               </div>
