@@ -238,99 +238,91 @@ export default function HomePage() {
 
             </div>
 
-            {/* Right Side: Visual Mockup Showcase */}
-            <div className="lg:col-span-5 relative hidden lg:block">
-              <div className="relative mx-auto w-full max-w-[380px] h-[520px] rounded-[48px] border-[10px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden">
-                {/* Phone Speaker & Camera Bar */}
-                <div className="absolute top-0 inset-x-0 h-6 bg-slate-900 z-30 flex items-center justify-center">
-                  <div className="w-24 h-4 rounded-full bg-black"></div>
+            {/* Right Side: Visual Showcase & Interactive Download Badges */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center space-y-8 animate-fade-in">
+              {/* Premium Device Visual */}
+              <div className="relative group w-full max-w-[380px]">
+                {/* Vibrant ambient background glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-blue-600 rounded-[32px] blur-xl opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+                
+                <div className="relative bg-white dark:bg-[#111622] border border-slate-200/80 dark:border-slate-800/60 rounded-[32px] overflow-hidden shadow-2xl p-2 transition-transform duration-500 hover:scale-[1.01]">
+                  <img 
+                    src="/images/allogoo_app_showcase.png" 
+                    alt="Application mobile Allogoo" 
+                    className="w-full h-auto rounded-[24px] object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Download Badges Column */}
+              <div className="w-full max-w-[380px] space-y-4">
+                {/* Passenger Download Card */}
+                <div className="bg-white/80 dark:bg-[#111622]/85 border border-slate-200/80 dark:border-slate-800/60 rounded-2xl p-5 shadow-lg backdrop-blur-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Allogoo Passager</h3>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Voyages & Colis</p>
+                    </div>
+                    <span className="text-[10px] px-2 py-1 rounded bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold border border-orange-500/20">iOS & Android</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Google Play */}
+                    <a 
+                      href="#" 
+                      className="bg-black hover:bg-slate-900 text-white rounded-xl py-2.5 px-3 flex items-center gap-2 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-5 h-5 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.04a1.82 1.82 0 00-.33.1L13.88 12 4.92 20.86a1.82 1.82 0 00.33.1c.36.03.73-.08 1.03-.3l13.6-7.85c.66-.38.66-1.4 0-1.78l-13.6-7.85c-.3-.22-.67-.33-1.03-.3zM4 4.3v15.4c0 .32.08.62.24.87l8.28-8.28-8.28-8.28A1.8 1.8 0 004 4.3z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[8px] uppercase tracking-wider text-slate-400 leading-none">DISPONIBLE SUR</p>
+                        <p className="text-[12px] font-black tracking-tight mt-1">Google Play</p>
+                      </div>
+                    </a>
+
+                    {/* App Store */}
+                    <a 
+                      href="#" 
+                      className="bg-black hover:bg-slate-900 text-white rounded-xl py-2.5 px-3 flex items-center gap-2 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                    >
+                      <svg className="w-5 h-5 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.63.73-1.18 1.87-1.03 2.97 1.12.09 2.27-.6 2.98-1.41z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[8px] uppercase tracking-wider text-slate-400 leading-none">Télécharger dans l'</p>
+                        <p className="text-[12px] font-black tracking-tight mt-1">App Store</p>
+                      </div>
+                    </a>
+                  </div>
                 </div>
 
-                {/* Phone Screen Mock */}
-                <div className="w-full h-full bg-slate-100 dark:bg-[#0B0F19] p-5 pt-8 flex flex-col justify-between relative">
-                  
-                  {/* Mock App Header */}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-[#00437A] dark:text-white font-black text-xs flex items-center">
-                      <Car className="w-4 h-4 mr-1 text-orange-500" />
-                      Allô<span className="text-orange-500">Dakar</span>
-                    </span>
-                    <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-                      <Users className="w-3.5 h-3.5 text-slate-500" />
+                {/* Driver Download Card */}
+                <div className="bg-white/80 dark:bg-[#111622]/85 border border-slate-200/80 dark:border-slate-800/60 rounded-2xl p-5 shadow-lg backdrop-blur-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Allogoo Chauffeur</h3>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Gares, Départs & Gains</p>
                     </div>
+                    <span className="text-[10px] px-2 py-1 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20">Android</span>
                   </div>
 
-                  {/* Mock Ticket Card */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-lg space-y-4">
-                    <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
-                      <div>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase">Billet Actif</p>
-                        <p className="text-xs font-black text-slate-900 dark:text-white">DK-TB-0254</p>
+                  <div>
+                    {/* Google Play (Driver) */}
+                    <a 
+                      href="#" 
+                      className="bg-black hover:bg-slate-900 text-white rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 border border-slate-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md w-full"
+                    >
+                      <svg className="w-5 h-5 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.04a1.82 1.82 0 00-.33.1L13.88 12 4.92 20.86a1.82 1.82 0 00.33.1c.36.03.73-.08 1.03-.3l13.6-7.85c.66-.38.66-1.4 0-1.78l-13.6-7.85c-.3-.22-.67-.33-1.03-.3zM4 4.3v15.4c0 .32.08.62.24.87l8.28-8.28-8.28-8.28A1.8 1.8 0 004 4.3z"/>
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[8px] uppercase tracking-wider text-slate-400 leading-none">DISPONIBLE SUR</p>
+                        <p className="text-[12px] font-black tracking-tight mt-1">Google Play (Chauffeur)</p>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">Validé</span>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-xs font-black text-slate-800 dark:text-white">Dakar Gpt</p>
-                        <p className="text-[10px] text-slate-400">14:30</p>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-[9px] text-slate-400">Direct</span>
-                        <div className="w-16 h-0.5 bg-orange-300 dark:bg-orange-800 relative my-1">
-                          <div className="w-1.5 h-1.5 bg-orange-500 rounded-full absolute -top-0.5 left-1/2 -translate-x-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-black text-slate-800 dark:text-white">Touba Gare</p>
-                        <p className="text-[10px] text-slate-400">17:15</p>
-                      </div>
-                    </div>
-
-                    {/* QR Code Placeholder */}
-                    <div className="w-32 h-32 bg-slate-100 dark:bg-slate-950 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mx-auto flex items-center justify-center">
-                      <div className="text-center p-2">
-                        <div className="grid grid-cols-4 gap-1 w-12 h-12 mx-auto mb-1">
-                          {[...Array(16)].map((_, i) => (
-                            <div key={i} className={`w-2 h-2 ${i % 3 === 0 ? 'bg-slate-900 dark:bg-white' : 'bg-transparent'}`}></div>
-                          ))}
-                        </div>
-                        <span className="text-[8px] font-bold text-slate-400">Scanner à la montée</span>
-                      </div>
-                    </div>
+                    </a>
                   </div>
-
-                  {/* Mock Bottom Navigation */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-2.5 flex justify-around items-center">
-                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500"><Car className="w-4 h-4" /></div>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400"><Package className="w-4 h-4" /></div>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400"><Users className="w-4 h-4" /></div>
-                  </div>
-
                 </div>
-
-                {/* Floating Button 1 - Télécharger Passager */}
-                <a 
-                  href="#apps-download"
-                  className="absolute top-16 -left-20 bg-[#0A0E1A] hover:bg-[#12192C] border border-slate-800/80 hover:border-orange-500/50 rounded-full px-5 py-3 shadow-2xl flex items-center gap-3 transition-all hover:scale-105 duration-300 group z-10 cursor-pointer animate-fade-in"
-                >
-                  <Smartphone className="w-5 h-5 text-orange-500 shrink-0" />
-                  <span className="text-xs font-bold text-white whitespace-nowrap">
-                    Télécharger Passager (Android/iOS)
-                  </span>
-                </a>
-
-                {/* Floating Button 2 - Télécharger Chauffeur */}
-                <a 
-                  href="#apps-download"
-                  className="absolute bottom-24 -right-16 bg-[#0A0E1A] hover:bg-[#12192C] border border-slate-800/80 hover:border-orange-500/50 rounded-full px-5 py-3 shadow-2xl flex items-center gap-3 transition-all hover:scale-105 duration-300 group z-10 cursor-pointer animate-fade-in"
-                >
-                  <Smartphone className="w-5 h-5 text-orange-500 shrink-0" />
-                  <span className="text-xs font-bold text-white whitespace-nowrap">
-                    Télécharger Chauffeur (Android)
-                  </span>
-                </a>
-
               </div>
             </div>
 
