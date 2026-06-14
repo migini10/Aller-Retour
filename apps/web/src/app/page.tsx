@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { 
   Car, MapPin, ArrowRight, Shield, Star, Smartphone, Truck, Users, 
   Sun, Moon, LogIn, ChevronRight, CheckCircle2, Ticket, Wifi, 
-  Map, Award, Calendar, Search, Package, Clock
+  Map, Award, Calendar, Search, Package, Clock, QrCode
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useModal } from '../components/ModalContext';
