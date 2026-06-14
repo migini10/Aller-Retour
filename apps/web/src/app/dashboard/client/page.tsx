@@ -218,7 +218,7 @@ export default function ClientDashboard() {
             <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
             Vos Services
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {sections.map((section) => {
               const Icon = section.icon;
               return (
@@ -244,80 +244,80 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-
-        {/* Offres Exclusives */}
-        <div className="pt-8">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
-            Offres Exclusives
-          </h2>
-          <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-            <div className="flex gap-4 min-w-max pb-4">
-              {/* Promo 1 */}
-              <Link href="/dashboard/parrainage" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-                </div>
-                <div className="relative z-10 flex flex-col justify-center h-full">
-                  <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche</h3>
-                  <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet</p>
-                </div>
-              </Link>
-              {/* Promo 2 */}
-              <Link href="/dashboard/colis" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                </div>
-                <div className="relative z-10 flex flex-col justify-center h-full">
-                  <h3 className="text-white font-bold text-xl mb-1">Voyagez Léger</h3>
-                  <p className="text-white/90 text-sm line-clamp-2">-10% sur les envois de colis cette semaine</p>
-                </div>
-              </Link>
+        {/* Desktop Split Grid: Offres Exclusives & Historique Récent */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
+          
+          {/* Left Column: Offres Exclusives */}
+          <div className="lg:col-span-2">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+              <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
+              Offres Exclusives
+            </h2>
+            <div ref={carouselRef} className="-mx-5 px-5 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
+              <div className="flex gap-4 min-w-max pb-4">
+                {/* Promo 1 */}
+                <Link href="/dashboard/parrainage" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-orange-500 to-orange-400 p-6 relative overflow-hidden shadow-lg shadow-orange-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
+                  <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+                  </div>
+                  <div className="relative z-10 flex flex-col justify-center h-full">
+                    <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche</h3>
+                    <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet</p>
+                  </div>
+                </Link>
+                {/* Promo 2 */}
+                <Link href="/dashboard/colis" className="w-80 h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-transform" style={{ scrollSnapAlign: 'start' }}>
+                  <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                  </div>
+                  <div className="relative z-10 flex flex-col justify-center h-full">
+                    <h3 className="text-white font-bold text-xl mb-1">Voyagez Léger</h3>
+                    <p className="text-white/90 text-sm line-clamp-2">-10% sur les envois de colis cette semaine</p>
+                  </div>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Historique Récent */}
-        <div className="pt-8">
-          <div className="flex justify-between items-end mb-6">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          {/* Right Column: Historique Récent */}
+          <div className="lg:col-span-1">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
               <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
               Historique Récent
             </h2>
-          </div>
-          <div className="flex flex-col">
-            {/* Item 1 */}
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
+            <div className="flex flex-col bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800/80 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] h-40 justify-between">
+              {/* Item 1 */}
+              <div className="flex gap-4">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 </div>
-                <div className="w-[2px] h-10 bg-slate-200 dark:bg-slate-800 my-1"></div>
-              </div>
-              <div className="flex-1 pb-4 flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Réservation confirmée</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Dakar - Touba</p>
+                <div className="flex-1 flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Réservation confirmée</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Dakar - Touba</p>
+                  </div>
+                  <span className="text-slate-400 text-[10px] font-bold">Il y a 2h</span>
                 </div>
-                <span className="text-slate-400 text-xs font-bold">Il y a 2h</span>
               </div>
-            </div>
-            {/* Item 2 */}
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
+              
+              <div className="w-full h-px bg-slate-100 dark:bg-slate-800/60"></div>
+
+              {/* Item 2 */}
+              <div className="flex gap-4">
                 <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0">
                   <Package className="w-4 h-4 text-blue-500" />
                 </div>
-              </div>
-              <div className="flex-1 pb-4 flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis livré</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Touba - Dakar</p>
+                <div className="flex-1 flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Colis livré</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Touba - Dakar</p>
+                  </div>
+                  <span className="text-slate-400 text-[10px] font-bold">Hier</span>
                 </div>
-                <span className="text-slate-400 text-xs font-bold">Hier</span>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Destinations Populaires */}
@@ -326,15 +326,17 @@ export default function ClientDashboard() {
             <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
             Destinations Populaires
           </h2>
-          <div className="-mx-5 px-5 overflow-x-auto no-scrollbar">
+          <div className="-mx-5 px-5 overflow-x-auto lg:overflow-x-visible no-scrollbar">
+            <div className="flex lg:grid lg:grid-cols-6 gap-4 pb-4 lg:pb-0">
               {destinations.map((dest) => (
-                <div key={dest.id} className="w-36 h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0">
+                <div key={dest.id} className="w-36 lg:w-auto h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0">
                   <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                   <h3 className="text-white font-bold text-lg relative z-10">{dest.name}</h3>
                   <p className="text-white/90 text-xs relative z-10 mt-1">{dest.price}</p>
                 </div>
               ))}
+            </div>
           </div>
         </div>
 
