@@ -92,6 +92,7 @@ export default function HomePage() {
             <a href="#services" className="hover:text-orange-500 dark:hover:text-white transition-colors">Nos Services</a>
             <a href="#partners" className="hover:text-orange-500 dark:hover:text-white transition-colors">Transporteurs / GIE</a>
             <a href="#testimonials" className="hover:text-orange-500 dark:hover:text-white transition-colors">Témoignages</a>
+            <Link href="/dashboard/admin" className="hover:text-orange-500 dark:hover:text-white transition-colors text-orange-500 font-bold border-l border-slate-200 dark:border-slate-800 pl-4">Admin</Link>
           </nav>
 
           {/* Right Actions */}
@@ -834,6 +835,7 @@ export default function HomePage() {
                 <li><a href="#services" className="hover:text-white transition-colors">Services voyageurs</a></li>
                 <li><a href="#partners" className="hover:text-white transition-colors">Devenir chauffeur</a></li>
                 <li><a href="#partners" className="hover:text-white transition-colors">Espace GIE / Flottes</a></li>
+                <li><Link href="/dashboard/admin" className="hover:text-white text-orange-500 font-bold transition-colors">Espace Administration</Link></li>
               </ul>
             </div>
 
