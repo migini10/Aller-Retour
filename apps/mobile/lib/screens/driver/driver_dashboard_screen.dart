@@ -184,21 +184,23 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text('Dakar', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.arrow_outward, color: Colors.orangeAccent, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text('Touba', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text('Départ prévu à 14:30 • Arrivée estimée à 17:45', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Dakar', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
+                                        const SizedBox(width: 8),
+                                        const Icon(Icons.arrow_outward, color: Colors.orangeAccent, size: 20),
+                                        const SizedBox(width: 8),
+                                        Text('Touba', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.w900)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text('Départ prévu à 14:30 • Arrivée estimée à 17:45', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13), overflow: TextOverflow.ellipsis),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -241,18 +243,23 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text('Remplissage: 90%', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
-                                        const Row(
-                                          children: [
-                                            Icon(Icons.check_circle, color: Colors.greenAccent, size: 12),
-                                            SizedBox(width: 4),
-                                            Text('Prêt au départ', style: TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.bold)),
-                                          ],
-                                        ),
-                                      ],
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Remplissage: 90%', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                                          const SizedBox(width: 8),
+                                          const Row(
+                                            children: [
+                                              Icon(Icons.check_circle, color: Colors.greenAccent, size: 12),
+                                              SizedBox(width: 4),
+                                              Text('Prêt au départ', style: TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
