@@ -169,11 +169,11 @@ class _AppDrawerState extends State<AppDrawer> {
                       onTap: () {
                         if (widget.onModeChanged != null) {
                           widget.onModeChanged!(!widget.isDriverMode);
+                          Navigator.pop(context);
                         } else {
                           // Si on est sur une autre page, on retourne à l'accueil pour switcher
                           Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                         }
-                        Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(widget.isDriverMode 
                             ? 'Basculement vers l\'Espace Voyageur...' 
