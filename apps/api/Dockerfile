@@ -12,7 +12,7 @@ RUN apk update && apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/package-lock.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
 # Stage 3: Building project & generating Prisma Client
 COPY --from=builder /app/out/full/ .
