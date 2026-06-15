@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'client/client_dashboard_screen.dart';
 import 'driver/driver_dashboard_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
+  static bool isDriverMode = false;
   const HomeScreen({super.key});
 
   @override
@@ -14,8 +16,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final int _currentIndex = 0;
-  bool isDriverMode = false;
+  bool isDriverMode = HomeScreen.isDriverMode;
   bool isDrawerOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isDriverMode = HomeScreen.isDriverMode;
+    _loadMode();
+  }
+
+  Future<void> _loadMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        isDriverMode = prefs.getBool('isDriverMode') ?? false;
+        HomeScreen.isDriverMode = isDriverMode;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
       drawerScrimColor: Colors.black.withValues(alpha: 0.3), // Added darker scrim
       endDrawer: AppDrawer(
         isDriverMode: isDriverMode,
-        onModeChanged: (newMode) {
+        onModeChanged: (newMode) async {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isDriverMode', newMode);
+          HomeScreen.isDriverMode = newMode;
           setState(() {
             isDriverMode = newMode;
           });

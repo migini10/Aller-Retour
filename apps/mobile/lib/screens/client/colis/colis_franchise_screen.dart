@@ -21,11 +21,11 @@ class ColisFranchiseScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [Colors.blueAccent, Colors.indigo]),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Colors.blueAccent, Colors.indigo]),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.3), blurRadius: 10, offset: Offset(0, 4))
+                  BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))
                 ],
               ),
               child: Column(
@@ -37,7 +37,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text('Utilisé: 5 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       Text('Total: 20 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ],

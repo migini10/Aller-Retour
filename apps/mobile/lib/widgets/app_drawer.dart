@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../screens/home_screen.dart';
 
 class AppDrawer extends StatefulWidget {
   final bool isDriverMode;
@@ -166,21 +167,32 @@ class _AppDrawerState extends State<AppDrawer> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
-                      onTap: () {
+                      onTap: () async {
+                        final newMode = !widget.isDriverMode;
+                        HomeScreen.isDriverMode = newMode;
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isDriverMode', newMode);
+
                         if (widget.onModeChanged != null) {
-                          widget.onModeChanged!(!widget.isDriverMode);
-                          Navigator.pop(context);
+                          widget.onModeChanged!(newMode);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         } else {
-                          // Si on est sur une autre page, on retourne à l'accueil pour switcher
-                          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                          }
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(widget.isDriverMode 
-                            ? 'Basculement vers l\'Espace Voyageur...' 
-                            : 'Basculement vers l\'Espace Chauffeur...'
-                          ),
-                          backgroundColor: widget.isDriverMode ? Colors.cyan : Colors.green,
-                        ));
+                        
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(widget.isDriverMode 
+                              ? 'Basculement vers l\'Espace Voyageur...' 
+                              : 'Basculement vers l\'Espace Chauffeur...'
+                            ),
+                            backgroundColor: widget.isDriverMode ? Colors.cyan : Colors.green,
+                          ));
+                        }
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
