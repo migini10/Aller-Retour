@@ -26,4 +26,4 @@ ENV PORT=3001
 RUN apk update && apk add --no-cache openssl
 COPY --from=installer /app/ .
 EXPOSE 3001
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["node", "apps/api/dist/src/main.js"]
