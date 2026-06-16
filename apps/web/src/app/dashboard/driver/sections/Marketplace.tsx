@@ -149,7 +149,7 @@ export default function SectionMarketplace() {
                 <div className="flex items-center gap-2">
                   {m.urgent && <span className="bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Urgent</span>}
                   {m.status === 'accepte' && <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Accepté</span>}
-                  <span className="text-xs text-slate-500 font-mono">Mission {m.id}</span>
+                  <span className="text-xs text-slate-500 font-mono">Mission {String(m.id).startsWith('M-') || String(m.id).startsWith('TRIP-') ? m.id : (String(m.id).includes('-') ? `TRIP-${String(m.id).split('-')[0].toUpperCase()}` : m.id)}</span>
                   <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors">• {m.transporteur}</span>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{m.trajet}</h3>
@@ -211,7 +211,7 @@ export default function SectionMarketplace() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         {c.status === 'accepte' && <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Accepté</span>}
-                        <span className="text-xs text-slate-500 font-mono">Colis {c.id}</span>
+                        <span className="text-xs text-slate-500 font-mono">Colis {String(c.id).startsWith('COL-') || String(c.id).startsWith('COLIS-') ? c.id : (String(c.id).includes('-') ? `COL-${String(c.id).split('-')[0].toUpperCase()}` : c.id)}</span>
                         <span className="text-xs text-slate-500 dark:text-slate-400">• {c.taille}</span>
                       </div>
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">{c.trajet}</h3>

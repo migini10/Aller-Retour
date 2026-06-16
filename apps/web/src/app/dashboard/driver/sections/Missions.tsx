@@ -527,7 +527,7 @@ export default function SectionMissions() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-slate-500">{m.id}</span>
+                  <span className="font-mono text-xs text-slate-500">{m.displayId || m.id}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-lg border font-bold ${statutStyle[m.statut]}`}>{m.statut}</span>
                 </div>
                 <p className="font-bold text-slate-900 dark:text-white text-lg transition-colors">{m.trajet}</p>

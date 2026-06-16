@@ -283,7 +283,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(isColis ? 'Colis ${item['id']}' : 'Mission ${item['id']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
+                                 Text(
+                                   isColis 
+                                     ? 'Colis ${item['id'].toString().startsWith('COLIS-') || item['id'].toString().startsWith('COL-') ? item['id'] : (item['id'].toString().contains('-') ? 'COL-${item['id'].toString().split('-')[0].toUpperCase()}' : item['id'])}' 
+                                     : 'Mission ${item['id'].toString().startsWith('TRIP-') || item['id'].toString().startsWith('M-') ? item['id'] : (item['id'].toString().contains('-') ? 'TRIP-${item['id'].toString().split('-')[0].toUpperCase()}' : item['id'])}', 
+                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')
+                                 ),
                                 if (isAccepted)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
