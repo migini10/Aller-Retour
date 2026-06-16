@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverMissionsScreen extends StatefulWidget {
   const DriverMissionsScreen({super.key});
@@ -24,7 +25,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
   Future<void> _fetchMissions() async {
     try {
-      final res = await http.get(Uri.parse('http://localhost:3000/api/missions'));
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final res = await http.get(Uri.parse('$nextApiUrl/api/missions'));
       if (res.statusCode == 200) {
         final List<dynamic> data = json.decode(res.body);
         List<Map<String, dynamic>> fetchedMissions = data.map((m) {
@@ -84,12 +86,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               }
             }
           }
+          final tripId = m['tripId'] ?? m['id'] ?? 'TRIP-XXX';
+          final displayId = tripId.toString().startsWith('TRIP-') ? tripId : 'TRIP-${tripId.toString().split('-')[0].toUpperCase()}';
           return {
-            'id': m['tripId'] ?? m['id'] ?? 'TRIP-XXX',
-            'displayId': m['id'] ?? 'TRIP-XXX',
+            'id': tripId,
+            'displayId': displayId,
             'trajet': m['trajet'] ?? 'Inconnu',
             'date': dateStr,
             'rawDate': m['departureTime'] != null ? m['departureTime'].toString().split('T')[0] : null,
+            'departureTime': m['departureTime'],
             'heure': heureStr,
             'vehicule': m['transporteur'] ?? 'Véhicule',
             'statut': m['status'] ?? 'programmé',
@@ -424,7 +429,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 String departureTime = "${date}T$time:00Z";
 
                                 try {
-                                  final url = missionToEdit != null ? 'http://localhost:3000/api/missions/${missionToEdit['id']}' : 'http://localhost:3000/api/missions';
+                                  final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                  final url = missionToEdit != null ? '$nextApiUrl/api/missions/${missionToEdit['id']}' : '$nextApiUrl/api/missions';
                                   final requestFunc = missionToEdit != null ? http.patch : http.post;
                                   final res = await requestFunc(
                                     Uri.parse(url),
@@ -563,13 +569,46 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   }
 
 
+  bool _isMissionExpired(Map<String, dynamic> m) {
+    if (m['statut'] == 'terminé') return true;
+    if (m['departureTime'] == null) {
+      try {
+        DateTime now = DateTime.now();
+        DateTime dateVal = DateTime(now.year, now.month, now.day);
+        if (m['date'] == 'Aujourd\'hui') {
+          // use today's date
+        } else if (m['date'] == 'Demain') {
+          dateVal = dateVal.add(const Duration(days: 1));
+        } else if (m['rawDate'] != null) {
+          dateVal = DateTime.parse(m['rawDate']);
+        }
+        if (m['heure'] != null) {
+          List<String> parts = m['heure'].toString().split(':');
+          dateVal = DateTime(dateVal.year, dateVal.month, dateVal.day, int.parse(parts[0]), int.parse(parts[1]));
+        }
+        return dateVal.isBefore(DateTime.now());
+      } catch (e) {
+        return false;
+      }
+    }
+    try {
+      DateTime depTime = DateTime.parse(m['departureTime']).toLocal();
+      return depTime.isBefore(DateTime.now());
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> filteredMissions = missions.where((m) {
-      if (selectedTab == 'Toutes') return m['statut'] != 'terminé';
-      if (selectedTab == 'Aujourd\'hui') return m['date'] == 'Aujourd\'hui' && m['statut'] != 'terminé';
-      if (selectedTab == 'Programmées') return m['statut'] == 'programmé' || m['statut'] == 'à venir';
-      if (selectedTab == 'Historique') return m['statut'] == 'terminé';
+      final isExpired = _isMissionExpired(m);
+      if (selectedTab == 'Toutes') return !isExpired;
+      if (selectedTab == 'Aujourd\'hui') {
+        return (m['date'] == 'Aujourd\'hui' || m['rawDate'] == DateTime.now().toString().split(' ')[0]) && !isExpired;
+      }
+      if (selectedTab == 'Programmées') return (m['statut'] == 'programmé' || m['statut'] == 'à venir') && !isExpired;
+      if (selectedTab == 'Historique') return m['statut'] == 'terminé' || isExpired;
       return true;
     }).toList();
 
@@ -788,7 +827,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     String origin = parts.isNotEmpty ? parts[0].trim() : 'Dakar';
                                     String destination = parts.length > 1 ? parts[1].trim() : 'Touba';
 
-                                    final url = 'http://localhost:3000/api/missions/${mission['id']}';
+                                    final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                    final url = '$nextApiUrl/api/missions/${mission['id']}';
                                     final res = await http.patch(
                                       Uri.parse(url),
                                       headers: {'Content-Type': 'application/json'},
@@ -822,7 +862,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)
-                                _buildActionButton(Icons.close, 'Supprimer', Theme.of(context).cardColor, const Color(0xFFF43F5E), () {}, borderColor: const Color(0xFF333333)),
+                                _buildActionButton(Icons.close, 'Supprimer', Theme.of(context).cardColor, const Color(0xFFF43F5E), () {
+                                  _showDeleteConfirmationDialog(context, mission);
+                                }, borderColor: const Color(0xFF333333)),
                             ],
                           ),
                         ],
@@ -834,6 +876,134 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         ],
       ),
     );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, Map<String, dynamic> mission) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFF43F5E), size: 28),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Supprimer le trajet',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        'Annuler',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _deleteMission(mission);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF43F5E),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                      child: const Text(
+                        'Supprimer',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteMission(Map<String, dynamic> mission) async {
+    final missionId = mission['id'];
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Suppression en cours...'),
+        backgroundColor: Colors.blueAccent,
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final res = await http.delete(
+        Uri.parse('$nextApiUrl/api/missions/$missionId'),
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 204) {
+        _fetchMissions();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Trajet supprimé avec succès via API !',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        throw Exception('API error');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          missions.removeWhere((m) => m['id'] == missionId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Mode Hors Ligne : Trajet supprimé localement',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            backgroundColor: Colors.orangeAccent,
+          ),
+        );
+      }
+    }
   }
 
   void _showMissionDetailsDialog(BuildContext context, Map<String, dynamic> mission) {

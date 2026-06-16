@@ -103,7 +103,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
                   ),
-                  child: Text('${_tickets.where((t) => t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED').length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text('${_tickets.where((t) => (t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED') && DateTime.parse(t['trip']['departureTime']).toLocal().isAfter(DateTime.now())).length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -132,8 +132,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               )
             else
               ..._tickets.map((t) {
-                final isPast = t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED';
                 final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
+                final isPast = t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED' || tripDate.isBefore(DateTime.now());
                 final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
                 final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
                 final origin = t['trip']['route']['originStation']['city'];
@@ -150,7 +150,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                   time: timeStr,
                   from: origin,
                   to: dest,
-                  ticketNo: t['id'].toString().substring(0, 11).toUpperCase(),
+                  ticketNo: 'VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
                   seat: '#${t['seatNumber']}',
                   passenger: _userName,
                   vehicle: vehicle,
@@ -318,7 +318,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            _showTicketDetails(context, ref, passenger, from, to, date, time, seat, price);
+                            _showTicketDetails(context, ref, ticketNo, passenger, from, to, date, time, seat, price);
                           },
                           icon: Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface),
                           label: Text('Détails', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
@@ -384,7 +384,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     );
   }
 
-  void _showTicketDetails(BuildContext context, String ref, String passenger, String from, String to, String date, String time, String seat, String price) {
+  void _showTicketDetails(BuildContext context, String ref, String ticketNo, String passenger, String from, String to, String date, String time, String seat, String price) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -405,7 +405,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               child: QRCodeBrandEngine(value: ref, size: 180),
             ),
             const SizedBox(height: 24),
-            Text('Billet N° $ref', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('Billet N° $ticketNo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('$from ➔ $to', style: const TextStyle(color: Colors.orangeAccent, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),

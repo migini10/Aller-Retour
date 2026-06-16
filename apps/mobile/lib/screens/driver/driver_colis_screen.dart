@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverColisScreen extends StatefulWidget {
   const DriverColisScreen({super.key});
@@ -32,7 +33,8 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
   Future<void> _loadColis({bool silent = false}) async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -56,8 +58,9 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
       final body = {'statut': nextStatut};
       if (pin != null) body['pin'] = pin;
 
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
       final response = await http.patch(
-        Uri.parse('http://localhost:3000/api/colis/$id'),
+        Uri.parse('$nextApiUrl/api/colis/$id'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );

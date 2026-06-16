@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ColisTotalScreen extends StatefulWidget {
   const ColisTotalScreen({super.key});
@@ -21,7 +22,8 @@ class _ColisTotalScreenState extends State<ColisTotalScreen> {
 
   Future<void> _fetchColis() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3000/api/colis'));
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {

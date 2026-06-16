@@ -40,8 +40,8 @@ export default function QrCodePage() {
     fetchTickets();
   }, [token]);
 
-  const activeTickets = tickets.filter(t => t.status === 'PENDING_PAYMENT' || t.status === 'CONFIRMED' || t.status === 'BOARDED');
-  const pastTickets = tickets.filter(t => t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED');
+  const activeTickets = tickets.filter(t => (t.status === 'PENDING_PAYMENT' || t.status === 'CONFIRMED' || t.status === 'BOARDED') && (!t.trip?.departureTime || new Date(t.trip.departureTime).getTime() > Date.now()));
+  const pastTickets = tickets.filter(t => (t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED') || (t.trip?.departureTime && new Date(t.trip.departureTime).getTime() < Date.now()));
 
   
 
@@ -125,7 +125,7 @@ export default function QrCodePage() {
                         <div>
                            <div className="flex items-center gap-3 mb-1.5">
                               <span className={`font-bold text-base sm:text-lg ${isPast ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white font-black'}`}>{origin} ➔ {dest}</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border ${isPast ? 'bg-slate-100 dark:bg-[#222222] text-slate-500 border-slate-200 dark:border-[#333333]' : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'}`}>{t.id.substring(0, 11).toUpperCase()}</span>
+                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border ${isPast ? 'bg-slate-100 dark:bg-[#222222] text-slate-500 border-slate-200 dark:border-[#333333]' : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'}`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
                            </div>
                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                              <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}
@@ -155,7 +155,7 @@ export default function QrCodePage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                {tickets.map((t: any) => {
-                 const isPast = t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED';
+                 const isPast = (t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED') || (t.trip?.departureTime && new Date(t.trip.departureTime).getTime() < Date.now());
                  const tripDate = new Date(t.trip.departureTime);
                  const dateStr = tripDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
                  const timeStr = tripDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -167,8 +167,8 @@ export default function QrCodePage() {
                    return (
                      <div key={t.id} className="bg-white dark:bg-[#141414]/50 border border-slate-200 dark:border-[#2A2A2A]/50 rounded-3xl overflow-hidden relative opacity-75 grayscale-[30%]">
                         <div className="bg-slate-200 dark:bg-[#222222] px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 flex justify-between items-center">
-                          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.status}</span>
-                          <span className="font-mono tracking-wider">Réf: {t.id.substring(0, 11).toUpperCase()}</span>
+                           <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.status}</span>
+                           <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>
                         </div>
                         
                         <div className="p-6">
@@ -232,7 +232,7 @@ export default function QrCodePage() {
                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-4 py-6 border-y border-slate-100 dark:border-[#2A2A2A]/80 mb-6 bg-slate-50/50 dark:bg-transparent -mx-6 px-6">
                             <div>
                                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 font-bold">N° Billet</p>
-                               <p className="text-sm font-black text-slate-900 dark:text-white">#{t.id.substring(0, 8).toUpperCase()}</p>
+                               <p className="text-sm font-black text-slate-900 dark:text-white">VOY-{t.id.split('-')[0].toUpperCase()}</p>
                             </div>
                             <div>
                                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 font-bold">Siège</p>
@@ -285,7 +285,7 @@ export default function QrCodePage() {
                 <QRCodeBrandEngine value={selectedTicket.qrCodeToken} size={150} />
               </div>
               
-              <h3 className="mt-6 text-2xl font-black text-slate-900 dark:text-white">Billet N° {selectedTicket.id.substring(0, 11).toUpperCase()}</h3>
+              <h3 className="mt-6 text-2xl font-black text-slate-900 dark:text-white">Billet N° VOY-{selectedTicket.id.split('-')[0].toUpperCase()}</h3>
               <p className="text-orange-600 dark:text-orange-500 font-bold mt-1 text-lg">{selectedTicket.trip.route.originStation.city} ➔ {selectedTicket.trip.route.destinationStation.city}</p>
               
               <div className="w-full mt-8 space-y-4">

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverMarketplaceScreen extends StatefulWidget {
   const DriverMarketplaceScreen({super.key});
@@ -30,8 +31,9 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _loadData() async {
     try {
-      final colisRes = await http.get(Uri.parse('http://localhost:3000/api/colis'));
-      final missionsRes = await http.get(Uri.parse('http://localhost:3000/api/missions'));
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final colisRes = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      final missionsRes = await http.get(Uri.parse('$nextApiUrl/api/missions'));
       
       if (mounted) {
         setState(() {
@@ -46,8 +48,9 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _updateColisStatus(String id, String status) async {
     try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
       await http.patch(
-        Uri.parse('http://localhost:3000/api/colis/$id'),
+        Uri.parse('$nextApiUrl/api/colis/$id'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'statut': status}),
       );

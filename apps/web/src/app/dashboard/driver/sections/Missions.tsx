@@ -97,7 +97,7 @@ export default function SectionMissions() {
     }
     return {
       id: m.tripId || m.id,
-      displayId: m.id,
+      displayId: String(m.id).startsWith('TRIP-') ? String(m.id) : `TRIP-${String(m.id).split('-')[0].toUpperCase()}`,
       trajet: m.trajet,
       date: dateStr,
       rawDate: m.departureTime ? m.departureTime.split('T')[0] : null,
@@ -476,29 +476,33 @@ export default function SectionMissions() {
           const currentTotalMinutes = currentHour * 60 + currentMinute;
           
           const processedMissions = localMissions.map(m => {
-            if (m.id.startsWith('TRIP-') && (m.statut === 'programmé' || m.statut === 'à venir')) {
+            if (m.statut === 'programmé' || m.statut === 'à venir') {
               let isExpired = false;
               
-              if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
-                const mDate = new Date(m.date);
-                mDate.setHours(0, 0, 0, 0);
-                if (mDate < today) {
-                  isExpired = true;
-                } else if (mDate.getTime() === today.getTime() && m.heure) {
-                  const parts = m.heure.split(':');
-                  const h = parseInt(parts[0]);
-                  const min = parseInt(parts[1]);
-                  if ((h * 60 + min) < currentTotalMinutes) {
+              if (m.departureTime) {
+                isExpired = new Date(m.departureTime).getTime() < Date.now();
+              } else {
+                if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
+                  const mDate = new Date(m.date);
+                  mDate.setHours(0, 0, 0, 0);
+                  if (mDate < today) {
                     isExpired = true;
+                  } else if (mDate.getTime() === today.getTime() && m.heure) {
+                    const parts = m.heure.split(':');
+                    const h = parseInt(parts[0]);
+                    const min = parseInt(parts[1]);
+                    if ((h * 60 + min) < currentTotalMinutes) {
+                      isExpired = true;
+                    }
                   }
-                }
-              } else if (m.date === "Aujourd'hui") {
-                if (m.heure) {
-                  const parts = m.heure.split(':');
-                  const h = parseInt(parts[0]);
-                  const min = parseInt(parts[1]);
-                  if ((h * 60 + min) < currentTotalMinutes) {
-                    isExpired = true;
+                } else if (m.date === "Aujourd'hui") {
+                  if (m.heure) {
+                    const parts = m.heure.split(':');
+                    const h = parseInt(parts[0]);
+                    const min = parseInt(parts[1]);
+                    if ((h * 60 + min) < currentTotalMinutes) {
+                      isExpired = true;
+                    }
                   }
                 }
               }

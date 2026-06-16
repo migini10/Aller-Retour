@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../widgets/orange_money_logo.dart';
 
 void showColisModal(BuildContext context) {
@@ -200,8 +201,9 @@ void showColisModal(BuildContext context) {
                                           } else if (step == 3) {
                                             setState(() => isLoading = true);
                                             try {
+                                              final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
                                               final response = await http.post(
-                                                Uri.parse('http://localhost:3000/api/colis'),
+                                                Uri.parse('$nextApiUrl/api/colis'),
                                                 headers: {'Content-Type': 'application/json'},
                                                 body: jsonEncode({
                                                   'destinataire': destNomController.text,
