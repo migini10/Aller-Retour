@@ -87,7 +87,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             }
           }
           final tripId = m['tripId'] ?? m['id'] ?? 'TRIP-XXX';
-          final displayId = tripId.toString().startsWith('TRIP-') ? tripId : 'TRIP-${tripId.toString().split('-')[0].toUpperCase()}';
+          String displayId;
+          if (tripId.toString().startsWith('TRIP-')) {
+            displayId = tripId.toString();
+          } else if (tripId.toString().startsWith('M-')) {
+            final parts = tripId.toString().split('-');
+            displayId = 'TRIP-${parts.length > 1 ? parts[1].toUpperCase() : parts[0].toUpperCase()}';
+          } else {
+            displayId = 'TRIP-${tripId.toString().split('-')[0].toUpperCase()}';
+          }
           return {
             'id': tripId,
             'displayId': displayId,

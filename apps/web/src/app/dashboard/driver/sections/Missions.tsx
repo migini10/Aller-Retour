@@ -97,7 +97,11 @@ export default function SectionMissions() {
     }
     return {
       id: m.tripId || m.id,
-      displayId: String(m.id).startsWith('TRIP-') ? String(m.id) : `TRIP-${String(m.id).split('-')[0].toUpperCase()}`,
+      displayId: String(m.tripId || m.id).startsWith('TRIP-')
+        ? String(m.tripId || m.id)
+        : (String(m.tripId || m.id).startsWith('M-')
+            ? `TRIP-${String(m.tripId || m.id).split('-')[1]?.toUpperCase() || String(m.tripId || m.id).split('-')[0].toUpperCase()}`
+            : `TRIP-${String(m.tripId || m.id).split('-')[0].toUpperCase()}`),
       trajet: m.trajet,
       date: dateStr,
       rawDate: m.departureTime ? m.departureTime.split('T')[0] : null,
