@@ -745,7 +745,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               : filteredMissions.isEmpty
                   ? Center(child: Text('Aucune mission pour cette catégorie', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
                   : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 0,
+                    bottom: MediaQuery.of(context).padding.bottom + 80,
+                  ),
                   itemCount: filteredMissions.length,
                   itemBuilder: (context, index) {
                     final mission = filteredMissions[index];
