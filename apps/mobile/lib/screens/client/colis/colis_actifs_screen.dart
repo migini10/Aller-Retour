@@ -56,7 +56,12 @@ class _ColisActifsScreenState extends State<ColisActifsScreen> {
         : colis.isEmpty 
           ? Center(child: Text("Aucun colis actif", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)))
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).padding.bottom + 80,
+              ),
               itemCount: colis.length,
               itemBuilder: (context, index) {
                 final c = colis[index];

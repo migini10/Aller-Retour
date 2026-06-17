@@ -123,7 +123,12 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 8,
+          bottom: MediaQuery.of(context).padding.bottom + 80,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,7 +236,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
             Text('VOYAGEURS À RÉCUPÉRER', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
             const SizedBox(height: 12),
             ...passagers.map((p) {
-              final isActive = activePassenger?.cast<String, dynamic>()['id'] == p['id'];
+              final isActive = activePassenger != null && activePassenger!['id'] == p['id'];
               return InkWell(
                 onTap: () => _startInternalNavigation(p),
                 borderRadius: BorderRadius.circular(20),

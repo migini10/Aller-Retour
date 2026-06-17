@@ -219,7 +219,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
           
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 0,
+                bottom: MediaQuery.of(context).padding.bottom + 80,
+              ),
               children: [
                 if (missions.isEmpty && colis.isEmpty)
                   const Padding(
