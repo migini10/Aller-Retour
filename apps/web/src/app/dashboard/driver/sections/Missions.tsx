@@ -526,8 +526,17 @@ export default function SectionMissions() {
             return true;
           });
 
-          return filteredMissions.map(m => (
-          <div key={m.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 hover:border-orange-500/30 rounded-2xl p-5 transition-colors space-y-4">
+          return filteredMissions.map(m => {
+            const isUrgentNotReady = m.statut === 'programmé' && checkTooSoon(m.date, m.heure);
+            return (
+            <div 
+              key={m.id} 
+              className={`border rounded-2xl p-5 transition-colors space-y-4 ${
+                isUrgentNotReady
+                  ? 'bg-rose-500/10 dark:bg-rose-950/20 border-rose-500/30 dark:border-rose-900/50 hover:border-rose-500/50'
+                  : 'bg-white dark:bg-[#141414] border-slate-200 dark:border-[#2A2A2A]/80 hover:border-orange-500/30'
+              }`}
+            >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
@@ -659,7 +668,7 @@ export default function SectionMissions() {
               </div>
             </div>
           </div>
-        ))})()}
+        );})})()}
       </div>
 
       {/* Modal Création Trajet */}

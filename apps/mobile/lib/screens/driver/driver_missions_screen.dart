@@ -152,6 +152,22 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     }
   }
 
+  bool _isUrgentAndNotReady(Map<String, dynamic> m) {
+    if (m['statut'] != 'programmé') return false;
+    if (m['date'] != 'Aujourd\'hui') return false;
+    if (m['heure'] == null) return false;
+    try {
+      final now = DateTime.now();
+      final parts = m['heure'].toString().split(':');
+      final h = int.parse(parts[0]);
+      final min = int.parse(parts[1]);
+      final tripTime = DateTime(now.year, now.month, now.day, h, min);
+      final diffMinutes = tripTime.difference(now).inMinutes;
+      return diffMinutes >= 0 && diffMinutes < 60;
+    } catch (e) {}
+    return false;
+  }
+
   bool _isTripInPast(Map<String, dynamic> m) {
     if (m['departureTime'] != null) {
       try {
@@ -663,7 +679,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           ),
           
           // Urgent Alert
-          if (filteredMissions.any((m) => m['statut'] == 'programmé' && m['date'] == 'Aujourd\'hui'))
+          if (filteredMissions.any((m) => _isUrgentAndNotReady(m)))
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
@@ -734,14 +750,22 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                   itemBuilder: (context, index) {
                     final mission = filteredMissions[index];
                     final statutColor = _getStatutColor(mission['statut']);
+                    final isUrgentNotReady = _isUrgentAndNotReady(mission);
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final cardBgColor = isUrgentNotReady
+                        ? (isDark ? const Color(0xFF991B1B).withValues(alpha: 0.15) : const Color(0xFFFEE2E2))
+                        : Theme.of(context).cardColor;
+                    final cardBorderColor = isUrgentNotReady
+                        ? (isDark ? const Color(0xFFF43F5E).withValues(alpha: 0.4) : const Color(0xFFFCA5A5))
+                        : Theme.of(context).dividerColor;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
+                        color: cardBgColor,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Theme.of(context).dividerColor),
+                        border: Border.all(color: cardBorderColor),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
