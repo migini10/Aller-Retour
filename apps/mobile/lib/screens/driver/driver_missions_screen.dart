@@ -844,7 +844,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Colors.white, () {
                                 _showMissionDetailsDialog(context, mission);
                               }, borderColor: const Color(0xFF333333)),
-                              if (mission['statut'] == 'programmé')
+                              if (mission['statut'] == 'programmé' && _isUrgentAndNotReady(mission))
                                 _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () async {
                                   try {
                                     String date = mission['rawDate'] ?? DateTime.now().toIso8601String().split('T')[0];
