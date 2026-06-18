@@ -100,7 +100,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         quartierArrivee: '',
         destinataireNom: '',
         destinataireTel: '',
-        taille: 'Moyen'
+        taille: 'Moyen',
+        modePaiement: ''
       });
     } else {
       document.body.style.overflow = 'unset';
@@ -137,7 +138,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             taille: colisParams.taille,
             senderName: user?.fullName || 'Expéditeur Anonyme',
             senderPhone: user?.phone || '+221770000000',
-            email: user?.email || 'allogoosn@gmail.com'
+            email: (user as any)?.email || 'allogoosn@gmail.com'
           })
         });
         if (res.ok) {
@@ -189,7 +190,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           const { latitude, longitude } = position.coords;
           if ((window as any).google && (window as any).google.maps) {
             const geocoder = new (window as any).google.maps.Geocoder();
-            geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
+            geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results: any, status: any) => {
               if (status === 'OK' && results && results[0]) {
                 const components = results[0].address_components || [];
                 let quartier = '';

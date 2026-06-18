@@ -496,8 +496,8 @@ export default function SectionMissions() {
             if (m.statut === 'programmé' || m.statut === 'à venir') {
               let isExpired = false;
               
-              if (m.departureTime) {
-                isExpired = new Date(m.departureTime).getTime() < Date.now();
+              if ((m as any).departureTime) {
+                isExpired = new Date((m as any).departureTime).getTime() < Date.now();
               } else {
                 if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
                   const mDate = new Date(m.date);
@@ -616,7 +616,7 @@ export default function SectionMissions() {
                       setFormData({
                         originCity,
                         destinationCity,
-                        date: m.rawDate || (m.date === "Aujourd'hui" ? getTodayStr() : m.date === "Demain" ? (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })() : getTodayStr()),
+                        date: (m as any).rawDate || (m.date === "Aujourd'hui" ? getTodayStr() : m.date === "Demain" ? (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })() : getTodayStr()),
                         heure: m.heure,
                         pricePerSeat: m.pricePerSeat || 5000,
                         vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,

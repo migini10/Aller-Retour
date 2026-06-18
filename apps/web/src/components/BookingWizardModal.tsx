@@ -1062,6 +1062,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       </button>
     </div>
   );
+  };
 
   const renderStep6SuccessBus = () => {
     // Si on est sur PC ou Tablette et que le paiement n'est pas encore simulé
@@ -1194,6 +1195,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       </button>
     </div>
   );
+  };
 
   const steps = isAlloDakar 
     ? [

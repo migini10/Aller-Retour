@@ -69,7 +69,7 @@ export default function DriverNavigationApp() {
             </circle>
             <circle cx="0" cy="0" r="10" fill="#f97316" filter="url(#glowMap)" />
             <circle cx="0" cy="0" r="4" fill="#fff" />
-            <rect x="-60" y="-45" width="120" height="24" rx="8" fill="#101728" opacity="0.9" border="1" />
+            <rect x="-60" y="-45" width="120" height="24" rx="8" fill="#101728" opacity="0.9" />
             <text x="0" y="-29" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">Saint-Louis (Arrivée)</text>
           </g>
 

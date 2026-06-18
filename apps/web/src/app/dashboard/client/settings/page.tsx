@@ -101,8 +101,8 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-6">
                     <div className="relative group cursor-pointer">
                       <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-[#141414] shadow-md flex items-center justify-center overflow-hidden">
-                        {user?.avatarUrl ? (
-                          <img src={user.avatarUrl} alt="Profil" className="w-full h-full object-cover" />
+                        {(user as any)?.avatarUrl ? (
+                          <img src={(user as any).avatarUrl} alt="Profil" className="w-full h-full object-cover" />
                         ) : (
                           <User className="w-10 h-10 text-slate-400" />
                         )}
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <Mail className="w-5 h-5 text-slate-400" />
                         </div>
-                        <input type="email" defaultValue={user?.email || 'client@allerretour.sn'} className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
+                        <input type="email" defaultValue={(user as any)?.email || 'client@allerretour.sn'} className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none" />
                       </div>
                     </div>
 

@@ -5,9 +5,11 @@ import { ArrowLeft, Search, X, List, LayoutGrid, CheckCircle2, Calendar, Clock, 
 import Link from 'next/link';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { useUser } from '../../../../hooks/useUser';
+import { useAuth } from '../../../../components/AuthContext';
 
 export default function QrCodePage() {
-  const { userName, token } = useUser();
+  const { userName, userPhone } = useUser();
+  const { token } = useAuth();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
