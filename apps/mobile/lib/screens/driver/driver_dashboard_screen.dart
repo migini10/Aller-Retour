@@ -62,15 +62,14 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
 
                 // Welcome Hero Banner
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.only(bottom: 24),
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Theme.of(context).cardColor, Colors.black],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/hero_driver_premium.png'),
+                        fit: BoxFit.cover,
                       ),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.4),
@@ -81,6 +80,18 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                     ),
                     child: Stack(
                       children: [
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                              gradient: LinearGradient(
+                                colors: [Colors.black.withValues(alpha: 0.7), Colors.black.withValues(alpha: 0.4)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                        ),
                         Positioned(
                           top: -50,
                           right: -50,
@@ -95,7 +106,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -119,10 +130,10 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              Text('Bonjour Moussa 👋', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                              const Text('Bonjour Moussa 👋', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
                               const SizedBox(height: 8),
                               Text(
-                                'Vous avez 1 trajet programmé aujourd\'hui. Assurez-vous d\'avoir validé tous vos documents avant de démarrer.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14, height: 1.4),
+                                'Vous avez 1 trajet programmé aujourd\'hui. Assurez-vous d\'avoir validé tous vos documents avant de démarrer.', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, height: 1.4),
                               ),
                               const SizedBox(height: 24),
                               Row(

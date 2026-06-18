@@ -97,11 +97,24 @@ export default function SectionMissions() {
     }
     return {
       id: m.tripId || m.id,
-      displayId: String(m.tripId || m.id).startsWith('TRIP-')
-        ? String(m.tripId || m.id)
-        : (String(m.tripId || m.id).startsWith('M-')
-            ? `TRIP-${String(m.tripId || m.id).split('-')[1]?.toUpperCase() || String(m.tripId || m.id).split('-')[0].toUpperCase()}`
-            : `TRIP-${String(m.tripId || m.id).split('-')[0].toUpperCase()}`),
+      displayId: (() => {
+        const uuid = m.tripId && m.tripId !== 'M' ? m.tripId : (m.id && !m.id.startsWith('M-') && !m.id.startsWith('TRIP-') ? m.id : null);
+        if (uuid) {
+          return `TRIP-${String(uuid).split('-')[0].toUpperCase()}`;
+        }
+        const fallback = String(m.id || m.tripId || '');
+        if (fallback.startsWith('TRIP-')) {
+          return fallback;
+        }
+        if (fallback.startsWith('M-')) {
+          const suffix = fallback.substring(2);
+          if (suffix && suffix !== 'M') {
+            return `TRIP-${suffix.toUpperCase()}`;
+          }
+        }
+        const first = fallback.split('-')[0];
+        return `TRIP-${first && first !== 'M' ? first.toUpperCase() : 'XXXX'}`;
+      })(),
       trajet: m.trajet,
       date: dateStr,
       rawDate: m.departureTime ? m.departureTime.split('T')[0] : null,

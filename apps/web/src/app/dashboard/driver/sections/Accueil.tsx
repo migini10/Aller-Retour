@@ -6,9 +6,15 @@ export default function SectionAccueil() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Hero Banner */}
-      <div className="relative bg-gradient-to-br from-slate-900 to-black dark:from-[#0A0A0A] dark:to-black rounded-3xl p-6 sm:p-8 lg:p-10 text-white overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2"></div>
+      <div className="relative -mx-5 sm:-mx-8 lg:-mx-12 sm:rounded-3xl p-6 sm:p-8 lg:p-10 text-white overflow-hidden shadow-2xl">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img src="/images/hero_driver_premium.png" alt="Allogoo Premium Driver Dashboard" className="w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40 dark:from-black/95 dark:via-black/80 dark:to-black/40"></div>
+        </div>
+        
+        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2 z-0"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/20 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2 z-0"></div>
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
@@ -20,24 +26,24 @@ export default function SectionAccueil() {
             </span>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mt-4">
             Bonjour Moussa 👋
           </h2>
-          <p className="text-slate-400 mt-2 text-base sm:text-lg max-w-xl leading-relaxed">
-            Vous avez <strong className="text-white">1 trajet programmé</strong> aujourd'hui. Assurez-vous d'avoir validé tous vos documents avant de démarrer.
+          <p className="text-slate-200 mt-2 text-base sm:text-lg max-w-xl leading-relaxed">
+            Vous avez <strong className="text-white font-black">1 trajet programmé</strong> aujourd'hui. Assurez-vous d'avoir validé tous vos documents avant de démarrer.
           </p>
           
           <div className="mt-8 flex flex-wrap gap-4">
             <button 
               onClick={() => window.location.hash = 'missions'}
-              className="bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 group"
+              className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-orange-600/30 flex items-center gap-2 group border border-orange-500/50"
             >
               <Route className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" /> 
               Créer un voyage
             </button>
             <button 
               onClick={() => window.location.hash = 'revenus'}
-              className="bg-white/10 hover:bg-white/15 backdrop-blur-md text-white font-bold py-3 px-6 rounded-xl transition-all border border-white/10 flex items-center gap-2"
+              className="bg-white/10 hover:bg-white/15 backdrop-blur-md text-white font-bold py-3 px-6 rounded-xl transition-all border border-white/10 flex items-center gap-2 shadow-lg shadow-black/20"
             >
               <Wallet className="w-5 h-5" /> 
               Voir mes gains

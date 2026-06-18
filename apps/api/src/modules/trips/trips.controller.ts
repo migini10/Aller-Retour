@@ -2,6 +2,31 @@ import { Controller, Get, Query, Param, Post, Body, Patch, Delete } from '@nestj
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { prisma, TripStatus } from '@aller-retour/database';
 
+function mapToDatabaseCity(inputCity?: string): string | undefined {
+  if (!inputCity) return undefined;
+  
+  const cleanInput = inputCity.split(',')[0].trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+    
+  const databaseCities = [
+    'Dakar', 'Touba', 'Thiès', 'Mbour', 'Saint-Louis', 
+    'Kaolack', 'Ziguinchor', 'Tambacounda', 'Diourbel', 'Louga'
+  ];
+  
+  for (const dbCity of databaseCities) {
+    const cleanDb = dbCity.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+      
+    if (cleanInput.includes(cleanDb) || cleanDb.includes(cleanInput)) {
+      return dbCity;
+    }
+  }
+  
+  return inputCity.split(',')[0].trim();
+}
+
 @ApiTags('Trips & Mobility')
 @Controller('trips')
 export class TripsController {
@@ -18,8 +43,8 @@ export class TripsController {
     };
 
     if (originCity && destinationCity) {
-      const cleanOrigin = originCity.split(',')[0].trim();
-      const cleanDest = destinationCity.split(',')[0].trim();
+      const cleanOrigin = mapToDatabaseCity(originCity);
+      const cleanDest = mapToDatabaseCity(destinationCity);
       
       whereClause.route = {
         originStation: { city: { contains: cleanOrigin, mode: 'insensitive' } },
@@ -29,10 +54,12 @@ export class TripsController {
 
     if (date) {
       const startOfDay = new Date(date);
-      startOfDay.setUTCHours(0, 0, 0, 0);
-      const endOfDay = new Date(date);
-      endOfDay.setUTCHours(23, 59, 59, 999);
-      whereClause.departureTime = { gte: startOfDay, lte: endOfDay };
+      if (!isNaN(startOfDay.getTime())) {
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        whereClause.departureTime = { gte: startOfDay, lte: endOfDay };
+      }
     }
 
     const trips = await prisma.trip.findMany({

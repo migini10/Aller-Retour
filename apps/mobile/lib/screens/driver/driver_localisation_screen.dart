@@ -242,7 +242,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
@@ -265,7 +265,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,12 +284,19 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                               children: [
                                 Icon(Icons.phone, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 12),
                                 const SizedBox(width: 4),
-                                Text(p['tel'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11, fontFamily: 'monospace')),
+                                Expanded(
+                                  child: Text(
+                                    p['tel'], 
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11, fontFamily: 'monospace'),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 4),
                       Row(
                         children: [
                           Container(
@@ -306,7 +313,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                               onPressed: () => _sendSms(p['tel']),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Container(
                             width: 40,
                             height: 40,

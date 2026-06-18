@@ -354,9 +354,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     final heroHeight = screenHeight - topPadding - 62 - bottomPadding - 32;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40), // Fully rounded corners
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)), // Arrondi en bas uniquement pour un style moderne pleine largeur
         child: SizedBox(
           height: heroHeight > 550 ? heroHeight : 550, // Fallback for very small screens
           child: Stack(
@@ -364,7 +364,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               // Background Image
               Positioned.fill(
                 child: Image.asset(
-                  'assets/images/peugeot_406_hero.png',
+                  'assets/images/hero_client_premium.png',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -2023,8 +2023,20 @@ void _showReservationBottomSheet(BuildContext context) {
                               if (step == 1) {
                                 setState(() => isSearching = true);
                                 try {
+                                  String formattedDate = '';
+                                  if (date == 'Demain') {
+                                    final d = DateTime.now().add(const Duration(days: 1));
+                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                  } else if (date == 'Après-demain') {
+                                    final d = DateTime.now().add(const Duration(days: 2));
+                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                  } else {
+                                    final d = DateTime.now();
+                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                  }
+
                                   final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-                                  final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$date');
+                                  final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$formattedDate');
                                   final response = await http.get(uri);
                                   if (response.statusCode == 200) {
                                     final List<dynamic> data = jsonDecode(response.body);
@@ -2032,12 +2044,12 @@ void _showReservationBottomSheet(BuildContext context) {
                                       realTrips = data.map((e) => {
                                         "id": e['id'],
                                         "company": e['company'] != null ? e['company']['name'] : "Allogoo",
-                                        "price": e['price'] ?? 5000,
-                                        "type": e['vehicle'] != null ? e['vehicle']['type'] : "Voiture",
+                                        "price": e['pricePerSeat'] ?? 5000,
+                                        "type": e['vehicle'] != null ? (e['vehicle']['type'] == 'TAXI_7_PLACES' ? 'Taxi 7 Places' : e['vehicle']['type']) : "Voiture",
                                         "options": "Climatisé",
                                         "time": DateTime.parse(e['departureTime']).toLocal().toString().substring(11, 16),
-                                        "passagers": 0,
-                                        "placesPrises": e['bookedSeats'] ?? 0,
+                                        "passagers": e['passagers'] ?? 0,
+                                        "placesPrises": e['placesPrises'] ?? 0,
                                         "availableSeats": e['availableSeats'] ?? 5
                                       }).toList();
                                       isSearching = false;

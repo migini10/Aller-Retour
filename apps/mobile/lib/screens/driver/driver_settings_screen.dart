@@ -23,7 +23,12 @@ class DriverSettingsScreen extends StatelessWidget {
           if (themeProvider.themeMode == ThemeMode.dark) themeText = 'Sombre';
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).padding.bottom + 80,
+            ),
             children: [
               ListTile(
                 leading: Icon(Icons.dark_mode_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),

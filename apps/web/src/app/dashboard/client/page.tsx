@@ -148,18 +148,18 @@ export default function ClientDashboard() {
       <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-12 space-y-8 animate-fade-in mx-auto">
         
         {/* Header & Wallet Quick Look with Hero Background */}
-        <div className="relative rounded-3xl overflow-hidden mb-8 shadow-xl">
+        <div className="relative -mx-5 sm:-mx-8 lg:-mx-12 sm:rounded-3xl overflow-hidden mb-8 shadow-xl">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
-            <img src="/images/peugeot_406_hero.png" alt="Peugeot 406 sur autoroute" className="w-full h-full object-cover object-center" />
+            <img src="/images/hero_client_premium.png" alt="Allogoo Premium Transport" className="w-full h-full object-cover object-center" />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40 dark:from-black/95 dark:via-black/80 dark:to-black/40"></div>
           </div>
 
-          <div className="relative z-10 p-6 sm:p-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+          <div className="relative z-10 px-5 sm:px-10 py-8 sm:py-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="max-w-xl">
-              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">Espace Voyageur</h1>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Bienvenue sur votre tableau de bord. Gérez vos QR codes, recharges Wave/OM et votre fidélité en un seul endroit.
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-3">Espace Voyageur</h1>
+              <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
+                Bienvenue sur votre tableau de bord. Gérez vos réservations Allo Dakar, recharges Wave/OM et votre fidélité en un seul endroit.
               </p>
             </div>
             

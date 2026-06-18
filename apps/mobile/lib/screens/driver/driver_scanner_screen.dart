@@ -65,7 +65,12 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.only(
+          left: 16.0,
+          right: 16.0,
+          top: 16.0,
+          bottom: MediaQuery.of(context).padding.bottom + 80,
+        ),
         child: Column(
           children: [
             // CAMERA CARD

@@ -377,8 +377,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               return;
             }
           } else {
-             setGlobalError("Vous devez être connecté pour réserver.");
-             return;
+             console.warn("User is not logged in. Generating a demo ticket.");
           }
 
           const newTicket = {

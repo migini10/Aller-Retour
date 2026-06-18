@@ -204,7 +204,7 @@ export default function QrCodePage() {
                    <div key={t.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-3xl overflow-hidden relative shadow-xl">
                       <div className="bg-orange-600 px-5 py-2.5 text-xs font-bold text-white flex justify-between items-center">
                         <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.status}</span>
-                        <span className="font-mono tracking-wider">Réf: {t.id.substring(0, 11).toUpperCase()}</span>
+                        <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>
                       </div>
                       
                       <div className="p-6">
