@@ -376,7 +376,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               body: JSON.stringify({
                 tripId: selectedTrip.id,
                 seatNumber: 1, // par defaut 1
-                paymentMethod: paymentMethod.toUpperCase() || 'WAVE'
+                paymentMethod: paymentMethod === 'om' ? 'ORANGE_MONEY' : (paymentMethod.toUpperCase() || 'WAVE')
               })
             });
             if (res.ok) {

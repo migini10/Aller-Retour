@@ -32,12 +32,27 @@ export class BookingsService {
       throw new BadRequestException("Numéro de siège invalide pour ce véhicule.");
     }
 
-    // Vérification de la disponibilité du siège
-    const existing = await prisma.booking.findUnique({
-      where: { tripId_seatNumber: { tripId, seatNumber } },
+    // Auto-assign a free seat if the requested one is taken
+    let assignedSeat = seatNumber;
+    let existing = await prisma.booking.findUnique({
+      where: { tripId_seatNumber: { tripId, assignedSeat } },
     });
+    
     if (existing && existing.status !== 'CANCELLED') {
-      throw new BadRequestException(`Le siège #${seatNumber} est déjà réservé.`);
+      const allBookings = await prisma.booking.findMany({
+        where: { tripId, status: { not: 'CANCELLED' } },
+        select: { seatNumber: true },
+      });
+      const takenSeats = new Set(allBookings.map(b => b.seatNumber));
+      
+      assignedSeat = 1;
+      while (takenSeats.has(assignedSeat) && assignedSeat <= trip.vehicle.capacity) {
+        assignedSeat++;
+      }
+      
+      if (assignedSeat > trip.vehicle.capacity) {
+        throw new BadRequestException("Le véhicule est complet, plus de place disponible.");
+      }
     }
 
     // Génération du QR Token chiffré
@@ -49,7 +64,7 @@ export class BookingsService {
       data: {
         tripId,
         userId,
-        seatNumber,
+        seatNumber: assignedSeat,
         qrCodeToken,
         status,
         amountPaid: trip.pricePerSeat,
