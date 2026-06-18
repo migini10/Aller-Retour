@@ -1289,3 +1289,5 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     </div>
   );
 }
+
+// trigger vercel build
