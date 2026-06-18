@@ -50,7 +50,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     bagages: 1
   });
   const [ticketPour, setTicketPour] = useState<'moi' | 'autre' | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('wave');
   const [pickupLocation, setPickupLocation] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -365,7 +365,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           const token = localStorage.getItem('ar_auth_token');
           let apiData: any = {};
           
-          if (token && selectedTrip?.id && typeof selectedTrip.id === 'string') {
+          if (token && selectedTrip?.id) {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
             const res = await fetch(`${apiUrl}/v1/bookings`, {
               method: 'POST',
