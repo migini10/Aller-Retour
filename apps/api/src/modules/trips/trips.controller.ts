@@ -31,6 +31,72 @@ function mapToDatabaseCity(inputCity?: string): string | undefined {
 @Controller('trips')
 export class TripsController {
   
+  // Simple in-memory cache to speed up trip creations
+  private static CACHE = {
+    companyId: null as string | null,
+    driverProfileId: null as string | null,
+    stations: new Map<string, string>(), // cityName -> id
+    routes: new Map<string, string>(), // originCity-destCity -> id
+    vehicles: new Map<string, string>(), // capacity -> id
+  };
+
+  private async getAlloDakarCompany() {
+    if (TripsController.CACHE.companyId) return TripsController.CACHE.companyId;
+    let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
+    if (!company) company = await prisma.company.create({ data: { name: 'Allo Dakar Partenaire' } });
+    TripsController.CACHE.companyId = company.id;
+    return company.id;
+  }
+
+  private async getAlloDakarDriver() {
+    if (TripsController.CACHE.driverProfileId) return TripsController.CACHE.driverProfileId;
+    let driverProfile = await prisma.driverProfile.findFirst();
+    if (!driverProfile) {
+      const defaultUser = await prisma.user.findFirst() || await prisma.user.create({
+        data: { phone: '+221770000000', fullName: 'Chauffeur Demo', role: 'DRIVER', phoneVerified: true }
+      });
+      driverProfile = await prisma.driverProfile.create({
+        data: { userId: defaultUser.id, licenseNumber: 'SN-123456', licenseExpiry: new Date('2030-01-01') }
+      });
+    }
+    TripsController.CACHE.driverProfileId = driverProfile.id;
+    return driverProfile.id;
+  }
+
+  private async getStation(cityName: string) {
+    if (TripsController.CACHE.stations.has(cityName)) return TripsController.CACHE.stations.get(cityName)!;
+    let station = await prisma.station.findFirst({ where: { city: cityName } });
+    if (!station) station = await prisma.station.create({ data: { name: `Gare ${cityName}`, city: cityName, country: 'SN', latitude: 14.6, longitude: -17.4 } });
+    TripsController.CACHE.stations.set(cityName, station.id);
+    return station.id;
+  }
+
+  private async getVehicle(companyId: string, capacity: number) {
+    const key = `${capacity}`;
+    if (TripsController.CACHE.vehicles.has(key)) return TripsController.CACHE.vehicles.get(key)!;
+    let vehicle = await prisma.vehicle.findFirst({ where: { companyId, capacity } });
+    if (!vehicle) {
+      vehicle = await prisma.vehicle.create({
+        data: { companyId, plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, type: 'TAXI_7_PLACES', capacity, insuranceExpiry: new Date('2030-01-01'), inspectionExpiry: new Date('2030-01-01') }
+      });
+    }
+    TripsController.CACHE.vehicles.set(key, vehicle.id);
+    return vehicle.id;
+  }
+
+  private async getRoute(companyId: string, originCity: string, destinationCity: string, originId: string, destId: string) {
+    const key = `${originCity}-${destinationCity}`;
+    if (TripsController.CACHE.routes.has(key)) return TripsController.CACHE.routes.get(key)!;
+    let route = await prisma.route.findFirst({ where: { originStationId: originId, destinationStationId: destId, companyId } });
+    if (!route) {
+      route = await prisma.route.create({
+        data: { companyId, name: `${originCity} - ${destinationCity}`, originStationId: originId, destinationStationId: destId, distanceKm: 200, estimatedDurationMins: 180, defaultPrice: 5000 }
+      });
+    }
+    TripsController.CACHE.routes.set(key, route.id);
+    return route.id;
+  }
+
   @Get('search')
   @ApiOperation({ summary: 'Rechercher des trajets inter-urbains (SaaS & Marketplace)' })
   async searchTrips(
@@ -47,8 +113,8 @@ export class TripsController {
       const cleanDest = mapToDatabaseCity(destinationCity);
       
       whereClause.route = {
-        originStation: { city: { contains: cleanOrigin, mode: 'insensitive' } },
-        destinationStation: { city: { contains: cleanDest, mode: 'insensitive' } },
+        originStation: { city: cleanOrigin },
+        destinationStation: { city: cleanDest },
       };
     }
 
@@ -74,14 +140,17 @@ export class TripsController {
         },
         vehicle: { select: { plateNumber: true, type: true, capacity: true } },
         driver: { select: { user: { select: { phone: true, fullName: true } } } },
-        bookings: { select: { seatNumber: true, status: true } },
+        bookings: { 
+          select: { id: true }, // Ne récupère que l'ID pour alléger la RAM au lieu de toutes les données
+          where: { status: { in: ['CONFIRMED', 'BOARDED'] } }
+        },
       },
       orderBy: { departureTime: 'asc' },
     });
 
     // Calcul des places disponibles
     const formattedTrips = trips.map(trip => {
-      const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
+      const bookedSeats = trip.bookings.length;
       const totalPassengers = trip.initialPassengers + bookedSeats;
       return {
         ...trip,
@@ -124,79 +193,31 @@ export class TripsController {
   @Post('create-allo-dakar')
   @ApiOperation({ summary: 'Créer un trajet Allo Dakar par un chauffeur' })
   async createAlloDakarTrip(@Body() body: any) {
-    // On simule/trouve une entreprise par défaut pour Allo Dakar
-    let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
-    if (!company) {
-      company = await prisma.company.create({
-        data: { name: 'Allo Dakar Partenaire' }
-      });
-    }
-
-    // On simule/trouve le profil chauffeur
-    let driverProfile = await prisma.driverProfile.findFirst();
-    if (!driverProfile) {
-      const defaultUser = await prisma.user.findFirst() || await prisma.user.create({
-        data: { phone: '+221770000000', fullName: 'Chauffeur Demo', role: 'DRIVER', phoneVerified: true }
-      });
-      driverProfile = await prisma.driverProfile.create({
-        data: { userId: defaultUser.id, licenseNumber: 'SN-123456', licenseExpiry: new Date('2030-01-01') }
-      });
-    }
-
-    // Véhicule par défaut pour ce trajet
+    const [companyId, driverId] = await Promise.all([this.getAlloDakarCompany(), this.getAlloDakarDriver()]);
+    
     const capacity = body.vehicleCapacity || 5;
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id, capacity: capacity } });
-    if (!vehicle) {
-      vehicle = await prisma.vehicle.create({
-        data: { 
-          companyId: company.id, 
-          plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
-          type: 'TAXI_7_PLACES', 
-          capacity: capacity,
-          insuranceExpiry: new Date('2030-01-01'),
-          inspectionExpiry: new Date('2030-01-01')
-        }
-      });
-    }
 
-    // Trouver ou créer les gares
-    let origin = await prisma.station.findFirst({ where: { city: body.originCity } });
-    if (!origin) origin = await prisma.station.create({ data: { name: `Gare ${body.originCity}`, city: body.originCity, country: 'SN', latitude: 14.6, longitude: -17.4 } });
+    const [vehicleId, originId, destinationId] = await Promise.all([
+      this.getVehicle(companyId, capacity),
+      this.getStation(body.originCity),
+      this.getStation(body.destinationCity)
+    ]);
 
-    let destination = await prisma.station.findFirst({ where: { city: body.destinationCity } });
-    if (!destination) destination = await prisma.station.create({ data: { name: `Gare ${body.destinationCity}`, city: body.destinationCity, country: 'SN', latitude: 14.7, longitude: -17.3 } });
-
-    // Trouver ou créer la route
-    let route = await prisma.route.findFirst({
-      where: { originStationId: origin.id, destinationStationId: destination.id, companyId: company.id }
-    });
-    if (!route) {
-      route = await prisma.route.create({
-        data: {
-          companyId: company.id,
-          name: `${body.originCity} - ${body.destinationCity}`,
-          originStationId: origin.id,
-          destinationStationId: destination.id,
-          distanceKm: 200,
-          estimatedDurationMins: 180,
-          defaultPrice: body.pricePerSeat || 5000
-        }
-      });
-    }
+    const routeId = await this.getRoute(companyId, body.originCity, body.destinationCity, originId, destinationId);
 
     const trip = await prisma.trip.create({
       data: {
-        companyId: company.id,
-        routeId: route.id,
-        vehicleId: vehicle.id,
-        driverId: driverProfile.id,
+        companyId,
+        routeId,
+        vehicleId,
+        driverId,
         departureTime: body.departureTime ? new Date(body.departureTime) : new Date(),
         pricePerSeat: body.pricePerSeat || 5000,
         isMarketplace: true,
-        seatsOffered: seatsOffered,
-        initialPassengers: initialPassengers,
+        seatsOffered,
+        initialPassengers,
         status: TripStatus.SCHEDULED
       }
     });
@@ -209,7 +230,7 @@ export class TripsController {
   async updateTrip(@Param('id') id: string, @Body() body: any) {
     const existingTrip = await prisma.trip.findUnique({
       where: { id },
-      include: { company: true }
+      select: { companyId: true }
     });
 
     if (!existingTrip) {
@@ -222,52 +243,23 @@ export class TripsController {
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId, capacity: capacity } });
-    if (!vehicle) {
-      vehicle = await prisma.vehicle.create({
-        data: { 
-          companyId, 
-          plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
-          type: 'TAXI_7_PLACES', 
-          capacity: capacity,
-          insuranceExpiry: new Date('2030-01-01'),
-          inspectionExpiry: new Date('2030-01-01')
-        }
-      });
-    }
+    const [vehicleId, originId, destinationId] = await Promise.all([
+      this.getVehicle(companyId, capacity),
+      this.getStation(body.originCity),
+      this.getStation(body.destinationCity)
+    ]);
 
-    let origin = await prisma.station.findFirst({ where: { city: body.originCity } });
-    if (!origin) origin = await prisma.station.create({ data: { name: `Gare ${body.originCity}`, city: body.originCity, country: 'SN', latitude: 14.6, longitude: -17.4 } });
-
-    let destination = await prisma.station.findFirst({ where: { city: body.destinationCity } });
-    if (!destination) destination = await prisma.station.create({ data: { name: `Gare ${body.destinationCity}`, city: body.destinationCity, country: 'SN', latitude: 14.7, longitude: -17.3 } });
-
-    let route = await prisma.route.findFirst({
-      where: { originStationId: origin.id, destinationStationId: destination.id, companyId }
-    });
-    if (!route) {
-      route = await prisma.route.create({
-        data: {
-          companyId,
-          name: `${body.originCity} - ${body.destinationCity}`,
-          originStationId: origin.id,
-          destinationStationId: destination.id,
-          distanceKm: 200,
-          estimatedDurationMins: 180,
-          defaultPrice: body.pricePerSeat || 5000
-        }
-      });
-    }
+    const routeId = await this.getRoute(companyId, body.originCity, body.destinationCity, originId, destinationId);
 
     const updatedTrip = await prisma.trip.update({
       where: { id },
       data: {
-        routeId: route.id,
-        vehicleId: vehicle.id,
+        routeId,
+        vehicleId,
         departureTime: body.departureTime ? new Date(body.departureTime) : undefined,
         pricePerSeat: body.pricePerSeat || 5000,
-        seatsOffered: seatsOffered,
-        initialPassengers: initialPassengers,
+        seatsOffered,
+        initialPassengers,
       }
     });
 
