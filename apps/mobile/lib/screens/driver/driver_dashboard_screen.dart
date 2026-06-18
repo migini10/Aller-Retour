@@ -130,10 +130,27 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              const Text('Bonjour Moussa 👋', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Vous avez 1 trajet programmé aujourd\'hui. Assurez-vous d\'avoir validé tous vos documents avant de démarrer.', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, height: 1.4),
+                              const Text(
+                                'Bonjour Moussa 👋', 
+                                style: TextStyle(
+                                  color: Colors.white, 
+                                  fontSize: 38, 
+                                  fontWeight: FontWeight.w900, 
+                                  letterSpacing: -1.0,
+                                  shadows: [Shadow(color: Colors.black54, blurRadius: 15, offset: Offset(0, 4))],
+                                )
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Vous avez 1 trajet programmé aujourd\'hui. Assurez-vous d\'avoir validé tous vos documents avant de démarrer.', 
+                                style: TextStyle(
+                                  color: Colors.white, 
+                                  fontSize: 16, 
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2,
+                                  shadows: [Shadow(color: Colors.black87, blurRadius: 8, offset: Offset(0, 2))],
+                                ),
                               ),
                               const SizedBox(height: 24),
                               Row(

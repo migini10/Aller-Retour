@@ -388,24 +388,32 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 32, // Diminué
-                          letterSpacing: -1.0,
+                          fontSize: 38, // Plus grand, plus moderne
+                          letterSpacing: -1.5,
+                          height: 1.1,
+                          shadows: [
+                            Shadow(color: Colors.black54, blurRadius: 15, offset: Offset(0, 4)),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       Text(
                         'Bienvenue sur votre tableau de bord.\nGérez vos réservations et votre wallet en toute simplicité.', 
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 13, // Diminué
-                          height: 1.4,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          fontSize: 16, // Plus lisible
+                          height: 1.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                          shadows: [
+                            Shadow(color: Colors.black87, blurRadius: 8, offset: Offset(0, 2)),
+                          ],
                         ),
                       ),
-                      const Spacer(flex: 2),
+                      const Spacer(),
                       _buildPremiumWalletCard(context),
-                      const Spacer(flex: 3),
+                      const SizedBox(height: 24),
                       _buildActionButtons(),
                     ],
                   ),
@@ -457,28 +465,28 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5), // Très léger flou
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-            child: Row(
-              children: [
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.cyanAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.5)),
-                        boxShadow: [
-                          BoxShadow(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
                             color: Colors.cyanAccent.withValues(alpha: 0.2),
-                            blurRadius: 10,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.5)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.cyanAccent.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.account_balance_wallet,
-                        color: Colors.cyanAccent,
-                        size: 32,
-                      ),
-                    ),
+                          child: const Icon(
+                            Icons.account_balance_wallet,
+                            color: Colors.cyanAccent,
+                            size: 26,
+                          ),
+                        ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Column(
@@ -2019,7 +2027,7 @@ void _showReservationBottomSheet(BuildContext context) {
                         child: SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: (step == 3 && (nom.isEmpty || telephone.isEmpty)) ? null : () async {
+                            onPressed: isSearching || (step == 3 && (nom.isEmpty || telephone.isEmpty)) ? null : () async {
                               if (step == 1) {
                                 setState(() => isSearching = true);
                                 try {
@@ -2087,9 +2095,26 @@ void _showReservationBottomSheet(BuildContext context) {
                                       })
                                     );
                                     if (response.statusCode == 201 || response.statusCode == 200) {
+                                      final apiData = jsonDecode(response.body);
+                                      if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
+                                        setState(() {
+                                          errorMessage = 'Veuillez valider le paiement (Push USSD) sur votre téléphone...';
+                                        });
+                                        // Simulation de l'attente du Push USSD
+                                        await Future.delayed(const Duration(seconds: 5));
+                                        
+                                        // Optionnel: appel au webhook pour valider coté serveur (Sandbox only)
+                                        if (apiData['paymentSession'] != null) {
+                                          try {
+                                            await http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}'));
+                                          } catch (e) {}
+                                        }
+                                        setState(() { errorMessage = ''; });
+                                      }
                                       setState(() { isSearching = false; step = 5; });
                                     } else {
-                                      setState(() { isSearching = false; errorMessage = 'Erreur de réservation (Non autorisé)'; });
+                                      final err = jsonDecode(response.body);
+                                      setState(() { isSearching = false; errorMessage = err['message'] ?? 'Erreur de réservation'; });
                                     }
                                   } catch (e) {
                                     setState(() { isSearching = false; errorMessage = 'Erreur réseau: Impossible de contacter le serveur'; });
@@ -2100,9 +2125,9 @@ void _showReservationBottomSheet(BuildContext context) {
                               }
                             },
                             icon: isSearching 
-                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: textColor, strokeWidth: 2)) 
+                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: isDark ? Colors.white54 : Colors.white, strokeWidth: 2)) 
                               : Icon(step == 4 ? Icons.payment : (step == 3 ? Icons.check_circle : Icons.search), color: textColor),
-                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : 'Payer maintenant', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor)),
+                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : (isSearching ? 'Traitement en cours...' : 'Payer maintenant'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: isSearching ? (isDark ? Colors.white54 : Colors.white) : textColor)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF97316),
                               disabledBackgroundColor: isDark ? const Color(0xFF222222) : const Color(0xFFCBD5E1),

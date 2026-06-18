@@ -915,9 +915,16 @@ export default function SectionMissions() {
               <button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full mt-4 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                className="w-full mt-4 bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 relative overflow-hidden"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (editMissionId ? 'Modifier le trajet' : 'Publier le trajet')}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Traitement en cours...
+                  </>
+                ) : (
+                  editMissionId ? 'Modifier le trajet' : 'Publier le trajet'
+                )}
               </button>
             </form>
           </div>

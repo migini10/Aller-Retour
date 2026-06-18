@@ -55,6 +55,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [isLocating, setIsLocating] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [realTrips, setRealTrips] = useState<any[]>([]);
+  const [paymentData, setPaymentData] = useState<any>(null);
+  const [windowWidth, setWindowWidth] = useState(1024);
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getAvailableDates = () => {
     const dates = [];
@@ -352,6 +361,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
       (async () => {
         try {
+          setIsSearching(true); // Utiliser setIsSearching comme loader
           const token = localStorage.getItem('ar_auth_token');
           let apiData: any = {};
           
@@ -374,10 +384,29 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             } else {
               const errorData = await res.json();
               setGlobalError(errorData.message || 'Erreur de réservation');
+              setIsSearching(false);
               return;
             }
           } else {
              console.warn("User is not logged in. Generating a demo ticket.");
+             apiData = { booking: { status: 'CONFIRMED' } }; // Fallback pour démo non loggé
+          }
+
+          // Si le paiement est en attente (Wave ou OM)
+          if (apiData.booking?.status === 'PENDING_PAYMENT' && apiData.paymentSession) {
+             setPaymentData(apiData.paymentSession);
+             
+             if (windowWidth < 768) {
+               // Mobile : USSD Push uniquement
+               setGlobalSuccess(`Paiement ${apiData.paymentSession.provider} initié. Veuillez consulter votre téléphone pour valider le Push USSD (Simulation 5s)...`);
+               await new Promise(resolve => setTimeout(resolve, 5000));
+               const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+               await fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`);
+               setGlobalSuccess('');
+             } else {
+               // Tablette / PC : On ne bloque pas avec le Push USSD automatique de 5s,
+               // On passe directement à l'étape suivante qui affichera le QR code (et le choix sur tablette).
+             }
           }
 
           const newTicket = {
@@ -389,15 +418,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             siege: `${searchParams.passagers} Place(s)`,
             compagnie: selectedTrip?.company?.name || 'Allo Dakar',
             vehicule: selectedTrip?.vehicle?.type || 'Voiture Privée',
-            statut: apiData.booking?.status?.toLowerCase() || 'actif',
+            statut: 'actif',
             passager: voyageurInfo.nom || 'Passager Inconnu'
           };
           
           setGeneratedTicket(newTicket);
-
+          setIsSearching(false);
           setStep(s => Math.min(s + 1, totalSteps));
         } catch (e) {
           console.error('Erreur API', e);
+          setIsSearching(false);
           setStep(s => Math.min(s + 1, totalSteps));
         }
       })();
@@ -884,18 +914,69 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         </div>
 
         <button 
-          disabled={!paymentMethod}
+          disabled={!paymentMethod || isSearching}
           onClick={nextStep}
-          className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2"
+          className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2 relative overflow-hidden"
         >
-          <ShieldCheck className="w-5 h-5" />
-          Payer {total} FCFA
+          {isSearching ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Traitement du paiement...
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-5 h-5" />
+              Payer {total} FCFA
+            </>
+          )}
         </button>
       </div>
     );
   };
 
-  const renderStep6SuccessAlloDakar = () => (
+  const renderStep6SuccessAlloDakar = () => {
+    // Si on est sur PC ou Tablette et que le paiement n'est pas encore simulé
+    if (paymentData && windowWidth >= 768) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500 px-4">
+          <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-6 relative">
+            <Smartphone className="w-10 h-10 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Paiement en attente</h2>
+          
+          <div className="bg-slate-50 dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] w-full text-center space-y-4 shadow-xl">
+            {windowWidth >= 768 && windowWidth < 1024 ? (
+              <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
+                Option 1 : Vérifiez votre téléphone, un Push USSD a été envoyé.<br/>
+                Option 2 : Scannez le QR Code ci-dessous.
+              </p>
+            ) : (
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Scannez ce QR Code avec l'application <b>{paymentData.provider}</b> pour payer.</p>
+            )}
+
+            <div className="flex justify-center bg-white p-4 rounded-xl border-4 border-slate-200 inline-block mx-auto shadow-sm">
+              {/* Le lien de paiement simulé */}
+              <QRCodeBrandEngine value={paymentData.paymentUrl} size={180} />
+            </div>
+
+            <button 
+              onClick={async () => {
+                // Simulation du webhook puis passage au succès
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+                await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
+                setPaymentData(null); // On enlève la donnée de paiement pour voir le billet
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              J'ai scanné et payé
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
     <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500">
       <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 relative">
         <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></div>
@@ -982,7 +1063,47 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     </div>
   );
 
-  const renderStep6SuccessBus = () => (
+  const renderStep6SuccessBus = () => {
+    // Si on est sur PC ou Tablette et que le paiement n'est pas encore simulé
+    if (paymentData && windowWidth >= 768) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500 px-4">
+          <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-6 relative">
+            <Smartphone className="w-10 h-10 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Paiement en attente</h2>
+          
+          <div className="bg-slate-50 dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] w-full text-center space-y-4 shadow-xl">
+            {windowWidth >= 768 && windowWidth < 1024 ? (
+              <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
+                Option 1 : Vérifiez votre téléphone, un Push USSD a été envoyé.<br/>
+                Option 2 : Scannez le QR Code ci-dessous.
+              </p>
+            ) : (
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Scannez ce QR Code avec l'application <b>{paymentData.provider}</b> pour payer.</p>
+            )}
+
+            <div className="flex justify-center bg-white p-4 rounded-xl border-4 border-slate-200 inline-block mx-auto shadow-sm">
+              <QRCodeBrandEngine value={paymentData.paymentUrl} size={180} />
+            </div>
+
+            <button 
+              onClick={async () => {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+                await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
+                setPaymentData(null); 
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              J'ai scanné et payé
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
     <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500">
       <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 relative">
         <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></div>

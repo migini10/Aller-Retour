@@ -52,4 +52,13 @@ export class BookingsController {
   async getMyTickets(@Req() req: any) {
     return this.bookingsService.getUserBookings(req.user.id);
   }
+
+  @Post(':id/cancel')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.PASSENGER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN)
+  @Permissions('bookings:update')
+  @ApiOperation({ summary: 'Annuler une réservation et obtenir un remboursement dans le Wallet' })
+  async cancelBooking(@Param('id') id: string, @Req() req: any) {
+    return this.bookingsService.cancelBooking(id, req.user.id);
+  }
 }

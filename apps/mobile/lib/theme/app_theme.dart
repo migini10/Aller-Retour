@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // --- Couleurs Globales (Dark Theme actuel) ---
@@ -16,6 +17,14 @@ class AppTheme {
   static const Color lightTextSecondary = Color(0xFF64748B); // slate-500
 
   static ThemeData get lightTheme {
+    final baseTextTheme = const TextTheme(
+      bodyLarge: TextStyle(color: lightTextPrimary),
+      bodyMedium: TextStyle(color: lightTextPrimary),
+      titleLarge: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
+      titleMedium: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
+      labelLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // buttons text usually
+    );
+
     return ThemeData(
       brightness: Brightness.light,
       primaryColor: primaryOrange,
@@ -36,13 +45,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: lightTextPrimary),
         titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
       ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: lightTextPrimary),
-        bodyMedium: TextStyle(color: lightTextPrimary),
-        titleLarge: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
-        titleMedium: TextStyle(color: lightTextPrimary, fontWeight: FontWeight.bold),
-        labelLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // buttons text usually
-      ),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(baseTextTheme),
       iconTheme: const IconThemeData(color: lightTextPrimary),
       dividerTheme: const DividerThemeData(color: lightDivider, thickness: 1),
       bottomSheetTheme: const BottomSheetThemeData(
@@ -53,6 +56,13 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
+    final baseTextTheme = const TextTheme(
+      bodyLarge: TextStyle(color: Colors.white),
+      bodyMedium: TextStyle(color: Colors.white),
+      titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      titleMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    );
+
     return ThemeData(
       brightness: Brightness.dark,
       primaryColor: primaryOrange,
@@ -73,12 +83,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.white),
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
       ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        titleMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      ),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(baseTextTheme),
       iconTheme: const IconThemeData(color: Colors.white),
       dividerTheme: const DividerThemeData(color: darkDivider, thickness: 1),
       bottomSheetTheme: const BottomSheetThemeData(

@@ -8,6 +8,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { FinanceModule } from './modules/finance/finance.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FinanceModule } from './modules/finance/finance.module';
     WalletsModule,
     CompaniesModule,
     FinanceModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -3,6 +3,8 @@ import { prisma, PaymentMethod } from '@aller-retour/database';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 
+import { PaymentService } from '../payment/payment.service';
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -13,8 +15,12 @@ const transporter = nodemailer.createTransport({
 
 @Injectable()
 export class BookingsService {
+  constructor(private readonly paymentService: PaymentService) {}
 
   async createBooking(userId: string, tripId: string, seatNumber: number, paymentMethod: PaymentMethod) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException("Utilisateur introuvable.");
+
     const trip = await prisma.trip.findUnique({
       where: { id: tripId },
       include: { vehicle: true },
@@ -37,13 +43,15 @@ export class BookingsService {
     // Génération du QR Token chiffré
     const qrCodeToken = crypto.createHash('sha256').update(`${tripId}-${seatNumber}-${userId}-${Date.now()}`).digest('hex');
 
+    const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY') ? 'PENDING_PAYMENT' : 'CONFIRMED';
+
     const booking = await prisma.booking.create({
       data: {
         tripId,
         userId,
         seatNumber,
         qrCodeToken,
-        status: 'CONFIRMED', // Simplifié pour le MVP
+        status,
         amountPaid: trip.pricePerSeat,
         paymentMethod,
       },
@@ -59,7 +67,17 @@ export class BookingsService {
       }
     });
 
-    // Envoi de l'e-mail avec Nodemailer
+    // Handle Payment Initiation
+    let paymentSession = null;
+    if (paymentMethod === 'WAVE') {
+      paymentSession = await this.paymentService.initiateWavePayment(user.phone, trip.pricePerSeat, booking.id);
+    } else if (paymentMethod === 'ORANGE_MONEY') {
+      paymentSession = await this.paymentService.initiateOrangeMoneyPayment(user.phone, trip.pricePerSeat, booking.id);
+    }
+
+    if (status === 'CONFIRMED') {
+      // Envoi de l'e-mail avec Nodemailer
+
     try {
       await transporter.sendMail({
         from: '"Aller-Retour" <allogoosn@gmail.com>',
@@ -89,11 +107,15 @@ export class BookingsService {
     } catch (err) {
       console.error(`❌ Erreur lors de l'envoi de l'e-mail Nodemailer:`, err);
     }
+    } // End if CONFIRMED
 
     return {
       success: true,
       booking,
-      message: "Réservation confirmée avec succès. Un e-mail a été envoyé.",
+      paymentSession, // Renvoie la session de paiement au frontend/mobile
+      message: status === 'CONFIRMED' 
+        ? "Réservation confirmée avec succès. Un e-mail a été envoyé."
+        : "Réservation en attente de paiement. Veuillez valider sur votre mobile.",
     };
   }
 
@@ -136,5 +158,57 @@ export class BookingsService {
     });
 
     return bookings;
+  }
+
+  async cancelBooking(bookingId: string, userId: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+    });
+
+    if (!booking) throw new NotFoundException("Réservation introuvable.");
+    if (booking.userId !== userId) throw new BadRequestException("Action non autorisée.");
+    if (booking.status === 'CANCELLED') throw new BadRequestException("Réservation déjà annulée.");
+    if (booking.status === 'BOARDED') throw new BadRequestException("Impossible d'annuler un trajet déjà démarré.");
+
+    // Annuler la réservation
+    const updatedBooking = await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: 'CANCELLED' },
+    });
+
+    // Remboursement sur le WALLET Allo Dakar
+    if (booking.status === 'CONFIRMED' && booking.amountPaid > 0) {
+      let passengerWallet = await prisma.wallet.findFirst({
+        where: { userId: userId, type: 'PASSENGER_WALLET' },
+      });
+
+      if (!passengerWallet) {
+        passengerWallet = await prisma.wallet.create({
+          data: {
+            userId: userId,
+            type: 'PASSENGER_WALLET',
+            balance: 0,
+          }
+        });
+      }
+
+      await prisma.wallet.update({
+        where: { id: passengerWallet.id },
+        data: { balance: { increment: booking.amountPaid } }
+      });
+
+      // Enregistrer la transaction de remboursement
+      await prisma.transaction.create({
+        data: {
+          type: 'REFUNDED' as any, // On triche avec les Enum pour le MVP
+          status: 'SUCCESS',
+          amount: booking.amountPaid,
+          description: `Remboursement annulation réservation #${bookingId}`,
+          targetWalletId: passengerWallet.id,
+        }
+      });
+    }
+
+    return { success: true, message: "Réservation annulée. Si vous aviez payé, le montant a été reversé sur votre Wallet Allo Dakar." };
   }
 }

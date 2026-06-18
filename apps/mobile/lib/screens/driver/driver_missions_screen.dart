@@ -288,6 +288,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
     final List<String> cities = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda'];
 
+    bool isLoading = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -439,7 +441,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () async {
+                              onPressed: isLoading ? null : () async {
                                 String placesLibres = placesController.text;
                                 String price = priceController.text;
                                 
@@ -448,7 +450,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   return;
                                 }
                                 
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Création en cours...'), backgroundColor: Colors.blueAccent, duration: Duration(seconds: 1)));
+                                setModalState(() => isLoading = true);
 
                                 String departureTime = "${date}T$time:00Z";
 
@@ -497,15 +499,30 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   });
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.orangeAccent));
+                                } finally {
+                                  if (context.mounted) {
+                                    setModalState(() => isLoading = false);
+                                  }
                                 }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFEA580C),
+                                disabledBackgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF222222) : const Color(0xFFCBD5E1),
+                                disabledForegroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.white,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
-                              child: Text(missionToEdit != null ? 'Modifier le trajet' : 'Publier le trajet', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              child: isLoading 
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.white, strokeWidth: 2)),
+                                      const SizedBox(width: 8),
+                                      const Text('Traitement en cours...', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    ],
+                                  )
+                                : Text(missionToEdit != null ? 'Modifier le trajet' : 'Publier le trajet', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ),
                           ),
                           const SizedBox(height: 32),
