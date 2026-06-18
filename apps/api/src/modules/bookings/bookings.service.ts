@@ -35,7 +35,7 @@ export class BookingsService {
     // Auto-assign a free seat if the requested one is taken
     let assignedSeat = seatNumber;
     let existing = await prisma.booking.findUnique({
-      where: { tripId_seatNumber: { tripId, assignedSeat } },
+      where: { tripId_seatNumber: { tripId, seatNumber: assignedSeat } },
     });
     
     if (existing && existing.status !== 'CANCELLED') {
