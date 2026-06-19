@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
 
 class DriverMissionsScreen extends StatefulWidget {
   const DriverMissionsScreen({super.key});
@@ -860,7 +861,20 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             runSpacing: 8,
                             children: [
                               if (mission['statut'] == 'à venir')
-                                _buildActionButton(Icons.play_arrow, 'Démarrer trajet', const Color(0xFFEA580C), Colors.white, () {}),
+                                Builder(
+                                  builder: (ctx) {
+                                    String trajet = mission['trajet'] ?? '';
+                                    String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
+                                    List<String> parts = trajet.split(separator);
+                                    String destinationCity = parts.length > 1 ? parts[1].trim() : 'Destination';
+                                    
+                                    return _buildActionButton(Icons.play_arrow, 'En route vers $destinationCity', const Color(0xFFEA580C), Colors.white, () {
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: mission),
+                                      ));
+                                    });
+                                  }
+                                ),
                               if (mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
                               _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Colors.white, () {
