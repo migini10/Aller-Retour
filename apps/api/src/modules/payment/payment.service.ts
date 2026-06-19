@@ -30,6 +30,7 @@ export class PaymentService {
       message: 'Push USSD envoyé au client sur son compte Wave.',
       provider: 'WAVE',
       paymentUrl: mockPaymentUrl, // Lien pour générer un QR Code sur PC
+      bookingId: reference,
       webhook_simulation_url: `/api/payment/webhook/wave/simulate?tx_id=${mockTransactionId}&ref=${reference}`
     };
   }
@@ -61,6 +62,7 @@ export class PaymentService {
       message: 'Push USSD envoyé au client via Orange Money.',
       provider: 'ORANGE_MONEY',
       paymentUrl: mockPaymentUrl, // Lien pour générer un QR Code sur PC
+      bookingId: reference,
       webhook_simulation_url: `/api/payment/webhook/om/simulate?tx_id=${mockTransactionId}&ref=${reference}`
     };
   }

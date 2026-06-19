@@ -44,6 +44,13 @@ export class BookingsController {
     return this.bookingsService.verifyQrAtBoarding(token);
   }
 
+  @Get(':id/status')
+  @ApiOperation({ summary: 'Vérifier le statut de paiement d\'une réservation (Polling)' })
+  async getStatus(@Param('id') id: string) {
+    // Cette route peut être appelée publiquement ou nécessiter le token, mais comme c'est pour du polling web/mobile rapide:
+    return this.bookingsService.getBookingStatus(id);
+  }
+
   @Get('my-tickets')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.PASSENGER)

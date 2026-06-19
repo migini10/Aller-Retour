@@ -65,6 +65,34 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Polling automatique du statut de paiement
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (paymentData && paymentData.bookingId) {
+      interval = setInterval(async () => {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const token = localStorage.getItem('token');
+          const res = await fetch(`${apiUrl}/bookings/${paymentData.bookingId}/status`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          });
+          const data = await res.json();
+          if (data.status === 'CONFIRMED') {
+            clearInterval(interval);
+            setPaymentData(null);
+            setGeneratedTicket(data.qrCodeToken);
+            setStep(6);
+          }
+        } catch (e) {
+          // ignorer les erreurs de réseau pendant le polling
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [paymentData]);
+
   const getAvailableDates = () => {
     const dates = [];
     const base = new Date();

@@ -153,6 +153,17 @@ export class BookingsService {
     return { success: true, message: "Embarquement validé avec succès !", booking: updated };
   }
 
+  async getBookingStatus(id: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      select: { status: true, qrCodeToken: true }
+    });
+    
+    if (!booking) throw new NotFoundException("Réservation introuvable.");
+    
+    return { success: true, status: booking.status, qrCodeToken: booking.qrCodeToken };
+  }
+
   async getUserBookings(userId: string) {
     const bookings = await prisma.booking.findMany({
       where: { userId },

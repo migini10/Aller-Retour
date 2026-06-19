@@ -2100,15 +2100,42 @@ void _showReservationBottomSheet(BuildContext context) {
                                         setState(() {
                                           errorMessage = 'Veuillez valider le paiement (Push USSD) sur votre téléphone...';
                                         });
-                                        // Simulation de l'attente du Push USSD
-                                        await Future.delayed(const Duration(seconds: 5));
+
+                                        // Polling de la vérification de paiement (toutes les 3 secondes, max 1 minute)
+                                        bool isPaid = false;
+                                        int attempts = 0;
                                         
-                                        // Optionnel: appel au webhook pour valider coté serveur (Sandbox only)
-                                        if (apiData['paymentSession'] != null) {
-                                          try {
-                                            await http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}'));
-                                          } catch (e) {}
+                                        // TODO: En production, supprimer cet appel simulé au webhook (qui sera appelé par Wave/OM)
+                                        if (apiData['paymentSession'] != null && apiData['paymentSession']['webhook_simulation_url'] != null) {
+                                          http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
                                         }
+
+                                        while (attempts < 20 && !isPaid) {
+                                          await Future.delayed(const Duration(seconds: 3));
+                                          attempts++;
+                                          try {
+                                            if (apiData['paymentSession'] != null && apiData['paymentSession']['bookingId'] != null) {
+                                              final statusRes = await http.get(Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'));
+                                              if (statusRes.statusCode == 200) {
+                                                final statusData = jsonDecode(statusRes.body);
+                                                if (statusData['status'] == 'CONFIRMED') {
+                                                  isPaid = true;
+                                                }
+                                              }
+                                            } else {
+                                              // Fallback si pas de bookingId (legacy)
+                                              isPaid = true;
+                                            }
+                                          } catch (e) {
+                                            // Ignorer les erreurs réseau pendant le polling
+                                          }
+                                        }
+
+                                        if (!isPaid) {
+                                          setState(() { isSearching = false; errorMessage = 'Délai d\'attente dépassé pour la confirmation du paiement.'; });
+                                          return; // Ne pas avancer à l'étape 5
+                                        }
+                                        
                                         setState(() { errorMessage = ''; });
                                       }
                                       setState(() { isSearching = false; step = 5; });
