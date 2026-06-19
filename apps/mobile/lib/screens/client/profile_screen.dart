@@ -12,6 +12,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'Utilisateur';
   String _userPhone = '';
+  String _userRole = 'PASSENGER';
   String _userInitials = 'U';
 
   final TextEditingController _nameController = TextEditingController();
@@ -28,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _userName = prefs.getString('userName') ?? 'Utilisateur';
       _userPhone = prefs.getString('userPhone') ?? '';
+      _userRole = prefs.getString('userRole') ?? 'PASSENGER';
       _nameController.text = _userName;
       _phoneController.text = _userPhone;
       _updateInitials();
@@ -118,7 +120,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 40),
             _buildEditableTile(context, Icons.person_outline, 'Nom complet', _nameController),
-            _buildEditableTile(context, Icons.phone_outlined, 'Téléphone', _phoneController),
+            _buildEditableTile(context, Icons.phone_outlined, 'Téléphone', _phoneController, isPhone: true, readOnly: _userRole != 'SUPER_ADMIN' && _userRole != 'TENANT_ADMIN'),
+            if (_userRole != 'SUPER_ADMIN' && _userRole != 'TENANT_ADMIN')
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text('Seul un administrateur peut modifier le numéro de téléphone.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+              ),
             _buildInfoTile(context, Icons.email_outlined, 'Email', 'Non renseigné'),
             const SizedBox(height: 40),
             SizedBox(
@@ -169,9 +176,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildEditableTile(BuildContext context, IconData icon, String label, TextEditingController controller) {
+  Widget _buildEditableTile(BuildContext context, IconData icon, String label, TextEditingController controller, {bool isPhone = false, bool readOnly = false}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: isPhone && readOnly ? 4 : 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -189,7 +196,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                 TextField(
                   controller: controller,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w600),
+                  readOnly: readOnly,
+                  keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+                  style: TextStyle(color: readOnly ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5) : Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w600),
                   decoration: const InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 4),
@@ -199,7 +208,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), size: 20),
+          if (!readOnly)
+            Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), size: 20)
+          else
+            Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), size: 20),
         ],
       ),
     );

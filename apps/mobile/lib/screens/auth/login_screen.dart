@@ -45,6 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userPhone', _phoneController.text);
+        if (data['user'] != null) {
+          if (data['user']['fullName'] != null) await prefs.setString('userName', data['user']['fullName']);
+          if (data['user']['role'] != null) await prefs.setString('userRole', data['user']['role']);
+        }
         if (data['token'] != null) {
           await prefs.setString('auth_token', data['token']);
         }
@@ -121,6 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Numéro de téléphone',
+                  hintText: '+221 77 000 00 00',
+                  hintStyle: TextStyle(color: isDark ? Colors.white24 : Colors.grey[400]),
                   prefixIcon: const Icon(Icons.phone_android, color: Colors.orange),
                   filled: true,
                   fillColor: isDark ? Colors.grey[900] : Colors.grey[100],

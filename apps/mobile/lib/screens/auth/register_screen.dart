@@ -55,6 +55,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userName', _nameController.text);
         await prefs.setString('userPhone', _phoneController.text);
+        if (data['user'] != null && data['user']['role'] != null) {
+          await prefs.setString('userRole', data['user']['role']);
+        }
         if (data['token'] != null) {
           await prefs.setString('auth_token', data['token']);
         }
@@ -133,6 +136,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Numéro de téléphone',
+                  hintText: '+221 77 000 00 00',
+                  hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.grey),
                   prefixIcon: const Icon(Icons.phone_android, color: Colors.orange),
                   filled: true,
                   fillColor: isDark ? Colors.grey[900] : Colors.grey[100],

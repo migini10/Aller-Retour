@@ -29,7 +29,20 @@ export class AuthService {
     }
   }
 
-  async registerPassenger(phone: string, fullName: string, pin?: string) {
+  private formatPhone(phone: string): string {
+    let clean = phone.replace(/\s+/g, '');
+    if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
+      return `+221${clean}`;
+    } else if (clean.startsWith('221')) {
+      return `+${clean}`;
+    } else if (clean.startsWith('00221')) {
+      return clean.replace('00221', '+221');
+    }
+    return clean;
+  }
+
+  async registerPassenger(phoneRaw: string, fullName: string, pin?: string) {
+    const phone = this.formatPhone(phoneRaw);
     const existing = await prisma.user.findUnique({ where: { phone } });
     if (existing) {
       throw new BadRequestException("Ce numéro de téléphone est déjà enregistré.");
@@ -61,7 +74,8 @@ export class AuthService {
     return { success: true, user, token };
   }
 
-  async loginWithMobile(phone: string, pin: string) {
+  async loginWithMobile(phoneRaw: string, pin: string) {
+    const phone = this.formatPhone(phoneRaw);
     const user = await prisma.user.findUnique({ where: { phone } });
     if (!user || !user.isActive) {
       throw new UnauthorizedException("Numéro de téléphone incorrect ou compte inactif.");
@@ -130,7 +144,8 @@ export class AuthService {
     return { success: true, user, token };
   }
 
-  async sendForgotPasswordOtp(phone: string) {
+  async sendForgotPasswordOtp(phoneRaw: string) {
+    const phone = this.formatPhone(phoneRaw);
     const user = await prisma.user.findUnique({ where: { phone } });
     if (!user) {
       throw new BadRequestException("Aucun compte n'est enregistré avec ce numéro de téléphone.");
@@ -182,7 +197,8 @@ export class AuthService {
     return { success: true, message: "Un code de vérification a été envoyé par e-mail." };
   }
 
-  async resetPasswordWithOtp(phone: string, code: string, newPin: string) {
+  async resetPasswordWithOtp(phoneRaw: string, code: string, newPin: string) {
+    const phone = this.formatPhone(phoneRaw);
     const user = await prisma.user.findUnique({ where: { phone } });
     if (!user) {
       throw new BadRequestException("Utilisateur non trouvé.");
@@ -208,7 +224,8 @@ export class AuthService {
     return { success: true, message: "Votre code PIN a été mis à jour avec succès." };
   }
 
-  async unblockUser(phone: string) {
+  async unblockUser(phoneRaw: string) {
+    const phone = this.formatPhone(phoneRaw);
     const user = await prisma.user.findUnique({ where: { phone } });
     if (!user) {
       throw new BadRequestException("Aucun utilisateur trouvé avec ce numéro.");
