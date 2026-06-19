@@ -438,9 +438,19 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                     top: 16,
                     bottom: MediaQuery.of(context).padding.bottom + 80,
                   ),
-                  itemCount: colis.length,
+                  itemCount: () {
+                    List<dynamic> displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
+                    if (displayColis.isEmpty && colis.isNotEmpty) {
+                      displayColis = [colis.last];
+                    }
+                    return displayColis.length;
+                  }(),
                   itemBuilder: (context, index) {
-                    final c = colis[index];
+                    List<dynamic> displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
+                    if (displayColis.isEmpty && colis.isNotEmpty) {
+                      displayColis = [colis.last];
+                    }
+                    final c = displayColis[index];
                     final badgeColor = _getBadgeColor(c['statut'] ?? '');
 
                     return Container(

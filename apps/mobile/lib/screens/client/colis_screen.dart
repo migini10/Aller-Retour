@@ -452,79 +452,66 @@ class _ColisScreenState extends State<ColisScreen> {
             Text('Colis Récents', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             
-            ...localColis.map((c) {
-              final statut = c['statut'] ?? 'En attente de prise en charge';
-              Color statusColor = Colors.orangeAccent;
-              double progress = 0.1;
+            ...() {
+              List<dynamic> displayColis = localColis.where((c) => c['statut'] != 'Livré').toList();
+              if (displayColis.isEmpty && localColis.isNotEmpty) {
+                displayColis = [localColis.first];
+              }
+              return displayColis.map((c) {
+                final statut = c['statut'] ?? 'En attente de prise en charge';
+                Color statusColor = Colors.orangeAccent;
+                double progress = 0.1;
 
-              if (statut == 'Accepté') {
-                statusColor = Colors.blueAccent;
-                progress = 0.3;
-              }
-              if (statut == 'En transit') {
-                statusColor = Colors.indigoAccent;
-                progress = 0.6;
-              }
-              if (statut == 'Livré') {
-                statusColor = Colors.tealAccent;
-                progress = 1.0;
-              }
+                if (statut == 'Accepté') {
+                  statusColor = Colors.blueAccent;
+                  progress = 0.3;
+                }
+                if (statut == 'En transit') {
+                  statusColor = Colors.indigoAccent;
+                  progress = 0.6;
+                }
+                if (statut == 'Livré') {
+                  statusColor = Colors.tealAccent;
+                  progress = 1.0;
+                }
 
-              return Column(
-                children: [
-                  _buildParcelItem(
-                    icon: statut == 'Livré' ? Icons.check_circle : Icons.inventory_2,
-                    iconColor: statusColor,
-                    title: c['trajet'] ?? 'Trajet Inconnu',
-                    status: statut.toString().toUpperCase(),
-                    statusColor: statusColor,
-                    progressValue: progress,
-                    ref: 'Réf: ${c['id']} • ${c['taille']} • ${c['date']}',
-                    dest: c['destinataire'] ?? 'Inconnu',
-                    phone: c['tel'] ?? '',
-                    showProgress: true,
-                    actionLabel: 'Détails / Suivre',
-                    onTapAction: () => _showTrackingModal(c),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              );
-            }),
+                return Column(
+                  children: [
+                    _buildParcelItem(
+                      icon: statut == 'Livré' ? Icons.check_circle : Icons.inventory_2,
+                      iconColor: statusColor,
+                      title: c['trajet'] ?? 'Trajet Inconnu',
+                      status: statut.toString().toUpperCase(),
+                      statusColor: statusColor,
+                      ref: 'Réf: ${c['id']} • ${c['taille']}',
+                      dest: c['destinataire'] ?? '',
+                      phone: c['tel'],
+                      showProgress: statut != 'Livré',
+                      progressValue: progress,
+                      actionLabel: 'Détails',
+                      onTapAction: () => _showTrackingModal(c),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              });
+            }(),
             
             // Active Parcel 1 (Mock)
             if (localColis.isEmpty)
-            _buildParcelItem(
-              icon: Icons.local_shipping,
-              iconColor: Colors.amber,
-              title: 'Dakar ➔ Saint-Louis',
-              status: 'EN TRANSIT',
-              statusColor: Colors.amber,
-              ref: 'Réf: COL-894-D15 • 12 kg',
-              dest: 'Moussa Diop',
-              phone: '+221 77 123 45 67',
-              showProgress: true,
-              actionLabel: 'Détails',
-              onTapAction: () => _showTrackingModal({'id': 'COL-894-D15', 'statut': 'En transit', 'destinataire': 'Moussa Diop', 'tel': '+221 77 123 45 67', 'date': 'Aujourd\'hui', 'trajet': 'Dakar → Saint-Louis'}),
-            ),
-            const SizedBox(height: 16),
-            
-            // Delivered Parcel
-            Opacity(
-              opacity: 0.6,
-              child: _buildParcelItem(
-                icon: Icons.check_circle,
-                iconColor: Colors.greenAccent,
-                title: 'Dakar ➔ Thiès',
-                status: 'LIVRÉ',
-                statusColor: Colors.greenAccent,
-                ref: 'Réf: COL-112-A89 • 5 kg • Il y a 3 jours',
-                dest: 'Aminata Fall',
-                phone: null,
-                showProgress: false,
-                actionLabel: 'Reçu',
-                onTapAction: () => _showTrackingModal({'id': 'COL-112-A89', 'statut': 'Livré', 'destinataire': 'Aminata Fall', 'tel': '+221 77 000 00 00', 'date': 'Il y a 3 jours', 'trajet': 'Dakar → Thiès'}),
+              _buildParcelItem(
+                icon: Icons.local_shipping,
+                iconColor: Colors.amber,
+                title: 'Dakar ➔ Saint-Louis',
+                status: 'EN TRANSIT',
+                statusColor: Colors.amber,
+                ref: 'Réf: COL-894-D15 • 12 kg',
+                dest: 'Moussa Diop',
+                phone: '+221 77 123 45 67',
+                showProgress: true,
+                actionLabel: 'Détails',
+                onTapAction: () => _showTrackingModal({'id': 'COL-894-D15', 'statut': 'En transit', 'destinataire': 'Moussa Diop', 'tel': '+221 77 123 45 67', 'date': 'Aujourd\'hui', 'trajet': 'Dakar → Saint-Louis'}),
               ),
-            ),
             const SizedBox(height: 40),
           ],
         ),
