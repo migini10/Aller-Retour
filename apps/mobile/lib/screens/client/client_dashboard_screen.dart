@@ -386,11 +386,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         'Espace Voyageur', 
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Sonttak',
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 42, // Ajusté pour cette police
-                          letterSpacing: 1.0,
+                          fontSize: 38, // Plus grand, plus moderne
+                          letterSpacing: -1.5,
                           height: 1.1,
                           shadows: [
                             Shadow(color: Colors.black54, blurRadius: 15, offset: Offset(0, 4)),
