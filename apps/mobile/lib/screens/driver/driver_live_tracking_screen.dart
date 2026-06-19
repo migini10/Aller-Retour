@@ -31,7 +31,6 @@ class _DriverLiveTrackingScreenState extends State<DriverLiveTrackingScreen> {
   @override
   void initState() {
     super.initState();
-    polylinePoints = PolylinePoints();
     _extractDestination();
     _checkLocationPermissionAndStartTracking();
   }
@@ -71,8 +70,12 @@ class _DriverLiveTrackingScreenState extends State<DriverLiveTrackingScreen> {
     // Get current location
     _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     
+    // Initialize polylinePoints with API key
+    String googleApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+    polylinePoints = PolylinePoints(apiKey: googleApiKey);
+    
     // Attempt to draw route if API key exists
-    await _getRouteToDestination();
+    await _getRouteToDestination(googleApiKey);
 
     if (mounted) {
       setState(() {
@@ -84,18 +87,14 @@ class _DriverLiveTrackingScreenState extends State<DriverLiveTrackingScreen> {
     _startLocationUpdates();
   }
 
-  Future<void> _getRouteToDestination() async {
-    if (_currentPosition == null) return;
-    
-    String googleApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
-    if (googleApiKey.isEmpty) return;
+  Future<void> _getRouteToDestination(String googleApiKey) async {
+    if (_currentPosition == null || googleApiKey.isEmpty) return;
 
     try {
       // Pour une vraie app, on devrait géocoder la destination. On simule ici la destination avec un point générique.
       // Dans le futur on intégrera Google Places Geocoding pour avoir la position exacte de `_destinationCity`.
       
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        googleApiKey: googleApiKey,
         request: PolylineRequest(
           origin: PointLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
           destination: PointLatLng(_currentPosition!.latitude + 0.05, _currentPosition!.longitude + 0.05), // Mock destination
