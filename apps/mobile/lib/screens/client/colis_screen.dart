@@ -24,6 +24,7 @@ class _ColisScreenState extends State<ColisScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(

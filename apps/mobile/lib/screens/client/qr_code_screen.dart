@@ -389,6 +389,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) => Container(
         decoration: BoxDecoration(color: Theme.of(context).cardColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
