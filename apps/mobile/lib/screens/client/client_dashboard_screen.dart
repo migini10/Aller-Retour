@@ -1592,9 +1592,9 @@ void _showReservationBottomSheet(BuildContext context) {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        customIcon ?? Icon(icon, color: isSelected ? color : Colors.white70, size: 20),
+                        customIcon ?? Icon(icon, color: isSelected ? color : (isDark ? Colors.white70 : Colors.black54), size: 20),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(name, style: TextStyle(color: isSelected ? color : Colors.white70, fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal), overflow: TextOverflow.ellipsis)),
+                        Flexible(child: Text(name, style: TextStyle(color: isSelected ? color : (isDark ? Colors.white70 : Colors.black54), fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal), overflow: TextOverflow.ellipsis)),
                       ],
                     ),
                   ),
@@ -1619,8 +1619,9 @@ void _showReservationBottomSheet(BuildContext context) {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Billet ${selectedTrip?['company'] ?? ''}', style: TextStyle(color: textMutedColor)),
-                            Text('${basePrice * passagersCount} FCFA', style: TextStyle(color: textColor)),
+                            Expanded(child: Text('Billet ${selectedTrip?['company'] ?? 'Allo Dakar'}', style: TextStyle(color: textMutedColor), overflow: TextOverflow.ellipsis)),
+                            const SizedBox(width: 8),
+                            Text('$total FCFA', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -2167,6 +2168,20 @@ void _showReservationBottomSheet(BuildContext context) {
                           ),
                         ),
                       ),
+                      if (isSearching && errorMessage.contains('Veuillez valider le paiement')) ...[
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () {
+                            // Simulation manuelle
+                            setState(() {
+                              isSearching = false;
+                              errorMessage = '';
+                              step = 5;
+                            });
+                          },
+                          child: const Text('Simuler le paiement (Test)', style: TextStyle(color: Colors.blueAccent)),
+                        )
+                      ],
                       if (errorMessage.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 16.0),
