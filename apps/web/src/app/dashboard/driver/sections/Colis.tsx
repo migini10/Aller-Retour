@@ -106,13 +106,22 @@ export default function SectionColis() {
           </button>
         );
       case 'En transit':
+        const dest = c.trajet ? c.trajet.split(/[-→]/).pop().trim() : 'Destination';
         return (
-          <button 
-            onClick={() => handleActionClick(c.id, 'Livré')}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
-          >
-            <MapPin className="w-4 h-4 shrink-0" /> Livrer au destinataire
-          </button>
+          <div className="flex flex-col gap-2 w-full">
+            <button 
+              onClick={() => window.location.hash = 'localisation'}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
+            >
+              <MapPin className="w-4 h-4 shrink-0" /> En route vers {dest}
+            </button>
+            <button 
+              onClick={() => handleActionClick(c.id, 'Livré')}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> Livrer au destinataire
+            </button>
+          </div>
         );
       case 'Livré':
         return (
@@ -151,7 +160,13 @@ export default function SectionColis() {
             <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>
           </div>
         ) : (
-          colis.map((c, idx) => {
+          (() => {
+            let displayColis = colis.filter((c: any) => c.statut !== 'Livré');
+            if (displayColis.length === 0 && colis.length > 0) {
+              displayColis = [colis[colis.length - 1]];
+            }
+            return displayColis;
+          })().map((c: any, idx: number) => {
             const isAccepted = c.statut === 'Accepté';
             const isTransit = c.statut === 'En transit';
             const isDelivered = c.statut === 'Livré';

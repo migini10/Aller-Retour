@@ -185,7 +185,13 @@ export default function ColisPage() {
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Colis Récents</h2>
           
           <div className="space-y-4">
-            {localColis.map((colis, idx) => {
+            {(() => {
+              let displayColis = localColis.filter(c => c.statut !== 'Livré');
+              if (displayColis.length === 0 && localColis.length > 0) {
+                displayColis = [localColis[0]];
+              }
+              return displayColis;
+            })().map((colis, idx) => {
                 const isAccepted = colis.statut === 'Accepté';
                 const isTransit = colis.statut === 'En transit';
                 const isDelivered = colis.statut === 'Livré';
