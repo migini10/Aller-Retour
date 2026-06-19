@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
 
 class DriverColisScreen extends StatefulWidget {
   const DriverColisScreen({super.key});
@@ -323,19 +324,47 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
         ),
       );
     } else if (statut == 'En transit') {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: () => _showPinModal(id, 'Livré'),
-          icon: const Icon(Icons.location_on, size: 18),
-          label: const Text('Livrer au destinataire'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.greenAccent.shade700,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      String trajet = colis['trajet'] ?? '';
+      String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
+      List<String> parts = trajet.split(separator);
+      String destinationCity = parts.length > 1 ? parts[1].trim() : 'Destination';
+
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: colis),
+                ));
+              },
+              icon: const Icon(Icons.map, size: 18),
+              label: Text('En route vers $destinationCity'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEA580C),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _showPinModal(id, 'Livré'),
+              icon: const Icon(Icons.check_circle, size: 18),
+              label: const Text('Livrer au destinataire'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent.shade700,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
       );
     } else if (statut == 'Livré') {
       return Container(
