@@ -15,7 +15,16 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+
+// Auto-fix for production (Render/Vercel) to bypass Supabase PgBouncer issues with Prisma
+if (connectionString) {
+  connectionString = connectionString
+    .replace(':6543', ':5432')
+    .replace('?pgbouncer=true', '')
+    .replace('&pgbouncer=true', '');
+}
+
 console.log("DB INIT - process.env.DATABASE_URL is:", process.env.DATABASE_URL);
 console.log("DB INIT - connectionString is:", connectionString);
 
