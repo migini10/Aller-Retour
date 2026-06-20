@@ -959,7 +959,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             child: _buildPromoCard(
               context,
               'Parrainez un proche',
-              'Gagnez 2000 FCFA sur votre prochain trajet',
+              'Gagnez 1000 FCFA sur votre prochain trajet',
               const Color(0xFFF97316),
               Icons.card_giftcard,
             ),

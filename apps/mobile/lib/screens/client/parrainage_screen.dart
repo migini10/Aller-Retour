@@ -89,7 +89,7 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
 
   void _handleShare() {
     Share.share(
-      'Inscris-toi sur Allogoo avec mon code $_referralCode et gagne 2000 FCFA sur ton premier trajet !\nhttps://allogoo.com',
+      'Inscris-toi sur Allogoo avec mon code $_referralCode et gagne 1000 FCFA sur ton premier trajet !\nhttps://allogoo.com',
       subject: 'Rejoins Allogoo',
     );
   }
@@ -159,9 +159,9 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
                         style: TextStyle(fontSize: 16, color: Colors.white, height: 1.5),
                         children: [
                           TextSpan(text: 'Offrez '),
-                          TextSpan(text: '2000 FCFA', style: TextStyle(fontWeight: FontWeight.w900)),
+                          TextSpan(text: '1000 FCFA', style: TextStyle(fontWeight: FontWeight.w900)),
                           TextSpan(text: ' à vos amis et gagnez '),
-                          TextSpan(text: '2000 FCFA', style: TextStyle(fontWeight: FontWeight.w900)),
+                          TextSpan(text: '1000 FCFA', style: TextStyle(fontWeight: FontWeight.w900)),
                           TextSpan(text: ' à leur premier trajet complété.'),
                         ],
                       ),
@@ -296,7 +296,7 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
                 icon: Icons.monetization_on,
                 iconColor: Colors.orange,
                 title: '3. Récompense',
-                description: 'Recevez 2000 FCFA dès leur premier trajet terminé !',
+                description: 'Recevez 1000 FCFA dès leur premier trajet terminé !',
                 isDark: isDark,
               ),
             ],
