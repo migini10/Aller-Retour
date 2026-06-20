@@ -101,7 +101,12 @@ export class BookingsService {
       }
 
       const qrCodeToken = crypto.createHash('sha256').update(`${tripId}-${assignedSeat}-${userId}-${Date.now()}`).digest('hex');
-      const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY') ? 'PENDING_PAYMENT' : 'CONFIRMED';
+      
+      // CASH et WALLET = confirmé immédiatement (place déduite instantanément)
+      // WAVE / ORANGE_MONEY / FREE_MONEY / MTN_MOMO = en attente du webhook de paiement
+      const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY' || paymentMethod === 'FREE_MONEY' || paymentMethod === 'MTN_MOMO') 
+        ? 'PENDING_PAYMENT' 
+        : 'CONFIRMED';
 
       const booking = await tx.booking.create({
         data: {

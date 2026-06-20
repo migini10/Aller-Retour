@@ -1676,10 +1676,10 @@ void _showReservationBottomSheet(BuildContext context) {
                     crossAxisSpacing: 12,
                     childAspectRatio: 2.5,
                     children: [
+                      buildPaymentMethodOption('CASH', 'Payer à l\'arrivée', Icons.payments_outlined, const Color(0xFF059669)),
                       buildPaymentMethodOption('wave', 'Wave', Icons.phone_android, const Color(0xFF2563EB)),
                       buildPaymentMethodOption('om', 'Orange Money', Icons.phone_android, const Color(0xFFF97316), customIcon: const OrangeMoneyLogo(size: 20)),
                       buildPaymentMethodOption('wallet', 'Wallet', Icons.account_balance_wallet, const Color(0xFF9CA3AF)),
-                      buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
                     ],
                   ),
                   if (isQueued) ...[
@@ -2189,7 +2189,7 @@ void _showReservationBottomSheet(BuildContext context) {
                                         body: jsonEncode({
                                           'tripId': selectedTrip!['id'],
                                           'seatNumber': 1,
-                                          'paymentMethod': paymentMethod == 'Orange Money' ? 'ORANGE_MONEY' : (paymentMethod == 'AllerRetour Wallet' ? 'WALLET' : paymentMethod!.toUpperCase())
+                                          'paymentMethod': paymentMethod == 'om' ? 'ORANGE_MONEY' : (paymentMethod == 'wallet' ? 'WALLET' : paymentMethod!.toUpperCase())
                                         })
                                       );
                                       if (response.statusCode == 201 || response.statusCode == 200) {

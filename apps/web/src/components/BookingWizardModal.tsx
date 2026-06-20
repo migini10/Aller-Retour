@@ -373,7 +373,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   const totalSteps = isAlloDakar ? 5 : 6;
 
-  const nextStep = () => {
+  const nextStep = (overrideMethod?: string | React.MouseEvent) => {
+    const finalMethod = typeof overrideMethod === 'string' ? overrideMethod : paymentMethod;
     if (step === 1) {
       if (searchParams.arrivee && searchParams.quartierArrivee) {
         saveCustomQuartier(searchParams.arrivee, searchParams.quartierArrivee.trim());
@@ -391,6 +392,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       }
 
       const attemptBooking = async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 seconds timeout
+
         try {
           if (!isQueued) setIsSearching(true); 
           const token = localStorage.getItem('ar_auth_token');
@@ -407,14 +411,23 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               body: JSON.stringify({
                 tripId: selectedTrip.id,
                 seatNumber: 1, 
-                paymentMethod: paymentMethod === 'om' ? 'ORANGE_MONEY' : (paymentMethod.toUpperCase() || 'WAVE')
-              })
+                paymentMethod: finalMethod === 'om' ? 'ORANGE_MONEY' : (finalMethod.toUpperCase() || 'WAVE')
+              }),
+              signal: controller.signal
             });
+            clearTimeout(timeoutId);
+
             if (res.ok) {
               apiData = await res.json();
               setIsQueued(false);
             } else {
-              const errorData = await res.json();
+              let errorData: any = {};
+              try {
+                errorData = await res.json();
+              } catch (e) {
+                errorData = { message: 'Erreur serveur.' };
+              }
+
               if (errorData.code === 'QUEUE_WAIT') {
                 setIsQueued(true);
                 setQueueMessage(errorData.message);
@@ -434,6 +447,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           } else {
              console.warn("User is not logged in. Generating a demo ticket.");
              apiData = { booking: { status: 'CONFIRMED' } }; 
+             clearTimeout(timeoutId);
           }
 
           // Si le paiement est en attente (Wave ou OM)
@@ -445,7 +459,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                setGlobalSuccess(`Paiement ${apiData.paymentSession.provider} initié. Veuillez consulter votre téléphone pour valider le Push USSD (Simulation 5s)...`);
                await new Promise(resolve => setTimeout(resolve, 5000));
                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-               await fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`);
+               await fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`).catch(() => {});
                setGlobalSuccess('');
              } else {
                // Tablette / PC : On ne bloque pas avec le Push USSD automatique de 5s,
@@ -468,10 +482,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           
           setGeneratedTicket(newTicket);
           setIsSearching(false);
-          setStep(step + 1);
-        } catch (error) {
+          setStep(prev => prev + 1);
+        } catch (error: any) {
+          clearTimeout(timeoutId);
           console.error('Erreur lors de la réservation:', error);
-          setGlobalError('Erreur de connexion.');
+          if (error.name === 'AbortError') {
+             setGlobalError('Le serveur met trop de temps à répondre (Timeout).');
+          } else {
+             setGlobalError('Erreur de connexion. Veuillez réessayer.');
+          }
           setIsSearching(false);
         }
       };
@@ -940,20 +959,25 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 px-1 mb-3">Moyen de paiement</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { id: 'wave', name: 'Wave', color: 'bg-blue-600 text-white border-blue-500', icon: Smartphone },
-              { id: 'om', name: 'Orange Money', color: 'bg-orange-500 text-white border-orange-400', customIcon: OrangeMoneyLogo },
-              { id: 'wallet', name: 'AllerRetour Wallet', color: 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white border-slate-300 dark:border-[#333333]', icon: Wallet },
-              { id: 'card', name: 'Carte Bancaire', color: 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white border-slate-300 dark:border-[#333333]', icon: CreditCard },
-              ...(isAlloDakar ? [{ id: 'cash', name: 'Espèces à l\'arrivée', color: 'bg-emerald-600 text-white border-emerald-500', icon: Banknote }] : [])
+              { id: 'cash', name: 'Payer à l\'arrivée', subLabel: '✅ Place confirmée', color: 'bg-emerald-600 text-white border-emerald-500', icon: Banknote },
+              { id: 'wave', name: 'Wave', subLabel: '⏳ Validation mobile', color: 'bg-blue-600 text-white border-blue-500', icon: Smartphone },
+              { id: 'om', name: 'Orange Money', subLabel: '⏳ Validation mobile', color: 'bg-orange-500 text-white border-orange-400', customIcon: OrangeMoneyLogo },
+              { id: 'wallet', name: 'AllerRetour Wallet', subLabel: '', color: 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white border-slate-300 dark:border-[#333333]', icon: Wallet },
             ].map(method => (
               <button
                 key={method.id}
-                onClick={() => setPaymentMethod(method.id)}
+                onClick={() => {
+                  setPaymentMethod(method.id);
+                  if (method.id === 'cash') {
+                    nextStep('cash');
+                  }
+                }}
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
                   ${paymentMethod === method.id ? method.color + ' ring-2 ring-orange-500/50 dark:ring-white/20' : 'bg-white dark:bg-[#1A1A1A] border-slate-200 dark:border-[#2A2A2A] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-[#333333]'}`}
               >
                 {method.customIcon ? <method.customIcon className="w-6 h-6" /> : (method.icon && <method.icon className="w-6 h-6" />)}
                 <span className="text-xs font-bold">{method.name}</span>
+                {method.subLabel && <span className="text-[10px] opacity-80 -mt-1">{method.subLabel}</span>}
               </button>
             ))}
           </div>

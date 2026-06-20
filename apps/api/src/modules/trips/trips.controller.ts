@@ -121,9 +121,13 @@ export class TripsController {
     if (date) {
       const startOfDay = new Date(date);
       if (!isNaN(startOfDay.getTime())) {
+        // Start at 00:00 UTC on the selected date
         startOfDay.setUTCHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setUTCHours(23, 59, 59, 999);
+        // End at 11:59:59 UTC the next day (36-hour window) to cover all timezone offsets
+        // A trip at 00:34 UTC on the next calendar day is still "tonight" in West Africa (UTC+0)
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setDate(endOfDay.getDate() + 1);
+        endOfDay.setUTCHours(11, 59, 59, 999);
         whereClause.departureTime = { gte: startOfDay, lte: endOfDay };
       }
     }
