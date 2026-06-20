@@ -21,16 +21,14 @@ export class BookingsService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Utilisateur introuvable.");
 
-    // Using an interactive transaction with NOWAIT lock for strict queueing
+    // Utilisation d'une transaction interactive avec un update natif Prisma pour un verrouillage de ligne fluide
     return await prisma.$transaction(async (tx) => {
-      try {
-        await tx.$executeRaw`SELECT id FROM "trips" WHERE id = ${tripId}::uuid FOR UPDATE NOWAIT`;
-      } catch (error) {
-        throw new HttpException(
-          { code: 'QUEUE_WAIT', message: "Un autre client réserve une place devant vous. Veuillez patienter..." },
-          HttpStatus.CONFLICT
-        );
-      }
+      // Lock the row natively using Prisma's update (this blocks until any concurrent transaction finishes)
+      await tx.trip.update({
+        where: { id: tripId },
+        data: { updatedAt: new Date() }
+      });
+
 
       const trip = await tx.trip.findUnique({
         where: { id: tripId },

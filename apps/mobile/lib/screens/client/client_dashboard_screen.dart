@@ -2236,9 +2236,8 @@ void _showReservationBottomSheet(BuildContext context) {
                                         }
                                         
                                         setState(() { errorMessage = ''; });
-                                      }
-                                      setState(() { isSearching = false; step = 5; });
-                                    } else {
+                                        setState(() { isSearching = false; step = 5; });
+                                      } else {
                                       final err = jsonDecode(response.body);
                                       if (err['code'] == 'QUEUE_WAIT') {
                                         setState(() {
@@ -2283,8 +2282,9 @@ void _showReservationBottomSheet(BuildContext context) {
                           ),
                         ),
                       ),
-                      if (isSearching && errorMessage.contains('Veuillez valider le paiement')) ...[
+                      if (isSearching && errorMessage.contains('Veuillez valider le paiement'))
                         const SizedBox(height: 12),
+                      if (isSearching && errorMessage.contains('Veuillez valider le paiement'))
                         TextButton(
                           onPressed: () {
                             // Simulation manuelle
@@ -2295,8 +2295,7 @@ void _showReservationBottomSheet(BuildContext context) {
                             });
                           },
                           child: const Text('Simuler le paiement (Test)', style: TextStyle(color: Colors.blueAccent)),
-                        )
-                      ],
+                        ),
                       if (errorMessage.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 16.0),
