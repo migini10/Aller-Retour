@@ -2189,7 +2189,7 @@ void _showReservationBottomSheet(BuildContext context) {
                                         body: jsonEncode({
                                           'tripId': selectedTrip!['id'],
                                           'seatNumber': 1,
-                                          'paymentMethod': paymentMethod!.toUpperCase()
+                                          'paymentMethod': paymentMethod == 'Orange Money' ? 'ORANGE_MONEY' : (paymentMethod == 'AllerRetour Wallet' ? 'WALLET' : paymentMethod!.toUpperCase())
                                         })
                                       );
                                       if (response.statusCode == 201 || response.statusCode == 200) {

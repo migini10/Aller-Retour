@@ -23,11 +23,12 @@ export class BookingsService {
 
     // Utilisation d'une transaction interactive avec un update natif Prisma pour un verrouillage de ligne fluide
     return await prisma.$transaction(async (tx) => {
-      // Lock the row natively using Prisma's update (this blocks until any concurrent transaction finishes)
-      await tx.trip.update({
-        where: { id: tripId },
-        data: { updatedAt: new Date() }
-      });
+      try {
+        await tx.$executeRawUnsafe(`SELECT id FROM "trips" WHERE id = '${tripId}' FOR UPDATE`);
+      } catch (error) {
+        console.error("Erreur lors du verrouillage SQL :", error);
+        throw new HttpException("Erreur interne lors du verrouillage", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
 
 
       const trip = await tx.trip.findUnique({
