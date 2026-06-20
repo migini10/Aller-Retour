@@ -238,7 +238,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('Réf: $ref', style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                Text('Réf: $ticketNo', style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
               ],
             ),
           ),
