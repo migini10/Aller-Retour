@@ -49,7 +49,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   }, []);
 
   const [showDevMenu, setShowDevMenu] = React.useState(false);
-  const isClientPage = pathname.startsWith('/dashboard/client');
+  const isClientPage = pathname.startsWith('/dashboard/client') || pathname.startsWith('/dashboard/parrainage');
 
   const isDriverPage = pathname.startsWith('/dashboard/driver');
 
