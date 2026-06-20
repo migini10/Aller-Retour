@@ -6,7 +6,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "start": "nest start",
-    "start:prod": "npx prisma db push --schema=../../packages/database/prisma/schema.prisma --accept-data-loss && node dist/src/main"
+    "start:prod": "cd ../../packages/database && npx prisma db push --accept-data-loss && cd ../../apps/api && node dist/src/main"
   },
   "dependencies": {
     "@aller-retour/database": "*",
