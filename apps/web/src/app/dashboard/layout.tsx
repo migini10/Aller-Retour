@@ -89,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandingProvider>
-      <div className="min-h-[100dvh] bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300 w-full">
+      <div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-300 w-full">
       {/* Topbar Fixe (Mobile & Desktop) avec Effet de Disparition */}
       <div className="fixed top-0 left-0 right-0 z-50 h-16 pointer-events-none">
         
@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      <div className="flex flex-1 relative">
+      <div className="w-full relative">
         {/* Overlay sombre sur mobile quand la sidebar est ouverte */}
         {sidebarOpen && (
           <div
@@ -165,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Contenu principal: scrolle naturellement avec la fenêtre */}
         <main 
-          className={`pt-16 flex-1 min-w-0 flex flex-col min-h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
+          className={`pt-16 min-h-screen relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
         >
           {children}
         </main>

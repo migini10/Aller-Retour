@@ -23,7 +23,7 @@ export default function AlloDakarApp() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-200 font-sans flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#0B0F19] text-slate-200 font-sans md:flex md:flex-row">
       
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-[#101728] border-r border-slate-800/80 p-4 shrink-0">
