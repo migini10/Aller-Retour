@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: 'Réservez votre trajet inter-urbain au Sénégal et en Afrique avec horaires garantis, QR Code et paiement Wave/Orange Money.',
 };
 
+import { Analytics } from '@vercel/analytics/next';
+
 export default function RootLayout({
   children,
 }: {
@@ -21,6 +23,7 @@ export default function RootLayout({
           <AuthProvider>
             <ModalProvider>
               {children}
+              <Analytics />
             </ModalProvider>
           </AuthProvider>
         </ThemeProvider>
