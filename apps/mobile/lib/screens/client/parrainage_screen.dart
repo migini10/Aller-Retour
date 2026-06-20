@@ -44,22 +44,33 @@ class _ParrainageScreenState extends State<ParrainageScreen> {
 
   Future<void> _loadOrGenerateCode() async {
     final prefs = await SharedPreferences.getInstance();
-    String? code = prefs.getString('aller_retour_referral_code');
+    String? phone = prefs.getString('userPhone');
 
-    if (code == null) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      Random rnd = Random();
-      String newCode = 'AR-';
-      for (int i = 0; i < 6; i++) {
-        newCode += chars[rnd.nextInt(chars.length)];
+    if (phone != null && phone.isNotEmpty) {
+      int hash = 0;
+      for (int i = 0; i < phone.length; i++) {
+        int char = phone.codeUnitAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash.toSigned(32);
       }
-      await prefs.setString('aller_retour_referral_code', newCode);
-      code = newCode;
+      
+      String baseStr = hash.abs().toRadixString(36).toUpperCase();
+      String mix = ((phone.codeUnitAt(phone.length - 1) * 7) % 36).toRadixString(36).toUpperCase();
+      
+      String codeStr = mix + baseStr;
+      if (codeStr.length > 6) {
+        codeStr = codeStr.substring(0, 6);
+      }
+      codeStr = codeStr.padLeft(6, 'X');
+      
+      setState(() {
+        _referralCode = 'AR-$codeStr';
+      });
+    } else {
+      setState(() {
+        _referralCode = 'AR-GUEST';
+      });
     }
-
-    setState(() {
-      _referralCode = code!;
-    });
   }
 
   void _handleCopy() {
