@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "cd ../../packages/database && npx prisma db push --accept-data-loss && cd ../../apps/api && nest build",
+    "build": "nest build",
     "dev": "nest start --watch",
     "start": "nest start",
     "start:prod": "node dist/src/main"
