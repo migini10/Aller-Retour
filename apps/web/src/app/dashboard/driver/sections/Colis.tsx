@@ -11,6 +11,9 @@ export default function SectionColis() {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pinCode, setPinCode] = useState('');
   const [pinError, setPinError] = useState('');
+  
+  const [trackingColisDest, setTrackingColisDest] = useState<string | null>(null);
+
   const [selectedColisForAction, setSelectedColisForAction] = useState<string | null>(null);
   const [nextStatutForAction, setNextStatutForAction] = useState<string | null>(null);
 
@@ -110,7 +113,7 @@ export default function SectionColis() {
         return (
           <div className="flex flex-col gap-2 w-full">
             <button 
-              onClick={() => window.location.hash = 'localisation'}
+              onClick={() => setTrackingColisDest(dest)}
               className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
             >
               <MapPin className="w-4 h-4 shrink-0" /> En route vers {dest}
@@ -313,6 +316,53 @@ export default function SectionColis() {
           </div>
         </div>
       )}
+
+      {trackingColisDest && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#141414] animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex-none p-4 sm:p-6 border-b border-slate-200 dark:border-[#2A2A2A] flex justify-between items-center bg-white/80 dark:bg-[#141414]/80 backdrop-blur z-20">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Livraison de colis en cours</h2>
+              <p className="text-sm font-mono text-slate-500 mt-1">Colis Express</p>
+            </div>
+            <button onClick={() => setTrackingColisDest(null)} className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 font-bold rounded-xl transition-colors text-sm">
+              Terminer la navigation
+            </button>
+          </div>
+          
+          <div className="flex-1 relative">
+            <div className="absolute inset-0 bg-slate-100 dark:bg-[#1A1A1A]">
+              <iframe 
+                src={`https://maps.google.com/maps?saddr=Dakar,+Senegal&daddr=${encodeURIComponent(trackingColisDest + ', Senegal')}&output=embed`}
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={false} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 z-0 opacity-100"
+              ></iframe>
+            </div>
+            <div className="absolute top-0 left-0 right-0 h-24 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
+            <div className="absolute bottom-0 left-0 right-0 h-16 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
+            <div className="absolute inset-0 bg-[#0a1520]/10 pointer-events-none z-10" />
+
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-20">
+              <div className="bg-white/90 dark:bg-[#1A1A1A]/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/50 dark:border-[#333333]/50 shadow-2xl animate-bounce-slow">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center shrink-0 border border-blue-500/20">
+                    <Navigation className="text-blue-500 w-6 h-6 fill-current" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-0.5">En route vers</p>
+                    <h3 className="text-slate-900 dark:text-white font-bold text-base">{trackingColisDest}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -49,9 +49,12 @@ export default function ClientDashboard() {
   const carouselRef = useRef<HTMLDivElement>(null);
   
   const [currentCity, setCurrentCity] = useState<string | null>(null);
+  const [showLiveStatusModal, setShowLiveStatusModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
 
   useEffect(() => {
+    setMounted(true);
     // 1. Get location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -198,18 +201,20 @@ export default function ClientDashboard() {
 
         {/* Statut en Direct */}
         <div className="pt-4">
-          <div className="bg-gradient-to-br from-green-50 to-white dark:from-[#1E293B] dark:to-[#0F172A] border border-green-200 dark:border-green-500/30 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <button onClick={() => setShowLiveStatusModal(true)} className="w-full text-left bg-gradient-to-br from-green-50 to-white dark:from-[#1E293B] dark:to-[#0F172A] border border-green-200 dark:border-green-500/30 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex items-center gap-4 hover:scale-[1.01] transition-transform cursor-pointer">
+            <div className="flex items-center gap-4 w-full">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis en transit</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
+              </div>
+              <div className="w-8 h-8 rounded-full border border-green-500/50 bg-white dark:bg-[#0F172A] flex items-center justify-center shrink-0">
+                <ArrowRight className="text-green-500 w-4 h-4" />
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis en transit</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
-            </div>
-            <div className="w-8 h-8 rounded-full border border-green-500/50 bg-white dark:bg-[#0F172A] flex items-center justify-center shrink-0">
-              <ArrowRight className="text-green-500 w-4 h-4" />
-            </div>
-          </div>
+          </button>
         </div>
 
         {/* Dashboard Grid */}
@@ -389,6 +394,54 @@ export default function ClientDashboard() {
         </footer>
 
       </div>
+
+      {showLiveStatusModal && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#141414] animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex-none p-4 sm:p-6 border-b border-slate-200 dark:border-[#2A2A2A] flex justify-between items-center bg-white/80 dark:bg-[#141414]/80 backdrop-blur z-20">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Suivi en direct</h2>
+              <p className="text-sm font-mono text-slate-500 mt-1">Colis Express</p>
+            </div>
+            <button onClick={() => setShowLiveStatusModal(false)} className="p-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#222222] dark:hover:bg-[#2A2A2A] rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600 dark:text-slate-300"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          
+          <div className="flex-1 relative">
+            <div className="absolute inset-0 bg-slate-100 dark:bg-[#1A1A1A]">
+              <iframe 
+                src="https://maps.google.com/maps?saddr=Dakar,+Senegal&daddr=Touba,+Senegal&output=embed"
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={false} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 z-0 opacity-90 grayscale-[0.2]"
+              ></iframe>
+            </div>
+            <div className="absolute top-0 left-0 right-0 h-24 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
+            <div className="absolute bottom-0 left-0 right-0 h-16 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
+            <div className="absolute inset-0 bg-[#0a1520]/10 pointer-events-none z-10" />
+
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-20">
+              <div className="bg-white/90 dark:bg-[#1A1A1A]/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/50 dark:border-[#333333]/50 shadow-2xl animate-bounce-slow">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center shrink-0 border border-orange-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500 w-6 h-6"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-orange-500 font-bold uppercase tracking-wider mb-0.5">Livraison en cours</p>
+                    <h3 className="text-slate-900 dark:text-white font-bold text-base">Ousmane Diop</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Arrivée estimée : 14h30</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
