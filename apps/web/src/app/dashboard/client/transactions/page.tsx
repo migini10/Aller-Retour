@@ -80,7 +80,7 @@ export default function TransactionsHistoryPage() {
   };
 
   return (
-    <div className="h-full min-w-0 overflow-y-auto overscroll-contain scrollbar-hide flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
+    <div className="flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1000px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">
         
         {/* Header */}
