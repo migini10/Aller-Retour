@@ -156,7 +156,7 @@ export class TripsController {
     });
 
     // Calcul des places disponibles
-    const formattedTrips = trips.map(trip => {
+    const formattedTrips = trips.map((trip: any) => {
       const bookedSeats = trip.bookings.length;
       const totalPassengers = trip.initialPassengers + bookedSeats;
       return {
@@ -186,7 +186,7 @@ export class TripsController {
     return {
       tripId,
       totalPassengers: bookings.length,
-      tickets: bookings.map(b => ({
+      tickets: bookings.map((b: any) => ({
         id: b.id,
         seatNumber: b.seatNumber,
         passengerName: b.user.fullName,

@@ -21,8 +21,7 @@ export class BookingsService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Utilisateur introuvable.");
 
-    // Utilisation d'une transaction interactive avec un update natif Prisma pour un verrouillage de ligne fluide
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx: any) => {
       try {
         await tx.$executeRawUnsafe(`SELECT id FROM "trips" WHERE id = '${tripId}' FOR UPDATE`);
       } catch (error) {
@@ -50,7 +49,7 @@ export class BookingsService {
         select: { seatNumber: true },
       });
       
-      const takenSeats = new Set(allBookings.map(b => b.seatNumber));
+      const takenSeats = new Set(allBookings.map((b: any) => b.seatNumber));
       
       let assignedSeat = seatNumber;
       if (assignedSeat < 1 || assignedSeat > trip.vehicle.capacity || takenSeats.has(assignedSeat)) {
@@ -74,7 +73,7 @@ export class BookingsService {
           take: 3
         });
 
-        const formattedAlternatives = await Promise.all(alternatives.map(async (alt) => {
+        const formattedAlternatives = await Promise.all(alternatives.map(async (alt: any) => {
           const altBookings = await tx.booking.count({
             where: {
               tripId: alt.id,
@@ -92,7 +91,7 @@ export class BookingsService {
           };
         }));
 
-        const availableAlternatives = formattedAlternatives.filter(a => a.availableSeats > 0);
+        const availableAlternatives = formattedAlternatives.filter((a: any) => a.availableSeats > 0);
 
         throw new HttpException({
           code: 'TRIP_FULL_ALTERNATIVES',

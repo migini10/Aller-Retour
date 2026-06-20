@@ -54,7 +54,7 @@ export class PaymentSettlementEngine {
     }
 
     // 3. Exécution de la transaction de répartition atomique
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // Débit du compte Escrow
       await tx.wallet.update({ where: { id: escrowWallet.id }, data: { balance: { decrement: grossAmount } } });
 
