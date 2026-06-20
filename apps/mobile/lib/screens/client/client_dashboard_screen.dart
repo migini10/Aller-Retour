@@ -195,10 +195,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // slate-950
-      endDrawer: const AppDrawer(isDriverMode: false),
-      body: Center(
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor, // slate-950
+      child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 550),
           child: Stack(
@@ -329,17 +328,13 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           if (!isDark) BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 3)),
         ],
       ),
-      child: Builder(
-        builder: (innerContext) {
-          return IconButton(
-            icon: Icon(Icons.menu, color: isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316), size: 20),
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(),
-            onPressed: () {
-              Scaffold.of(innerContext).openEndDrawer();
-            },
-          );
-        }
+      child: IconButton(
+        icon: Icon(Icons.menu, color: isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316), size: 20),
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(),
+        onPressed: () {
+          Scaffold.of(context).openEndDrawer();
+        },
       ),
     );
   }
@@ -1215,6 +1210,9 @@ void _showReservationBottomSheet(BuildContext context) {
     String telephone = _userPhone;
     String email = 'abdou@example.com';
     int bagages = 0;
+    bool isQueued = false;
+    String queueMessage = '';
+    List<dynamic> alternativeTrips = [];
 
     final departController = TextEditingController();
     final pickupController = TextEditingController();
@@ -1684,6 +1682,83 @@ void _showReservationBottomSheet(BuildContext context) {
                       buildPaymentMethodOption('card', 'Carte', Icons.credit_card, const Color(0xFF9CA3AF)),
                     ],
                   ),
+                  if (isQueued) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF97316).withValues(alpha: 0.1),
+                        border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.2)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          const Center(child: CircularProgressIndicator(color: Color(0xFFF97316))),
+                          const SizedBox(height: 12),
+                          const Center(child: Text('File d\'attente', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 16))),
+                          const SizedBox(height: 4),
+                          Text(queueMessage.isNotEmpty ? queueMessage : "Un autre client réserve une place devant vous. Veuillez patienter...", textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFFF97316), fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (alternativeTrips.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.red),
+                              const SizedBox(width: 8),
+                              const Text('Véhicule complet !', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text("La voiture que vous avez choisie vient d'être remplie. Voici d'autres trajets disponibles :", style: TextStyle(color: Colors.red, fontSize: 12)),
+                          const SizedBox(height: 12),
+                          ...alternativeTrips.map((alt) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTrip = alt;
+                                alternativeTrips = [];
+                                errorMessage = '';
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                border: Border.all(color: Theme.of(context).dividerColor),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('${DateTime.parse(alt['departureTime']).toLocal().toString().substring(11, 16)} - ${alt['companyName'] ?? 'Allo Dakar'}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text('${alt['availableSeats']} place(s) dispo', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                    ],
+                                  ),
+                                  Text('${alt['pricePerSeat'] ?? alt['price'] ?? 5000} FCFA', style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          )).toList(),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               );
             }
@@ -2049,7 +2124,7 @@ void _showReservationBottomSheet(BuildContext context) {
                         child: SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: isSearching || (step == 3 && (nom.isEmpty || telephone.isEmpty)) ? null : () async {
+                            onPressed: isSearching || (step == 3 && (nom.isEmpty || telephone.isEmpty)) || (step == 4 && (isQueued || alternativeTrips.isNotEmpty)) ? null : () async {
                               if (step == 1) {
                                 setState(() => isSearching = true);
                                 try {
@@ -2098,64 +2173,66 @@ void _showReservationBottomSheet(BuildContext context) {
                                 }
                               } else if (step == 4) {
                                 if (paymentMethod != null) {
-                                  setState(() => isSearching = true);
-                                  try {
-                                    final prefs = await SharedPreferences.getInstance();
-                                    final token = prefs.getString('auth_token');
-                                    final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-                                    
-                                    final response = await http.post(
-                                      Uri.parse('$apiUrl/v1/bookings'),
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        if (token != null) 'Authorization': 'Bearer $token'
-                                      },
-                                      body: jsonEncode({
-                                        'tripId': selectedTrip!['id'],
-                                        'seatNumber': 1,
-                                        'paymentMethod': paymentMethod!.toUpperCase()
-                                      })
-                                    );
-                                    if (response.statusCode == 201 || response.statusCode == 200) {
-                                      final apiData = jsonDecode(response.body);
-                                      if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
-                                        setState(() {
-                                          errorMessage = 'Veuillez valider le paiement (Push USSD) sur votre téléphone...';
-                                        });
-
-                                        // Polling de la vérification de paiement (toutes les 3 secondes, max 1 minute)
-                                        bool isPaid = false;
-                                        int attempts = 0;
+                                  Future<void> attemptBooking() async {
+                                    if (!isQueued) setState(() => isSearching = true);
+                                    try {
+                                      final prefs = await SharedPreferences.getInstance();
+                                      final token = prefs.getString('auth_token');
+                                      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                      
+                                      final response = await http.post(
+                                        Uri.parse('$apiUrl/v1/bookings'),
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          if (token != null) 'Authorization': 'Bearer $token'
+                                        },
+                                        body: jsonEncode({
+                                          'tripId': selectedTrip!['id'],
+                                          'seatNumber': 1,
+                                          'paymentMethod': paymentMethod!.toUpperCase()
+                                        })
+                                      );
+                                      if (response.statusCode == 201 || response.statusCode == 200) {
+                                        final apiData = jsonDecode(response.body);
+                                        setState(() => isQueued = false);
                                         
-                                        // TODO: En production, supprimer cet appel simulé au webhook (qui sera appelé par Wave/OM)
-                                        if (apiData['paymentSession'] != null && apiData['paymentSession']['webhook_simulation_url'] != null) {
-                                          http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
-                                        }
+                                        if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
+                                          setState(() {
+                                            errorMessage = 'Veuillez valider le paiement (Push USSD) sur votre téléphone...';
+                                          });
 
-                                        while (attempts < 20 && !isPaid) {
-                                          await Future.delayed(const Duration(seconds: 3));
-                                          attempts++;
-                                          try {
-                                            if (apiData['paymentSession'] != null && apiData['paymentSession']['bookingId'] != null) {
-                                              final statusRes = await http.get(Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'));
-                                              if (statusRes.statusCode == 200) {
-                                                final statusData = jsonDecode(statusRes.body);
-                                                if (statusData['status'] == 'CONFIRMED') {
-                                                  isPaid = true;
-                                                }
-                                              }
-                                            } else {
-                                              // Fallback si pas de bookingId (legacy)
-                                              isPaid = true;
-                                            }
-                                          } catch (e) {
-                                            // Ignorer les erreurs réseau pendant le polling
+                                          // Polling de la vérification de paiement
+                                          bool isPaid = false;
+                                          int attempts = 0;
+                                          
+                                          if (apiData['paymentSession'] != null && apiData['paymentSession']['webhook_simulation_url'] != null) {
+                                            http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
                                           }
-                                        }
 
-                                        if (!isPaid) {
-                                          setState(() { isSearching = false; errorMessage = 'Délai d\'attente dépassé pour la confirmation du paiement.'; });
-                                          return; // Ne pas avancer à l'étape 5
+                                          while (attempts < 20 && !isPaid) {
+                                            await Future.delayed(const Duration(seconds: 3));
+                                            attempts++;
+                                            try {
+                                              if (apiData['paymentSession'] != null && apiData['paymentSession']['bookingId'] != null) {
+                                                final statusRes = await http.get(Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'));
+                                                if (statusRes.statusCode == 200) {
+                                                  final statusData = jsonDecode(statusRes.body);
+                                                  if (statusData['status'] == 'CONFIRMED') {
+                                                    isPaid = true;
+                                                  }
+                                                }
+                                              } else {
+                                                isPaid = true;
+                                              }
+                                            } catch (e) {
+                                              // Ignorer les erreurs réseau pendant le polling
+                                            }
+                                          }
+
+                                          if (!isPaid) {
+                                            setState(() { isSearching = false; errorMessage = 'Délai d\'attente dépassé pour la confirmation du paiement.'; });
+                                            return;
+                                          }
                                         }
                                         
                                         setState(() { errorMessage = ''; });
@@ -2163,20 +2240,37 @@ void _showReservationBottomSheet(BuildContext context) {
                                       setState(() { isSearching = false; step = 5; });
                                     } else {
                                       final err = jsonDecode(response.body);
-                                      setState(() { isSearching = false; errorMessage = err['message'] ?? 'Erreur de réservation'; });
+                                      if (err['code'] == 'QUEUE_WAIT') {
+                                        setState(() {
+                                          isQueued = true;
+                                          queueMessage = err['message'] ?? 'File d\'attente...';
+                                        });
+                                        await Future.delayed(const Duration(seconds: 2));
+                                        await attemptBooking();
+                                      } else if (err['code'] == 'TRIP_FULL_ALTERNATIVES') {
+                                        setState(() {
+                                          isSearching = false;
+                                          errorMessage = '';
+                                          alternativeTrips = err['alternatives'] ?? [];
+                                        });
+                                      } else {
+                                        setState(() { isSearching = false; errorMessage = err['message'] ?? 'Erreur de réservation'; });
+                                      }
                                     }
                                   } catch (e) {
                                     setState(() { isSearching = false; errorMessage = 'Erreur réseau: Impossible de contacter le serveur'; });
                                   }
-                                } else {
-                                  setState(() => errorMessage = 'Veuillez choisir un moyen de paiement');
                                 }
+                                attemptBooking();
+                              } else {
+                                setState(() => errorMessage = 'Veuillez choisir un moyen de paiement');
                               }
+                            }
                             },
                             icon: isSearching 
                               ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: isDark ? Colors.white54 : Colors.white, strokeWidth: 2)) 
                               : Icon(step == 4 ? Icons.payment : (step == 3 ? Icons.check_circle : Icons.search), color: textColor),
-                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : (isSearching ? 'Traitement en cours...' : 'Payer maintenant'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: isSearching ? (isDark ? Colors.white54 : Colors.white) : textColor)),
+                            label: Text(step == 1 ? (isSearching ? 'Recherche...' : 'Rechercher un trajet') : step == 3 ? 'Continuer' : (isQueued ? 'En attente...' : (isSearching ? 'Traitement en cours...' : 'Payer maintenant')), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: (isSearching || isQueued) ? (isDark ? Colors.white54 : Colors.white) : textColor)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF97316),
                               disabledBackgroundColor: isDark ? const Color(0xFF222222) : const Color(0xFFCBD5E1),

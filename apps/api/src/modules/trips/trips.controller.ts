@@ -128,6 +128,8 @@ export class TripsController {
       }
     }
 
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
     const trips = await prisma.trip.findMany({
       where: whereClause,
       include: {
@@ -141,8 +143,13 @@ export class TripsController {
         vehicle: { select: { plateNumber: true, type: true, capacity: true } },
         driver: { select: { user: { select: { phone: true, fullName: true } } } },
         bookings: { 
-          select: { id: true }, // Ne récupère que l'ID pour alléger la RAM au lieu de toutes les données
-          where: { status: { in: ['CONFIRMED', 'BOARDED'] } }
+          select: { id: true },
+          where: { 
+            OR: [
+              { status: { in: ['CONFIRMED', 'BOARDED'] } },
+              { status: 'PENDING_PAYMENT', createdAt: { gt: fiveMinutesAgo } }
+            ]
+          }
         },
       },
       orderBy: { departureTime: 'asc' },

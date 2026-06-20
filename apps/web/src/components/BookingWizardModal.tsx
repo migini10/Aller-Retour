@@ -57,6 +57,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [realTrips, setRealTrips] = useState<any[]>([]);
   const [paymentData, setPaymentData] = useState<any>(null);
   const [windowWidth, setWindowWidth] = useState(1024);
+  const [isQueued, setIsQueued] = useState(false);
+  const [queueMessage, setQueueMessage] = useState('');
+  const [alternativeTrips, setAlternativeTrips] = useState<any[]>([]);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -387,9 +390,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         formattedTrajet = `${searchParams.depart} (${pickupLocation}) → ${searchParams.arrivee} (${searchParams.quartierArrivee})`;
       }
 
-      (async () => {
+      const attemptBooking = async () => {
         try {
-          setIsSearching(true); // Utiliser setIsSearching comme loader
+          if (!isQueued) setIsSearching(true); 
           const token = localStorage.getItem('ar_auth_token');
           let apiData: any = {};
           
@@ -403,21 +406,34 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               },
               body: JSON.stringify({
                 tripId: selectedTrip.id,
-                seatNumber: 1, // par defaut 1
+                seatNumber: 1, 
                 paymentMethod: paymentMethod === 'om' ? 'ORANGE_MONEY' : (paymentMethod.toUpperCase() || 'WAVE')
               })
             });
             if (res.ok) {
               apiData = await res.json();
+              setIsQueued(false);
             } else {
               const errorData = await res.json();
-              setGlobalError(errorData.message || 'Erreur de réservation');
-              setIsSearching(false);
-              return;
+              if (errorData.code === 'QUEUE_WAIT') {
+                setIsQueued(true);
+                setQueueMessage(errorData.message);
+                setTimeout(attemptBooking, 2000);
+                return;
+              } else if (errorData.code === 'TRIP_FULL_ALTERNATIVES') {
+                setIsSearching(false);
+                setGlobalError('');
+                setAlternativeTrips(errorData.alternatives || []);
+                return;
+              } else {
+                setGlobalError(errorData.message || 'Erreur de réservation');
+                setIsSearching(false);
+                return;
+              }
             }
           } else {
              console.warn("User is not logged in. Generating a demo ticket.");
-             apiData = { booking: { status: 'CONFIRMED' } }; // Fallback pour démo non loggé
+             apiData = { booking: { status: 'CONFIRMED' } }; 
           }
 
           // Si le paiement est en attente (Wave ou OM)
@@ -452,13 +468,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           
           setGeneratedTicket(newTicket);
           setIsSearching(false);
-          setStep(s => Math.min(s + 1, totalSteps));
-        } catch (e) {
-          console.error('Erreur API', e);
+          setStep(step + 1);
+        } catch (error) {
+          console.error('Erreur lors de la réservation:', error);
+          setGlobalError('Erreur de connexion.');
           setIsSearching(false);
-          setStep(s => Math.min(s + 1, totalSteps));
         }
-      })();
+      };
+
+      attemptBooking();
       return;
     }
     
@@ -941,12 +959,62 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           </div>
         </div>
 
+        {isQueued && (
+          <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-3 animate-pulse mt-4">
+            <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+            <div>
+              <p className="font-bold text-orange-600 dark:text-orange-400 text-sm">File d'attente</p>
+              <p className="text-xs text-orange-600/80 dark:text-orange-400/80">{queueMessage || "Un autre client réserve une place devant vous. Veuillez patienter..."}</p>
+            </div>
+          </div>
+        )}
+
+        {alternativeTrips.length > 0 && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mt-4">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="bg-red-500/20 p-2 rounded-full">
+                <ShieldCheck className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <p className="font-bold text-red-600 dark:text-red-400 text-sm">Véhicule complet !</p>
+                <p className="text-xs text-red-600/80 dark:text-red-400/80">
+                  La voiture que vous avez choisie vient d'être remplie. Voici d'autres trajets disponibles pour {searchParams.arrivee} :
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {alternativeTrips.map(alt => (
+                <button 
+                  key={alt.id}
+                  onClick={() => {
+                    setSelectedTrip(alt);
+                    setAlternativeTrips([]);
+                    setGlobalError('');
+                  }}
+                  className="w-full flex items-center justify-between bg-white dark:bg-[#222] border border-slate-200 dark:border-[#333] p-3 rounded-lg hover:border-orange-500 transition-colors text-left"
+                >
+                  <div>
+                    <p className="font-bold text-sm text-slate-900 dark:text-white">{new Date(alt.departureTime).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})} - {alt.companyName}</p>
+                    <p className="text-xs text-slate-500">{alt.availableSeats} place(s) dispo</p>
+                  </div>
+                  <span className="font-bold text-orange-500 text-sm">{alt.price} FCFA</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <button 
-          disabled={!paymentMethod || isSearching}
+          disabled={!paymentMethod || isSearching || isQueued || alternativeTrips.length > 0}
           onClick={nextStep}
           className="w-full bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors mt-4 flex items-center justify-center gap-2 relative overflow-hidden"
         >
-          {isSearching ? (
+          {isQueued ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+              En attente...
+            </>
+          ) : isSearching ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               Traitement du paiement...

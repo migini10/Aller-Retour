@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { prisma, PaymentMethod } from '@aller-retour/database';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
@@ -21,117 +21,161 @@ export class BookingsService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Utilisateur introuvable.");
 
-    const trip = await prisma.trip.findUnique({
-      where: { id: tripId },
-      include: { vehicle: true },
-    });
+    // Using an interactive transaction with NOWAIT lock for strict queueing
+    return await prisma.$transaction(async (tx) => {
+      try {
+        await tx.$executeRaw`SELECT id FROM "trips" WHERE id = ${tripId}::uuid FOR UPDATE NOWAIT`;
+      } catch (error) {
+        throw new HttpException(
+          { code: 'QUEUE_WAIT', message: "Un autre client réserve une place devant vous. Veuillez patienter..." },
+          HttpStatus.CONFLICT
+        );
+      }
 
-    if (!trip) throw new NotFoundException("Trajet introuvable.");
+      const trip = await tx.trip.findUnique({
+        where: { id: tripId },
+        include: { vehicle: true },
+      });
 
-    if (seatNumber < 1 || seatNumber > trip.vehicle.capacity) {
-      throw new BadRequestException("Numéro de siège invalide pour ce véhicule.");
-    }
+      if (!trip) throw new NotFoundException("Trajet introuvable.");
 
-    // Auto-assign a free seat if the requested one is taken
-    let assignedSeat = seatNumber;
-    let existing = await prisma.booking.findUnique({
-      where: { tripId_seatNumber: { tripId, seatNumber: assignedSeat } },
-    });
-    
-    if (existing && existing.status !== 'CANCELLED') {
-      const allBookings = await prisma.booking.findMany({
-        where: { tripId, status: { not: 'CANCELLED' } },
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const allBookings = await tx.booking.findMany({
+        where: {
+          tripId,
+          OR: [
+            { status: { in: ['CONFIRMED', 'BOARDED'] } },
+            { status: 'PENDING_PAYMENT', createdAt: { gt: fiveMinutesAgo } }
+          ]
+        },
         select: { seatNumber: true },
       });
+      
       const takenSeats = new Set(allBookings.map(b => b.seatNumber));
       
-      assignedSeat = 1;
-      while (takenSeats.has(assignedSeat) && assignedSeat <= trip.vehicle.capacity) {
-        assignedSeat++;
+      let assignedSeat = seatNumber;
+      if (assignedSeat < 1 || assignedSeat > trip.vehicle.capacity || takenSeats.has(assignedSeat)) {
+        assignedSeat = 1;
+        while (takenSeats.has(assignedSeat) && assignedSeat <= trip.vehicle.capacity) {
+          assignedSeat++;
+        }
       }
-      
+
       if (assignedSeat > trip.vehicle.capacity) {
-        throw new BadRequestException("Le véhicule est complet, plus de place disponible.");
+        // Vehicle is full, find alternatives
+        const alternatives = await tx.trip.findMany({
+          where: {
+            routeId: trip.routeId,
+            id: { not: tripId },
+            status: 'SCHEDULED',
+            departureTime: { gt: new Date() }
+          },
+          include: { company: true, vehicle: true, driver: { include: { user: true } } },
+          orderBy: { departureTime: 'asc' },
+          take: 3
+        });
+
+        const formattedAlternatives = await Promise.all(alternatives.map(async (alt) => {
+          const altBookings = await tx.booking.count({
+            where: {
+              tripId: alt.id,
+              OR: [
+                { status: { in: ['CONFIRMED', 'BOARDED'] } },
+                { status: 'PENDING_PAYMENT', createdAt: { gt: fiveMinutesAgo } }
+              ]
+            }
+          });
+          const available = alt.seatsOffered - (alt.initialPassengers + altBookings);
+          return {
+            ...alt,
+            availableSeats: Math.max(0, available),
+            companyName: alt.company.name,
+          };
+        }));
+
+        const availableAlternatives = formattedAlternatives.filter(a => a.availableSeats > 0);
+
+        throw new HttpException({
+          code: 'TRIP_FULL_ALTERNATIVES',
+          message: "Le véhicule est complet, plus de place disponible.",
+          alternatives: availableAlternatives
+        }, HttpStatus.CONFLICT);
       }
-    }
 
-    // Génération du QR Token chiffré
-    const qrCodeToken = crypto.createHash('sha256').update(`${tripId}-${seatNumber}-${userId}-${Date.now()}`).digest('hex');
+      const qrCodeToken = crypto.createHash('sha256').update(`${tripId}-${assignedSeat}-${userId}-${Date.now()}`).digest('hex');
+      const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY') ? 'PENDING_PAYMENT' : 'CONFIRMED';
 
-    const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY') ? 'PENDING_PAYMENT' : 'CONFIRMED';
-
-    const booking = await prisma.booking.create({
-      data: {
-        tripId,
-        userId,
-        seatNumber: assignedSeat,
-        qrCodeToken,
-        status,
-        amountPaid: trip.pricePerSeat,
-        paymentMethod,
-      },
-      include: {
-        user: true,
-        trip: {
-          include: {
-            route: {
-              include: { originStation: true, destinationStation: true }
+      const booking = await tx.booking.create({
+        data: {
+          tripId,
+          userId,
+          seatNumber: assignedSeat,
+          qrCodeToken,
+          status,
+          amountPaid: trip.pricePerSeat,
+          paymentMethod,
+        },
+        include: {
+          user: true,
+          trip: {
+            include: {
+              route: {
+                include: { originStation: true, destinationStation: true }
+              }
             }
           }
         }
-      }
-    });
-
-    // Handle Payment Initiation
-    let paymentSession = null;
-    if (paymentMethod === 'WAVE') {
-      paymentSession = await this.paymentService.initiateWavePayment(user.phone, trip.pricePerSeat, booking.id);
-    } else if (paymentMethod === 'ORANGE_MONEY') {
-      paymentSession = await this.paymentService.initiateOrangeMoneyPayment(user.phone, trip.pricePerSeat, booking.id);
-    }
-
-    if (status === 'CONFIRMED') {
-      // Envoi de l'e-mail avec Nodemailer
-
-    try {
-      await transporter.sendMail({
-        from: '"Aller-Retour" <allogoosn@gmail.com>',
-        to: 'allogoosn@gmail.com', // Toujours vers cette adresse selon la consigne MVP
-        subject: `[Aller-Retour] Billet Confirmé - ${booking.trip.route.name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-            <div style="background-color: #f97316; padding: 20px; text-align: center; color: white;">
-              <h2>Confirmation de Réservation</h2>
-              <p>Votre trajet a été réservé avec succès !</p>
-            </div>
-            <div style="padding: 20px;">
-              <p><strong>Voyageur:</strong> ${booking.user.fullName}</p>
-              <p><strong>Trajet:</strong> ${booking.trip.route.name}</p>
-              <p><strong>Date de départ:</strong> ${new Date(booking.trip.departureTime).toLocaleString('fr-FR')}</p>
-              <p><strong>Numéro de siège:</strong> #${booking.seatNumber}</p>
-              <p><strong>Montant payé:</strong> ${booking.amountPaid} FCFA</p>
-              <div style="margin-top: 20px; padding: 15px; background-color: #f8fafc; border-radius: 8px; text-align: center;">
-                <p style="font-size: 12px; color: #64748b;">Code QR (Token unique) pour l'embarquement :</p>
-                <p style="font-family: monospace; font-size: 14px; word-break: break-all; color: #0f172a;">${booking.qrCodeToken}</p>
-              </div>
-            </div>
-          </div>
-        `
       });
-      console.log(`✅ E-mail de confirmation envoyé à allogoosn@gmail.com pour le billet ${booking.id}`);
-    } catch (err) {
-      console.error(`❌ Erreur lors de l'envoi de l'e-mail Nodemailer:`, err);
-    }
-    } // End if CONFIRMED
 
-    return {
-      success: true,
-      booking,
-      paymentSession, // Renvoie la session de paiement au frontend/mobile
-      message: status === 'CONFIRMED' 
-        ? "Réservation confirmée avec succès. Un e-mail a été envoyé."
-        : "Réservation en attente de paiement. Veuillez valider sur votre mobile.",
-    };
+      // Handle Payment Initiation
+      let paymentSession = null;
+      if (paymentMethod === 'WAVE') {
+        paymentSession = await this.paymentService.initiateWavePayment(user.phone, trip.pricePerSeat, booking.id);
+      } else if (paymentMethod === 'ORANGE_MONEY') {
+        paymentSession = await this.paymentService.initiateOrangeMoneyPayment(user.phone, trip.pricePerSeat, booking.id);
+      }
+
+      if (status === 'CONFIRMED') {
+        try {
+          await transporter.sendMail({
+            from: '"Aller-Retour" <allogoosn@gmail.com>',
+            to: 'allogoosn@gmail.com',
+            subject: `[Aller-Retour] Billet Confirmé - ${booking.trip.route.name}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #f97316; padding: 20px; text-align: center; color: white;">
+                  <h2>Confirmation de Réservation</h2>
+                  <p>Votre trajet a été réservé avec succès !</p>
+                </div>
+                <div style="padding: 20px;">
+                  <p><strong>Voyageur:</strong> ${booking.user.fullName}</p>
+                  <p><strong>Trajet:</strong> ${booking.trip.route.name}</p>
+                  <p><strong>Date de départ:</strong> ${new Date(booking.trip.departureTime).toLocaleString('fr-FR')}</p>
+                  <p><strong>Numéro de siège:</strong> #${booking.seatNumber}</p>
+                  <p><strong>Montant payé:</strong> ${booking.amountPaid} FCFA</p>
+                  <div style="margin-top: 20px; padding: 15px; background-color: #f8fafc; border-radius: 8px; text-align: center;">
+                    <p style="font-size: 12px; color: #64748b;">Code QR (Token unique) pour l'embarquement :</p>
+                    <p style="font-family: monospace; font-size: 14px; word-break: break-all; color: #0f172a;">${booking.qrCodeToken}</p>
+                  </div>
+                </div>
+              </div>
+            `
+          });
+          console.log(`✅ E-mail de confirmation envoyé à allogoosn@gmail.com pour le billet ${booking.id}`);
+        } catch (err) {
+          console.error(`❌ Erreur lors de l'envoi de l'e-mail Nodemailer:`, err);
+        }
+      }
+
+      return {
+        success: true,
+        booking,
+        paymentSession,
+        message: status === 'CONFIRMED' 
+          ? "Réservation confirmée avec succès. Un e-mail a été envoyé."
+          : "Réservation en attente de paiement. Veuillez valider sur votre mobile.",
+      };
+    }); // End of transaction
   }
 
   async verifyQrAtBoarding(qrCodeToken: string) {

@@ -19,10 +19,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // slate-950
-      endDrawer: const AppDrawer(isDriverMode: true),
-      body: Center(
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor, // slate-950
+      child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 550),
           child: Stack(
@@ -522,17 +521,13 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
         borderRadius: BorderRadius.circular(8), // Petit contour au lieu du rond
         border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), width: 1),
       ),
-      child: Builder(
-        builder: (innerContext) {
-          return IconButton(
-            icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.onSurface, size: 24),
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(), // Retire l'espace vide par défaut
-            onPressed: () {
-              Scaffold.of(innerContext).openEndDrawer();
-            },
-          );
-        }
+      child: IconButton(
+        icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.onSurface, size: 24),
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(), // Retire l'espace vide par défaut
+        onPressed: () {
+          Scaffold.of(context).openEndDrawer();
+        },
       ),
     );
   }
