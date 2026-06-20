@@ -180,7 +180,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 24),
-                  child: isPast ? Opacity(opacity: 0.6, child: card) : card,
+                  child: card,
                 );
               }),
             SizedBox(height: 40),
