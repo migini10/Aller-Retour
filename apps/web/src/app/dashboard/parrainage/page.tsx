@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Gift, ArrowLeft, Copy, Share2, CheckCircle2, Users, Coins } from 'lucide-react';
 import Link from 'next/link';
 
-import { useUser } from '../../../../hooks/useUser';
+import { useUser } from '../../../hooks/useUser';
 
 export default function ParrainagePage() {
   const { userPhone, isLoaded } = useUser();
