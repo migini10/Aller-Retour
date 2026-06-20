@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '../src/index'
 import geoData from '../data/senegal_geo.json'
-
-const prisma = new PrismaClient()
 
 async function main() {
   console.log('Seeding Geographic Data...')

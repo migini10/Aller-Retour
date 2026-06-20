@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@aller-retour/database';
 
 async function main() {
   console.log('🌱 Début du peuplement de la base de données (Seed)...');

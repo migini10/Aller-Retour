@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "npx next dev -H 0.0.0.0",
-    "build": "DATABASE_URL=\"postgresql://dummy:dummy@localhost:5432/dummy\" DIRECT_URL=\"postgresql://dummy:dummy@localhost:5432/dummy\" npx prisma generate --schema=../../packages/database/prisma/schema.prisma && npx next build",
+    "build": "npx next build",
     "start": "npx next start",
     "lint": "npx next lint"
   },
   "dependencies": {
     "@aller-retour/database": "*",
     "@aller-retour/types": "*",
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^7.8.0",
     "@sendgrid/mail": "^8.1.6",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
@@ -38,7 +38,7 @@
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "prisma": "^5.14.0",
+    "prisma": "^7.8.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5"
   }
