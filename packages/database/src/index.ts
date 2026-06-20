@@ -8,7 +8,16 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const connectionString = `${process.env.DATABASE_URL}`;
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Try to load from apps/api/.env if it exists, otherwise fallback to local .env
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+const connectionString = process.env.DATABASE_URL;
+console.log("DB INIT - process.env.DATABASE_URL is:", process.env.DATABASE_URL);
+console.log("DB INIT - connectionString is:", connectionString);
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
