@@ -4,25 +4,35 @@ import React, { useEffect, useState } from 'react';
 import { Gift, ArrowLeft, Copy, Share2, CheckCircle2, Users, Coins } from 'lucide-react';
 import Link from 'next/link';
 
+import { useUser } from '../../../../hooks/useUser';
+
 export default function ParrainagePage() {
+  const { userPhone, isLoaded } = useUser();
   const [referralCode, setReferralCode] = useState('CHARGEMENT...');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Generate a pseudo-random referral code and persist it in localStorage
-    const savedCode = localStorage.getItem('aller_retour_referral_code');
-    if (savedCode) {
-      setReferralCode(savedCode);
-    } else {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = 'AR-';
-      for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    if (!isLoaded) return;
+    
+    if (userPhone) {
+      // Generate a deterministic and unique code based on the user's phone number
+      let hash = 0;
+      for (let i = 0; i < userPhone.length; i++) {
+        const char = userPhone.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
       }
-      localStorage.setItem('aller_retour_referral_code', code);
-      setReferralCode(code);
+      // Convert to base36 and ensure it's 6 characters long
+      let baseStr = Math.abs(hash).toString(36).toUpperCase();
+      // Add some deterministic mixing to avoid similarities for close numbers
+      const mix = (userPhone.charCodeAt(userPhone.length - 1) * 7 % 36).toString(36).toUpperCase();
+      const codeStr = (mix + baseStr).substring(0, 6).padStart(6, 'X');
+      
+      setReferralCode('AR-' + codeStr);
+    } else {
+      setReferralCode('AR-GUEST');
     }
-  }, []);
+  }, [userPhone, isLoaded]);
 
   const handleCopy = async () => {
     try {
