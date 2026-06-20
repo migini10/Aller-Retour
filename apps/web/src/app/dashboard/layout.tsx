@@ -68,8 +68,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (pathname.startsWith('/dashboard/traveller')) {
     return (
       <BrandingProvider>
-        <div className="h-[100dvh] overflow-hidden bg-slate-50 flex flex-col text-slate-900">
-          <main className="flex-1 min-w-0 flex flex-col h-full relative">
+        <div className="min-h-[100dvh] bg-slate-50 flex flex-col text-slate-900">
+          <main className="flex-1 min-w-0 flex flex-col min-h-full relative">
             {children}
           </main>
         </div>
@@ -165,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Contenu principal: scrolle naturellement avec la fenêtre */}
         <main 
-          className={`pt-16 flex-1 min-w-0 flex flex-col h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
+          className={`pt-16 flex-1 min-w-0 flex flex-col min-h-full relative bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 ${isSuperAdmin ? '' : 'lg:mr-20'} transition-colors duration-300`}
         >
           {children}
         </main>

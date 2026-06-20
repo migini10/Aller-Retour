@@ -96,7 +96,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-auto xl:overflow-hidden scrollbar-hide">
+    <div className="flex flex-col min-h-full w-full overflow-y-auto scrollbar-hide">
       
       {/* Mobile Navigation Menu (Affiché en haut juste sous le header de layout) */}
       <div className="xl:hidden shrink-0 sticky top-0 z-50 bg-[#000000]/95 backdrop-blur-xl border-b border-[#2A2A2A]/80 px-5 sm:px-8 py-3 w-full relative">
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Full Height Content Area */}
-      <div className="flex-1 flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-[1600px] mx-auto w-full px-5 sm:px-8 xl:px-12 py-4 xl:py-6 overflow-visible xl:overflow-hidden">
+      <div className="flex-1 flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-[1600px] mx-auto w-full px-5 sm:px-8 xl:px-12 py-4 xl:py-6 overflow-visible">
         {/* Navigation Sidebar (Desktop Only) */}
         <div className="hidden xl:block xl:w-64 shrink-0 xl:h-full">
           {renderNavMenu()}
