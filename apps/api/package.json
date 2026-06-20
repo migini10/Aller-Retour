@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "cd ../../packages/database && npx prisma db push --accept-data-loss && cd ../../apps/api && nest build",
     "dev": "nest start --watch",
     "start": "nest start",
-    "start:prod": "cd ../../packages/database && npx prisma db push --accept-data-loss && cd ../../apps/api && node dist/src/main"
+    "start:prod": "node dist/src/main"
   },
   "dependencies": {
     "@aller-retour/database": "*",

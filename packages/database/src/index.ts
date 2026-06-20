@@ -26,9 +26,12 @@ if (connectionString) {
 }
 
 console.log("DB INIT - process.env.DATABASE_URL is:", process.env.DATABASE_URL);
-console.log("DB INIT - connectionString is:", connectionString);
-
-const pool = new Pool({ connectionString });
+const pool = new Pool({ 
+  connectionString,
+  max: 5, // Limit connections to avoid EMAXCONNSESSION on Supabase free tier
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
 const adapter = new PrismaPg(pool);
 
 export const prisma =
