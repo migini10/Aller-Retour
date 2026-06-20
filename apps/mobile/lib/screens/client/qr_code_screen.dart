@@ -96,14 +96,32 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Liste de mes QR codes', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
-                  ),
-                  child: Text('${_tickets.where((t) => (t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED') && DateTime.parse(t['trip']['departureTime']).toLocal().isAfter(DateTime.now())).length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+                      ),
+                      child: Text('${_tickets.where((t) => (t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED') && DateTime.parse(t['trip']['departureTime']).toLocal().isAfter(DateTime.now())).length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/expired-tickets'),
+                      icon: const Icon(Icons.history, size: 16),
+                      label: const Text('Historique', style: TextStyle(fontSize: 11)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        minimumSize: Size.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -131,9 +149,12 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 ),
               )
             else
-              ..._tickets.map((t) {
+              ..._tickets.where((t) {
                 final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
                 final isPast = t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED' || tripDate.isBefore(DateTime.now());
+                return !isPast;
+              }).map((t) {
+                final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
                 final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
                 final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
                 final origin = t['trip']['route']['originStation']['city'];
@@ -143,7 +164,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 
                 final card = _buildTicketCard(
                   context,
-                  isActive: !isPast,
+                  isActive: true,
                   status: t['status'],
                   ref: t['qrCodeToken'],
                   date: dateStr,

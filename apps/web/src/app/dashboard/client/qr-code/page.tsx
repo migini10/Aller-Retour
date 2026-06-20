@@ -63,13 +63,17 @@ export default function QrCodePage() {
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Vos billets, réservations et historiques de voyage.</p>
           </div>
         </div>
-
         {/* Content */}
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-             <div className="flex items-center gap-3">
+             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Liste de mes QR codes</h2>
-               <span className="bg-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-bold px-3 py-1.5 rounded-full border border-orange-500/30">{activeTickets.length} Billet(s) actif(s)</span>
+               <div className="flex items-center gap-2">
+                 <span className="bg-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-bold px-3 py-1.5 rounded-full border border-orange-500/30">{activeTickets.length} Billet(s) actif(s)</span>
+                 <Link href="/dashboard/client/qr-code/history" className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-[#222222] text-slate-700 dark:text-slate-300 rounded-full text-xs font-bold hover:bg-slate-200 dark:hover:bg-[#2A2A2A] transition-colors border border-slate-200 dark:border-[#333333]">
+                    <Calendar className="w-3.5 h-3.5" /> Historique
+                 </Link>
+               </div>
              </div>
              <div className="flex items-center gap-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl p-1 shadow-sm">
                 <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-slate-100 dark:bg-[#222222] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white'}`}>
@@ -102,16 +106,15 @@ export default function QrCodePage() {
             <div className="flex justify-center items-center py-20">
               <Loader2 className="w-10 h-10 text-orange-500 animate-spin" />
             </div>
-          ) : tickets.length === 0 ? (
+          ) : activeTickets.length === 0 ? (
             <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-8 text-center">
               <QrCode className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Aucun billet trouvé</h3>
-              <p className="text-slate-500 dark:text-slate-400">Vous n'avez pas encore effectué de réservation.</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Aucun billet actif</h3>
+              <p className="text-slate-500 dark:text-slate-400">Vous n'avez pas de réservations en cours.</p>
             </div>
           ) : viewMode === 'list' ? (
              <div className="flex flex-col gap-4">
-               {tickets.map((t: any) => {
-                 const isPast = t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED';
+               {activeTickets.map((t: any) => {
                  const tripDate = new Date(t.trip.departureTime);
                  const dateStr = tripDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
                  const timeStr = tripDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -119,88 +122,46 @@ export default function QrCodePage() {
                  const dest = t.trip.route.destinationStation.city;
 
                  return (
-                   <div key={t.id} className={`bg-white dark:bg-[#141414] border ${isPast ? 'border-slate-200 dark:border-[#2A2A2A]/50 opacity-75 grayscale-[30%] hover:grayscale-0' : 'border-orange-500/40 hover:border-orange-500/80 shadow-sm hover:shadow-lg hover:shadow-orange-500/10'} rounded-2xl p-5 flex flex-col md:flex-row justify-between md:items-center gap-5 transition-all`}>
+                   <div key={t.id} className={`bg-white dark:bg-[#141414] border border-orange-500/40 hover:border-orange-500/80 shadow-sm hover:shadow-lg hover:shadow-orange-500/10 rounded-2xl p-5 flex flex-col md:flex-row justify-between md:items-center gap-5 transition-all`}>
                      <div className="flex items-center gap-5">
-                        <div className={`shrink-0 p-2 bg-white rounded-xl shadow-sm ${isPast ? 'opacity-60 border border-slate-100 dark:border-none' : 'border border-slate-100 dark:border-none'}`}>
+                        <div className={`shrink-0 p-2 bg-white rounded-xl shadow-sm border border-slate-100 dark:border-none`}>
                            <QRCodeBrandEngine value={t.qrCodeToken} size={56} />
                         </div>
                         <div>
                            <div className="flex items-center gap-3 mb-1.5">
-                              <span className={`font-bold text-base sm:text-lg ${isPast ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white font-black'}`}>{origin} ➔ {dest}</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border ${isPast ? 'bg-slate-100 dark:bg-[#222222] text-slate-500 border-slate-200 dark:border-[#333333]' : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'}`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
+                              <span className={`font-bold text-base sm:text-lg text-slate-900 dark:text-white font-black`}>{origin} ➔ {dest}</span>
+                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
                            </div>
                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                              <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}
                            </p>
-                           <p className={`text-xs mt-1 ${isPast ? 'text-slate-500' : 'text-slate-500 font-medium'}`}>{t.trip.company?.name || 'Allogoo'} • {userName}</p>
+                           <p className={`text-xs mt-1 text-slate-500 font-medium`}>{t.trip.company?.name || 'Allogoo'} • {userName}</p>
                         </div>
                      </div>
                      <div className="flex items-center gap-2 md:shrink-0 mt-2 md:mt-0">
                          <button onClick={() => setSelectedTicket(t)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                            <Eye className="w-4 h-4" /> <span className="hidden sm:inline">{isPast ? 'Historique' : 'Détails'}</span>
+                            <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
                          </button>
-                         {!isPast && (
-                           <>
-                             <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                                <Download className="w-4 h-4" /> <span className="hidden sm:inline">Télécharger</span>
-                             </button>
-                             <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-orange-600/20 flex justify-center items-center gap-2">
-                                <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
-                             </button>
-                           </>
-                         )}
+                         <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Télécharger</span>
+                         </button>
+                         <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-orange-600/20 flex justify-center items-center gap-2">
+                            <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
+                         </button>
                      </div>
                    </div>
                  );
                })}
              </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               {tickets.map((t: any) => {
-                 const isPast = (t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED') || (t.trip?.departureTime && new Date(t.trip.departureTime).getTime() < Date.now());
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               {activeTickets.map((t: any) => {
                  const tripDate = new Date(t.trip.departureTime);
                  const dateStr = tripDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
                  const timeStr = tripDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                  const origin = t.trip.route.originStation.city;
                  const dest = t.trip.route.destinationStation.city;
                  const companyName = t.trip.company?.name || 'Allogoo';
-
-                 if (isPast) {
-                   return (
-                     <div key={t.id} className="bg-white dark:bg-[#141414]/50 border border-slate-200 dark:border-[#2A2A2A]/50 rounded-3xl overflow-hidden relative opacity-75 grayscale-[30%]">
-                        <div className="bg-slate-200 dark:bg-[#222222] px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 flex justify-between items-center">
-                           <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.status}</span>
-                           <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>
-                        </div>
-                        
-                        <div className="p-6">
-                           <div className="flex justify-between items-start mb-6">
-                              <div>
-                                 <div className="flex items-center gap-2 text-slate-500 text-sm mb-2">
-                                    <Calendar className="w-4 h-4 text-slate-400" /> {dateStr}
-                                    <span className="mx-1">•</span>
-                                    <Clock className="w-4 h-4 text-slate-400" /> {timeStr}
-                                 </div>
-                                 <div className="flex items-center gap-3">
-                                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 dark:text-slate-300">{origin}</h3>
-                                    <ArrowUpRight className="w-6 h-6 text-slate-400" />
-                                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 dark:text-slate-300">{dest}</h3>
-                                 </div>
-                              </div>
-                              <div className="shrink-0 p-2 bg-white/50 rounded-2xl opacity-60">
-                                 <QRCodeBrandEngine value={t.qrCodeToken} size={80} />
-                              </div>
-                           </div>
-                           
-                           <div className="flex gap-3 mt-6 pt-6 border-t border-slate-100 dark:border-[#2A2A2A]/50">
-                              <button onClick={() => setSelectedTicket(t)} className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] text-slate-600 dark:text-slate-400 font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
-                                 <Eye className="w-4 h-4" /> Voir l'historique complet
-                              </button>
-                           </div>
-                        </div>
-                      </div>
-                   );
-                 }
 
                  return (
                    <div key={t.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-3xl overflow-hidden relative shadow-xl">
