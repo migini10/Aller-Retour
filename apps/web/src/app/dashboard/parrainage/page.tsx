@@ -39,7 +39,7 @@ export default function ParrainagePage() {
       try {
         await navigator.share({
           title: 'Rejoins Allogoo',
-          text: `Inscris-toi sur Allogoo avec mon code ${referralCode} et gagne 2000 FCFA sur ton premier trajet !`,
+          text: `Inscris-toi sur Allogoo avec mon code ${referralCode} et gagne 1000 FCFA sur ton premier trajet !`,
           url: 'https://allogoo.com',
         });
       } catch (err) {
@@ -73,7 +73,7 @@ export default function ParrainagePage() {
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">Parrainez un proche</h1>
             <p className="text-white/90 text-lg sm:text-xl font-medium max-w-sm">
-              Offrez <span className="font-black text-white">2000 FCFA</span> à vos amis et gagnez <span className="font-black text-white">2000 FCFA</span> à leur premier trajet complété.
+              Offrez <span className="font-black text-white">1000 FCFA</span> à vos amis et gagnez <span className="font-black text-white">1000 FCFA</span> à leur premier trajet complété.
             </p>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function ParrainagePage() {
                 <Coins className="w-6 h-6 text-orange-500" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-white mb-2">3. Récompense</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Recevez 2000 FCFA dès leur premier trajet terminé !</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Recevez 1000 FCFA dès leur premier trajet terminé !</p>
             </div>
           </div>
         </div>

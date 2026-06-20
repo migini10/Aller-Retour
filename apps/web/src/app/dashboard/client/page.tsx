@@ -267,7 +267,7 @@ export default function ClientDashboard() {
                   </div>
                   <div className="relative z-10 flex flex-col justify-center h-full">
                     <h3 className="text-white font-bold text-xl mb-1">Parrainez un proche</h3>
-                    <p className="text-white/90 text-sm line-clamp-2">Gagnez 2000 FCFA sur votre prochain trajet</p>
+                    <p className="text-white/90 text-sm line-clamp-2">Gagnez 1000 FCFA sur votre prochain trajet</p>
                   </div>
                 </Link>
                 {/* Promo 2 */}
