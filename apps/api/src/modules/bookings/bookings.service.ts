@@ -118,7 +118,7 @@ export class BookingsService {
 
         await tx.transaction.create({
           data: {
-            type: 'PAYMENT',
+            type: 'TICKET_PURCHASE',
             status: 'SUCCESS',
             amount: totalPrice,
             description: `Paiement réservation trajet #${trip.id.substring(0, 8)} (${passengersCount} places)`,
