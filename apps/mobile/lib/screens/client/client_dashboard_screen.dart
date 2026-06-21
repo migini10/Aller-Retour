@@ -2220,6 +2220,7 @@ void _showReservationBottomSheet(BuildContext context) {
                                         body: jsonEncode({
                                           'tripId': selectedTrip!['id'],
                                           'seatNumber': 1,
+                                          'passengersCount': int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1,
                                           'paymentMethod': paymentMethod == 'om' ? 'ORANGE_MONEY' : (paymentMethod == 'wallet' ? 'WALLET' : paymentMethod!.toUpperCase())
                                         })
                                       );

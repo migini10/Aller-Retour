@@ -6,7 +6,7 @@ import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
 import { UserRole, PaymentMethod } from '@aller-retour/database';
-import { IsString, IsNotEmpty, IsInt, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional } from 'class-validator';
 
 export class CreateBookingDto {
   @IsString()
@@ -15,6 +15,10 @@ export class CreateBookingDto {
 
   @IsInt()
   seatNumber!: number;
+
+  @IsInt()
+  @IsOptional()
+  passengersCount?: number;
 
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
@@ -32,7 +36,7 @@ export class BookingsController {
   @Permissions('bookings:create')
   @ApiOperation({ summary: 'Réserver un siège sur un trajet' })
   async create(@Req() req: any, @Body() dto: CreateBookingDto) {
-    return this.bookingsService.createBooking(req.user.id, dto.tripId, dto.seatNumber, dto.paymentMethod);
+    return this.bookingsService.createBooking(req.user.id, dto.tripId, dto.seatNumber, dto.paymentMethod, dto.passengersCount || 1);
   }
 
   @Post('verify-qr/:token')

@@ -447,6 +447,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               body: JSON.stringify({
                 tripId: selectedTrip.id,
                 seatNumber: 1, 
+                passengersCount: parseInt(searchParams.passagers?.toString().split(' ')[0] || '1', 10),
                 paymentMethod: finalMethod === 'om' ? 'ORANGE_MONEY' : (finalMethod.toUpperCase() || 'WAVE')
               }),
               signal: controller.signal

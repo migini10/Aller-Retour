@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export class BookingsService {
   constructor(private readonly paymentService: PaymentService) {}
 
-  async createBooking(userId: string, tripId: string, seatNumber: number, paymentMethod: PaymentMethod) {
+  async createBooking(userId: string, tripId: string, seatNumber: number, paymentMethod: PaymentMethod, passengersCount: number = 1) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Utilisateur introuvable.");
 
@@ -100,6 +100,33 @@ export class BookingsService {
         }, HttpStatus.CONFLICT);
       }
 
+      const totalPrice = trip.pricePerSeat * passengersCount;
+
+      if (paymentMethod === 'WALLET') {
+        const passengerWallet = await tx.wallet.findFirst({
+          where: { userId: userId, type: 'PASSENGER_WALLET' }
+        });
+        
+        if (!passengerWallet || passengerWallet.balance < totalPrice) {
+          throw new HttpException("Solde insuffisant dans votre Wallet.", HttpStatus.PAYMENT_REQUIRED);
+        }
+
+        await tx.wallet.update({
+          where: { id: passengerWallet.id },
+          data: { balance: { decrement: totalPrice } }
+        });
+
+        await tx.transaction.create({
+          data: {
+            type: 'PAYMENT',
+            status: 'SUCCESS',
+            amount: totalPrice,
+            description: `Paiement réservation trajet #${trip.id.substring(0, 8)} (${passengersCount} places)`,
+            sourceWalletId: passengerWallet.id,
+          }
+        });
+      }
+
       const qrCodeToken = crypto.createHash('sha256').update(`${tripId}-${assignedSeat}-${userId}-${Date.now()}`).digest('hex');
       
       // CASH et WALLET = confirmé immédiatement (place déduite instantanément)
@@ -115,7 +142,7 @@ export class BookingsService {
           seatNumber: assignedSeat,
           qrCodeToken,
           status,
-          amountPaid: trip.pricePerSeat,
+          amountPaid: totalPrice,
           paymentMethod,
         },
         include: {
@@ -133,9 +160,16 @@ export class BookingsService {
       // Handle Payment Initiation
       let paymentSession = null;
       if (paymentMethod === 'WAVE') {
-        paymentSession = await this.paymentService.initiateWavePayment(user.phone, trip.pricePerSeat, booking.id);
+        paymentSession = await this.paymentService.initiateWavePayment(user.phone, totalPrice, booking.id);
       } else if (paymentMethod === 'ORANGE_MONEY') {
-        paymentSession = await this.paymentService.initiateOrangeMoneyPayment(user.phone, trip.pricePerSeat, booking.id);
+        paymentSession = await this.paymentService.initiateOrangeMoneyPayment(user.phone, totalPrice, booking.id);
+      }
+
+      if (passengersCount > 1) {
+        await tx.trip.update({
+          where: { id: tripId },
+          data: { initialPassengers: { increment: passengersCount - 1 } }
+        });
       }
 
       if (status === 'CONFIRMED') {
