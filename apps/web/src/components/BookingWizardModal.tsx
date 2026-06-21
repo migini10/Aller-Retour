@@ -1182,8 +1182,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         <CheckCircle2 className="w-10 h-10 text-emerald-400" />
       </div>
       
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Demande Envoyée !</h2>
-      <p className="text-slate-500 dark:text-slate-400 text-center mb-8 text-sm">Votre demande de covoiturage a été diffusée aux chauffeurs à proximité. Vous recevrez une notification dès qu'un chauffeur l'acceptera.</p>
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Paiement Réussi !</h2>
+      <p className="text-slate-500 dark:text-slate-400 text-center mb-8 text-sm">Votre billet a été généré et envoyé par WhatsApp et Email.</p>
 
       {/* Request Recap UI */}
       <div ref={ticketRef} className="w-full max-w-sm bg-white rounded-2xl overflow-hidden relative shadow-2xl">
@@ -1192,7 +1192,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             <CarFront className="w-5 h-5 text-orange-500" />
             Aller<span className="text-orange-500">Retour</span>
           </h3>
-          <p className="text-slate-400 text-xs mt-1">Demande en attente : {selectedTrip?.company}</p>
+          <p className="text-slate-400 text-xs mt-1">Billet Confirmé : {selectedTrip?.company}</p>
         </div>
         
         <div className="p-6 relative">
@@ -1235,7 +1235,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   size={120} 
                 />
               </div>
-              <p className="text-[10px] text-slate-500 animate-pulse font-bold text-orange-500">Recherche de chauffeurs en cours...</p>
+              <p className="text-[10px] text-slate-500 font-bold text-emerald-500">Scanner au moment de l'embarquement</p>
             </div>
           </div>
         </div>
