@@ -1,12 +1,33 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Plus, Sparkles, CreditCard, Clock, Activity, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../../components/ModalContext';
 
 export default function WalletPage() {
   const { openModal, openRechargeWizard, openTransferWizard } = useModal();
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      const token = localStorage.getItem('ar_auth_token');
+      if (!token) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const res = await fetch(`${apiUrl}/v1/wallets/my-balance`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWalletBalance(data.balance);
+        }
+      } catch (e) {
+        console.error("Erreur solde wallet", e);
+      }
+    };
+    fetchBalance();
+  }, []);
   
   return (
     <div className="flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
@@ -49,7 +70,7 @@ export default function WalletPage() {
                 
                 <div>
                   <p className="text-blue-100 text-sm font-medium mb-1">Solde disponible</p>
-                  <p className="text-4xl sm:text-5xl font-black tracking-tight">45 000 <span className="text-xl font-bold text-blue-200">FCFA</span></p>
+                  <p className="text-4xl sm:text-5xl font-black tracking-tight">{walletBalance !== null ? walletBalance.toLocaleString('fr-FR') : '---'} <span className="text-xl font-bold text-blue-200">FCFA</span></p>
                 </div>
                 
                 <div className="mt-8">

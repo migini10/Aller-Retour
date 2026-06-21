@@ -3,8 +3,49 @@ import 'dart:ui' as ui;
 import 'widgets/recharge_modal.dart';
 import '../../widgets/shared_scaffold.dart';
 
-class WalletScreen extends StatelessWidget {
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
+
+  @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  int? _walletBalance;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWalletBalance();
+  }
+
+  Future<void> _fetchWalletBalance() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) return;
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      final response = await http.get(
+        Uri.parse('$apiUrl/v1/wallets/my-balance'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _walletBalance = data['balance'] is num ? (data['balance'] as num).toInt() : int.tryParse(data['balance'].toString());
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Erreur solde wallet: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +123,12 @@ class WalletScreen extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       children: [
-                        TextSpan(text: '45 000 ', style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
+                        TextSpan(
+                          text: _walletBalance != null 
+                              ? '${_walletBalance.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ')} ' 
+                              : '--- ', 
+                          style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)
+                        ),
                         TextSpan(text: 'FCFA', style: const TextStyle(color: Color(0xFFBFDBFE), fontSize: 20, fontWeight: FontWeight.bold)),
                       ],
                     ),
