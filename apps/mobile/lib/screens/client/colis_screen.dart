@@ -312,25 +312,17 @@ class _ColisScreenState extends State<ColisScreen> {
             // Stats Row
             Row(
               children: [
-                Expanded(child: _buildStatCard(Icons.inventory_2, Colors.purpleAccent, 'TOTAL', '12', 'Colis envoyés (Année)', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
-                })),
+                Expanded(child: _buildStatCard(Icons.inventory_2, Colors.purpleAccent, 'TOTAL', '12', 'Colis envoyés (Année)')),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(Icons.access_time, Colors.amber, 'ACTIF', '1', 'En cours d\'expédition', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
-                })),
+                Expanded(child: _buildStatCard(Icons.access_time, Colors.amber, 'ACTIF', '1', 'En cours d\'expédition')),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _buildStatCard(Icons.check_circle, Colors.greenAccent, '', '11', 'Colis livrés', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
-                })),
+                Expanded(child: _buildStatCard(Icons.check_circle, Colors.greenAccent, '', '11', 'Colis livrés')),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(Icons.local_shipping, Colors.blueAccent, '', '15kg', 'Franchise restante', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
-                })),
+                Expanded(child: _buildStatCard(Icons.local_shipping, Colors.blueAccent, '', '15kg', 'Franchise restante')),
               ],
             ),
             const SizedBox(height: 32),
@@ -521,11 +513,9 @@ class _ColisScreenState extends State<ColisScreen> {
   }
 
 
-  Widget _buildStatCard(IconData icon, Color color, String badge, String value, String label, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
+  Widget _buildStatCard(IconData icon, Color color, String badge, String value, String label) {
+    return Container(
+      decoration: BoxDecoration(
         color: Theme.of(context).dividerColor, // slate-800
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
