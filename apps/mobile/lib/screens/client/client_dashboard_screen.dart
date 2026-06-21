@@ -229,7 +229,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             children: [
               RefreshIndicator(
                 onRefresh: () async {
-                  await Future.delayed(const Duration(milliseconds: 1500));
+                  await _fetchWalletBalance();
+                  await _fetchLocationAndDestinations();
                 },
                 color: Colors.orangeAccent,
                 backgroundColor: Theme.of(context).cardColor,
