@@ -139,10 +139,12 @@ export class BookingsService {
       }
 
       if (status === 'CONFIRMED') {
-        try {
-          await transporter.sendMail({
+        // Envoi d'e-mail asynchrone (fire-and-forget) pour ne pas bloquer la réservation
+        const isEmailConfigured = process.env.EMAIL_PASS && process.env.EMAIL_PASS !== 'votre-mot-de-passe-d-application';
+        if (isEmailConfigured) {
+          transporter.sendMail({
             from: '"Aller-Retour" <allogoosn@gmail.com>',
-            to: 'allogoosn@gmail.com',
+            to: 'allogoosn@gmail.com', // FIXME: Remplacer par l'email du client (booking.user.email)
             subject: `[Aller-Retour] Billet Confirmé - ${booking.trip.route.name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
@@ -163,10 +165,13 @@ export class BookingsService {
                 </div>
               </div>
             `
+          }).then(() => {
+            console.log(`✅ E-mail de confirmation envoyé pour le billet ${booking.id}`);
+          }).catch((err) => {
+            console.error(`❌ Erreur lors de l'envoi de l'e-mail Nodemailer (ignoré):`, err.message);
           });
-          console.log(`✅ E-mail de confirmation envoyé à allogoosn@gmail.com pour le billet ${booking.id}`);
-        } catch (err) {
-          console.error(`❌ Erreur lors de l'envoi de l'e-mail Nodemailer:`, err);
+        } else {
+          console.warn(`⚠️ Envoi d'e-mail ignoré : identifiants SMTP non configurés pour le billet ${booking.id}`);
         }
       }
 

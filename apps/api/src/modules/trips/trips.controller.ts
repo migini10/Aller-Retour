@@ -112,10 +112,19 @@ export class TripsController {
       const cleanOrigin = mapToDatabaseCity(originCity);
       const cleanDest = mapToDatabaseCity(destinationCity);
       
-      whereClause.route = {
-        originStation: { city: cleanOrigin },
-        destinationStation: { city: cleanDest },
-      };
+      const routes = await prisma.route.findMany({
+        where: {
+          originStation: { city: cleanOrigin },
+          destinationStation: { city: cleanDest },
+        },
+        select: { id: true }
+      });
+      
+      if (routes.length > 0) {
+        whereClause.routeId = { in: routes.map((r: any) => r.id) };
+      } else {
+        return []; // Pas de route trouvée = pas de trajet
+      }
     }
 
     if (date) {
