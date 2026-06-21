@@ -490,15 +490,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
              setPaymentData(apiData.paymentSession);
              
              if (windowWidth < 768) {
-               // Mobile : USSD Push uniquement
-               setGlobalSuccess(`Paiement ${apiData.paymentSession.provider} initié. Veuillez consulter votre téléphone pour valider le Push USSD (Simulation 5s)...`);
-               await new Promise(resolve => setTimeout(resolve, 5000));
-               const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-               await fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`).catch(() => {});
-               setGlobalSuccess('');
-             } else {
-               // Tablette / PC : On ne bloque pas avec le Push USSD automatique de 5s,
-               // On passe directement à l'étape suivante qui affichera le QR code (et le choix sur tablette).
+               // Mobile : Redirection vers l'application de paiement
+               if (apiData.paymentSession.paymentUrl) {
+                 window.open(apiData.paymentSession.paymentUrl, '_blank');
+               }
+               
+               // Simulation en arrière-plan pour le test
+               setTimeout(() => {
+                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+                 fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`).catch(() => {});
+               }, 8000);
              }
           }
 
@@ -1090,17 +1091,22 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   };
 
   const renderStep6SuccessAlloDakar = () => {
-    // Si on est sur PC ou Tablette et que le paiement n'est pas encore simulé
-    if (paymentData && windowWidth >= 768) {
+    // Si le paiement est en attente
+    if (paymentData) {
       return (
         <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500 px-4">
           <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-6 relative">
-            <Smartphone className="w-10 h-10 text-orange-500" />
+            <Smartphone className="w-10 h-10 text-orange-500 animate-pulse" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Paiement en attente</h2>
           
           <div className="bg-slate-50 dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] w-full text-center space-y-4 shadow-xl">
-            {windowWidth >= 768 && windowWidth < 1024 ? (
+            {windowWidth < 768 ? (
+              <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
+                Vous avez été redirigé vers l'application {paymentData.provider}.<br/>
+                Veuillez y valider le paiement.
+              </p>
+            ) : windowWidth >= 768 && windowWidth < 1024 ? (
               <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
                 Option 1 : Vérifiez votre téléphone, un Push USSD a été envoyé.<br/>
                 Option 2 : Scannez le QR Code ci-dessous.
@@ -1110,16 +1116,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             )}
 
             <div className="flex justify-center bg-white p-4 rounded-xl border-4 border-slate-200 inline-block mx-auto shadow-sm">
-              {/* Le lien de paiement simulé */}
               <QRCodeBrandEngine value={paymentData.paymentUrl} size={180} />
             </div>
 
             <button 
               onClick={async () => {
-                // Simulation du webhook puis passage au succès
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
                 await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
-                setPaymentData(null); // On enlève la donnée de paiement pour voir le billet
+                setPaymentData(null); 
               }}
               className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
             >
@@ -1220,17 +1224,22 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   };
 
   const renderStep6SuccessBus = () => {
-    // Si on est sur PC ou Tablette et que le paiement n'est pas encore simulé
-    if (paymentData && windowWidth >= 768) {
+    // Si le paiement est en attente
+    if (paymentData) {
       return (
         <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500 px-4">
           <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-6 relative">
-            <Smartphone className="w-10 h-10 text-orange-500" />
+            <Smartphone className="w-10 h-10 text-orange-500 animate-pulse" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 text-center">Paiement en attente</h2>
           
           <div className="bg-slate-50 dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] w-full text-center space-y-4 shadow-xl">
-            {windowWidth >= 768 && windowWidth < 1024 ? (
+            {windowWidth < 768 ? (
+              <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
+                Vous avez été redirigé vers l'application {paymentData.provider}.<br/>
+                Veuillez y valider le paiement.
+              </p>
+            ) : windowWidth >= 768 && windowWidth < 1024 ? (
               <p className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 p-3 rounded-lg border border-orange-200 dark:border-orange-500/20">
                 Option 1 : Vérifiez votre téléphone, un Push USSD a été envoyé.<br/>
                 Option 2 : Scannez le QR Code ci-dessous.
