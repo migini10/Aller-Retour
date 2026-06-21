@@ -58,6 +58,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [paymentData, setPaymentData] = useState<any>(null);
   const [windowWidth, setWindowWidth] = useState(1024);
   const [isQueued, setIsQueued] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [queueMessage, setQueueMessage] = useState('');
   const [alternativeTrips, setAlternativeTrips] = useState<any[]>([]);
 
@@ -1126,15 +1127,48 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             </div>
 
             <button 
+              disabled={isVerifyingPayment}
               onClick={async () => {
+                setIsVerifyingPayment(true);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
                 await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
-                setPaymentData(null); 
+                
+                try {
+                  const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);
+                  if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'CONFIRMED') {
+                      const index = realTrips.findIndex((t: any) => t.id === selectedTrip?.id);
+                      if (index !== -1) {
+                        const updatedTrips = [...realTrips];
+                        updatedTrips[index].availableSeats = Math.max(0, updatedTrips[index].availableSeats - searchParams.passagers);
+                        setRealTrips(updatedTrips);
+                      }
+                      setPaymentData(null); 
+                    } else {
+                      alert("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.");
+                    }
+                  } else {
+                    alert("Erreur de communication avec le serveur.");
+                  }
+                } catch (e) {
+                  alert("Erreur de vérification du paiement.");
+                }
+                setIsVerifyingPayment(false);
               }}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
             >
-              <CheckCircle2 className="w-5 h-5" />
-              J'ai scanné et payé
+              {isVerifyingPayment ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Vérification en cours...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  J'ai scanné et payé
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -1259,15 +1293,48 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             </div>
 
             <button 
+              disabled={isVerifyingPayment}
               onClick={async () => {
+                setIsVerifyingPayment(true);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
                 await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
-                setPaymentData(null); 
+                
+                try {
+                  const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);
+                  if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'CONFIRMED') {
+                      const index = realTrips.findIndex((t: any) => t.id === selectedTrip?.id);
+                      if (index !== -1) {
+                        const updatedTrips = [...realTrips];
+                        updatedTrips[index].availableSeats = Math.max(0, updatedTrips[index].availableSeats - searchParams.passagers);
+                        setRealTrips(updatedTrips);
+                      }
+                      setPaymentData(null); 
+                    } else {
+                      alert("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.");
+                    }
+                  } else {
+                    alert("Erreur de communication avec le serveur.");
+                  }
+                } catch (e) {
+                  alert("Erreur de vérification du paiement.");
+                }
+                setIsVerifyingPayment(false);
               }}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
             >
-              <CheckCircle2 className="w-5 h-5" />
-              J'ai scanné et payé
+              {isVerifyingPayment ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Vérification en cours...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  J'ai scanné et payé
+                </>
+              )}
             </button>
           </div>
         </div>
