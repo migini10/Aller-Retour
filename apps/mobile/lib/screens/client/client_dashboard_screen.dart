@@ -1790,6 +1790,20 @@ void _showReservationBottomSheet(BuildContext context) {
 
               return Column(
                 children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 40),
+                  ),
+                  const SizedBox(height: 24),
+                  Text('Paiement Réussi !', style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text('Votre billet a été généré.', textAlign: TextAlign.center, style: TextStyle(color: textMutedColor, fontSize: 14)),
+                  const SizedBox(height: 32),
                   RepaintBoundary(
                     key: ticketKey,
                     child: Container(
@@ -1820,7 +1834,7 @@ void _showReservationBottomSheet(BuildContext context) {
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('Demande en attente : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                              Text('Billet Confirmé : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -1961,7 +1975,7 @@ void _showReservationBottomSheet(BuildContext context) {
                               ),
                               
                               SizedBox(height: 16),
-                              Text('Recherche de chauffeurs en cours...', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.bold)),
+                              Text('Scanner au moment de l\'embarquement', style: TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
