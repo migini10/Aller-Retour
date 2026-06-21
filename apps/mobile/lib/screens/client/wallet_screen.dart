@@ -267,9 +267,10 @@ class _WalletScreenState extends State<WalletScreen> {
                   icon: isPositive ? Icons.arrow_downward : Icons.arrow_upward,
                   iconColor: isPositive ? Colors.greenAccent : Colors.orangeAccent,
                   title: title,
-                  date: '$dateStr • Réf: ${tx['id'].toString().substring(0, 8).toUpperCase()}',
+                  date: dateStr,
+                  ref: 'Réf: ${tx['id'].toString().substring(0, 8).toUpperCase()}',
                   amount: '${isPositive ? '+' : '-'} $amount FCFA',
-                  amountColor: isPositive ? Colors.greenAccent : Colors.white,
+                  amountColor: isPositive ? Colors.greenAccent : Theme.of(context).colorScheme.onSurface,
                   status: tx['status'],
                   statusColor: tx['status'] == 'COMPLETED' ? Colors.greenAccent : (tx['status'] == 'ESCROW' ? Colors.orangeAccent : Colors.grey),
                 );
@@ -305,6 +306,7 @@ class _WalletScreenState extends State<WalletScreen> {
     required Color iconColor,
     required String title,
     required String date,
+    required String ref,
     required String amount,
     required Color amountColor,
     required String status,
@@ -319,6 +321,7 @@ class _WalletScreenState extends State<WalletScreen> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
@@ -335,25 +338,27 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                const SizedBox(height: 4),
+                Text(ref, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Text(amount, style: TextStyle(color: amountColor, fontWeight: FontWeight.w900, fontSize: 16)),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(amount, style: TextStyle(color: amountColor, fontWeight: FontWeight.w900, fontSize: 16)),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
-                ),
-                child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold)),
-              ),
-            ],
           ),
         ],
       ),
