@@ -705,15 +705,17 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 onClick={() => {
                   if (service.isTooSoon) {
                     setGlobalError(`Vous ne pouvez pas réserver à moins d'une heure du départ. Appelez le chauffeur au ${service.driverPhone}`);
+                  } else if (searchParams.passagers > service.availableSeats) {
+                    setGlobalError(`Impossible de choisir ce trajet : vous demandez ${searchParams.passagers} place(s) mais il n'en reste que ${service.availableSeats}.`);
                   } else {
                     setSelectedTrip(service); 
                     nextStep();
                   }
                 }}
-                className={`border p-4 rounded-2xl cursor-pointer transition-all ${
-                  service.isTooSoon 
-                  ? 'bg-slate-50 dark:bg-[#1A1A1A]/50 border-slate-200 dark:border-[#2A2A2A]/50 opacity-80' 
-                  : 'bg-white dark:bg-[#1A1A1A] border-slate-200 dark:border-[#2A2A2A] hover:border-orange-500/50 hover:bg-slate-50 dark:hover:bg-[#222222]/50'
+                className={`border p-4 rounded-2xl transition-all ${
+                  service.isTooSoon || searchParams.passagers > service.availableSeats
+                  ? 'bg-slate-50 dark:bg-[#1A1A1A]/50 border-slate-200 dark:border-[#2A2A2A]/50 opacity-70 cursor-not-allowed' 
+                  : 'bg-white dark:bg-[#1A1A1A] border-slate-200 dark:border-[#2A2A2A] hover:border-orange-500/50 hover:bg-slate-50 dark:hover:bg-[#222222]/50 cursor-pointer'
                 }`}
               >
                 <div className="flex justify-between items-start mb-3">
@@ -757,6 +759,10 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                     >
                       <Smartphone className="w-4 h-4" /> Appeler
                     </a>
+                  ) : searchParams.passagers > service.availableSeats ? (
+                    <div className="text-slate-400 dark:text-slate-500 flex items-center gap-1 text-sm font-bold bg-slate-100 dark:bg-[#222] px-3 py-1.5 rounded-xl">
+                      Places insuffisantes
+                    </div>
                   ) : (
                     <div className="text-orange-500 flex items-center gap-1 text-sm font-bold bg-orange-500/10 px-3 py-1.5 rounded-xl">
                       Choisir <ArrowRight className="w-4 h-4" />
