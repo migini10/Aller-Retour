@@ -1834,7 +1834,7 @@ void _showReservationBottomSheet(BuildContext context) {
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('Billet Confirmé : ${selectedTrip?['company'] ?? 'Allo Dakar Partenaire'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                              Text('Billet Confirmé : ${selectedTrip?['company'] ?? 'Allogoo'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
                             ],
                           ),
                         ),

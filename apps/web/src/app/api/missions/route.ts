@@ -70,10 +70,10 @@ export async function POST(req: Request) {
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
-    let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
+    let company = await prisma.company.findFirst({ where: { name: 'Allogoo' } });
     if (!company) {
       company = await prisma.company.create({
-        data: { name: 'Allo Dakar Partenaire' }
+        data: { name: 'Allogoo' }
       });
     }
 

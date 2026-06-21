@@ -42,8 +42,8 @@ export class TripsController {
 
   private async getAlloDakarCompany() {
     if (TripsController.CACHE.companyId) return TripsController.CACHE.companyId;
-    let company = await prisma.company.findFirst({ where: { name: 'Allo Dakar Partenaire' } });
-    if (!company) company = await prisma.company.create({ data: { name: 'Allo Dakar Partenaire' } });
+    let company = await prisma.company.findFirst({ where: { name: 'Allogoo' } });
+    if (!company) company = await prisma.company.create({ data: { name: 'Allogoo' } });
     TripsController.CACHE.companyId = company.id;
     return company.id;
   }

@@ -677,7 +677,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       }
       return {
         id: t.id,
-        company: t.company?.name || "Allo Dakar Partenaire",
+        company: t.company?.name || "Allogoo",
         price: t.pricePerSeat || 5000,
         type: `Voiture ${t.vehicle?.capacity || 5} places`,
         options: t.isAirConditioned !== false ? "Climatisé" : "Standard",
