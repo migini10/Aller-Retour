@@ -282,7 +282,7 @@ class _WalletScreenState extends State<WalletScreen> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Historique...')));
+                  Navigator.pushNamed(context, '/transactions');
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), style: BorderStyle.solid),

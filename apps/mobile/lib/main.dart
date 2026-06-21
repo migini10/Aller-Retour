@@ -14,6 +14,7 @@ import 'screens/client/fidelite_screen.dart';
 import 'screens/client/qr_code_screen.dart';
 import 'screens/client/profile_screen.dart';
 import 'screens/client/history_screen.dart';
+import 'screens/client/transactions_screen.dart';
 import 'screens/client/expired_tickets_screen.dart';
 import 'screens/client/settings_screen.dart';
 import 'screens/driver/driver_marketplace_screen.dart';
@@ -126,6 +127,7 @@ class AllerRetourApp extends StatelessWidget {
         '/expired-tickets': (context) => const ExpiredTicketsScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
+        '/transactions': (context) => const TransactionsScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/driver/marketplace': (context) => const DriverMarketplaceScreen(),
         '/driver/revenus': (context) => const DriverRevenusScreen(),
