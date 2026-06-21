@@ -1012,9 +1012,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 key={method.id}
                 onClick={() => {
                   setPaymentMethod(method.id);
-                  if (method.id === 'cash') {
-                    nextStep('cash');
-                  }
                 }}
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
                   ${paymentMethod === method.id ? method.color + ' ring-2 ring-orange-500/50 dark:ring-white/20' : 'bg-white dark:bg-[#1A1A1A] border-slate-200 dark:border-[#2A2A2A] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-[#333333]'}`}
