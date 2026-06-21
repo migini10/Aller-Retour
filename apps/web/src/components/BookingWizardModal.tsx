@@ -61,6 +61,41 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [queueMessage, setQueueMessage] = useState('');
   const [alternativeTrips, setAlternativeTrips] = useState<any[]>([]);
 
+  // Réinitialiser les champs à chaque ouverture de la modale
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+      setGlobalError('');
+      setGlobalSuccess('');
+      setSearchParams({
+        depart: '',
+        arrivee: '',
+        quartierArrivee: '',
+        date: '',
+        heure: '',
+        passagers: 1,
+        type: initialType
+      });
+      setGeneratedTicket(null);
+      setSelectedTrip(null);
+      setSelectedSeat(null);
+      setVoyageurInfo({
+        nom: userName || '',
+        telephone: userPhone || '',
+        email: 'abdou@example.com',
+        bagages: 1
+      });
+      setTicketPour(null);
+      setPaymentMethod('wave');
+      setPickupLocation('');
+      setRealTrips([]);
+      setPaymentData(null);
+      setIsQueued(false);
+      setQueueMessage('');
+      setAlternativeTrips([]);
+    }
+  }, [isOpen, initialType, userName, userPhone]);
+
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     const handleResize = () => setWindowWidth(window.innerWidth);
