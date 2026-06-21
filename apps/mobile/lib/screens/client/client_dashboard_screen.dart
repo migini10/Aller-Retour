@@ -1384,9 +1384,17 @@ void _showReservationBottomSheet(BuildContext context) {
             Widget buildStep2() {
               List<Widget> tripWidgets = [];
               for (var t in realTrips) {
+                int requestedPassengers = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
+                int availableSeats = t['availableSeats'] ?? 5;
+                bool isFull = requestedPassengers > availableSeats;
+
                 tripWidgets.add(
                   GestureDetector(
                     onTap: () {
+                      if (isFull) {
+                        setState(() { errorMessage = 'Places insuffisantes pour ce trajet.'; });
+                        return;
+                      }
                       setState(() {
                         selectedTrip = t;
                         step = 3;
@@ -1397,7 +1405,7 @@ void _showReservationBottomSheet(BuildContext context) {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
-                        border: Border.all(color: borderColor),
+                        border: Border.all(color: isFull ? Colors.red.withValues(alpha: 0.5) : borderColor),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -1410,6 +1418,15 @@ void _showReservationBottomSheet(BuildContext context) {
                                 Text(t['company'] as String, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                                 const SizedBox(height: 4),
                                 Text('${t['type']} • ${t['options']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                                if (isFull)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                                      child: Text('Places insuffisantes ($availableSeats)', style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                                    ),
+                                  )
                               ],
                             ),
                           ),
@@ -2197,8 +2214,15 @@ void _showReservationBottomSheet(BuildContext context) {
                                         setState(() => isQueued = false);
                                         
                                         if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
+                                          if (apiData['paymentSession'] != null && apiData['paymentSession']['paymentUrl'] != null) {
+                                            final pUrl = Uri.parse(apiData['paymentSession']['paymentUrl']);
+                                            if (await canLaunchUrl(pUrl)) {
+                                              await launchUrl(pUrl, mode: LaunchMode.externalApplication);
+                                            }
+                                          }
+
                                           setState(() {
-                                            errorMessage = 'Veuillez valider le paiement (Push USSD) sur votre téléphone...';
+                                            errorMessage = 'Veuillez valider le paiement dans l\'application ouverte...';
                                           });
 
                                           // Polling de la vérification de paiement
@@ -2206,7 +2230,9 @@ void _showReservationBottomSheet(BuildContext context) {
                                           int attempts = 0;
                                           
                                           if (apiData['paymentSession'] != null && apiData['paymentSession']['webhook_simulation_url'] != null) {
-                                            http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
+                                            Future.delayed(const Duration(seconds: 8), () {
+                                              http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
+                                            });
                                           }
 
                                           while (attempts < 20 && !isPaid) {
