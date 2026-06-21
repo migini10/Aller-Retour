@@ -299,8 +299,10 @@ class _WalletScreenState extends State<WalletScreen> {
           ],
         ),
       ),
+      ),
     );
   }
+
 
   Widget _buildTransactionItem({
     required BuildContext context,

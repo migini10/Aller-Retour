@@ -19,7 +19,7 @@ export class WalletsController {
   @Get('my-transactions')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Obtenir l\\'historique des transactions de mon Wallet Aller-Retour' })
+  @ApiOperation({ summary: "Obtenir l'historique des transactions de mon Wallet Aller-Retour" })
   async getMyTransactions(@Req() req: any) {
     return this.walletsService.getMyWalletTransactions(req.user.id);
   }
