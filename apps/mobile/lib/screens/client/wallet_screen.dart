@@ -67,14 +67,10 @@ class _WalletScreenState extends State<WalletScreen> {
       subtitle: 'Gérez vos fonds et vos paiements en toute sécurité.',
       icon: Icons.account_balance_wallet,
       iconColor: Colors.blueAccent,
-      body: RefreshIndicator(
-        onRefresh: _fetchWalletBalance,
-        color: Colors.blueAccent,
-        backgroundColor: Theme.of(context).cardColor,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: Column(
+      onRefresh: _fetchWalletBalance,
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Recharger Button at Top
@@ -299,7 +295,6 @@ class _WalletScreenState extends State<WalletScreen> {
           ],
         ),
       ),
-      ),
     );
   }
 
@@ -364,6 +359,4 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
     );
   }
-
-
 }
