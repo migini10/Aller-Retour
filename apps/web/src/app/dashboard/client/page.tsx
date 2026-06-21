@@ -52,6 +52,27 @@ export default function ClientDashboard() {
   const [showLiveStatusModal, setShowLiveStatusModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      const token = localStorage.getItem('ar_auth_token');
+      if (!token) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const res = await fetch(`${apiUrl}/v1/wallets/my-balance`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWalletBalance(data.balance);
+        }
+      } catch (e) {
+        console.error("Erreur solde wallet", e);
+      }
+    };
+    fetchBalance();
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -178,7 +199,7 @@ export default function ClientDashboard() {
                   </div>
                   <div>
                     <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
-                    <p className="text-xl font-black text-white">45 000 <span className="text-sm font-bold text-cyan-400">FCFA</span></p>
+                    <p className="text-xl font-black text-white">{walletBalance !== null ? walletBalance.toLocaleString('fr-FR') : '---'} <span className="text-sm font-bold text-cyan-400">FCFA</span></p>
                     <Link href="/dashboard/client/wallet" className="text-[11px] text-cyan-400 font-bold hover:text-cyan-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
                       Voir mon compte <ArrowRight className="w-3 h-3" />
                     </Link>

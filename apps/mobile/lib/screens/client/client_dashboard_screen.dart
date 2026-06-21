@@ -33,6 +33,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   
   String _userName = 'Utilisateur';
   String _userPhone = '';
+  int? _walletBalance;
   
   String? _currentCity;
   List<Map<String, String>> _destinations = [];
@@ -52,6 +53,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     _destinations = List.from(_allDestinations);
     _loadUserData();
     _fetchLocationAndDestinations();
+    _fetchWalletBalance();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -79,6 +81,29 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       _userName = prefs.getString('userName') ?? 'Utilisateur';
       _userPhone = prefs.getString('userPhone') ?? '';
     });
+  }
+
+  Future<void> _fetchWalletBalance() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) return;
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      final response = await http.get(
+        Uri.parse('$apiUrl/v1/wallets/my-balance'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _walletBalance = data['balance'] is num ? (data['balance'] as num).toInt() : int.tryParse(data['balance'].toString());
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Erreur solde wallet: $e');
+    }
   }
 
   Future<void> _fetchLocationAndDestinations() async {
@@ -501,9 +526,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Text(
-                                '45 000',
-                                style: TextStyle(
+                              Text(
+                                _walletBalance != null ? _walletBalance.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ') : '---',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 32,
                                   fontWeight: FontWeight.w900,
