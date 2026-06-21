@@ -17,6 +17,7 @@ class WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<WalletScreen> {
   int? _walletBalance;
+  List<dynamic> _transactions = [];
 
   @override
   void initState() {
@@ -39,6 +40,18 @@ class _WalletScreenState extends State<WalletScreen> {
         if (mounted) {
           setState(() {
             _walletBalance = data['balance'] is num ? (data['balance'] as num).toInt() : int.tryParse(data['balance'].toString());
+          });
+        }
+      }
+      final responseTx = await http.get(
+        Uri.parse('$apiUrl/v1/wallets/my-transactions'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (responseTx.statusCode == 200) {
+        final dataTx = json.decode(responseTx.body);
+        if (mounted) {
+          setState(() {
+            _transactions = dataTx;
           });
         }
       }
@@ -235,44 +248,32 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Transaction 1
-            _buildTransactionItem(
-              context: context,
-              icon: Icons.arrow_downward,
-              iconColor: Colors.blueAccent,
-              title: 'Dépôt Wave Mobile Money',
-              date: '17 Mai 2026 • 10:45',
-              amount: '+ 15 000 FCFA',
-              amountColor: Colors.blueAccent,
-              status: 'Complété',
-              statusColor: Colors.greenAccent,
-            ),
+            // Transactions List
+            if (_transactions.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Text('Aucune transaction pour le moment.', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)),
+              )
+            else
+              ..._transactions.map((tx) {
+                final isPositive = tx['type'] == 'DEPOSIT' || tx['type'] == 'REFUND';
+                final amount = (tx['amount'] as num).toInt();
+                final String title = tx['type'] == 'DEPOSIT' ? 'Rechargement Wallet' : tx['type'] == 'TICKET_PURCHASE' ? 'Achat de Billet' : tx['type'] == 'TRANSFER' ? 'Transfert' : 'Transaction';
+                // Very basic date parsing for flutter
+                final dateStr = tx['createdAt'].toString().substring(0, 10);
+                return _buildTransactionItem(
+                  context: context,
+                  icon: isPositive ? Icons.arrow_downward : Icons.arrow_upward,
+                  iconColor: isPositive ? Colors.greenAccent : Colors.orangeAccent,
+                  title: title,
+                  date: '$dateStr • Réf: ${tx['id'].toString().substring(0, 8).toUpperCase()}',
+                  amount: '${isPositive ? '+' : '-'} $amount FCFA',
+                  amountColor: isPositive ? Colors.greenAccent : Colors.white,
+                  status: tx['status'],
+                  statusColor: tx['status'] == 'COMPLETED' ? Colors.greenAccent : (tx['status'] == 'ESCROW' ? Colors.orangeAccent : Colors.grey),
+                );
+              }),
             
-            // Transaction 2
-            _buildTransactionItem(
-              context: context,
-              icon: Icons.arrow_upward,
-              iconColor: Colors.orangeAccent,
-              title: 'Réservation Dakar ➔ Touba',
-              date: '15 Mai 2026 • 14:20',
-              amount: '- 4 500 FCFA',
-              amountColor: Colors.white,
-              status: 'En Séquestre',
-              statusColor: Colors.orangeAccent,
-            ),
-            
-            // Transaction 3
-            _buildTransactionItem(
-              context: context,
-              icon: Icons.credit_card,
-              iconColor: Colors.purpleAccent,
-              title: 'Paiement Colis Express',
-              date: '12 Mai 2026 • 09:15',
-              amount: '- 2 500 FCFA',
-              amountColor: Colors.white,
-              status: 'Terminé',
-              statusColor: Colors.grey,
-            ),
             
             const SizedBox(height: 20),
             SizedBox(

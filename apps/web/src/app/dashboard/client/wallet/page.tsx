@@ -8,6 +8,7 @@ import { useModal } from '../../../../components/ModalContext';
 export default function WalletPage() {
   const { openModal, openRechargeWizard, openTransferWizard } = useModal();
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -15,12 +16,21 @@ export default function WalletPage() {
       if (!token) return;
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        
         const res = await fetch(`${apiUrl}/v1/wallets/my-balance`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
           setWalletBalance(data.balance);
+        }
+
+        const resTx = await fetch(`${apiUrl}/v1/wallets/my-transactions`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (resTx.ok) {
+          const dataTx = await resTx.json();
+          setTransactions(dataTx);
         }
       } catch (e) {
         console.error("Erreur solde wallet", e);
@@ -116,63 +126,44 @@ export default function WalletPage() {
                 </button>
               </div>
 
-              <div className="space-y-4 flex-1">
-                {/* Transaction 1 */}
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-100 dark:border-[#222222] group hover:border-blue-500/30 transition-colors gap-3">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                      <ArrowDownLeft className="w-6 h-6" />
+              <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                {transactions.length === 0 ? (
+                  <p className="text-slate-500 text-sm italic py-4">Aucune transaction pour le moment.</p>
+                ) : (
+                  transactions.map((tx) => (
+                    <div key={tx.id} className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-100 dark:border-[#222222] group hover:border-blue-500/30 transition-colors gap-3">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                          tx.type === 'DEPOSIT' || tx.type === 'REFUND' 
+                            ? 'bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white' 
+                            : 'bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white'
+                        }`}>
+                          {tx.type === 'DEPOSIT' || tx.type === 'REFUND' ? <ArrowDownLeft className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white text-base">
+                            {tx.type === 'DEPOSIT' ? 'Rechargement Wallet' : tx.type === 'TICKET_PURCHASE' ? 'Achat de Billet' : tx.type === 'TRANSFER' ? 'Transfert' : 'Transaction'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" /> {new Date(tx.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} • Réf: {tx.id.split('-')[0].toUpperCase()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="sm:text-right ml-16 sm:ml-0">
+                        <p className={`font-black text-lg ${tx.type === 'DEPOSIT' || tx.type === 'REFUND' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}`}>
+                          {tx.type === 'DEPOSIT' || tx.type === 'REFUND' ? '+' : '-'} {tx.amount.toLocaleString('fr-FR')} FCFA
+                        </p>
+                        <p className={`text-[10px] uppercase font-bold inline-block px-2 py-0.5 rounded border mt-1 ${
+                          tx.status === 'COMPLETED' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' : 
+                          tx.status === 'ESCROW' ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' :
+                          'text-slate-500 bg-slate-500/10 border-slate-500/20'
+                        }`}>
+                          {tx.status}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-900 dark:text-white text-base">Dépôt Wave Mobile Money</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> 17 Mai 2026 • 10:45 • Réf: WAV_748923
-                      </p>
-                    </div>
-                  </div>
-                  <div className="sm:text-right ml-16 sm:ml-0">
-                    <p className="font-black text-blue-600 dark:text-blue-400 text-lg">+ 15 000 FCFA</p>
-                    <p className="text-[10px] uppercase font-bold text-emerald-500 bg-emerald-500/10 inline-block px-2 py-0.5 rounded border border-emerald-500/20 mt-1">Complété</p>
-                  </div>
-                </div>
-
-                {/* Transaction 2 */}
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-100 dark:border-[#222222] group hover:border-orange-500/30 transition-colors gap-3">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                      <ArrowUpRight className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 dark:text-white text-base">Réservation Dakar ➔ Touba</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> 15 Mai 2026 • 14:20 • Réf: TKT_0014
-                      </p>
-                    </div>
-                  </div>
-                  <div className="sm:text-right ml-16 sm:ml-0">
-                    <p className="font-black text-slate-900 dark:text-white text-lg">- 4 500 FCFA</p>
-                    <p className="text-[10px] uppercase font-bold text-amber-500 bg-amber-500/10 inline-block px-2 py-0.5 rounded border border-amber-500/20 mt-1">En Séquestre</p>
-                  </div>
-                </div>
-
-                {/* Transaction 3 */}
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-100 dark:border-[#222222] group hover:border-purple-500/30 transition-colors gap-3 opacity-75">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                      <CreditCard className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 dark:text-white text-base">Paiement Colis Express</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> 12 Mai 2026 • 09:15 • Réf: COL_894
-                      </p>
-                    </div>
-                  </div>
-                  <div className="sm:text-right ml-16 sm:ml-0">
-                    <p className="font-black text-slate-900 dark:text-white text-lg">- 2 500 FCFA</p>
-                    <p className="text-[10px] uppercase font-bold text-slate-500 bg-slate-500/10 inline-block px-2 py-0.5 rounded border border-slate-500/20 mt-1">Terminé</p>
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
               
               <Link href="/dashboard/client/transactions" className="block text-center w-full mt-6 py-3.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-[#333333] text-slate-500 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-[#1A1A1A] hover:text-slate-900 dark:hover:text-white transition-colors">

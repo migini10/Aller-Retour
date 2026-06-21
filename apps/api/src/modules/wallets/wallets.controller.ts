@@ -16,6 +16,14 @@ export class WalletsController {
     return this.walletsService.getMyWalletBalance(req.user.id);
   }
 
+  @Get('my-transactions')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtenir l\\'historique des transactions de mon Wallet Aller-Retour' })
+  async getMyTransactions(@Req() req: any) {
+    return this.walletsService.getMyWalletTransactions(req.user.id);
+  }
+
   @Post('webhooks/wave')
   @ApiOperation({ summary: 'Webhook de notification instantanée de paiement Wave / OM' })
   async waveWebhook(@Body() body: { reference: string; amount: number; qrCodeToken: string }) {

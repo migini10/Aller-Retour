@@ -12,6 +12,26 @@ export class WalletsService {
     return wallet;
   }
 
+  async getMyWalletTransactions(userId: string) {
+    const wallet = await prisma.wallet.findFirst({
+      where: { userId, type: 'PASSENGER_WALLET' },
+    });
+    if (!wallet) throw new NotFoundException("Wallet introuvable.");
+
+    const transactions = await prisma.transaction.findMany({
+      where: { 
+        OR: [
+          { sourceWalletId: wallet.id },
+          { targetWalletId: wallet.id }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
+    return transactions;
+  }
+
+
   async processWavePaymentWebhook(paymentRef: string, amount: number, qrCodeToken: string) {
     const booking = await prisma.booking.findUnique({
       where: { qrCodeToken },
