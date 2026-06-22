@@ -37,6 +37,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   
   String? _currentCity;
   List<Map<String, String>> _destinations = [];
+  List<dynamic> activeParcels = [];
   
   final List<Map<String, String>> _allDestinations = [
     {'id': 'dakar', 'name': 'Dakar', 'price': '4000 FCFA', 'image': 'assets/images/destinations/dakar.jpg'},
@@ -930,13 +931,22 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Dakar → Touba • Arrivée estimée : 14h30',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 13,
-                    ),
-                  ),
+                  activeParcels.isNotEmpty 
+                    ? Text(
+                        'Dakar → Touba • Arrivée estimée : 14h30',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      )
+                    : Text(
+                        "Vos colis en transit s'afficheront ici.",
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                 ],
               ),
             ),

@@ -53,6 +53,7 @@ export default function ClientDashboard() {
   const [mounted, setMounted] = useState(false);
   const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [activeParcels, setActiveParcels] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -229,7 +230,11 @@ export default function ClientDashboard() {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis en transit</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
+                {activeParcels.length > 0 ? (
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
+                ) : (
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 italic">Vos colis en transit s'afficheront ici.</p>
+                )}
               </div>
               <div className="w-8 h-8 rounded-full border border-green-500/50 bg-white dark:bg-[#0F172A] flex items-center justify-center shrink-0">
                 <ArrowRight className="text-green-500 w-4 h-4" />
