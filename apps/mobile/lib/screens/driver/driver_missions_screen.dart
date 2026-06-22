@@ -226,6 +226,16 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     return dates;
   }
 
+  List<int> _getRecommendedPrices(String? origin, String? dest) {
+    String o = origin?.toLowerCase() ?? '';
+    String d = dest?.toLowerCase() ?? '';
+    if ((o.contains('dakar') && d.contains('touba')) || (o.contains('touba') && d.contains('dakar'))) return [4000, 5000];
+    if ((o.contains('dakar') && (d.contains('thies') || d.contains('thiès'))) || ((o.contains('thies') || o.contains('thiès')) && d.contains('dakar'))) return [2000, 2500];
+    if ((o.contains('dakar') && d.contains('mbour')) || (o.contains('mbour') && d.contains('dakar'))) return [2500, 3000];
+    if ((o.contains('dakar') && d.contains('saint')) || (o.contains('saint') && d.contains('dakar'))) return [5000, 6000];
+    return [3000, 5000];
+  }
+
   List<String> _getAvailableHours(String? selectedDate) {
     List<String> hours = [];
     DateTime now = DateTime.now();
@@ -401,7 +411,33 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
+                                    if (originCity != null && destinationCity != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: Wrap(
+                                          spacing: 6.0,
+                                          runSpacing: 4.0,
+                                          children: _getRecommendedPrices(originCity, destinationCity).map((price) {
+                                            return ActionChip(
+                                              label: Text('$price FCFA', style: const TextStyle(fontSize: 11, color: Color(0xFFF97316), fontWeight: FontWeight.bold)),
+                                              backgroundColor: const Color(0xFFF97316).withValues(alpha: 0.1),
+                                              side: const BorderSide(color: Color(0xFFF97316), width: 1),
+                                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                              onPressed: () {
+                                                setModalState(() {
+                                                  priceController.text = price.toString();
+                                                });
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(

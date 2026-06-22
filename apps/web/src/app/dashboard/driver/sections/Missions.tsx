@@ -183,6 +183,17 @@ export default function SectionMissions() {
   const [destSuggestions, setDestSuggestions] = useState<string[]>([]);
   const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
   const [showDestSuggestions, setShowDestSuggestions] = useState(false);
+  const [showPriceSuggestions, setShowPriceSuggestions] = useState(false);
+
+  const getRecommendedPrices = (origin: string, dest: string) => {
+    const o = origin?.toLowerCase() || '';
+    const d = dest?.toLowerCase() || '';
+    if ((o.includes('dakar') && d.includes('touba')) || (o.includes('touba') && d.includes('dakar'))) return [4000, 5000];
+    if ((o.includes('dakar') && (d.includes('thies') || d.includes('thiès'))) || ((o.includes('thies') || o.includes('thiès')) && d.includes('dakar'))) return [2000, 2500];
+    if ((o.includes('dakar') && d.includes('mbour')) || (o.includes('mbour') && d.includes('dakar'))) return [2500, 3000];
+    if ((o.includes('dakar') && d.includes('saint')) || (o.includes('saint') && d.includes('dakar'))) return [5000, 6000];
+    return [3000, 5000];
+  };
 
   const getTodayStr = () => {
     const d = new Date();
@@ -879,9 +890,25 @@ export default function SectionMissions() {
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative">
                   <label className="text-xs text-slate-400 font-medium">Prix par place (FCFA)</label>
-                  <input type="number" min="500" value={formData.pricePerSeat} onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 5000" />
+                  <input type="number" min="500" value={formData.pricePerSeat} 
+                    onFocus={() => setShowPriceSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowPriceSuggestions(false), 200)}
+                    onChange={e => setFormData({...formData, pricePerSeat: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 5000" />
+                  {showPriceSuggestions && formData.originCity && formData.destinationCity && (
+                    <ul className="absolute z-[100] w-full bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl mt-1 shadow-xl overflow-hidden transition-colors">
+                      {getRecommendedPrices(formData.originCity, formData.destinationCity).map(price => (
+                        <li key={price} onClick={() => {
+                           setFormData({...formData, pricePerSeat: price});
+                           setShowPriceSuggestions(false);
+                        }} className="px-4 py-2 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm font-medium transition-colors flex items-center justify-between">
+                          <span>{price} FCFA</span>
+                          <span className="text-xs text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-md">Courant</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Passagers prévus</label>
