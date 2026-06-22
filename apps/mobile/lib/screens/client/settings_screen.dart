@@ -289,9 +289,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 32),
           Text('À propos', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
           const SizedBox(height: 16),
-          _buildSettingsTile(Icons.info_outline, 'Conditions d\'utilisation', '', context),
-          _buildSettingsTile(Icons.privacy_tip_outlined, 'Politique de confidentialité', '', context),
-          _buildSettingsTile(Icons.help_outline, 'Aide et support', '', context),
+          _buildSettingsTile(Icons.info_outline, 'Conditions d\'utilisation', '', context, onTap: () => Navigator.pushNamed(context, '/terms')),
+          _buildSettingsTile(Icons.privacy_tip_outlined, 'Politique de confidentialité', '', context, onTap: () => Navigator.pushNamed(context, '/privacy')),
+          _buildSettingsTile(Icons.help_outline, 'Aide et support', '', context, onTap: () => Navigator.pushNamed(context, '/support')),
+          _buildSettingsTile(Icons.message_outlined, 'Contactez-nous', '', context, onTap: () => Navigator.pushNamed(context, '/contact')),
         ],
       ),
     );

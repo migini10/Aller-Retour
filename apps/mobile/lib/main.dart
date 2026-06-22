@@ -15,6 +15,12 @@ import 'screens/client/qr_code_screen.dart';
 import 'screens/client/profile_screen.dart';
 import 'screens/client/history_screen.dart';
 import 'screens/client/transactions_screen.dart';
+import 'screens/client/transactions_screen.dart';
+import 'screens/client/settings_screen.dart';
+import 'screens/contact_screen.dart';
+import 'screens/support_screen.dart';
+import 'screens/privacy_screen.dart';
+import 'screens/terms_screen.dart';
 import 'screens/client/expired_tickets_screen.dart';
 import 'screens/client/settings_screen.dart';
 import 'screens/driver/driver_marketplace_screen.dart';
@@ -137,6 +143,10 @@ class AllerRetourApp extends StatelessWidget {
         '/driver/settings': (context) => const DriverSettingsScreen(),
         '/driver/localisation': (context) => const DriverLocalisationScreen(),
         '/parrainage': (context) => const ParrainageScreen(),
+        '/contact': (context) => const ContactScreen(),
+        '/support': (context) => const SupportScreen(),
+        '/privacy': (context) => const PrivacyScreen(),
+        '/terms': (context) => const TermsScreen(),
       },
     );
   }

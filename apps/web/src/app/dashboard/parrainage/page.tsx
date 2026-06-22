@@ -171,10 +171,10 @@ export default function ParrainagePage() {
 
               {/* Links (Visible everywhere) */}
               <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
-                <Link href="#" className="hover:text-orange-500 transition-colors font-bold text-slate-700 dark:text-slate-300">Contact</Link>
-                <Link href="#" className="hover:text-orange-500 transition-colors">Aide & Support</Link>
-                <Link href="#" className="hover:text-orange-500 transition-colors">Confidentialité</Link>
-                <Link href="#" className="hover:text-orange-500 transition-colors">Conditions</Link>
+                <Link href="/contact" className="hover:text-orange-500 transition-colors font-bold text-slate-700 dark:text-slate-300">Contact</Link>
+                <Link href="/support" className="hover:text-orange-500 transition-colors">Aide & Support</Link>
+                <Link href="/privacy" className="hover:text-orange-500 transition-colors">Confidentialité</Link>
+                <Link href="/terms" className="hover:text-orange-500 transition-colors">Conditions</Link>
               </div>
             </div>
 
