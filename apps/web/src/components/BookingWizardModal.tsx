@@ -17,9 +17,10 @@ interface BookingWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialType?: 'bus' | 'allo-dakar';
+  initialData?: { origin?: string; destination?: string };
 }
 
-export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar' }: BookingWizardModalProps) {
+export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar', initialData }: BookingWizardModalProps) {
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
   const { isAuthenticated, openAuthModal, user } = useAuth();
@@ -27,8 +28,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [globalSuccess, setGlobalSuccess] = useState('');
 
   const [searchParams, setSearchParams] = useState({
-    depart: '',
-    arrivee: '',
+    depart: initialData?.origin || '',
+    arrivee: initialData?.destination || '',
     quartierArrivee: '',
     date: '',
     heure: '',
@@ -69,8 +70,8 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       setGlobalError('');
       setGlobalSuccess('');
       setSearchParams({
-        depart: '',
-        arrivee: '',
+        depart: initialData?.origin || '',
+        arrivee: initialData?.destination || '',
         quartierArrivee: '',
         date: '',
         heure: '',
@@ -95,7 +96,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       setQueueMessage('');
       setAlternativeTrips([]);
     }
-  }, [isOpen, initialType, userName, userPhone]);
+  }, [isOpen, initialType, userName, userPhone, initialData]);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);

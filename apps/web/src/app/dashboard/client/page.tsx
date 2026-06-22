@@ -97,7 +97,23 @@ export default function ClientDashboard() {
               if (localityObj) {
                 const city = localityObj.long_name;
                 setCurrentCity(city);
-                setDestinations(getPopularDestinations(city));
+                const popularDests = getPopularDestinations(city).map(d => ({ ...d }));
+                setDestinations(popularDests);
+                
+                // Fetch dynamic prices
+                const destsWithPrices = [...popularDests];
+                for (let i = 0; i < destsWithPrices.length; i++) {
+                  try {
+                    const res = await fetch(`/api/missions/popular-prices?origin=${encodeURIComponent(city)}&destination=${encodeURIComponent(destsWithPrices[i].name)}`);
+                    if (res.ok) {
+                      const data = await res.json();
+                      if (data.prices && data.prices.length > 0) {
+                        destsWithPrices[i].price = `${data.prices[0]} FCFA`;
+                      }
+                    }
+                  } catch (e) {}
+                }
+                setDestinations([...destsWithPrices]);
               }
             }
           } catch (e) {
@@ -359,7 +375,7 @@ export default function ClientDashboard() {
           <div className="-mx-5 px-5 overflow-x-auto lg:overflow-x-visible no-scrollbar">
             <div className="flex lg:grid lg:grid-cols-6 gap-4 pb-4 lg:pb-0">
               {destinations.map((dest) => (
-                <div key={dest.id} className="w-36 lg:w-auto h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0">
+                <div key={dest.id} onClick={() => openBookingWizard('allo-dakar', { origin: currentCity || '', destination: dest.name })} className="w-36 lg:w-auto h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0 cursor-pointer">
                   <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                   <h3 className="text-white font-bold text-lg relative z-10">{dest.name}</h3>

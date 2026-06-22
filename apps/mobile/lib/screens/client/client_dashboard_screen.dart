@@ -176,8 +176,39 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           return 0;
         });
       }
-      _destinations = filtered;
+      _destinations = filtered.map((d) => Map<String, String>.from(d)).toList();
     });
+
+    // Fetch dynamic prices
+    final String apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+    List<Map<String, String>> updatedDests = List.from(_destinations);
+    
+    for (int i = 0; i < updatedDests.length; i++) {
+      try {
+        final origin = Uri.encodeComponent(currentCity);
+        final dest = Uri.encodeComponent(updatedDests[i]['name']!);
+        final response = await http.get(Uri.parse('$apiUrl/v1/missions/popular-prices?origin=$origin&destination=$dest'));
+        
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          if (data['prices'] != null && (data['prices'] as List).isNotEmpty) {
+            updatedDests[i] = {
+              ...updatedDests[i],
+              'price': '${data['prices'][0]} FCFA',
+            };
+          }
+        }
+      } catch (e) {
+        debugPrint('Error fetching price for ${updatedDests[i]['name']}: $e');
+      }
+    }
+    
+    if (mounted) {
+      setState(() {
+        _destinations = updatedDests;
+      });
+    }
+  }
   }
 
   @override
@@ -1217,7 +1248,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   }
 
   Widget _buildDestinationCard(BuildContext context, String city, String price, String imageUrl) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        _showReservationBottomSheet(context, initialOrigin: _currentCity, initialDestination: city);
+      },
+      child: Container(
       width: 140,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -1279,7 +1314,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       ),
     );
   }
-void _showReservationBottomSheet(BuildContext context) {
+  void _showReservationBottomSheet(BuildContext context, {String? initialOrigin, String? initialDestination}) {
     bool isLocating = false;
     int step = 1;
     bool isSearching = false;
@@ -1297,9 +1332,9 @@ void _showReservationBottomSheet(BuildContext context) {
     String queueMessage = '';
     List<dynamic> alternativeTrips = [];
 
-    final departController = TextEditingController();
+    final departController = TextEditingController(text: initialOrigin ?? '');
     final pickupController = TextEditingController();
-    final arriveeController = TextEditingController();
+    final arriveeController = TextEditingController(text: initialDestination ?? '');
     final quartierController = TextEditingController();
     String? date;
     String? passagers = '1 Passager';

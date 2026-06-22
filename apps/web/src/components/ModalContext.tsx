@@ -10,7 +10,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 interface ModalContextType {
   openModal: (title: string, description?: string, buttonText?: string) => void;
   closeModal: () => void;
-  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent) => void;
+  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => void;
   openColisWizard: () => void;
   openRechargeWizard: () => void;
   openTransferWizard: () => void;
@@ -19,7 +19,7 @@ interface ModalContextType {
 const ModalContext = createContext<ModalContextType>({
   openModal: () => {},
   closeModal: () => {},
-  openBookingWizard: (initialType) => {},
+  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => {},
   openColisWizard: () => {},
   openRechargeWizard: () => {},
   openTransferWizard: () => {},
@@ -29,11 +29,12 @@ export const useModal = () => useContext(ModalContext);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isBookingWizardOpen, setIsBookingWizardOpen] = useState(false);
   const [isColisOpen, setIsColisOpen] = useState(false);
   const [isRechargeOpen, setIsRechargeOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
-  const [bookingType, setBookingType] = useState<'bus' | 'allo-dakar'>('bus');
+  const [bookingWizardType, setBookingWizardType] = useState<'bus' | 'allo-dakar'>('allo-dakar');
+  const [bookingWizardData, setBookingWizardData] = useState<{ origin?: string; destination?: string } | undefined>();
   const [modalConfig, setModalConfig] = useState({
     title: '',
     description: 'Remplissez les informations ci-dessous pour continuer.',
@@ -51,12 +52,14 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   const closeModal = () => setIsOpen(false);
 
-  const openBookingWizard = (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent) => {
-    const type = typeof typeOrEvent === 'string' ? typeOrEvent : 'bus';
-    setBookingType(type);
-    console.log("Setting isBookingOpen to true for type:", type); setIsBookingOpen(true);
+  const openBookingWizard = (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => {
+    if (typeof typeOrEvent === 'string') {
+      setBookingWizardType(typeOrEvent);
+    }
+    setBookingWizardData(initialData);
+    setIsBookingWizardOpen(true);
   };
-  const closeBookingWizard = () => setIsBookingOpen(false);
+  const closeBookingWizard = () => setIsBookingWizardOpen(false);
 
   const openColisWizard = () => setIsColisOpen(true);
   const closeColisWizard = () => setIsColisOpen(false);
@@ -78,11 +81,14 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         buttonText={modalConfig.buttonText}
       />
       <ErrorBoundary>
-        <BookingWizardModal 
-          isOpen={isBookingOpen}
-          onClose={closeBookingWizard}
-          initialType={bookingType}
-        />
+        {isBookingWizardOpen && (
+          <BookingWizardModal 
+            isOpen={isBookingWizardOpen} 
+            onClose={closeBookingWizard} 
+            initialType={bookingWizardType}
+            initialData={bookingWizardData}
+          />
+        )}
         <ColisWizardModal 
           isOpen={isColisOpen}
           onClose={closeColisWizard}
