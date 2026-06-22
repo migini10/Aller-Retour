@@ -303,4 +303,54 @@ export class TripsController {
       return { success: false, error: error?.message || 'Erreur lors de la suppression de la mission' };
     }
   }
+  @Get('popular-prices')
+  @ApiOperation({ summary: 'Obtenir les prix les plus populaires pour un trajet donné' })
+  async getPopularPrices(
+    @Query('origin') origin?: string,
+    @Query('destination') destination?: string,
+  ) {
+    if (!origin || !destination) {
+      return { prices: [] };
+    }
+
+    const o = mapToDatabaseCity(origin) || origin;
+    const d = mapToDatabaseCity(destination) || destination;
+
+    try {
+      const popularTrips = await prisma.trip.groupBy({
+        by: ['pricePerSeat'],
+        where: {
+          OR: [
+            {
+              route: {
+                originStation: { city: { equals: o, mode: 'insensitive' } },
+                destinationStation: { city: { equals: d, mode: 'insensitive' } },
+              }
+            },
+            {
+              route: {
+                originStation: { city: { equals: d, mode: 'insensitive' } },
+                destinationStation: { city: { equals: o, mode: 'insensitive' } },
+              }
+            }
+          ]
+        },
+        _count: {
+          pricePerSeat: true,
+        },
+        orderBy: {
+          _count: {
+            pricePerSeat: 'desc',
+          },
+        },
+        take: 2,
+      });
+
+      const prices = popularTrips.map(p => p.pricePerSeat);
+      return { prices };
+    } catch (error) {
+      console.error('Error fetching popular prices:', error);
+      return { prices: [] };
+    }
+  }
 }

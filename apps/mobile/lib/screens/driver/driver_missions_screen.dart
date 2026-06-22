@@ -226,14 +226,33 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     return dates;
   }
 
-  List<int> _getRecommendedPrices(String? origin, String? dest) {
-    String o = origin?.toLowerCase() ?? '';
-    String d = dest?.toLowerCase() ?? '';
-    if ((o.contains('dakar') && d.contains('touba')) || (o.contains('touba') && d.contains('dakar'))) return [4000, 5000];
-    if ((o.contains('dakar') && (d.contains('thies') || d.contains('thiès'))) || ((o.contains('thies') || o.contains('thiès')) && d.contains('dakar'))) return [2000, 2500];
-    if ((o.contains('dakar') && d.contains('mbour')) || (o.contains('mbour') && d.contains('dakar'))) return [2500, 3000];
-    if ((o.contains('dakar') && d.contains('saint')) || (o.contains('saint') && d.contains('dakar'))) return [5000, 6000];
-    return [3000, 5000];
+  List<int> _dynamicRecommendedPrices = [];
+
+  Future<void> _fetchPopularPrices(String? origin, String? dest, StateSetter setModalState) async {
+    if (origin == null || dest == null) return;
+    try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.get(
+        Uri.parse('$nextApiUrl/api/missions/popular-prices?origin=$origin&destination=$dest'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['prices'] != null && data['prices'].isNotEmpty) {
+          setModalState(() {
+            _dynamicRecommendedPrices = List<int>.from(data['prices']);
+          });
+        } else {
+          setModalState(() {
+            _dynamicRecommendedPrices = [];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching popular prices: $e');
+      setModalState(() {
+        _dynamicRecommendedPrices = [];
+      });
+    }
   }
 
   List<String> _getAvailableHours(String? selectedDate) {
@@ -300,6 +319,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     final List<String> cities = ['Dakar', 'Touba', 'Thiès', 'Saint-Louis', 'Kaolack', 'Ziguinchor', 'Mbour', 'Diourbel', 'Tambacounda'];
 
     bool isLoading = false;
+    bool _isPricesFetchedInit = false;
 
     showModalBottomSheet(
       context: context,
@@ -308,6 +328,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
+            if (!_isPricesFetchedInit && originCity != null && destinationCity != null) {
+              _isPricesFetchedInit = true;
+              _fetchPopularPrices(originCity, destinationCity, setModalState);
+            }
+
             final List<Map<String, String>> availableDates = _getAvailableDates();
             if (date != null && !availableDates.any((d) => d['value'] == date)) {
               try {
@@ -355,11 +380,17 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildDropdown('Départ', originCity, cities, (v) => setModalState(() => originCity = v!)),
+                                child: _buildDropdown('Départ', originCity, cities, (v) {
+                                  setModalState(() => originCity = v!);
+                                  _fetchPopularPrices(originCity, destinationCity, setModalState);
+                                }),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildDropdown('Arrivée', destinationCity, cities, (v) => setModalState(() => destinationCity = v!)),
+                                child: _buildDropdown('Arrivée', destinationCity, cities, (v) {
+                                  setModalState(() => destinationCity = v!);
+                                  _fetchPopularPrices(originCity, destinationCity, setModalState);
+                                }),
                               ),
                             ],
                           ),
@@ -415,13 +446,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     _buildTextFieldController('Prix par place (FCFA)', priceController, icon: Icons.payments_outlined, keyboardType: TextInputType.number, hintText: 'ex: 5000'),
-                                    if (originCity != null && destinationCity != null)
+                                    if (originCity != null && destinationCity != null && _dynamicRecommendedPrices.isNotEmpty)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 8.0),
                                         child: Wrap(
                                           spacing: 6.0,
                                           runSpacing: 4.0,
-                                          children: _getRecommendedPrices(originCity, destinationCity).map((price) {
+                                          children: _dynamicRecommendedPrices.map((price) {
                                             return ActionChip(
                                               label: Text('$price FCFA', style: const TextStyle(fontSize: 11, color: Color(0xFFF97316), fontWeight: FontWeight.bold)),
                                               backgroundColor: const Color(0xFFF97316).withValues(alpha: 0.1),
