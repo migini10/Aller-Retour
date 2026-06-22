@@ -882,16 +882,25 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   Widget _buildLiveStatusSection(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Appliquer les mêmes règles : ouvrir la carte in-app
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(
-            mission: {
-              'trajet': 'Dakar → Touba',
-              'statut': 'En transit',
-              'destinataire': 'Client',
-            },
-          ),
-        ));
+        if (activeParcels.isNotEmpty) {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(
+              mission: {
+                'trajet': 'Dakar → Touba',
+                'statut': 'En transit',
+                'destinataire': 'Client',
+              },
+            ),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Vous n'avez aucun colis en cours de livraison."),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(16),

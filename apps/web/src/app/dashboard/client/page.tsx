@@ -223,7 +223,13 @@ export default function ClientDashboard() {
 
         {/* Statut en Direct */}
         <div className="pt-4">
-          <button onClick={() => setShowLiveStatusModal(true)} className="w-full text-left bg-gradient-to-br from-green-50 to-white dark:from-[#1E293B] dark:to-[#0F172A] border border-green-200 dark:border-green-500/30 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex items-center gap-4 hover:scale-[1.01] transition-transform cursor-pointer">
+          <button onClick={() => {
+            if (activeParcels.length > 0) {
+              setShowLiveStatusModal(true);
+            } else {
+              alert("Vous n'avez aucun colis en cours de livraison.");
+            }
+          }} className="w-full text-left bg-gradient-to-br from-green-50 to-white dark:from-[#1E293B] dark:to-[#0F172A] border border-green-200 dark:border-green-500/30 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex items-center gap-4 hover:scale-[1.01] transition-transform cursor-pointer">
             <div className="flex items-center gap-4 w-full">
               <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
