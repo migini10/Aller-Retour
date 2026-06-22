@@ -54,6 +54,7 @@ export default function ClientDashboard() {
   const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [activeParcels, setActiveParcels] = useState<any[]>([]);
+  const [showNoParcelWarning, setShowNoParcelWarning] = useState(false);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -227,7 +228,8 @@ export default function ClientDashboard() {
             if (activeParcels.length > 0) {
               setShowLiveStatusModal(true);
             } else {
-              alert("Vous n'avez aucun colis en cours de livraison.");
+              setShowNoParcelWarning(true);
+              setTimeout(() => setShowNoParcelWarning(false), 3000);
             }
           }} className="w-full text-left bg-gradient-to-br from-green-50 to-white dark:from-[#1E293B] dark:to-[#0F172A] border border-green-200 dark:border-green-500/30 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] flex items-center gap-4 hover:scale-[1.01] transition-transform cursor-pointer">
             <div className="flex items-center gap-4 w-full">
@@ -240,6 +242,11 @@ export default function ClientDashboard() {
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
                 ) : (
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 italic">Vos colis en transit s'afficheront ici.</p>
+                )}
+                {showNoParcelWarning && (
+                  <p className="text-orange-500 text-xs mt-1 font-medium animate-pulse">
+                    Vous n'avez aucun colis en cours de livraison.
+                  </p>
                 )}
               </div>
               <div className="w-8 h-8 rounded-full border border-green-500/50 bg-white dark:bg-[#0F172A] flex items-center justify-center shrink-0">
