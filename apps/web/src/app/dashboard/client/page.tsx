@@ -309,8 +309,7 @@ export default function ClientDashboard() {
                     <p className="text-white/90 text-sm line-clamp-2">Gagnez 1000 FCFA sur votre prochain trajet</p>
                   </div>
                 </Link>
-                {/* Promo 2 */}
-                <Link href="/dashboard/colis" className="w-80 lg:w-full h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-all" style={{ scrollSnapAlign: 'start' }}>
+                <Link href="/dashboard/voyagez-leger" className="w-80 lg:w-full h-40 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-400 p-6 relative overflow-hidden shadow-lg shadow-emerald-500/20 block hover:scale-[1.02] transition-all" style={{ scrollSnapAlign: 'start' }}>
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 text-white/20">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                   </div>
