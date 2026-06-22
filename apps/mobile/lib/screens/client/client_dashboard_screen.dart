@@ -150,6 +150,51 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 activeParcels = [];
               }
             }
+
+            final history = myParcels.map((p) {
+              String title = 'Colis enregistré';
+              IconData icon = Icons.inventory_2;
+              Color color = Colors.orangeAccent;
+              DateTime timeVal = p['updatedAt'] != null ? DateTime.parse(p['updatedAt']).toLocal() : DateTime.now();
+              
+              if (p['statut'] == 'Livré') {
+                title = 'Colis livré';
+                icon = Icons.check_circle;
+                color = Colors.greenAccent;
+                if (p['deliveredAt'] != null) timeVal = DateTime.parse(p['deliveredAt']).toLocal();
+              } else if (p['statut'] == 'En transit') {
+                title = 'Colis en transit';
+                icon = Icons.local_shipping;
+                color = Colors.indigoAccent;
+                if (p['inTransitAt'] != null) timeVal = DateTime.parse(p['inTransitAt']).toLocal();
+              } else if (p['statut'] == 'Accepté') {
+                title = 'Colis pris en charge';
+                icon = Icons.check;
+                color = Colors.blueAccent;
+                if (p['acceptedAt'] != null) timeVal = DateTime.parse(p['acceptedAt']).toLocal();
+              }
+
+              final diffH = DateTime.now().difference(timeVal).inHours;
+              String timeStr = "À l'instant";
+              if (diffH > 24) {
+                timeStr = 'Il y a ${diffH ~/ 24}j';
+              } else if (diffH >= 1) {
+                timeStr = 'Il y a ${diffH}h';
+              }
+
+              return {
+                'title': title,
+                'subtitle': (p['trajet'] ?? '').split('→').last.trim(),
+                'time': timeStr,
+                'icon': icon,
+                'color': color,
+                'rawTime': timeVal.millisecondsSinceEpoch,
+              };
+            }).toList();
+            
+            history.sort((a, b) => (b['rawTime'] as int).compareTo(a['rawTime'] as int));
+            recentHistory = history.take(2).toList();
+
           });
         }
       }
@@ -1165,8 +1210,16 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         ),
         const SizedBox(height: 20),
         if (recentHistory.isNotEmpty) ...[
-          _buildTimelineItem(context, 'Réservation confirmée', 'Dakar - Touba', 'Il y a 2h', Icons.check_circle, const Color(0xFF10B981), isLast: false),
-          _buildTimelineItem(context, 'Colis livré', 'Touba - Dakar', 'Hier', Icons.local_shipping, const Color(0xFF3B82F6), isLast: true),
+          for (var i = 0; i < recentHistory.length; i++)
+            _buildTimelineItem(
+              context, 
+              recentHistory[i]['title'], 
+              recentHistory[i]['subtitle'], 
+              recentHistory[i]['time'], 
+              recentHistory[i]['icon'], 
+              recentHistory[i]['color'], 
+              isLast: i == recentHistory.length - 1
+            ),
         ] else
           Center(
             child: Padding(

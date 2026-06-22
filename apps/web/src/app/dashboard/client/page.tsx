@@ -121,6 +121,39 @@ export default function ClientDashboard() {
               setActiveParcels([]);
             }
           }
+
+          const history = myParcels.map((p: any) => {
+            let title = 'Colis enregistré';
+            let icon = <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>;
+            let color = 'orange';
+            let timeVal = new Date(p.updatedAt).getTime();
+            
+            if (p.statut === 'Livré') {
+              title = 'Colis livré';
+              icon = <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+              color = 'green';
+              if (p.deliveredAt) timeVal = new Date(p.deliveredAt).getTime();
+            } else if (p.statut === 'En transit') {
+              title = 'Colis en transit';
+              icon = <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>;
+              color = 'indigo';
+              if (p.inTransitAt) timeVal = new Date(p.inTransitAt).getTime();
+            } else if (p.statut === 'Accepté') {
+              title = 'Colis pris en charge';
+              icon = <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
+              color = 'blue';
+              if (p.acceptedAt) timeVal = new Date(p.acceptedAt).getTime();
+            }
+
+            const diffH = (new Date().getTime() - timeVal) / (1000 * 60 * 60);
+            let timeStr = "À l'instant";
+            if (diffH > 24) timeStr = `Il y a ${Math.floor(diffH / 24)}j`;
+            else if (diffH >= 1) timeStr = `Il y a ${Math.floor(diffH)}h`;
+
+            return { title, subtitle: p.trajet, time: timeStr, icon, color, rawTime: timeVal };
+          }).sort((a: any, b: any) => b.rawTime - a.rawTime).slice(0, 2);
+
+          setRecentHistory(history);
         }
       } catch (e) {
         console.error("Erreur récupération colis", e);
@@ -407,8 +440,26 @@ export default function ClientDashboard() {
             </h2>
             <div className="flex flex-col bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800/80 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] h-40 justify-center relative overflow-hidden">
               {recentHistory.length > 0 ? (
-                <div className="flex flex-col justify-between h-full">
-                  {/* Assuming items would be mapped here in the future */}
+                <div className="flex flex-col gap-3 h-full justify-center">
+                  {recentHistory.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                        item.color === 'green' ? 'bg-green-100 dark:bg-green-500/20' :
+                        item.color === 'orange' ? 'bg-orange-100 dark:bg-orange-500/20' :
+                        item.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-500/20' :
+                        'bg-blue-100 dark:bg-blue-500/20'
+                      }`}>
+                        {item.icon}
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{item.title}</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.subtitle}</p>
+                      </div>
+                      <div className="text-xs font-medium text-slate-400 shrink-0">
+                        {item.time}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-center opacity-70">
