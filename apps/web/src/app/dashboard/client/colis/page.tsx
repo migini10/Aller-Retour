@@ -355,24 +355,27 @@ export default function ColisPage() {
                 <div className="relative">
                   <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'En attente de prise en charge' ? 'bg-orange-500 border-orange-200 dark:border-orange-900 shadow-[0_0_0_4px_rgba(249,115,22,0.2)]' : 'bg-orange-500 border-white dark:border-[#111111]'}`}></div>
                   <h4 className={`font-bold ${trackingColis.statut === 'En attente de prise en charge' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>En attente de prise en charge</h4>
-                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {trackingColis.date}</p>
+                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(trackingColis.date).toLocaleDateString('fr-FR')} {trackingColis.time}</p>
                 </div>
 
                 <div className="relative">
-                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Accepté' ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
-                  <h4 className={`font-bold ${trackingColis.statut === 'Accepté' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Course acceptée par un chauffeur</h4>
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${(trackingColis.statut === 'Accepté' || trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') ? 'bg-blue-500 border-blue-200 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${(trackingColis.statut === 'Accepté' || trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Course acceptée par un chauffeur</h4>
                   <p className="text-xs text-slate-400 mt-1">À l'agence de départ</p>
+                  {trackingColis.acceptedAt && <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(trackingColis.acceptedAt).toLocaleDateString('fr-FR')} {new Date(trackingColis.acceptedAt).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>}
                 </div>
 
                 <div className="relative">
-                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'En transit' ? 'bg-indigo-500 border-indigo-200 shadow-[0_0_0_4px_rgba(99,102,241,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
-                  <h4 className={`font-bold ${trackingColis.statut === 'En transit' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>En transit vers la destination</h4>
+                  <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${(trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') ? 'bg-indigo-500 border-indigo-200 shadow-[0_0_0_4px_rgba(99,102,241,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
+                  <h4 className={`font-bold ${(trackingColis.statut === 'En transit' || trackingColis.statut === 'Livré') ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>En transit vers la destination</h4>
                   <p className="text-xs text-slate-400 mt-1">{String(trackingColis.trajet || '').split('→')[1]?.trim() || 'Destination'}</p>
+                  {trackingColis.inTransitAt && <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(trackingColis.inTransitAt).toLocaleDateString('fr-FR')} {new Date(trackingColis.inTransitAt).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>}
                 </div>
 
                 <div className="relative">
                   <div className={`absolute -left-6 w-4 h-4 rounded-full border-4 ${trackingColis.statut === 'Livré' ? 'bg-emerald-500 border-emerald-200 shadow-[0_0_0_4px_rgba(16,185,129,0.2)]' : 'bg-slate-200 dark:bg-[#2A2A2A] border-white dark:border-[#111111]'}`}></div>
                   <h4 className={`font-bold ${trackingColis.statut === 'Livré' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Livré au destinataire</h4>
+                  {trackingColis.deliveredAt && <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(trackingColis.deliveredAt).toLocaleDateString('fr-FR')} {new Date(trackingColis.deliveredAt).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</p>}
                 </div>
               </div>
             </div>

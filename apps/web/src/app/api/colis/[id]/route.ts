@@ -24,9 +24,14 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     }
 
+    const updateData: any = { status: dbStatus };
+    if (dbStatus === ParcelStatus.ACCEPTED) updateData.acceptedAt = new Date();
+    if (dbStatus === ParcelStatus.IN_TRANSIT) updateData.inTransitAt = new Date();
+    if (dbStatus === ParcelStatus.DELIVERED) updateData.deliveredAt = new Date();
+
     const updated = await prisma.parcel.update({
       where: { trackingCode: id },
-      data: { status: dbStatus }
+      data: updateData
     });
 
     return NextResponse.json({ success: true, updated });

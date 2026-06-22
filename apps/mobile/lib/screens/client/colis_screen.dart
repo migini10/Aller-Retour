@@ -6,6 +6,7 @@ import 'colis/colis_total_screen.dart';
 import '../../widgets/shared_scaffold.dart';
 import 'widgets/colis_modal.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
@@ -19,6 +20,7 @@ class _ColisScreenState extends State<ColisScreen> {
   bool _isLoading = true;
   Timer? _pollingTimer;
   final TextEditingController searchController = TextEditingController();
+  String _userPhone = '';
 
   void _showTrackingModal(Map<String, dynamic> colis) {
     showModalBottomSheet(
@@ -149,38 +151,63 @@ class _ColisScreenState extends State<ColisScreen> {
                   ),
                 ),
               // Timeline
-              _buildTimelineStep(
-                title: 'En attente de prise en charge',
-                subtitle: colis['date'] ?? '',
-                isActive: colis['statut'] == 'En attente de prise en charge',
-                isDone: true,
-                color: Colors.orangeAccent,
-                isLast: false,
-              ),
-              _buildTimelineStep(
-                title: 'Course acceptée par un chauffeur',
-                subtitle: 'À l\'agence de départ',
-                isActive: colis['statut'] == 'Accepté',
-                isDone: colis['statut'] != 'En attente de prise en charge',
-                color: Colors.blueAccent,
-                isLast: false,
-              ),
-              _buildTimelineStep(
-                title: 'En transit vers la destination',
-                subtitle: (colis['trajet'] ?? '').split('→').last.trim(),
-                isActive: colis['statut'] == 'En transit',
-                isDone: colis['statut'] == 'Livré' || colis['statut'] == 'En transit',
-                color: Colors.indigoAccent,
-                isLast: false,
-              ),
-              _buildTimelineStep(
-                title: 'Livré au destinataire',
-                subtitle: '',
-                isActive: colis['statut'] == 'Livré',
-                isDone: colis['statut'] == 'Livré',
-                color: Colors.greenAccent,
-                isLast: true,
-              ),
+              Builder(builder: (context) {
+                String formatDate(String? isoString) {
+                  if (isoString == null || isoString.isEmpty) return '';
+                  try {
+                    final dt = DateTime.parse(isoString).toLocal();
+                    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                  } catch (e) {
+                    return '';
+                  }
+                }
+                
+                String formatDateOnly(String? date, String? time) {
+                  if (date == null || date.isEmpty) return '';
+                  final parts = date.split('-');
+                  if (parts.length == 3) {
+                    return '${parts[2]}/${parts[1]}/${parts[0]} ${time ?? ''}';
+                  }
+                  return '$date ${time ?? ''}';
+                }
+
+                return Column(
+                  children: [
+                    _buildTimelineStep(
+                      title: 'En attente de prise en charge',
+                      subtitle: formatDateOnly(colis['date'], colis['time']),
+                      isActive: colis['statut'] == 'En attente de prise en charge',
+                      isDone: true,
+                      color: Colors.orangeAccent,
+                      isLast: false,
+                    ),
+                    _buildTimelineStep(
+                      title: 'Course acceptée par un chauffeur',
+                      subtitle: 'À l\'agence de départ${colis['acceptedAt'] != null ? '\\n' + formatDate(colis['acceptedAt']) : ''}',
+                      isActive: colis['statut'] == 'Accepté',
+                      isDone: colis['statut'] != 'En attente de prise en charge',
+                      color: Colors.blueAccent,
+                      isLast: false,
+                    ),
+                    _buildTimelineStep(
+                      title: 'En transit vers la destination',
+                      subtitle: '${(colis['trajet'] ?? '').split('→').last.trim()}${colis['inTransitAt'] != null ? '\\n' + formatDate(colis['inTransitAt']) : ''}',
+                      isActive: colis['statut'] == 'En transit',
+                      isDone: colis['statut'] == 'Livré' || colis['statut'] == 'En transit',
+                      color: Colors.indigoAccent,
+                      isLast: false,
+                    ),
+                    _buildTimelineStep(
+                      title: 'Livré au destinataire',
+                      subtitle: colis['deliveredAt'] != null ? formatDate(colis['deliveredAt']) : '',
+                      isActive: colis['statut'] == 'Livré',
+                      isDone: colis['statut'] == 'Livré',
+                      color: Colors.greenAccent,
+                      isLast: true,
+                    ),
+                  ],
+                );
+              }),
               
               const SizedBox(height: 24),
               SizedBox(
@@ -265,6 +292,14 @@ class _ColisScreenState extends State<ColisScreen> {
   @override
   void initState() {
     super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userPhone = prefs.getString('userPhone') ?? '';
+    });
     _loadColis();
     _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       _loadColis(silent: true);
@@ -284,7 +319,8 @@ class _ColisScreenState extends State<ColisScreen> {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
-            localColis = jsonDecode(response.body);
+            final List<dynamic> data = jsonDecode(response.body);
+            localColis = data.where((p) => p['senderPhone'] == _userPhone || p['tel'] == _userPhone).toList();
             if (!silent) _isLoading = false;
           });
         }
@@ -491,6 +527,7 @@ class _ColisScreenState extends State<ColisScreen> {
                       progressValue: progress,
                       actionLabel: 'Détails',
                       onTapAction: () => _showTrackingModal(c),
+                      deliveryCode: (_userPhone.isNotEmpty && _userPhone == c['senderPhone'] && statut != 'Livré') ? c['deliveryCode']?.toString() : null,
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -609,6 +646,7 @@ class _ColisScreenState extends State<ColisScreen> {
     required VoidCallback onTapAction,
     double progressValue = 0.0,
     String? phone,
+    String? deliveryCode,
   }) {
     return GestureDetector(
       onTap: onTapAction,
@@ -701,6 +739,24 @@ class _ColisScreenState extends State<ColisScreen> {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (deliveryCode != null && deliveryCode.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          'Code de livraison: $deliveryCode',
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     if (showProgress) ...[
                       const SizedBox(height: 24),
                       LayoutBuilder(

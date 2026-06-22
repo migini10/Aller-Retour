@@ -321,6 +321,9 @@ model Parcel {
   status          ParcelStatus @default(REGISTERED)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  acceptedAt      DateTime?
+  inTransitAt     DateTime?
+  deliveredAt     DateTime?
 
   @@index([trackingCode])
   @@map("parcels")
