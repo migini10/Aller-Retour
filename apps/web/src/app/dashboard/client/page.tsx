@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCircle2, Gift, Map, Building2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
+import { useAuth } from '../../../components/AuthContext';
 
 const ALL_DESTINATIONS = [
   { id: 'dakar', name: 'Dakar', price: '4000 FCFA', image: '/images/destinations/dakar.jpg' },
@@ -46,6 +47,7 @@ const getPopularDestinations = (currentCity: string) => {
 
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
+  const { user } = useAuth();
   const carouselRef = useRef<HTMLDivElement>(null);
   
   const [currentCity, setCurrentCity] = useState<string | null>(null);
@@ -75,8 +77,38 @@ export default function ClientDashboard() {
         console.error("Erreur solde wallet", e);
       }
     };
+    
     fetchBalance();
+
+    window.addEventListener('focus', fetchBalance);
+    window.addEventListener('wallet_updated', fetchBalance);
+
+    return () => {
+      window.removeEventListener('focus', fetchBalance);
+      window.removeEventListener('wallet_updated', fetchBalance);
+    };
   }, []);
+
+  useEffect(() => {
+    const fetchParcels = async () => {
+      if (!user?.phone) return;
+      try {
+        const res = await fetch('/api/colis');
+        if (res.ok) {
+          const data = await res.json();
+          const myActiveParcels = data.filter((p: any) => 
+            (p.senderPhone === user.phone || p.tel === user.phone) && 
+            p.statut !== 'Livré' && p.statut !== 'En attente de prise en charge'
+          );
+          setActiveParcels(myActiveParcels);
+        }
+      } catch (e) {
+        console.error("Erreur récupération colis", e);
+      }
+    };
+    
+    fetchParcels();
+  }, [user]);
 
   useEffect(() => {
     setMounted(true);
@@ -257,7 +289,9 @@ export default function ClientDashboard() {
               <div className="flex-1">
                 <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis en transit</h3>
                 {activeParcels.length > 0 ? (
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Dakar &rarr; Touba &bull; Arrivée estimée : 14h30</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                    {activeParcels.length} colis en transit &bull; {activeParcels[0].trajet}
+                  </p>
                 ) : (
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 italic">Vos colis en transit s'afficheront ici.</p>
                 )}

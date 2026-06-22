@@ -21,6 +21,9 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
 
   const handleCloseAndReset = React.useCallback(() => {
     onClose();
+    if (step === 3) {
+      window.dispatchEvent(new Event('wallet_updated'));
+    }
     setTimeout(() => {
       setStep(1);
       setOperator(null);
@@ -28,7 +31,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
       setPhone('');
       setAmount('');
     }, 300);
-  }, [onClose]);
+  }, [onClose, step]);
 
   React.useEffect(() => {
     if (step === 3) {
@@ -78,6 +81,7 @@ export default function RechargeWizardModal({ isOpen, onClose }: RechargeWizardM
 
     // 5. Passer à l'écran final
     setStep(3);
+    window.dispatchEvent(new Event('wallet_updated'));
   };
 
   const handleNext = async () => {

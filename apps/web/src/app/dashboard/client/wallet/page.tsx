@@ -36,7 +36,16 @@ export default function WalletPage() {
         console.error("Erreur solde wallet", e);
       }
     };
+    
     fetchBalance();
+
+    window.addEventListener('focus', fetchBalance);
+    window.addEventListener('wallet_updated', fetchBalance);
+
+    return () => {
+      window.removeEventListener('focus', fetchBalance);
+      window.removeEventListener('wallet_updated', fetchBalance);
+    };
   }, []);
   
   return (

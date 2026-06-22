@@ -36,6 +36,7 @@ export async function GET() {
         taille: `${p.weightKg} kg`,
         prix: `${p.price} FCFA`,
         senderName: p.senderName,
+        senderPhone: p.senderPhone,
         deliveryCode: p.deliveryCode,
       };
     });
