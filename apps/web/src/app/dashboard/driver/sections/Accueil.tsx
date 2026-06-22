@@ -18,10 +18,10 @@ export default function SectionAccueil() {
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold tracking-wider text-orange-400 border border-white/10 uppercase">
+            <span className="inline-flex items-center h-8 px-3 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold tracking-wider text-orange-400 border border-white/10 uppercase">
               Statut: En Ligne
             </span>
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold tracking-wider text-emerald-400 border border-white/10 flex items-center gap-1">
+            <span className="inline-flex items-center gap-1.5 h-8 px-3 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold tracking-wider text-emerald-400 border border-white/10">
               <CheckCircle2 className="w-3.5 h-3.5" /> Véhicule Inspecté
             </span>
           </div>
