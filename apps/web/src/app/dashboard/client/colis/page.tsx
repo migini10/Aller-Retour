@@ -57,7 +57,7 @@ export default function ColisPage() {
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total */}
-          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-purple-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] relative overflow-hidden h-full">
+          <Link href="/dashboard/client/colis/total" className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full cursor-pointer">
             <Box className="absolute -bottom-6 -right-6 w-24 h-24 text-purple-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -71,10 +71,10 @@ export default function ColisPage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis envoyés (Année)</p>
               </div>
             </div>
-          </div>
+          </Link>
           
           {/* Card 2: Actif */}
-          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-amber-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] relative overflow-hidden h-full">
+          <Link href="/dashboard/client/colis/actifs" className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full cursor-pointer">
             <Clock className="absolute -bottom-6 -right-6 w-24 h-24 text-amber-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -88,10 +88,10 @@ export default function ColisPage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">En cours d'expédition</p>
               </div>
             </div>
-          </div>
+          </Link>
           
           {/* Card 3: Livrés */}
-          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-emerald-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] relative overflow-hidden h-full">
+          <Link href="/dashboard/client/colis/livres" className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-emerald-500/30 hover:border-emerald-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full cursor-pointer">
             <CheckCircle2 className="absolute -bottom-6 -right-6 w-24 h-24 text-emerald-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -104,10 +104,10 @@ export default function ColisPage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis livrés</p>
               </div>
             </div>
-          </div>
+          </Link>
           
           {/* Card 4: Franchise */}
-          <div className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-blue-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] relative overflow-hidden h-full">
+          <Link href="/dashboard/client/colis/franchise" className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-blue-500/30 hover:border-blue-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full cursor-pointer">
             <Truck className="absolute -bottom-6 -right-6 w-24 h-24 text-blue-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -120,7 +120,7 @@ export default function ColisPage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Franchise incluse restante</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Action Card: Send via Allo Dakar */}
