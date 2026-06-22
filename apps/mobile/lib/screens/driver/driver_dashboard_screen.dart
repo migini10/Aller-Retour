@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../../widgets/app_drawer.dart';
 
 class DriverDashboardScreen extends StatefulWidget {
@@ -111,19 +112,46 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                             children: [
                               Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.greenAccent.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                      child: Container(
+                                        height: 32,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: const Text('STATUT: EN LIGNE', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                      ),
                                     ),
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.check_circle, color: Colors.greenAccent, size: 14),
-                                        SizedBox(width: 4),
-                                        Text('Véhicule Inspecté', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-                                      ],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                      child: Container(
+                                        height: 32,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.check_circle_outline, color: Colors.greenAccent, size: 14),
+                                            SizedBox(width: 6),
+                                            Text('Véhicule Inspecté', style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
