@@ -32,6 +32,7 @@ export async function GET() {
         tel: p.recipientPhone,
         statut: statutFrontend,
         date: p.createdAt.toISOString().split('T')[0],
+        updatedAt: p.updatedAt.toISOString(),
         trajet: p.trip?.route?.name || 'Dakar → Touba',
         taille: `${p.weightKg} kg`,
         prix: `${p.price} FCFA`,

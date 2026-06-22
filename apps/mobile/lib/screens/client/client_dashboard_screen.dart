@@ -54,7 +54,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   void initState() {
     super.initState();
     _destinations = List.from(_allDestinations);
-    _loadUserData();
+    _loadUserData().then((_) {
+      _fetchParcels();
+    });
     _fetchLocationAndDestinations();
     _fetchWalletBalance();
     _pulseController = AnimationController(
@@ -106,6 +108,53 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       }
     } catch (e) {
       debugPrint('Erreur solde wallet: $e');
+    }
+  }
+
+  Future<void> _fetchParcels() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final phone = prefs.getString('userPhone') ?? '';
+      if (phone.isEmpty) return;
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
+      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final myParcels = data.where((p) => 
+          (p['senderPhone'] == phone || p['tel'] == phone) && 
+          p['statut'] != 'Livré' && p['statut'] != 'En attente de prise en charge'
+        ).toList();
+        final active = myParcels.where((p) => p['statut'] != 'Livré').toList();
+        
+        if (mounted) {
+          setState(() {
+            if (active.isNotEmpty) {
+              activeParcels = active;
+            } else {
+              final delivered = myParcels.where((p) => p['statut'] == 'Livré').toList();
+              if (delivered.isNotEmpty) {
+                final lastDelivered = delivered.last;
+                if (lastDelivered['updatedAt'] != null) {
+                  final updatedAt = DateTime.tryParse(lastDelivered['updatedAt']);
+                  if (updatedAt != null && DateTime.now().difference(updatedAt).inHours <= 24) {
+                    activeParcels = [lastDelivered];
+                  } else if (updatedAt == null) {
+                    activeParcels = [lastDelivered];
+                  } else {
+                    activeParcels = [];
+                  }
+                } else {
+                  activeParcels = [lastDelivered];
+                }
+              } else {
+                activeParcels = [];
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Erreur chargement colis: $e");
     }
   }
 
@@ -965,7 +1014,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Colis en transit',
+                    (activeParcels.isNotEmpty && activeParcels[0]['statut'] == 'Livré') ? 'Dernier colis livré' : 'Colis en transit',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -975,7 +1024,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   const SizedBox(height: 4),
                   activeParcels.isNotEmpty 
                     ? Text(
-                        'Dakar → Touba • Arrivée estimée : 14h30',
+                        activeParcels[0]['statut'] == 'Livré'
+                          ? 'Livré récemment • ${activeParcels[0]['trajet']}'
+                          : '${activeParcels.length} colis en transit • ${activeParcels[0]['trajet']}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 13,

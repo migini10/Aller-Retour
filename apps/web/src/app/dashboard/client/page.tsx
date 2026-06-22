@@ -96,11 +96,31 @@ export default function ClientDashboard() {
         const res = await fetch('/api/colis');
         if (res.ok) {
           const data = await res.json();
-          const myActiveParcels = data.filter((p: any) => 
+          const myParcels = data.filter((p: any) => 
             (p.senderPhone === user.phone || p.tel === user.phone) && 
-            p.statut !== 'Livré' && p.statut !== 'En attente de prise en charge'
+            p.statut !== 'En attente de prise en charge'
           );
-          setActiveParcels(myActiveParcels);
+          
+          const active = myParcels.filter((p: any) => p.statut !== 'Livré');
+          
+          if (active.length > 0) {
+            setActiveParcels(active);
+          } else {
+            const delivered = myParcels.filter((p: any) => p.statut === 'Livré');
+            if (delivered.length > 0) {
+              const lastDelivered = delivered[delivered.length - 1];
+              const updatedAt = new Date(lastDelivered.updatedAt);
+              const diffHours = (new Date().getTime() - updatedAt.getTime()) / (1000 * 60 * 60);
+              
+              if (diffHours <= 24) {
+                setActiveParcels([lastDelivered]);
+              } else {
+                setActiveParcels([]);
+              }
+            } else {
+              setActiveParcels([]);
+            }
+          }
         }
       } catch (e) {
         console.error("Erreur récupération colis", e);
@@ -287,10 +307,15 @@ export default function ClientDashboard() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white text-base">Colis en transit</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                  {activeParcels.length > 0 && activeParcels[0].statut === 'Livré' ? 'Dernier colis livré' : 'Colis en transit'}
+                </h3>
                 {activeParcels.length > 0 ? (
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                    {activeParcels.length} colis en transit &bull; {activeParcels[0].trajet}
+                    {activeParcels[0].statut === 'Livré' 
+                      ? `Livré récemment • ${activeParcels[0].trajet}`
+                      : `${activeParcels.length} colis en transit • ${activeParcels[0].trajet}`
+                    }
                   </p>
                 ) : (
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 italic">Vos colis en transit s'afficheront ici.</p>
