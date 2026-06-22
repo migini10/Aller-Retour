@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, Search, MessageCircle, PhoneCall } from 'lucide-react';
 import Link from 'next/link';
+import PublicNavbar from '../../components/PublicNavbar';
+import Footer from '../../components/Footer';
 
 const FAQS = [
   {
@@ -47,8 +49,10 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0F172A] pt-24 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col min-h-screen">
+      <PublicNavbar />
+      <div className="flex-1 bg-slate-50 dark:bg-[#0F172A] pt-12 pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center mb-12">
@@ -136,8 +140,9 @@ export default function SupportPage() {
             </div>
           </div>
         </div>
-
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

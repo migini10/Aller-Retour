@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_drawer.dart';
 
 class TermsScreen extends StatelessWidget {
   const TermsScreen({Key? key}) : super(key: key);
@@ -8,11 +9,41 @@ class TermsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: const Text('Conditions d\'utilisation', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.local_taxi, color: Colors.orange, size: 20),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Conditions',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+        ],
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),
+      endDrawer: const AppDrawer(isDriverMode: false),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),

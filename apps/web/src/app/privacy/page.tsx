@@ -1,11 +1,15 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import PublicNavbar from '../../components/PublicNavbar';
+import Footer from '../../components/Footer';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0F172A] pt-24 pb-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col min-h-screen">
+      <PublicNavbar />
+      <div className="flex-1 bg-white dark:bg-[#0F172A] pt-12 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="mb-12 border-b border-slate-200 dark:border-slate-800 pb-8">
@@ -78,6 +82,8 @@ export default function PrivacyPage() {
           </p>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import PublicNavbar from '../../components/PublicNavbar';
+import Footer from '../../components/Footer';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -22,8 +24,10 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0F172A] pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col min-h-screen">
+      <PublicNavbar />
+      <div className="flex-1 bg-slate-50 dark:bg-[#0F172A] pt-12 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -152,9 +156,10 @@ export default function ContactPage() {
               </form>
             </div>
           </div>
-
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }
