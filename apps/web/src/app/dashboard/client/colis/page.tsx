@@ -4,14 +4,17 @@ import React from 'react';
 import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '@/components/ModalContext';
+import { useAuth } from '@/components/AuthContext';
 
 export default function ColisPage() {
   const { openColisWizard } = useModal();
+  const { user } = useAuth();
   const [localColis, setLocalColis] = React.useState<any[]>([]);
   const [trackingColis, setTrackingColis] = React.useState<any | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
+    if (!user?.phone) return;
     loadColis();
     const interval = setInterval(loadColis, 5000); // Polling for real-time sync demo
     window.addEventListener('colis_updated', loadColis);
@@ -19,14 +22,16 @@ export default function ColisPage() {
       clearInterval(interval);
       window.removeEventListener('colis_updated', loadColis);
     };
-  }, []);
+  }, [user?.phone]);
 
   const loadColis = async () => {
     try {
+      if (!user?.phone) return;
       const res = await fetch(`/api/colis?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setLocalColis(data);
+        const myParcels = data.filter((p: any) => p.senderPhone === user.phone || p.tel === user.phone);
+        setLocalColis(myParcels);
       }
     } catch (e) {
       console.error(e);
@@ -259,7 +264,14 @@ export default function ColisPage() {
                             {colis.statut || 'En attente'}
                           </span>
                         </div>
-                        <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">Réf: {colis.id} • {colis.taille} • {colis.date}</p>
+                        <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">
+                          Réf: {colis.id} • {colis.taille} • {colis.date}
+                          {user?.phone === colis.senderPhone && colis.statut !== 'Livré' && (
+                            <span className="ml-3 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold rounded border border-amber-200 dark:border-amber-800/50">
+                              Code livraison: {colis.deliveryCode}
+                            </span>
+                          )}
+                        </p>
                         
                         {/* Progress bar */}
                         <div className="relative pt-4 w-full max-w-md hidden sm:block">

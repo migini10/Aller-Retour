@@ -53,19 +53,24 @@ export default function SectionColis() {
     }
   };
 
-  const updateStatut = async (id: string, nextStatut: string) => {
+  const updateStatut = async (id: string, nextStatut: string, pin: string) => {
     try {
       const res = await fetch(`/api/colis/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ statut: nextStatut }),
+        body: JSON.stringify({ statut: nextStatut, pin }),
       });
       if (res.ok) {
         loadColis();
         window.dispatchEvent(new Event('colis_updated'));
+        setIsPinModalOpen(false);
+      } else {
+        const data = await res.json();
+        setPinError(data.error || 'Erreur lors de la mise à jour.');
       }
     } catch (e) {
       console.error(e);
+      setPinError('Erreur de connexion.');
     }
   };
 
@@ -78,14 +83,16 @@ export default function SectionColis() {
   };
 
   const confirmAction = () => {
-    if (pinCode === '1234') {
-      if (selectedColisForAction && nextStatutForAction) {
-        updateStatut(selectedColisForAction, nextStatutForAction);
+    if (!selectedColisForAction || !nextStatutForAction) return;
+
+    if (nextStatutForAction !== 'Livré') {
+      if (pinCode !== '1234') {
+        setPinError('Code de sécurité chauffeur incorrect.');
+        return;
       }
-      setIsPinModalOpen(false);
-    } else {
-      setPinError('Code de sécurité incorrect.');
     }
+    
+    updateStatut(selectedColisForAction, nextStatutForAction, pinCode);
   };
 
   const getActionBtn = (c: any) => {
@@ -278,7 +285,9 @@ export default function SectionColis() {
             )}
 
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
-              Veuillez entrer votre code d'accès chauffeur (ex: <span className="font-mono font-bold text-slate-900 dark:text-white">1234</span>) pour valider cette action.
+              {nextStatutForAction === 'Livré' 
+                ? "Veuillez saisir le code de livraison à 4 chiffres fourni par le destinataire pour finaliser."
+                : "Veuillez entrer votre code d'accès chauffeur (ex: 1234) pour valider cette action."}
             </p>
             
             <input 
