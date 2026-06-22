@@ -380,7 +380,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   {'value': '5', 'label': 'Voiture 5 places'},
                                   {'value': '7', 'label': 'Voiture 7 places'},
                                 ], (v) {
-                                  setModalState(() { vehicleCapacity = v; });
+                                  setModalState(() {
+                                    vehicleCapacity = v;
+                                    if (v != null) {
+                                      int cap = int.tryParse(v) ?? 5;
+                                      int pax = int.tryParse(passagersController.text) ?? 0;
+                                      int places = cap - 1 - pax;
+                                      placesController.text = places > 0 ? places.toString() : '0';
+                                    }
+                                  });
                                 }),
                               ),
                               const SizedBox(width: 16),
@@ -397,7 +405,14 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _buildTextFieldController('Passagers prévus', passagersController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 0'),
+                                child: _buildTextFieldController('Passagers prévus', passagersController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 0', onChanged: (val) {
+                                  int pax = int.tryParse(val) ?? 0;
+                                  if (vehicleCapacity != null) {
+                                    int cap = int.tryParse(vehicleCapacity!) ?? 5;
+                                    int places = cap - 1 - pax;
+                                    placesController.text = places > 0 ? places.toString() : '0';
+                                  }
+                                }),
                               ),
                             ],
                           ),
@@ -1197,7 +1212,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
   }
 
-  Widget _buildTextFieldController(String label, TextEditingController controller, {required IconData icon, TextInputType? keyboardType, String? hintText}) {
+  Widget _buildTextFieldController(String label, TextEditingController controller, {required IconData icon, TextInputType? keyboardType, String? hintText, void Function(String)? onChanged}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1217,6 +1232,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               Expanded(
                 child: TextField(
                   controller: controller,
+                  onChanged: onChanged,
                   keyboardType: keyboardType,
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                   decoration: InputDecoration(

@@ -856,7 +856,11 @@ export default function SectionMissions() {
                   <label className="text-xs text-slate-400 font-medium">Type de Voiture</label>
                   <select 
                     value={formData.vehicleCapacity} 
-                    onChange={e => setFormData({...formData, vehicleCapacity: parseInt(e.target.value)})} 
+                    onChange={e => {
+                      const capacity = parseInt(e.target.value);
+                      const places = capacity - 1 - (formData.passagers || 0);
+                      setFormData({...formData, vehicleCapacity: capacity, placesLibres: places > 0 ? places : 0});
+                    }} 
                     className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
                     required
                   >
@@ -881,7 +885,15 @@ export default function SectionMissions() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Passagers prévus</label>
-                  <input type="number" min="0" max={formData.placesLibres ? formData.placesLibres : 6} value={formData.passagers} onChange={e => setFormData({...formData, passagers: e.target.value ? parseInt(e.target.value) : 0})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" placeholder="ex: 0" />
+                  <input type="number" min="0" max={formData.vehicleCapacity ? formData.vehicleCapacity - 1 : 6} value={formData.passagers} onChange={e => {
+                    const pax = e.target.value ? parseInt(e.target.value) : 0;
+                    if (formData.vehicleCapacity) {
+                      const places = formData.vehicleCapacity - 1 - pax;
+                      setFormData({...formData, passagers: pax, placesLibres: places > 0 ? places : 0});
+                    } else {
+                      setFormData({...formData, passagers: pax});
+                    }
+                  }} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" placeholder="ex: 0" />
                 </div>
               </div>
 
