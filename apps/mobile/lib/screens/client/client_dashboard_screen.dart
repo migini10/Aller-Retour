@@ -150,7 +150,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     }
   }
 
-  void _updateDestinationsBasedOnCity(String currentCity) {
+  Future<void> _updateDestinationsBasedOnCity(String currentCity) async {
     setState(() {
       _currentCity = currentCity;
       String normalized = currentCity.toLowerCase();
@@ -210,7 +210,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         _destinations = updatedDests;
       });
     }
-  }
   }
 
   @override
@@ -1312,6 +1311,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               ),
             ),
           ],
+        ),
         ),
       ),
     );
