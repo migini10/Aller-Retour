@@ -17,7 +17,7 @@ interface BookingWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialType?: 'bus' | 'allo-dakar';
-  initialData?: { origin?: string; destination?: string };
+  initialData?: { origin?: string; destination?: string, pickupLocation?: string };
 }
 
 export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar', initialData }: BookingWizardModalProps) {
@@ -52,7 +52,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   });
   const [ticketPour, setTicketPour] = useState<'moi' | 'autre' | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('wave');
-  const [pickupLocation, setPickupLocation] = useState('');
+  const [pickupLocation, setPickupLocation] = useState(initialData?.pickupLocation || '');
   const [isLocating, setIsLocating] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [realTrips, setRealTrips] = useState<any[]>([]);
@@ -89,7 +89,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       });
       setTicketPour(null);
       setPaymentMethod('wave');
-      setPickupLocation('');
+      setPickupLocation(initialData?.pickupLocation || '');
       setRealTrips([]);
       setPaymentData(null);
       setIsQueued(false);

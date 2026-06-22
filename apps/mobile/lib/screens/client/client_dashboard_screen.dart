@@ -36,6 +36,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   int? _walletBalance;
   
   String? _currentCity;
+  String? _currentAddress;
   List<Map<String, String>> _destinations = [];
   List<dynamic> activeParcels = [];
   List<dynamic> recentHistory = [];
@@ -139,6 +140,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
           if (locality != null) {
             String city = locality['long_name'];
+            _currentAddress = data['results'][0]['formatted_address'];
             _updateDestinationsBasedOnCity(city);
           }
         }
@@ -1250,7 +1252,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   Widget _buildDestinationCard(BuildContext context, String city, String price, String imageUrl) {
     return GestureDetector(
       onTap: () {
-        _showReservationBottomSheet(context, initialOrigin: _currentCity, initialDestination: city);
+        _showReservationBottomSheet(context, initialOrigin: _currentCity, initialDestination: city, initialPickupAddress: _currentAddress);
       },
       child: Container(
       width: 140,
@@ -1314,7 +1316,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       ),
     );
   }
-  void _showReservationBottomSheet(BuildContext context, {String? initialOrigin, String? initialDestination}) {
+  void _showReservationBottomSheet(BuildContext context, {String? initialOrigin, String? initialDestination, String? initialPickupAddress}) {
     bool isLocating = false;
     int step = 1;
     bool isSearching = false;
@@ -1333,7 +1335,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     List<dynamic> alternativeTrips = [];
 
     final departController = TextEditingController(text: initialOrigin ?? '');
-    final pickupController = TextEditingController();
+    final pickupController = TextEditingController(text: initialPickupAddress ?? '');
     final arriveeController = TextEditingController(text: initialDestination ?? '');
     final quartierController = TextEditingController();
     String? date;

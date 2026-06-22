@@ -10,7 +10,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 interface ModalContextType {
   openModal: (title: string, description?: string, buttonText?: string) => void;
   closeModal: () => void;
-  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => void;
+  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string, pickupLocation?: string }) => void;
   openColisWizard: () => void;
   openRechargeWizard: () => void;
   openTransferWizard: () => void;
@@ -19,7 +19,7 @@ interface ModalContextType {
 const ModalContext = createContext<ModalContextType>({
   openModal: () => {},
   closeModal: () => {},
-  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => {},
+  openBookingWizard: (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string, pickupLocation?: string }) => {},
   openColisWizard: () => {},
   openRechargeWizard: () => {},
   openTransferWizard: () => {},
@@ -34,7 +34,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isRechargeOpen, setIsRechargeOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [bookingWizardType, setBookingWizardType] = useState<'bus' | 'allo-dakar'>('allo-dakar');
-  const [bookingWizardData, setBookingWizardData] = useState<{ origin?: string; destination?: string } | undefined>();
+  const [bookingWizardData, setBookingWizardData] = useState<{ origin?: string; destination?: string, pickupLocation?: string } | undefined>();
   const [modalConfig, setModalConfig] = useState({
     title: '',
     description: 'Remplissez les informations ci-dessous pour continuer.',
@@ -52,7 +52,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
 
   const closeModal = () => setIsOpen(false);
 
-  const openBookingWizard = (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string }) => {
+  const openBookingWizard = (typeOrEvent?: 'bus' | 'allo-dakar' | React.MouseEvent, initialData?: { origin?: string; destination?: string, pickupLocation?: string }) => {
     if (typeof typeOrEvent === 'string') {
       setBookingWizardType(typeOrEvent);
     }

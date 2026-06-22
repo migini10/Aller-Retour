@@ -49,6 +49,7 @@ export default function ClientDashboard() {
   const carouselRef = useRef<HTMLDivElement>(null);
   
   const [currentCity, setCurrentCity] = useState<string | null>(null);
+  const [currentAddress, setCurrentAddress] = useState<string | null>(null);
   const [showLiveStatusModal, setShowLiveStatusModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [destinations, setDestinations] = useState(ALL_DESTINATIONS);
@@ -90,8 +91,8 @@ export default function ClientDashboard() {
             if (!apiKey) return;
             const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`);
             const data = await response.json();
-            
             if (data.results && data.results.length > 0) {
+              setCurrentAddress(data.results[0].formatted_address);
               const addressComponents = data.results[0].address_components;
               const localityObj = addressComponents.find((c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2'));
               if (localityObj) {
@@ -375,7 +376,7 @@ export default function ClientDashboard() {
           <div className="-mx-5 px-5 overflow-x-auto lg:overflow-x-visible no-scrollbar">
             <div className="flex lg:grid lg:grid-cols-6 gap-4 pb-4 lg:pb-0">
               {destinations.map((dest) => (
-                <div key={dest.id} onClick={() => openBookingWizard('allo-dakar', { origin: currentCity || '', destination: dest.name })} className="w-36 lg:w-auto h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0 cursor-pointer">
+                <div key={dest.id} onClick={() => openBookingWizard('allo-dakar', { origin: currentCity || '', destination: dest.name, pickupLocation: currentAddress || '' })} className="w-36 lg:w-auto h-48 rounded-[20px] relative overflow-hidden shadow-lg p-3 flex flex-col justify-end group shrink-0 cursor-pointer">
                   <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                   <h3 className="text-white font-bold text-lg relative z-10">{dest.name}</h3>
