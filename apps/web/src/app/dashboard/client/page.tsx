@@ -55,6 +55,7 @@ export default function ClientDashboard() {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [activeParcels, setActiveParcels] = useState<any[]>([]);
   const [showNoParcelWarning, setShowNoParcelWarning] = useState(false);
+  const [recentHistory, setRecentHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -328,36 +329,22 @@ export default function ClientDashboard() {
               <div className="w-2 h-6 bg-orange-500 rounded-full"></div> 
               Historique Récent
             </h2>
-            <div className="flex flex-col bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800/80 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] h-40 justify-between">
-              {/* Item 1 */}
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            <div className="flex flex-col bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800/80 p-5 rounded-3xl shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] h-40 justify-center relative overflow-hidden">
+              {recentHistory.length > 0 ? (
+                <div className="flex flex-col justify-between h-full">
+                  {/* Assuming items would be mapped here in the future */}
                 </div>
-                <div className="flex-1 flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Réservation confirmée</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Dakar - Touba</p>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center opacity-70">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-2">
+                    <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
-                  <span className="text-slate-400 text-[10px] font-bold">Il y a 2h</span>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm">Aucun historique récent</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5 px-2">
+                    Vos dernières activités apparaîtront ici.
+                  </p>
                 </div>
-              </div>
-              
-              <div className="w-full h-px bg-slate-100 dark:bg-slate-800/60"></div>
-
-              {/* Item 2 */}
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0">
-                  <Package className="w-4 h-4 text-blue-500" />
-                </div>
-                <div className="flex-1 flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Colis livré</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Touba - Dakar</p>
-                  </div>
-                  <span className="text-slate-400 text-[10px] font-bold">Hier</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

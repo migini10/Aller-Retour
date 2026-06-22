@@ -38,6 +38,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   String? _currentCity;
   List<Map<String, String>> _destinations = [];
   List<dynamic> activeParcels = [];
+  List<dynamic> recentHistory = [];
   
   final List<Map<String, String>> _allDestinations = [
     {'id': 'dakar', 'name': 'Dakar', 'price': '4000 FCFA', 'image': 'assets/images/destinations/dakar.jpg'},
@@ -1080,8 +1081,45 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
           ),
         ),
         const SizedBox(height: 20),
-        _buildTimelineItem(context, 'Réservation confirmée', 'Dakar - Touba', 'Il y a 2h', Icons.check_circle, const Color(0xFF10B981), isLast: false),
-        _buildTimelineItem(context, 'Colis livré', 'Touba - Dakar', 'Hier', Icons.local_shipping, const Color(0xFF3B82F6), isLast: true),
+        if (recentHistory.isNotEmpty) ...[
+          _buildTimelineItem(context, 'Réservation confirmée', 'Dakar - Touba', 'Il y a 2h', Icons.check_circle, const Color(0xFF10B981), isLast: false),
+          _buildTimelineItem(context, 'Colis livré', 'Touba - Dakar', 'Hier', Icons.local_shipping, const Color(0xFF3B82F6), isLast: true),
+        ] else
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Aucun historique récent',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Vos dernières activités apparaîtront ici.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
