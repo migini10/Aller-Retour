@@ -265,7 +265,7 @@ export default function ColisPage() {
                           </span>
                         </div>
                         <p className="text-sm font-mono text-slate-500 dark:text-slate-400 mb-4">
-                          Réf: {colis.id} • {colis.taille} • {colis.date}
+                          Réf: {colis.id} • {colis.taille} • {colis.date} {colis.time ? `à ${colis.time}` : ''}
                           {user?.phone === colis.senderPhone && colis.statut !== 'Livré' && (
                             <span className="ml-3 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold rounded border border-amber-200 dark:border-amber-800/50">
                               Code livraison: {colis.deliveryCode}

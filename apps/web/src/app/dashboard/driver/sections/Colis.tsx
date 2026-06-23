@@ -240,7 +240,7 @@ export default function SectionColis() {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                       <Clock className="w-4 h-4 shrink-0" />
-                      {c.date}
+                      {c.date} {c.time ? `à ${c.time}` : ''}
                     </div>
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                       <Package className="w-4 h-4 shrink-0" />

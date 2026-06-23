@@ -532,7 +532,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${c['id'] ?? 'INCONNU'} • ${c['taille'] ?? ''}\n${c['date'] ?? ''}',
+                                    '${c['id'] ?? 'INCONNU'} • ${c['taille'] ?? ''}\n${c['date'] ?? ''}${c['time'] != null ? ' à ${c['time']}' : ''}',
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                       fontSize: 13,

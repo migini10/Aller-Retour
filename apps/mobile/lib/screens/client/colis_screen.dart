@@ -520,7 +520,7 @@ class _ColisScreenState extends State<ColisScreen> {
                       title: c['trajet'] ?? 'Trajet Inconnu',
                       status: statut.toString().toUpperCase(),
                       statusColor: statusColor,
-                      ref: 'Réf: ${c['id']} • ${c['taille']}',
+                      ref: 'Réf: ${c['id']} • ${c['taille']} • ${c['date']}${c['time'] != null ? ' à ${c['time']}' : ''}',
                       dest: c['destinataire'] ?? '',
                       phone: c['tel'],
                       showProgress: statut != 'Livré',
