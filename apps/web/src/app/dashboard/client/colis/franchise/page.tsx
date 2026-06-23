@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Truck, ArrowLeft, Info, ShieldCheck, Scale, History } from 'lucide-react';
+import { Truck, ArrowLeft, Info, ShieldCheck, Scale, History, Star } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ColisFranchisePage() {
@@ -15,26 +15,26 @@ export default function ColisFranchisePage() {
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <Truck className="w-7 h-7 text-blue-500" /> Franchise Incluse
+              <Star className="w-7 h-7 text-blue-500" /> Points de Fidélité
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Détails sur votre allocation de poids gratuite.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Cumulez des points à chaque envoi et gagnez des récompenses.</p>
           </div>
         </div>
 
         {/* Status Card */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-blue-900/20 mb-8">
           <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-          <Scale className="absolute -bottom-6 -right-6 w-32 h-32 text-white/10 -rotate-12" />
+          <Star className="absolute -bottom-6 -right-6 w-32 h-32 text-white/10 -rotate-12" />
           
           <div className="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-6">
             <div>
               <p className="text-blue-200 font-medium mb-1">Reste disponible</p>
-              <h2 className="text-5xl font-black tracking-tight">15 <span className="text-2xl text-blue-300">kg</span></h2>
+              <h2 className="text-5xl font-black tracking-tight">150 <span className="text-2xl text-blue-300">pts</span></h2>
             </div>
             <div className="w-full sm:w-1/2 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
               <div className="flex justify-between text-sm mb-2">
-                <span>Utilisé: 5 kg</span>
-                <span>Total: 20 kg</span>
+                <span>Utilisés: 50 pts</span>
+                <span>Total: 200 pts</span>
               </div>
               <div className="w-full bg-black/20 rounded-full h-2">
                 <div className="bg-white rounded-full h-2 w-1/4"></div>
@@ -51,7 +51,7 @@ export default function ColisFranchisePage() {
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Comment ça marche ?</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-              En tant que client Premium Allo Dakar, vous bénéficiez d'une franchise de 20 kg par mois pour l'envoi de vos petits colis interurbains sans frais supplémentaires.
+              Gagnez 10 points pour chaque colis envoyé avec Allo Dakar. Utilisez vos points pour obtenir des réductions sur vos futurs envois.
             </p>
           </div>
 
@@ -61,23 +61,23 @@ export default function ColisFranchisePage() {
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Renouvellement</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-              Votre franchise est réinitialisée automatiquement le 1er de chaque mois. Les kilos non utilisés ne sont pas reportés au mois suivant.
+              Vos points n'expirent jamais tant que votre compte est actif. Vous pouvez les utiliser quand vous le souhaitez.
             </p>
           </div>
         </div>
 
         {/* History */}
         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-slate-400" /> Historique d'utilisation
+          <History className="w-5 h-5 text-slate-400" /> Historique des points
         </h3>
         <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-100 dark:border-[#222] flex justify-between items-center bg-slate-50/50 dark:bg-[#1A1A1A]">
             <span className="text-sm font-medium text-slate-500">Date</span>
-            <span className="text-sm font-medium text-slate-500">Poids déduit</span>
+            <span className="text-sm font-medium text-slate-500">Points</span>
           </div>
           <div className="p-4 flex justify-between items-center border-b border-slate-100 dark:border-[#222]">
             <span className="text-sm text-slate-900 dark:text-white font-medium">12 Mai 2026</span>
-            <span className="text-sm font-bold text-red-500">- 5 kg</span>
+            <span className="text-sm font-bold text-emerald-500">+ 50 pts</span>
           </div>
           <div className="p-8 text-center text-slate-500 text-sm">
             Fin de l'historique de ce mois.

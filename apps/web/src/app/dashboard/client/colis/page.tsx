@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, ArrowRight, X } from 'lucide-react';
+import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, ArrowRight, X, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useModal } from '@/components/ModalContext';
 import { useAuth } from '@/components/AuthContext';
@@ -113,16 +113,16 @@ export default function ColisPage() {
           
           {/* Card 4: Franchise */}
           <Link href="/dashboard/client/colis/franchise" className="group bg-gradient-to-br from-white to-slate-50 dark:from-[#1E293B] dark:to-[#0F172A] border-[1.5px] border-blue-500/30 hover:border-blue-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-lg dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden h-full cursor-pointer">
-            <Truck className="absolute -bottom-6 -right-6 w-24 h-24 text-blue-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+            <Star className="absolute -bottom-6 -right-6 w-24 h-24 text-blue-500 opacity-[0.03] dark:opacity-[0.04] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Truck className="w-5 h-5 text-blue-500" />
+                  <Star className="w-5 h-5 text-blue-500" />
                 </div>
               </div>
               <div>
-                <p className="text-2xl font-black text-slate-900 dark:text-white">15kg</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Franchise incluse restante</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">150 pts</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Points de fidélité</p>
               </div>
             </div>
           </Link>

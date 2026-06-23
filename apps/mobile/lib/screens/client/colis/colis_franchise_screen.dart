@@ -11,7 +11,7 @@ class ColisFranchiseScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-        title: Text('Franchise Incluse', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        title: Text('Points de fidélité', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -33,13 +33,13 @@ class ColisFranchiseScreen extends StatelessWidget {
                 children: [
                   Text('Reste disponible', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                   const SizedBox(height: 8),
-                  Text('15 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
+                  Text('150 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Utilisé: 5 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                      Text('Total: 20 kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      Text('Utilisés: 50 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      Text('Total: 200 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -65,7 +65,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                "En tant que client Premium Allo Dakar, vous bénéficiez d'une franchise de 20 kg par mois pour l'envoi de vos petits colis interurbains sans frais supplémentaires.",
+                "Gagnez 10 points de fidélité pour chaque colis envoyé avec Allo Dakar. Vous pourrez utiliser vos points pour obtenir des réductions exclusives sur vos prochains envois.",
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
@@ -77,7 +77,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                "Votre franchise est réinitialisée automatiquement le 1er de chaque mois. Les kilos non utilisés ne sont pas reportés au mois suivant.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
+                "Vos points de fidélité n'expirent jamais tant que votre compte reste actif. Profitez-en à tout moment !", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
           ],
