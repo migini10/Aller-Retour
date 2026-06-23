@@ -96,10 +96,11 @@ export default function ClientDashboard() {
         const res = await fetch('/api/colis');
         if (res.ok) {
           const data = await res.json();
-          const myParcels = data.filter((p: any) => 
-            (p.senderPhone === user.phone || p.tel === user.phone) && 
-            p.statut !== 'En attente de prise en charge'
+          const allMyParcels = data.filter((p: any) => 
+            (p.senderPhone === user.phone || p.tel === user.phone)
           );
+          
+          const myParcels = allMyParcels.filter((p: any) => p.statut !== 'En attente de prise en charge');
           
           const active = myParcels.filter((p: any) => p.statut !== 'Livré');
           
@@ -122,7 +123,7 @@ export default function ClientDashboard() {
             }
           }
 
-          const history = myParcels.map((p: any) => {
+          const history = allMyParcels.map((p: any) => {
             let title = 'Colis enregistré';
             let icon = <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>;
             let color = 'orange';

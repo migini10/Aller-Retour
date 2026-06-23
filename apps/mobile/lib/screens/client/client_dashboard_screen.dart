@@ -120,8 +120,11 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final myParcels = data.where((p) => 
-          (p['senderPhone'] == phone || p['tel'] == phone) && 
+        final allMyParcels = data.where((p) => 
+          p['senderPhone'] == phone || p['tel'] == phone
+        ).toList();
+
+        final myParcels = allMyParcels.where((p) => 
           p['statut'] != 'Livré' && p['statut'] != 'En attente de prise en charge'
         ).toList();
         final active = myParcels.where((p) => p['statut'] != 'Livré').toList();
@@ -151,7 +154,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               }
             }
 
-            final history = myParcels.map((p) {
+            final history = allMyParcels.map((p) {
               String title = 'Colis enregistré';
               IconData icon = Icons.inventory_2;
               Color color = Colors.orangeAccent;
