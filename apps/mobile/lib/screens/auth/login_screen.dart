@@ -48,6 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
         if (data['user'] != null) {
           if (data['user']['fullName'] != null) await prefs.setString('userName', data['user']['fullName']);
           if (data['user']['role'] != null) await prefs.setString('userRole', data['user']['role']);
+          if (data['user']['colisPoints'] != null) await prefs.setInt('colisPoints', data['user']['colisPoints']);
+          if (data['user']['transportPoints'] != null) await prefs.setInt('transportPoints', data['user']['transportPoints']);
         }
         if (data['token'] != null) {
           await prefs.setString('auth_token', data['token']);

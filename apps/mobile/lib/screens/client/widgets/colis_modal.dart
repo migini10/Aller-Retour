@@ -21,8 +21,15 @@ void showColisModal(BuildContext context) {
   String? taille = 'Moyen';
   String modePaiement = 'Wave';
   String? generatedTicket;
+  bool usePoints = false;
+  int colisPoints = 30;
 
   StateSetter? modalSetState;
+
+  SharedPreferences.getInstance().then((prefs) {
+    colisPoints = prefs.getInt('colisPoints') ?? 30;
+    modalSetState?.call(() {});
+  });
 
   void onInputChanged() {
     modalSetState?.call(() {});
@@ -150,11 +157,9 @@ void showColisModal(BuildContext context) {
                                     }
                                   } catch (e) {}
                                 })
-                              : step == 2
-                                  ? _buildStep2(context, destNomController, destTelController, taille, (val) => setState(() => taille = val))
-                                  : step == 3
-                                      ? _buildStep3Payment(context, modePaiement, (val) => setState(() => modePaiement = val))
-                                      : _buildStep4Ticket(context, departController.text, arriveeController.text, destNomController.text, destTelController.text, taille, generatedTicket),
+                              : step == 2 ? _buildStep2(context, destNomController, destTelController, taille, (t) { taille = t; onInputChanged(); }) :
+                                step == 3 ? _buildStep3Payment(context, modePaiement, (m) { modePaiement = m; onInputChanged(); }, usePoints, colisPoints, (v) { usePoints = v; onInputChanged(); }) :
+                                _buildStep4Ticket(context, departController.text, arriveeController.text, destNomController.text, destTelController.text, taille, generatedTicket),
                         ),
                       ),
 
@@ -201,11 +206,16 @@ void showColisModal(BuildContext context) {
                                           } else if (step == 3) {
                                             setState(() => isLoading = true);
                                             try {
+                                              final prefs = await SharedPreferences.getInstance();
                                               final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
                                               final response = await http.post(
                                                 Uri.parse('$nextApiUrl/api/colis'),
                                                 headers: {'Content-Type': 'application/json'},
                                                 body: jsonEncode({
+                                                  'senderName': prefs.getString('userName') ?? 'Expéditeur Anonyme',
+                                                  'senderPhone': prefs.getString('userPhone') ?? '+221770000000',
+                                                  'email': 'allogoosn@gmail.com',
+                                                  'usePoints': usePoints,
                                                   'destinataire': destNomController.text,
                                                   'tel': destTelController.text,
                                                   'taille': taille ?? 'Moyen (5-15kg)',
@@ -213,6 +223,10 @@ void showColisModal(BuildContext context) {
                                               );
                                               if (response.statusCode == 200) {
                                                 final data = jsonDecode(response.body);
+                                                if (data['newColisPoints'] != null) {
+                                                  await prefs.setInt('colisPoints', data['newColisPoints']);
+                                                  colisPoints = data['newColisPoints'];
+                                                }
                                                 setState(() {
                                                   isLoading = false;
                                                   generatedTicket = data['parcel']['trackingCode'];
@@ -339,7 +353,7 @@ Widget _buildTailleOption(BuildContext context, String title, IconData icon, Str
   );
 }
 
-Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(String) onModeSelected) {
+Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(String) onModeSelected, bool usePoints, int colisPoints, Function(bool) onUsePointsToggled) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -353,6 +367,36 @@ Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(St
       _buildPaymentOption(context, 'Orange Money', 'Payer via Orange Money', Icons.phone_android, modePaiement, onModeSelected, customIcon: const OrangeMoneyLogo(size: 20)),
       const SizedBox(height: 12),
       _buildPaymentOption(context, 'Wallet', 'Paiement instantané via votre portefeuille', Icons.account_balance_wallet, modePaiement, onModeSelected),
+      const SizedBox(height: 16),
+      
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orangeAccent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Utiliser mes points de colis', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text('Solde : $colisPoints pts. Économisez 1000 FCFA avec 50 pts.', style: TextStyle(color: Colors.orangeAccent.withValues(alpha: 0.8), fontSize: 12)),
+                ],
+              ),
+            ),
+            Switch(
+              value: usePoints,
+              onChanged: onUsePointsToggled,
+              activeColor: Colors.orangeAccent,
+            ),
+          ],
+        ),
+      ),
     ],
   );
 }

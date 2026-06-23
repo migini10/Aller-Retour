@@ -1,11 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/shared_scaffold.dart';
 
-class FideliteScreen extends StatelessWidget {
+class FideliteScreen extends StatefulWidget {
   const FideliteScreen({super.key});
 
   @override
+  State<FideliteScreen> createState() => _FideliteScreenState();
+}
+
+class _FideliteScreenState extends State<FideliteScreen> {
+  int _transportPoints = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPoints();
+  }
+
+  Future<void> _loadPoints() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _transportPoints = prefs.getInt('transportPoints') ?? 20;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    int nextPalier = 300;
+    String nextPalierText = "une franchise colis !";
+    if (_transportPoints >= 300) {
+      nextPalier = 550;
+      nextPalierText = "un trajet Dakar ➔ Thiès gratuit !";
+    }
+    if (_transportPoints >= 550) {
+      nextPalier = 800;
+      nextPalierText = "un trajet Dakar ➔ Touba gratuit !";
+    }
+    if (_transportPoints >= 800) {
+      nextPalier = 1500;
+      nextPalierText = "le statut VIP exclusif !";
+    }
+    
+    int pointsNeeded = nextPalier - _transportPoints;
+    double progress = (_transportPoints / nextPalier).clamp(0.0, 1.0);
+
     return SharedScaffold(
       title: 'Points de transport',
       subtitle: 'Cumulez des points et profitez d\'avantages exclusifs.',
@@ -66,7 +105,7 @@ class FideliteScreen extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       children: [
-                        TextSpan(text: '450 ', style: const TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900)),
+                        TextSpan(text: '$_transportPoints ', style: const TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900)),
                         TextSpan(text: 'PTS', style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 24, fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -94,25 +133,21 @@ class FideliteScreen extends StatelessWidget {
                                 Text('Prochain Palier', style: const TextStyle(color: Color(0xFFD1FAE5), fontWeight: FontWeight.bold, fontSize: 12)),
                               ],
                             ),
-                            Text('550 PTS', style: const TextStyle(color: Color(0xFFD1FAE5), fontWeight: FontWeight.bold, fontSize: 12)),
+                            Text('$nextPalier PTS', style: const TextStyle(color: Color(0xFFD1FAE5), fontWeight: FontWeight.bold, fontSize: 12)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Stack(
-                          children: [
-                            Container(height: 12, width: double.infinity, decoration: BoxDecoration(color: Colors.black38, borderRadius: BorderRadius.circular(6))),
-                            Container(
-                              height: 12, 
-                              width: 220, 
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [Colors.tealAccent, Colors.amberAccent]),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                          ],
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.black38,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.tealAccent),
+                            minHeight: 12,
+                          ),
                         ),
                         const SizedBox(height: 12),
-                        Text('Plus que 100 PTS pour un trajet Dakar ➔ Thiès gratuit !', style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text('Plus que $pointsNeeded PTS pour $nextPalierText', style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 11, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -130,7 +165,7 @@ class FideliteScreen extends StatelessWidget {
                     Icons.bolt,
                     Colors.tealAccent,
                     'Comment gagner des points ?',
-                    'Gagnez 10 points par tranche de 1000 FCFA dépensée.',
+                    'Gagnez 1 point pour chaque 1000 FCFA dépensé.',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -160,40 +195,40 @@ class FideliteScreen extends StatelessWidget {
             // Reward 1
             _buildRewardItem(
               context: context,
-              title: 'Billet Gratuit (Thiès)',
-              desc: 'Valable pour 1 trajet simple',
-              points: '550 pts',
-              pointsColor: Colors.tealAccent,
-              buttonText: 'Bientôt',
-              buttonColor: Colors.grey.shade800,
-              textColor: Colors.white54,
-              borderColor: Colors.teal.withValues(alpha: 0.3),
+              title: 'Franchise Colis (10kg)',
+              desc: 'Envoyez 10kg gratuitement',
+              points: '300 pts',
+              pointsColor: _transportPoints >= 300 ? Colors.tealAccent : Colors.white54,
+              buttonText: _transportPoints >= 300 ? 'Débloquer' : 'Bloqué',
+              buttonColor: _transportPoints >= 300 ? Colors.teal : Colors.grey.shade900,
+              textColor: _transportPoints >= 300 ? Colors.white : Colors.white38,
+              borderColor: _transportPoints >= 300 ? Colors.teal.withValues(alpha: 0.3) : Colors.white10,
             ),
             
             // Reward 2
             _buildRewardItem(
               context: context,
-              title: 'Billet Gratuit (Touba)',
+              title: 'Billet Gratuit (Thiès)',
               desc: 'Valable pour 1 trajet simple',
-              points: '800 pts',
-              pointsColor: Colors.white54,
-              buttonText: 'Bloqué',
-              buttonColor: Colors.grey.shade900,
-              textColor: Colors.white38,
-              borderColor: Colors.white10,
+              points: '550 pts',
+              pointsColor: _transportPoints >= 550 ? Colors.tealAccent : Colors.white54,
+              buttonText: _transportPoints >= 550 ? 'Débloquer' : 'Bloqué',
+              buttonColor: _transportPoints >= 550 ? Colors.teal : Colors.grey.shade900,
+              textColor: _transportPoints >= 550 ? Colors.white : Colors.white38,
+              borderColor: _transportPoints >= 550 ? Colors.teal.withValues(alpha: 0.3) : Colors.white10,
             ),
             
             // Reward 3
             _buildRewardItem(
               context: context,
-              title: 'Franchise Colis (10kg)',
-              desc: 'Envoyez 10kg gratuitement',
-              points: '300 pts',
-              pointsColor: Colors.white54,
-              buttonText: 'Débloquer',
-              buttonColor: Colors.teal,
-              textColor: Colors.white,
-              borderColor: Colors.white10,
+              title: 'Billet Gratuit (Touba)',
+              desc: 'Valable pour 1 trajet simple',
+              points: '800 pts',
+              pointsColor: _transportPoints >= 800 ? Colors.tealAccent : Colors.white54,
+              buttonText: _transportPoints >= 800 ? 'Débloquer' : 'Bloqué',
+              buttonColor: _transportPoints >= 800 ? Colors.teal : Colors.grey.shade900,
+              textColor: _transportPoints >= 800 ? Colors.white : Colors.white38,
+              borderColor: _transportPoints >= 800 ? Colors.teal.withValues(alpha: 0.3) : Colors.white10,
             ),
             const SizedBox(height: 40),
           ],

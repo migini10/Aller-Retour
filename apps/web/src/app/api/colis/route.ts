@@ -113,6 +113,32 @@ export async function POST(request: Request) {
       });
     }
 
+    let finalPrice = 3000;
+    const usePoints = data.usePoints === true;
+    let earnedPoints = 0;
+
+    const senderUser = await prisma.user.findUnique({
+      where: { phone: data.senderPhone || "+221770000000" }
+    });
+
+    if (senderUser) {
+      if (usePoints && senderUser.colisPoints >= 50) {
+        finalPrice = Math.max(0, finalPrice - 1000);
+        const updated = await prisma.user.update({
+          where: { id: senderUser.id },
+          data: { colisPoints: { decrement: 50 } }
+        });
+        earnedPoints = updated.colisPoints;
+      } else {
+        const pointsToAdd = Math.floor(finalPrice / 1000);
+        const updated = await prisma.user.update({
+          where: { id: senderUser.id },
+          data: { colisPoints: { increment: pointsToAdd } }
+        });
+        earnedPoints = updated.colisPoints;
+      }
+    }
+
     const parcel = await prisma.parcel.create({
       data: {
         tripId: trip.id,
@@ -121,7 +147,7 @@ export async function POST(request: Request) {
         recipientName: data.destinataire,
         recipientPhone: data.tel,
         weightKg: data.taille === 'Moyen' ? 10 : (data.taille === 'Petit' ? 3 : (data.taille === 'Enveloppe' ? 0.5 : 25)),
-        price: 3000,
+        price: finalPrice,
         trackingCode: `TRK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         deliveryCode: Math.floor(1000 + Math.random() * 9000).toString(),
         status: ParcelStatus.REGISTERED,
@@ -137,7 +163,7 @@ export async function POST(request: Request) {
       parcel.deliveryCode!
     );
 
-    return NextResponse.json({ success: true, parcel });
+    return NextResponse.json({ success: true, parcel, newColisPoints: earnedPoints });
   } catch (error) {
     console.error('POST Parcel Error:', error);
     return NextResponse.json({ error: 'Failed to create parcel' }, { status: 500 });

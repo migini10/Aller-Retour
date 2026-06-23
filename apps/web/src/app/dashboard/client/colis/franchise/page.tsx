@@ -2,8 +2,10 @@
 import React from 'react';
 import { Truck, ArrowLeft, Info, ShieldCheck, Scale, History, Star } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthContext';
 
 export default function ColisFranchisePage() {
+  const { user } = useAuth();
   return (
     <div className="flex-1 w-full pb-20 bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
@@ -29,15 +31,14 @@ export default function ColisFranchisePage() {
           <div className="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-6">
             <div>
               <p className="text-blue-200 font-medium mb-1">Reste disponible</p>
-              <h2 className="text-5xl font-black tracking-tight">150 <span className="text-2xl text-blue-300">pts</span></h2>
+              <h2 className="text-5xl font-black tracking-tight">{(user as any)?.colisPoints || 30} <span className="text-2xl text-blue-300">pts</span></h2>
             </div>
             <div className="w-full sm:w-1/2 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
               <div className="flex justify-between text-sm mb-2">
-                <span>Utilisés: 50 pts</span>
-                <span>Total: 200 pts</span>
+                <span>Total gagnés: {(user as any)?.colisPoints || 30} pts</span>
               </div>
               <div className="w-full bg-black/20 rounded-full h-2">
-                <div className="bg-white rounded-full h-2 w-1/4"></div>
+                <div className="bg-white rounded-full h-2" style={{ width: `${(((user as any)?.colisPoints || 30) % 50) / 50 * 100}%` }}></div>
               </div>
             </div>
           </div>

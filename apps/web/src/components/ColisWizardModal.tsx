@@ -28,7 +28,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     destinataireNom: '',
     destinataireTel: '',
     taille: 'Moyen',
-    modePaiement: 'Wave'
+    modePaiement: 'Wave',
+    usePoints: false
   });
 
   const [generatedTicket, setGeneratedTicket] = useState<any>(null);
@@ -101,7 +102,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         destinataireNom: '',
         destinataireTel: '',
         taille: 'Moyen',
-        modePaiement: ''
+        modePaiement: '',
+        usePoints: false
       });
     } else {
       document.body.style.overflow = 'unset';
@@ -138,7 +140,8 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             taille: colisParams.taille,
             senderName: user?.fullName || 'Expéditeur Anonyme',
             senderPhone: user?.phone || '+221770000000',
-            email: (user as any)?.email || 'allogoosn@gmail.com'
+            email: (user as any)?.email || 'allogoosn@gmail.com',
+            usePoints: colisParams.usePoints
           })
         });
         if (res.ok) {
@@ -411,6 +414,20 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               )}
             </div>
           ))}
+        </div>
+
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-500/30 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="font-bold text-orange-800 dark:text-orange-400">Utiliser mes points de colis</p>
+            <p className="text-xs text-orange-600/80 dark:text-orange-400/80 mt-1">Solde : {(user as any)?.colisPoints || 30} pts. Économisez 1000 FCFA avec 50 pts.</p>
+          </div>
+          <button 
+            type="button"
+            onClick={() => setColisParams({...colisParams, usePoints: !colisParams.usePoints})}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${colisParams.usePoints ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${colisParams.usePoints ? 'translate-x-6' : 'translate-x-1'}`} />
+          </button>
         </div>
       </div>
 

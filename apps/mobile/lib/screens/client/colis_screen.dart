@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'colis/colis_total_screen.dart';
+import 'colis/colis_franchise_screen.dart';
 import '../../widgets/shared_scaffold.dart';
 import 'widgets/colis_modal.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -21,6 +22,7 @@ class _ColisScreenState extends State<ColisScreen> {
   Timer? _pollingTimer;
   final TextEditingController searchController = TextEditingController();
   String _userPhone = '';
+  int _colisPoints = 30;
 
   void _showTrackingModal(Map<String, dynamic> colis) {
     showModalBottomSheet(
@@ -299,6 +301,7 @@ class _ColisScreenState extends State<ColisScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userPhone = prefs.getString('userPhone') ?? '';
+      _colisPoints = prefs.getInt('colisPoints') ?? 30;
     });
     _loadColis();
     _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
@@ -364,8 +367,8 @@ class _ColisScreenState extends State<ColisScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(Icons.star, Colors.blueAccent, '150', 'pts', 'Points de colis', onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisFranchiseScreen()));
+                Expanded(child: _buildStatCard(Icons.star, Colors.blueAccent, _colisPoints.toString(), 'pts', 'Points de colis', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ColisFranchiseScreen()));
                 })),
               ],
             ),

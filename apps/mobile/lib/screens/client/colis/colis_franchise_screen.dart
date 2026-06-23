@@ -1,7 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ColisFranchiseScreen extends StatelessWidget {
+class ColisFranchiseScreen extends StatefulWidget {
   const ColisFranchiseScreen({super.key});
+
+  @override
+  State<ColisFranchiseScreen> createState() => _ColisFranchiseScreenState();
+}
+
+class _ColisFranchiseScreenState extends State<ColisFranchiseScreen> {
+  int _colisPoints = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPoints();
+  }
+
+  Future<void> _loadPoints() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _colisPoints = prefs.getInt('colisPoints') ?? 30;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,22 +54,21 @@ class ColisFranchiseScreen extends StatelessWidget {
                 children: [
                   Text('Reste disponible', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                   const SizedBox(height: 8),
-                  Text('150 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
+                  Text('$_colisPoints pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Utilisés: 50 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                      Text('Total: 200 pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      Text('Total gagnés: $_colisPoints pts', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: const LinearProgressIndicator(
-                      value: 0.25,
+                    child: LinearProgressIndicator(
+                      value: (_colisPoints % 50) / 50.0,
                       backgroundColor: Colors.black26,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                       minHeight: 8,
                     ),
                   ),

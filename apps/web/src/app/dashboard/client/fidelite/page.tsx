@@ -3,8 +3,31 @@
 import React from 'react';
 import { ArrowLeft, Award, Gift, Zap, Crown, CheckCircle2, Star, Target } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthContext';
 
 export default function FidelitePage() {
+  const { user } = useAuth();
+  
+  const transportPoints = (user as any)?.transportPoints || 20;
+
+  let nextPalier = 300;
+  let nextPalierText = "une franchise colis !";
+  if (transportPoints >= 300) {
+    nextPalier = 550;
+    nextPalierText = "un trajet Dakar ➔ Thiès gratuit !";
+  }
+  if (transportPoints >= 550) {
+    nextPalier = 800;
+    nextPalierText = "un trajet Dakar ➔ Touba gratuit !";
+  }
+  if (transportPoints >= 800) {
+    nextPalier = 1500;
+    nextPalierText = "le statut VIP exclusif !";
+  }
+
+  const pointsNeeded = nextPalier - transportPoints;
+  const progress = Math.min((transportPoints / nextPalier) * 100, 100);
+
   return (
     <div className="flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
       <div className="w-full max-w-[1200px] px-5 sm:px-8 lg:px-12 py-8 pb-24 space-y-8 animate-fade-in">
@@ -39,22 +62,25 @@ export default function FidelitePage() {
                   <Award className="w-6 h-6 text-emerald-200 opacity-80" />
                 </div>
                 
-                <div>
-                  <p className="text-emerald-100 text-sm font-medium mb-1">Solde actuel</p>
-                  <p className="text-4xl sm:text-6xl font-black tracking-tight">450 <span className="text-2xl font-bold text-emerald-200">PTS</span></p>
+                <div className="mb-8">
+                  <p className="text-emerald-100/80 text-sm mb-1">Solde actuel</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black">{transportPoints}</span>
+                    <span className="text-2xl font-bold text-emerald-300">PTS</span>
+                  </div>
                 </div>
-                
-                <div className="mt-8 bg-black/20 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+
+                <div className="bg-black/20 rounded-2xl p-4 border border-emerald-400/20">
                   <div className="flex justify-between text-sm font-bold text-emerald-100 mb-2">
                     <span className="flex items-center gap-1.5"><Target className="w-4 h-4" /> Prochain Palier</span>
-                    <span>550 PTS</span>
+                    <span>{nextPalier} PTS</span>
                   </div>
                   <div className="w-full bg-black/30 rounded-full h-3">
-                    <div className="bg-gradient-to-r from-emerald-400 to-amber-300 h-3 rounded-full relative" style={{ width: '80%' }}>
+                    <div className="bg-gradient-to-r from-emerald-400 to-amber-300 h-3 rounded-full relative" style={{ width: `${progress}%` }}>
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md"></div>
                     </div>
                   </div>
-                  <p className="text-xs text-emerald-200 mt-3 font-medium">Plus que 100 PTS pour un trajet Dakar ➔ Thiès gratuit !</p>
+                  <p className="text-xs text-emerald-200 mt-3 font-medium">Plus que {pointsNeeded} PTS pour {nextPalierText}</p>
                 </div>
               </div>
             </div>
@@ -65,7 +91,7 @@ export default function FidelitePage() {
                   <Zap className="w-5 h-5 text-emerald-500" />
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white mb-1">Comment gagner des points ?</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">Gagnez 10 points par tranche de 1000 FCFA dépensée sur la plateforme (Billets, Colis).</p>
+                <p className="text-xs text-slate-500 leading-relaxed">Chaque 1000 FCFA dépensé lors de l'achat d'un billet vous rapporte 1 point.</p>
               </div>
               <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 shadow-sm">
                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-3">
@@ -86,38 +112,40 @@ export default function FidelitePage() {
 
               <div className="space-y-4 flex-1">
                 {/* Reward 1 */}
-                <div className="p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-emerald-500/30 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -mr-4 -mt-4"></div>
-                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Billet Gratuit (Thiès)</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Valable pour 1 trajet simple</p>
+                <div className={`p-4 rounded-2xl border ${transportPoints >= 300 ? 'bg-slate-50 dark:bg-[#1A1A1A] border-emerald-500/30 shadow-sm relative overflow-hidden' : 'bg-slate-50 dark:bg-[#1A1A1A] border-slate-200 dark:border-[#222222]'}`}>
+                  {transportPoints >= 300 && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -mr-4 -mt-4"></div>}
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Franchise Colis (10kg)</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Envoyez 10kg gratuitement</p>
                   <div className="flex justify-between items-center mt-4">
-                    <span className="font-black text-emerald-600 dark:text-emerald-400">550 pts</span>
-                    <button className="px-3 py-1.5 bg-slate-200 dark:bg-[#222222] text-slate-500 dark:text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed">
-                      Bientôt
+                    <span className={`font-black ${transportPoints >= 300 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>300 pts</span>
+                    <button className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors shadow-sm ${transportPoints >= 300 ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-[#222222] text-slate-400 cursor-not-allowed border border-slate-200 dark:border-[#333333]'}`}>
+                      {transportPoints >= 300 ? 'Débloquer' : 'Bloqué'}
                     </button>
                   </div>
                 </div>
 
                 {/* Reward 2 */}
-                <div className="p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-200 dark:border-[#222222]">
-                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Billet Gratuit (Touba)</h4>
+                <div className={`p-4 rounded-2xl border ${transportPoints >= 550 ? 'bg-slate-50 dark:bg-[#1A1A1A] border-emerald-500/30 shadow-sm relative overflow-hidden' : 'bg-slate-50 dark:bg-[#1A1A1A] border-slate-200 dark:border-[#222222]'}`}>
+                  {transportPoints >= 550 && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -mr-4 -mt-4"></div>}
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Billet Gratuit (Thiès)</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Valable pour 1 trajet simple</p>
                   <div className="flex justify-between items-center mt-4">
-                    <span className="font-black text-slate-400">800 pts</span>
-                    <button className="px-3 py-1.5 bg-slate-100 dark:bg-[#222222] text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed border border-slate-200 dark:border-[#333333]">
-                      Bloqué
+                    <span className={`font-black ${transportPoints >= 550 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>550 pts</span>
+                    <button className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors shadow-sm ${transportPoints >= 550 ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-[#222222] text-slate-400 cursor-not-allowed border border-slate-200 dark:border-[#333333]'}`}>
+                      {transportPoints >= 550 ? 'Débloquer' : 'Bloqué'}
                     </button>
                   </div>
                 </div>
 
                 {/* Reward 3 */}
-                <div className="p-4 bg-slate-50 dark:bg-[#1A1A1A] rounded-2xl border border-slate-200 dark:border-[#222222]">
-                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Franchise Colis (10kg)</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Envoyez 10kg gratuitement</p>
+                <div className={`p-4 rounded-2xl border ${transportPoints >= 800 ? 'bg-slate-50 dark:bg-[#1A1A1A] border-emerald-500/30 shadow-sm relative overflow-hidden' : 'bg-slate-50 dark:bg-[#1A1A1A] border-slate-200 dark:border-[#222222]'}`}>
+                  {transportPoints >= 800 && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -mr-4 -mt-4"></div>}
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Billet Gratuit (Touba)</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Valable pour 1 trajet simple</p>
                   <div className="flex justify-between items-center mt-4">
-                    <span className="font-black text-slate-400">300 pts</span>
-                    <button className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
-                      Débloquer
+                    <span className={`font-black ${transportPoints >= 800 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>800 pts</span>
+                    <button className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors shadow-sm ${transportPoints >= 800 ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-[#222222] text-slate-400 cursor-not-allowed border border-slate-200 dark:border-[#333333]'}`}>
+                      {transportPoints >= 800 ? 'Débloquer' : 'Bloqué'}
                     </button>
                   </div>
                 </div>

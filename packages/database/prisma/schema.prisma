@@ -71,6 +71,9 @@ model User {
   failedAttempts Int       @default(0)
   blockedUntil   DateTime?
 
+  colisPoints    Int       @default(30)
+  transportPoints Int      @default(20)
+
   @@index([phone])
   @@index([companyId])
   @@map("users")
