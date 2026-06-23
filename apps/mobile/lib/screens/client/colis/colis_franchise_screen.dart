@@ -65,7 +65,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                "Gagnez 1 point pour chaque 1000 FCFA dépensé lors de l'envoi de colis avec Allo Dakar. Échangez 50 points contre une réduction immédiate de 1000 FCFA sur vos tarifs d'envoi !",
+                "Chaque 1000 FCFA dépensé lors de l'envoi d'un colis vous rapporte 1 point. Une fois que vous atteignez 50 points, cela équivaut à 1000 FCFA qui pourront être utilisés pour réduire les tarifs de vos prochains envois de colis !",
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
