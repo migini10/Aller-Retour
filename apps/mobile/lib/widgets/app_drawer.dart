@@ -127,7 +127,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Mon Wallet', Colors.green, route: '/wallet'),
                             _buildMenuItem(context, Icons.inventory_2_outlined, 'Mes Colis', Colors.purple, route: '/colis'),
                             _buildMenuItem(context, Icons.qr_code_scanner_outlined, 'QR Code & Billets', Colors.orange, route: '/qrcode'),
-                            _buildMenuItem(context, Icons.workspace_premium_outlined, 'Fidélité', Colors.green, route: '/fidelite'),
+                            _buildMenuItem(context, Icons.workspace_premium_outlined, 'Points de transport', Colors.green, route: '/fidelite'),
                             _buildMenuItem(context, Icons.card_giftcard, 'Parrainage', Colors.red, route: '/parrainage'),
                             _buildMenuItem(context, Icons.history, 'Historique des trajets', Colors.indigo, route: '/history'),
                             _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/settings'),

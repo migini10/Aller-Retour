@@ -16,7 +16,7 @@ export default function FidelitePage() {
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <Award className="w-7 h-7 text-emerald-500" /> Points Fidélité
+              <Award className="w-7 h-7 text-emerald-500" /> Points de Transport
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gagnez des points à chaque trajet et débloquez des récompenses.</p>
           </div>

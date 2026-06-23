@@ -253,7 +253,7 @@ export default function ClientDashboard() {
     },
     {
       id: 'fidelite',
-      title: 'Fidélité',
+      title: 'Points de transport',
       description: 'Consultez vos points, débloquez des paliers et obtenez des trajets gratuits.',
       icon: Award,
       href: '/dashboard/client/fidelite',

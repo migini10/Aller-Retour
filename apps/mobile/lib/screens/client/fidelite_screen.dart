@@ -7,7 +7,7 @@ class FideliteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
-      title: 'Fidélité',
+      title: 'Points de transport',
       subtitle: 'Cumulez des points et profitez d\'avantages exclusifs.',
       icon: Icons.stars,
       iconColor: Colors.amberAccent,

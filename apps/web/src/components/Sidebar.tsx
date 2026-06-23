@@ -67,7 +67,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
     { name: 'Mon Wallet', path: '/dashboard/client/wallet', icon: Wallet, badge: '', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-500/15', borderClass: 'border-emerald-500/30' },
     { name: 'Mes Colis', path: '/dashboard/client/colis', icon: Package, badge: '', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/15', borderClass: 'border-purple-500/30' },
     { name: 'QR Code & Billets', path: '/dashboard/client/qr-code', icon: TicketCheck, badge: '', colorClass: 'text-orange-500', bgClass: 'bg-orange-500/15', borderClass: 'border-orange-500/30' },
-    { name: 'Fidélité', path: '/dashboard/client/fidelite', icon: Award, badge: '', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
+    { name: 'Points de transport', path: '/dashboard/client/fidelite', icon: Award, badge: '', colorClass: 'text-amber-500', bgClass: 'bg-amber-500/15', borderClass: 'border-amber-500/30' },
     { name: 'Parrainage', path: '/dashboard/parrainage', icon: Gift, badge: 'Nouveau', colorClass: 'text-rose-500', bgClass: 'bg-rose-500/15', borderClass: 'border-rose-500/30' },
     { name: 'Historique', path: '/dashboard/client/transactions', icon: History, badge: '', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/15', borderClass: 'border-blue-500/30' },
     { name: 'Paramètres', path: '/dashboard/client/settings', icon: Settings, badge: '', colorClass: 'text-slate-500 dark:text-slate-400', bgClass: 'bg-slate-500/15', borderClass: 'border-slate-500/30' },

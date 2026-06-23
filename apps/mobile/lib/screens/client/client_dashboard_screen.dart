@@ -334,7 +334,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       'route': '/wallet',
     },
     {
-      'title': 'Fidélité',
+      'title': 'Points de transport',
       'description': 'Cumulez des kilomètres et gagnez des billets.',
       'icon': Icons.workspace_premium_outlined,
       'color': Colors.greenAccent,

@@ -15,7 +15,7 @@ export default function ColisFranchisePage() {
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <Star className="w-7 h-7 text-blue-500" /> Points de Fidélité
+              <Star className="w-7 h-7 text-blue-500" /> Points de Colis
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Cumulez des points à chaque envoi et gagnez des récompenses.</p>
           </div>
