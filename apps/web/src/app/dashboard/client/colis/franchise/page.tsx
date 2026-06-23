@@ -51,7 +51,7 @@ export default function ColisFranchisePage() {
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Comment ça marche ?</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-              Gagnez 10 points pour chaque colis envoyé avec Allo Dakar. Utilisez vos points pour obtenir des réductions sur vos futurs envois.
+              Gagnez 1 point pour chaque 1000 FCFA dépensé lors de l'envoi de colis avec Allo Dakar. Échangez 50 points contre une réduction immédiate de 1000 FCFA sur vos tarifs d'envoi !
             </p>
           </div>
 

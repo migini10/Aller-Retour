@@ -11,7 +11,7 @@ class ColisFranchiseScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-        title: Text('Points de fidélité', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        title: Text('Points de colis', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -65,7 +65,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                "Gagnez 10 points de fidélité pour chaque colis envoyé avec Allo Dakar. Vous pourrez utiliser vos points pour obtenir des réductions exclusives sur vos prochains envois.",
+                "Gagnez 1 point pour chaque 1000 FCFA dépensé lors de l'envoi de colis avec Allo Dakar. Échangez 50 points contre une réduction immédiate de 1000 FCFA sur vos tarifs d'envoi !",
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
@@ -77,7 +77,7 @@ class ColisFranchiseScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                "Vos points de fidélité n'expirent jamais tant que votre compte reste actif. Profitez-en à tout moment !", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
+                "Vos points de colis n'expirent jamais tant que votre compte reste actif. Profitez-en à tout moment !", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ),
           ],

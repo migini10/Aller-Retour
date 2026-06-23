@@ -364,7 +364,7 @@ class _ColisScreenState extends State<ColisScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bientôt disponible')));
                 })),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(Icons.star, Colors.blueAccent, '150', 'pts', 'Points de fidélité', onTap: () {
+                Expanded(child: _buildStatCard(Icons.star, Colors.blueAccent, '150', 'pts', 'Points de colis', onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ColisFranchiseScreen()));
                 })),
               ],
