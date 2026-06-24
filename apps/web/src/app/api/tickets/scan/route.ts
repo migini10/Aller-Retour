@@ -59,7 +59,11 @@ export async function POST(req: Request) {
           message: 'Billet valide pour embarquement.',
           passengerName: booking.user.fullName,
           seatNumber: booking.seatNumber,
-          route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`
+          route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`,
+          amountPaid: booking.amountPaid,
+          departureTime: booking.trip.departureTime,
+          qrCodeToken: booking.qrCodeToken,
+          passengersCount: 1 // Toujours 1 selon la structure actuelle
         });
       } else if (action === 'board') {
         // Valider le billet

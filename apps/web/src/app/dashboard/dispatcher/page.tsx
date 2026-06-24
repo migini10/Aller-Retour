@@ -5,7 +5,7 @@ import {
   TicketCheck, Printer, Camera, Search, UserCheck, 
   CheckCircle2, XCircle, QrCode, X, AlertCircle,
   MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth,
-  List, LayoutGrid, FilterX
+  List, LayoutGrid, FilterX, Hash, Users
 } from 'lucide-react';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
@@ -652,40 +652,11 @@ export default function DispatcherDashboard() {
               )}
 
               {scanState === 'valid' && (
-                <div>
-                  <div className="flex items-center justify-center w-16 h-16 bg-orange-500/20 border-2 border-orange-500 rounded-full mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-orange-400" />
+                <div className="text-center py-8">
+                  <div className="flex items-center justify-center w-16 h-16 bg-emerald-500/20 border-2 border-emerald-500 rounded-full mx-auto mb-4 animate-pulse">
+                    <QrCode className="w-8 h-8 text-emerald-400" />
                   </div>
-                  <h3 className="text-center text-lg font-bold text-white mb-1">Billet VALIDE ✓</h3>
-                  <p className="text-center text-xs text-orange-400 font-semibold mb-5">Embarquement autorisé</p>
-
-                  <div className="space-y-2 bg-[#0A0A0A] rounded-xl p-4 border border-[#2A2A2A] mb-5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1"><User className="w-3 h-3 text-orange-400" /> Passager</span>
-                      <span className="text-white font-semibold">{scanData?.passengerName || 'Passager'}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3 text-orange-400" /> Ligne</span>
-                      <span className="text-white font-semibold">{scanData?.route || 'Trajet'}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1"><TicketCheck className="w-3 h-3 text-orange-400" /> Siège</span>
-                      <span className="text-orange-400 font-bold">#{scanData?.seatNumber || '-'}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400">Réf.</span>
-                      <span className="text-orange-400 font-mono font-bold">{scanCode.toUpperCase()}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button onClick={resetScan} className="flex-1 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-slate-300 font-bold py-3 rounded-xl text-sm transition-colors">
-                      Annuler
-                    </button>
-                    <button onClick={handleBoarding} className="flex-[2] bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">
-                      Valider l'embarquement
-                    </button>
-                  </div>
+                  <p className="text-white font-semibold text-sm">Lecture du billet...</p>
                 </div>
               )}
 
@@ -795,6 +766,82 @@ export default function DispatcherDashboard() {
             </div>
             {/* Safe area for mobile bottom */}
             <div className="h-6 sm:hidden"></div>
+          </div>
+        </div>
+      )}
+      {scanState === 'valid' && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="bg-[#141414] border border-[#2A2A2A] rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(16,185,129,0.15)] overflow-hidden animate-in zoom-in-95 duration-300 relative">
+            {/* Header Modale */}
+            <div className="bg-emerald-500 p-6 flex flex-col items-center justify-center text-white relative">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                <CheckCircle2 className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Billet Valide</h2>
+              <p className="text-emerald-100 text-sm mt-1 font-medium">Prêt pour l'embarquement</p>
+            </div>
+            
+            {/* Corps de la Modale */}
+            <div className="p-6 space-y-5">
+              <div className="flex items-center gap-4 pb-5 border-b border-[#2A2A2A]">
+                <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0 border border-orange-500/20">
+                  <User className="w-6 h-6 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-slate-400">Passager</p>
+                  <p className="text-lg font-bold text-white tracking-tight">{scanData?.passengerName || 'Client'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[#0A0A0A] p-4 rounded-2xl border border-[#2A2A2A]">
+                  <p className="text-xs text-slate-400 flex items-center gap-1.5 mb-1"><Hash className="w-3.5 h-3.5 text-orange-500" /> N° Billet</p>
+                  <p className="font-mono font-bold text-sm text-white truncate" title={scanData?.qrCodeToken}>{scanData?.qrCodeToken?.substring(0, 8).toUpperCase() || '---'}</p>
+                </div>
+                <div className="bg-[#0A0A0A] p-4 rounded-2xl border border-[#2A2A2A]">
+                  <p className="text-xs text-slate-400 flex items-center gap-1.5 mb-1"><Calendar className="w-3.5 h-3.5 text-orange-500" /> Date & Heure</p>
+                  <p className="font-bold text-sm text-white">
+                    {scanData?.departureTime ? new Date(scanData.departureTime).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '---'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-[#0A0A0A] p-4 rounded-2xl border border-[#2A2A2A] space-y-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-orange-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-slate-400">Trajet</p>
+                    <p className="font-bold text-white">{scanData?.route || '---'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6 pt-3 border-t border-[#2A2A2A]">
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1.5 mb-0.5"><Users className="w-3.5 h-3.5 text-orange-500" /> Passagers</p>
+                    <p className="font-bold text-white">{scanData?.passengersCount || 1} personne(s)</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1.5 mb-0.5"><CreditCard className="w-3.5 h-3.5 text-orange-500" /> Payé</p>
+                    <p className="font-bold text-emerald-500 text-lg tracking-tight">{scanData?.amountPaid?.toLocaleString('fr-FR')} FCFA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pied de la Modale */}
+            <div className="p-6 pt-0 flex gap-3">
+              <button 
+                onClick={resetScan} 
+                className="flex-1 bg-[#1A1A1A] hover:bg-[#222222] text-slate-300 font-bold py-4 rounded-xl transition-colors border border-[#333333]"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={handleBoarding}
+                className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-emerald-500/20"
+              >
+                Valider l'embarquement
+              </button>
+            </div>
           </div>
         </div>
       )}

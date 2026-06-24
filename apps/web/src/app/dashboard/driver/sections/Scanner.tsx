@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { QrCode, Camera, CheckCircle2, XCircle, User } from 'lucide-react';
+import { QrCode, Camera, CheckCircle2, XCircle, User, Calendar, MapPin, Hash, Users, CreditCard } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 export default function SectionScanner() {
@@ -166,50 +166,9 @@ export default function SectionScanner() {
               <p className="text-sm font-medium text-slate-900 dark:text-white transition-colors">Vérification...</p>
             </div>
           ) : scanResult === 'valid' ? (
-            <div className="space-y-5 animate-in fade-in zoom-in duration-300">
-              <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto ring-4 ring-emerald-500/20">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Billet Valide</h3>
-                <p className="text-emerald-500 dark:text-emerald-400 font-semibold mt-1 transition-colors">Embarquement autorisé</p>
-              </div>
-              <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 text-left w-full max-w-sm mx-auto space-y-3 transition-colors">
-                <div className="flex items-center gap-3 border-b border-slate-200 dark:border-[#2A2A2A] pb-3 transition-colors">
-                  <div className="w-10 h-10 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center transition-colors"><User className="w-5 h-5 text-orange-500 dark:text-orange-400" /></div>
-                  <div>
-                    <p className="text-slate-900 dark:text-white font-bold transition-colors">{scanData?.passengerName || 'Passager'}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">{scanData?.route || 'Trajet'}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-500">Siège</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{scanData?.seatNumber || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Bagage</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white transition-colors">Standard</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-3 mt-4">
-                <button 
-                  onClick={() => {
-                    setScanResult('idle');
-                    setScanCode('');
-                  }} 
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-sm transition-colors border border-slate-200 dark:border-[#333333]"
-                >
-                  Annuler
-                </button>
-                <button 
-                  onClick={handleBoarding}
-                  className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/20"
-                >
-                  Valider l'embarquement
-                </button>
-              </div>
+            <div className="opacity-50 space-y-3">
+              <QrCode className="w-16 h-16 mx-auto text-emerald-500" />
+              <p className="text-sm font-medium text-slate-900 dark:text-white transition-colors">Lecture du billet...</p>
             </div>
           ) : scanResult === 'success' ? (
             <div className="space-y-5 animate-in fade-in zoom-in duration-300">
@@ -251,6 +210,85 @@ export default function SectionScanner() {
           )}
         </div>
       </div>
+      {scanResult === 'valid' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Header Modale */}
+            <div className="bg-emerald-500 p-6 flex flex-col items-center justify-center text-white relative">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold">Billet Valide</h2>
+              <p className="text-emerald-100 text-sm mt-1">Prêt pour l'embarquement</p>
+            </div>
+            
+            {/* Corps de la Modale */}
+            <div className="p-6 space-y-5">
+              <div className="flex items-center gap-4 pb-5 border-b border-slate-200 dark:border-[#2A2A2A]">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
+                  <User className="w-6 h-6 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Passager</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">{scanData?.passengerName || 'Client'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-2xl border border-slate-100 dark:border-[#2A2A2A]">
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><Hash className="w-3 h-3" /> N° Billet</p>
+                  <p className="font-mono font-bold text-sm text-slate-900 dark:text-white truncate" title={scanData?.qrCodeToken}>{scanData?.qrCodeToken?.substring(0, 8).toUpperCase() || '---'}</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-2xl border border-slate-100 dark:border-[#2A2A2A]">
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> Date & Heure</p>
+                  <p className="font-bold text-sm text-slate-900 dark:text-white">
+                    {scanData?.departureTime ? new Date(scanData.departureTime).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '---'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-2xl border border-slate-100 dark:border-[#2A2A2A] space-y-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-orange-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-slate-500">Trajet</p>
+                    <p className="font-bold text-slate-900 dark:text-white">{scanData?.route || '---'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6 pt-3 border-t border-slate-200 dark:border-[#2A2A2A]">
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-500 flex items-center gap-1 mb-0.5"><Users className="w-3 h-3" /> Passagers</p>
+                    <p className="font-bold text-slate-900 dark:text-white">{scanData?.passengersCount || 1} personne(s)</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-500 flex items-center gap-1 mb-0.5"><CreditCard className="w-3 h-3" /> Payé</p>
+                    <p className="font-bold text-emerald-500">{scanData?.amountPaid?.toLocaleString('fr-FR')} FCFA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pied de la Modale */}
+            <div className="p-6 pt-0 flex gap-3">
+              <button 
+                onClick={() => {
+                  setScanResult('idle');
+                  setScanCode('');
+                }} 
+                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-slate-300 font-bold py-4 rounded-xl transition-colors border border-slate-200 dark:border-[#333333]"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={handleBoarding}
+                className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-emerald-500/20"
+              >
+                Valider l'embarquement
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
