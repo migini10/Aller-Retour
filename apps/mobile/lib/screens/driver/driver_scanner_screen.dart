@@ -183,6 +183,35 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
                             controller: cameraController,
                             fit: BoxFit.cover,
                             onDetect: _onDetect,
+                            errorBuilder: (context, error, child) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Erreur: ${error.errorCode.name}',
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        error.errorDetails?.message ?? 'Détails indisponibles',
+                                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton(
+                                        onPressed: () => cameraController.start(),
+                                        child: const Text('Réessayer'),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           AnimatedBuilder(
                             animation: _animation,
