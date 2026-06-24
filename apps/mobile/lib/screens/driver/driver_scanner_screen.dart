@@ -13,9 +13,7 @@ class DriverScannerScreen extends StatefulWidget {
 }
 
 class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTickerProviderStateMixin {
-  MobileScannerController cameraController = MobileScannerController(
-    facing: CameraFacing.back,
-  );
+  late final MobileScannerController cameraController;
   bool isScanning = true;
   String scanResult = 'idle'; // 'idle', 'valid', 'invalid', 'already_used', 'scanning', 'success'
   Map<String, dynamic>? scanData;
@@ -27,6 +25,13 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
   @override
   void initState() {
     super.initState();
+    cameraController = MobileScannerController(
+      facing: CameraFacing.back,
+      formats: const [BarcodeFormat.qrCode],
+      returnImage: false,
+    );
+    cameraController.start();
+
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
