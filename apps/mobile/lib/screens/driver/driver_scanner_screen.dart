@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -346,6 +347,21 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
         ],
       );
     } else if (scanResult == 'valid') {
+      final String token = scanData?['qrCodeToken'] ?? '---';
+      final String tokenShort = token.length > 8 ? token.substring(0, 8).toUpperCase() : token.toUpperCase();
+      
+      String dateFormatted = '---';
+      if (scanData?['departureTime'] != null) {
+        try {
+          final DateTime dt = DateTime.parse(scanData!['departureTime']).toLocal();
+          dateFormatted = DateFormat('dd MMM, HH:mm', 'fr_FR').format(dt);
+        } catch (e) {
+          dateFormatted = scanData!['departureTime'];
+        }
+      }
+      
+      final String amount = scanData?['amountPaid']?.toString() ?? '0';
+
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -360,7 +376,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
           const SizedBox(height: 16),
           Text('Billet Valide', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Embarquement autorisé', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+          const Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           
           Container(
@@ -383,32 +399,96 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(scanData?['passengerName'] ?? 'Passager', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(scanData?['route'] ?? 'Trajet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                        Text('Passager', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                        Text(scanData?['passengerName'] ?? 'Client', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
                     )
                   ],
                 ),
                 Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Divider(color: Theme.of(context).dividerColor, height: 1)),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Column(
-                      children: [
-                        Text('Siège', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
-                        SizedBox(height: 4),
-                        Text('${scanData?['seatNumber'] ?? '-'}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
-                      ],
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(children: [Icon(Icons.numbers, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('N° Billet', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                            const SizedBox(height: 4),
+                            Text(tokenShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          ],
+                        ),
+                      ),
                     ),
-                    Column(
-                      children: [
-                        Text('Bagage', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
-                        SizedBox(height: 4),
-                        Text('Standard', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
-                      ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(children: [Icon(Icons.calendar_month, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Date & Heure', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                            const SizedBox(height: 4),
+                            Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
-                )
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.location_on, color: Colors.orangeAccent, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Trajet', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                Text(scanData?['route'] ?? '---', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Divider(color: Theme.of(context).dividerColor, height: 1)),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(children: [Icon(Icons.people, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Passagers', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                const SizedBox(height: 4),
+                                Text('${scanData?['passengersCount'] ?? 1} personne(s)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(children: [Icon(Icons.payment, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Payé', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                const SizedBox(height: 4),
+                                Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
