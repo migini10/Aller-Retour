@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverScannerScreen extends StatefulWidget {
@@ -151,7 +152,9 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
         title: const Text('Scanner de Billets', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
         padding: EdgeInsets.only(
           left: 16.0,
           right: 16.0,
@@ -314,8 +317,263 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
           ],
         ),
       ),
-    );
+      if (scanResult == 'valid')
+        Positioned.fill(
+          child: _buildValidModalOverlay(),
+        ),
+    ],
+  ),
+);
+}
+
+Widget _buildValidModalOverlay() {
+  final String token = scanData?['qrCodeToken'] ?? '---';
+  final String tokenShort = token.length > 8 ? token.substring(0, 8).toUpperCase() : token.toUpperCase();
+  
+  String dateFormatted = '---';
+  if (scanData?['departureTime'] != null) {
+    try {
+      final DateTime dt = DateTime.parse(scanData!['departureTime']).toLocal();
+      dateFormatted = DateFormat('dd MMM, HH:mm', 'fr_FR').format(dt);
+    } catch (e) {
+      dateFormatted = scanData!['departureTime'];
+    }
   }
+  
+  final String amount = scanData?['amountPaid']?.toString() ?? '0';
+
+  return Container(
+    color: Colors.black.withValues(alpha: 0.8),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFF141414),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: const Color(0xFF2A2A2A)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.greenAccent.withValues(alpha: 0.15),
+                    blurRadius: 50,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Modale
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: Colors.greenAccent,
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(31), topRight: Radius.circular(31)),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                          ),
+                          child: const Icon(Icons.check_circle, color: Colors.white, size: 36),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text('Billet Valide', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
+                        const SizedBox(height: 4),
+                        Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.greenAccent.shade100, fontSize: 14, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  
+                  // Corps Modale
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        // Passager
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.orangeAccent.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.2)),
+                              ),
+                              child: const Icon(Icons.person, color: Colors.orangeAccent, size: 24),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Passager', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                                  Text(scanData?['passengerName'] ?? 'Client', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: -0.5)),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Divider(color: Color(0xFF2A2A2A), height: 1),
+                        const SizedBox(height: 24),
+
+                        // Grid N° Billet & Date
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF2A2A2A))),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Row(children: [Icon(Icons.numbers, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('N° Billet', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                    const SizedBox(height: 8),
+                                    Text(tokenShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'monospace')),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF2A2A2A))),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Row(children: [Icon(Icons.calendar_month, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Date & Heure', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                    const SizedBox(height: 8),
+                                    Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Grid Trajet / Passagers / Payé
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFF2A2A2A))),
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.location_on, color: Colors.orangeAccent, size: 24),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('Trajet', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                        const SizedBox(height: 2),
+                                        Text(scanData?['route'] ?? '---', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              const Divider(color: Color(0xFF2A2A2A), height: 1),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(children: [Icon(Icons.people, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Passagers', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                        const SizedBox(height: 6),
+                                        Text('${scanData?['passengersCount'] ?? 1} personne(s)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(children: [Icon(Icons.payment, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Payé', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                        const SizedBox(height: 6),
+                                        Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Pied de Modale
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                scanResult = 'idle';
+                                isScanning = true;
+                                _manualCodeController.clear();
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1A1A1A),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF333333))),
+                            ),
+                            child: const Text('Annuler', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: _handleBoardingApi,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.greenAccent,
+                              foregroundColor: Colors.black,
+                              elevation: 10,
+                              shadowColor: Colors.greenAccent.withValues(alpha: 0.3),
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: const Text('Valider l\'embarquement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Widget _buildResultContent() {
     if (scanResult == 'idle') {
@@ -381,21 +639,6 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
         ],
       );
     } else if (scanResult == 'valid') {
-      final String token = scanData?['qrCodeToken'] ?? '---';
-      final String tokenShort = token.length > 8 ? token.substring(0, 8).toUpperCase() : token.toUpperCase();
-      
-      String dateFormatted = '---';
-      if (scanData?['departureTime'] != null) {
-        try {
-          final DateTime dt = DateTime.parse(scanData!['departureTime']).toLocal();
-          dateFormatted = DateFormat('dd MMM, HH:mm', 'fr_FR').format(dt);
-        } catch (e) {
-          dateFormatted = scanData!['departureTime'];
-        }
-      }
-      
-      final String amount = scanData?['amountPaid']?.toString() ?? '0';
-
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -405,163 +648,10 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
               color: Colors.greenAccent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check_circle, color: Colors.greenAccent, size: 48),
+            child: const CircularProgressIndicator(color: Colors.greenAccent),
           ),
           const SizedBox(height: 16),
-          Text('Billet Valide', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          const Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.orangeAccent.withValues(alpha: 0.2), shape: BoxShape.circle),
-                      child: const Icon(Icons.person, color: Colors.orangeAccent),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Passager', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
-                        Text(scanData?['passengerName'] ?? 'Client', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    )
-                  ],
-                ),
-                Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Divider(color: Theme.of(context).dividerColor, height: 1)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(children: [Icon(Icons.numbers, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('N° Billet', style: TextStyle(color: Colors.white54, fontSize: 12))]),
-                            const SizedBox(height: 4),
-                            Text(tokenShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(children: [Icon(Icons.calendar_month, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Date & Heure', style: TextStyle(color: Colors.white54, fontSize: 12))]),
-                            const SizedBox(height: 4),
-                            Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFF111111), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF222222))),
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.orangeAccent, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Trajet', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                                Text(scanData?['route'] ?? '---', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Divider(color: Theme.of(context).dividerColor, height: 1)),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(children: [Icon(Icons.people, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Passagers', style: TextStyle(color: Colors.white54, fontSize: 12))]),
-                                const SizedBox(height: 4),
-                                Text('${scanData?['passengersCount'] ?? 1} personne(s)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(children: [Icon(Icons.payment, size: 14, color: Colors.orangeAccent), SizedBox(width: 4), Text('Payé', style: TextStyle(color: Colors.white54, fontSize: 12))]),
-                                const SizedBox(height: 4),
-                                Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      scanResult = 'idle';
-                      isScanning = true;
-                      _manualCodeController.clear();
-                    });
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: Text('Annuler', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: _handleBoardingApi,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text('Valider l\'embarquement', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ],
-          ),
+          Text('Lecture du billet...', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       );
     } else if (scanResult == 'success') {
