@@ -237,7 +237,7 @@ export default function SectionScanner() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-2xl border border-slate-100 dark:border-[#2A2A2A]">
                   <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><Hash className="w-3 h-3" /> N° Billet</p>
-                  <p className="font-mono font-bold text-sm text-slate-900 dark:text-white truncate" title={scanData?.qrCodeToken}>{scanData?.qrCodeToken?.substring(0, 8).toUpperCase() || '---'}</p>
+                  <p className="font-mono font-bold text-sm text-slate-900 dark:text-white truncate" title={scanData?.ticketId}>VOY-{scanData?.ticketId?.split('-')[0].toUpperCase() || '---'}</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-[#1A1A1A] p-4 rounded-2xl border border-slate-100 dark:border-[#2A2A2A]">
                   <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> Date & Heure</p>

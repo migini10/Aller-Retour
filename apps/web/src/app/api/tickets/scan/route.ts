@@ -44,6 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ 
         status: 'already_used', 
         message: 'Ce billet a déjà été scanné.',
+        ticketId: booking.id,
         boardedAt: booking.boardedAt,
         passengerName: booking.user.fullName,
         seatNumber: booking.seatNumber,
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ 
           status: 'valid', 
           message: 'Billet valide pour embarquement.',
+          ticketId: booking.id,
           passengerName: booking.user.fullName,
           seatNumber: booking.seatNumber,
           route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`,

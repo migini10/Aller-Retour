@@ -327,14 +327,14 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
 }
 
 Widget _buildValidModalOverlay() {
-  final String token = scanData?['qrCodeToken'] ?? '---';
-  final String tokenShort = token.length > 8 ? token.substring(0, 8).toUpperCase() : token.toUpperCase();
+  final String ticketId = scanData?['ticketId'] ?? '---';
+  final String ticketShort = ticketId == '---' ? '---' : 'VOY-${ticketId.split('-').first.toUpperCase()}';
   
   String dateFormatted = '---';
   if (scanData?['departureTime'] != null) {
     try {
       final DateTime dt = DateTime.parse(scanData!['departureTime']).toLocal();
-      dateFormatted = DateFormat('dd MMM, HH:mm', 'fr_FR').format(dt);
+      dateFormatted = DateFormat('dd/MM/yyyy à HH:mm').format(dt);
     } catch (e) {
       dateFormatted = scanData!['departureTime'];
     }
@@ -372,7 +372,7 @@ Widget _buildValidModalOverlay() {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                     decoration: const BoxDecoration(
-                      color: Colors.greenAccent,
+                      color: Color(0xFF10B981), // Emerald 500
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(31), topRight: Radius.circular(31)),
                     ),
                     child: Column(
@@ -390,7 +390,7 @@ Widget _buildValidModalOverlay() {
                         const SizedBox(height: 12),
                         const Text('Billet Valide', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
                         const SizedBox(height: 4),
-                        Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.greenAccent.shade100, fontSize: 14, fontWeight: FontWeight.w600)),
+                        const Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -441,7 +441,7 @@ Widget _buildValidModalOverlay() {
                                   children: [
                                     const Row(children: [Icon(Icons.numbers, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('N° Billet', style: TextStyle(color: Colors.white54, fontSize: 12))]),
                                     const SizedBox(height: 8),
-                                    Text(tokenShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'monospace')),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text(ticketShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'monospace'))),
                                   ],
                                 ),
                               ),
@@ -456,7 +456,7 @@ Widget _buildValidModalOverlay() {
                                   children: [
                                     const Row(children: [Icon(Icons.calendar_month, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Date & Heure', style: TextStyle(color: Colors.white54, fontSize: 12))]),
                                     const SizedBox(height: 8),
-                                    Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14))),
                                   ],
                                 ),
                               ),
@@ -509,7 +509,7 @@ Widget _buildValidModalOverlay() {
                                       children: [
                                         const Row(children: [Icon(Icons.payment, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Payé', style: TextStyle(color: Colors.white54, fontSize: 12))]),
                                         const SizedBox(height: 6),
-                                        Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5)),
+                                        FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5))),
                                       ],
                                     ),
                                   ),
@@ -559,7 +559,7 @@ Widget _buildValidModalOverlay() {
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
-                            child: const Text('Valider l\'embarquement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            child: const FittedBox(fit: BoxFit.scaleDown, child: Text('Valider l\'embarquement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                           ),
                         ),
                       ],
