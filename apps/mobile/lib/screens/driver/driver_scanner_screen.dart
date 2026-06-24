@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverScannerScreen extends StatefulWidget {
   const DriverScannerScreen({super.key});
@@ -13,7 +16,9 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
     facing: CameraFacing.back,
   );
   bool isScanning = true;
-  String scanResult = 'idle'; // 'idle', 'valid', 'invalid'
+  String scanResult = 'idle'; // 'idle', 'valid', 'invalid', 'already_used', 'scanning'
+  Map<String, dynamic>? scanData;
+  final TextEditingController _manualCodeController = TextEditingController();
 
   void _onDetect(BarcodeCapture capture) {
     if (!isScanning) return;
@@ -21,34 +26,48 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
     final List<Barcode> barcodes = capture.barcodes;
     if (barcodes.isNotEmpty) {
       final String code = barcodes.first.rawValue ?? '---';
-      setState(() {
-        isScanning = false;
-        scanResult = 'valid'; // Par défaut pour le scan réel
-      });
-      
-      // Auto-reset après 4 secondes
-      Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) {
-          setState(() {
-            scanResult = 'idle';
-            isScanning = true;
-          });
-        }
-      });
+      _manualCodeController.text = code;
+      _handleScanApi(code);
     }
   }
 
-  void _handleTest(String resultType) {
-    setState(() {
-      scanResult = resultType;
-      isScanning = false;
-    });
+  Future<void> _handleScanApi(String code) async {
+    if (code.trim().isEmpty) return;
     
+    setState(() {
+      isScanning = false;
+      scanResult = 'scanning';
+    });
+
+    try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.post(
+        Uri.parse('$nextApiUrl/api/tickets/scan'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'qrCodeToken': code.trim()}),
+      );
+      
+      final data = jsonDecode(response.body);
+      if (mounted) {
+        setState(() {
+          scanData = data;
+          scanResult = data['status'] ?? 'invalid';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          scanResult = 'invalid';
+        });
+      }
+    }
+
     Future.delayed(const Duration(seconds: 4), () {
       if (mounted) {
         setState(() {
           scanResult = 'idle';
           isScanning = true;
+          _manualCodeController.clear();
         });
       }
     });
@@ -114,30 +133,45 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
                   Text('Placez le QR Code dans le cadre', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () => _handleTest('valid'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF222222),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: const BorderSide(color: Color(0xFF333333)),
+                      Expanded(
+                        child: TextField(
+                          controller: _manualCodeController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Numéro du billet (ex: AR-1234)',
+                            hintStyle: const TextStyle(color: Colors.white54),
+                            filled: true,
+                            fillColor: const Color(0xFF222222),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          ),
+                          onSubmitted: _handleScanApi,
                         ),
-                        child: const Text('Test: Billet Valide', style: TextStyle(fontSize: 12)),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton(
-                        onPressed: () => _handleTest('invalid'),
+                        onPressed: () => _handleScanApi(_manualCodeController.text),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF222222),
+                          backgroundColor: Colors.orangeAccent,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: const BorderSide(color: Color(0xFF333333)),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                         ),
-                        child: const Text('Test: Invalide', style: TextStyle(fontSize: 12)),
+                        child: const Text('Valider', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => _handleScanApi('AR-TEST-VALID'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF222222),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: const BorderSide(color: Color(0xFF333333)),
+                    ),
+                    child: const Text('Test', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),
@@ -171,6 +205,59 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
           Icon(Icons.qr_code_scanner, size: 64, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
           const SizedBox(height: 16),
           Text('En attente de scan...', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.bold)),
+        ],
+      );
+    } else if (scanResult == 'scanning') {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(color: Colors.orangeAccent),
+          const SizedBox(height: 16),
+          Text('Vérification...', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
+        ],
+      );
+    } else if (scanResult == 'already_used') {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orangeAccent.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 48),
+          ),
+          const SizedBox(height: 16),
+          Text('Billet Déjà Utilisé', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Embarquement déjà validé', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orangeAccent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  scanData?['message'] ?? 'Ce billet a déjà été scanné précédemment.',
+                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${scanData?['passengerName'] ?? 'Passager'} - Siège ${scanData?['seatNumber'] ?? '-'}',
+                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 14, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ],
       );
     } else if (scanResult == 'valid') {
@@ -211,8 +298,8 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Mamadou Ndiaye', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('AR-74892374', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                        Text(scanData?['passengerName'] ?? 'Passager', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(scanData?['route'] ?? 'Trajet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                       ],
                     )
                   ],
@@ -225,14 +312,14 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
                       children: [
                         Text('Siège', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                         SizedBox(height: 4),
-                        Text('14A', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text('${scanData?['seatNumber'] ?? '-'}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
                       ],
                     ),
                     Column(
                       children: [
                         Text('Bagage', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                         SizedBox(height: 4),
-                        Text('1 (18 kg)', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text('Standard', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
                     ),
                   ],
@@ -257,7 +344,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
           const SizedBox(height: 16),
           Text('Billet Invalide', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Déjà utilisé ou inconnu', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+          const Text('Inconnu ou annulé', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           
           Container(
@@ -268,9 +355,9 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
             ),
-            child: const Text(
-              'Ce billet a déjà été scanné aujourd\'hui à 08:14 pour ce trajet.',
-              style: TextStyle(color: Colors.redAccent, fontSize: 14),
+            child: Text(
+              scanData?['message'] ?? 'Ce billet est introuvable.',
+              style: const TextStyle(color: Colors.redAccent, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ),

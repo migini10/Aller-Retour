@@ -10,7 +10,7 @@ import {
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 type BilletState = 'idle' | 'generating' | 'success';
-type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid';
+type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid' | 'already_used';
 
 export default function DispatcherDashboard() {
   const [phone, setPhone] = useState('');
@@ -52,13 +52,23 @@ export default function DispatcherDashboard() {
   };
 
   // Validation simulée d'un scan QR
-  const handleScan = () => {
+  const handleScan = async () => {
     if (!scanCode.trim()) { alert('Veuillez saisir ou coller un code QR.'); return; }
     setScanState('scanning');
-    setTimeout(() => {
-      // Simuler: code valide si commence par "AR-"
-      setScanState(scanCode.trim().toUpperCase().startsWith('AR-') ? 'valid' : 'invalid');
-    }, 1500);
+    
+    try {
+      const res = await fetch('/api/tickets/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrCodeToken: scanCode.trim() }),
+      });
+      const data = await res.json();
+      
+      setScanState(data.status as ScanState);
+    } catch (error) {
+      console.error(error);
+      setScanState('invalid');
+    }
   };
 
   const resetScan = () => {
@@ -639,6 +649,27 @@ export default function DispatcherDashboard() {
                   <button onClick={resetScan} className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">
                     Scanner un autre billet
                   </button>
+                </div>
+              )}
+
+              {scanState === 'already_used' && (
+                <div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-amber-500/20 border-2 border-amber-500 rounded-full mx-auto mb-4">
+                    <AlertCircle className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-white mb-1">Billet Déjà Utilisé</h3>
+                  <p className="text-center text-xs text-amber-400 font-semibold mb-5">L'embarquement a déjà été validé.</p>
+
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 mb-5">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <p className="text-xs text-amber-300">Ce billet a déjà été scanné précédemment.</p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button onClick={resetScan} className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
+                      Fermer
+                    </button>
+                  </div>
                 </div>
               )}
 

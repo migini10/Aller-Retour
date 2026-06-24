@@ -4,7 +4,9 @@ import { QrCode, Camera, CheckCircle2, XCircle, User } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 export default function SectionScanner() {
-  const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid'>('idle');
+  const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid' | 'already_used'>('idle');
+  const [scanCode, setScanCode] = useState('');
+  const [scanData, setScanData] = useState<any>(null);
   const [hasCameraError, setHasCameraError] = useState(false);
   const scannerStarted = React.useRef(false);
 
@@ -23,8 +25,9 @@ export default function SectionScanner() {
             fps: 10,
           },
           (decodedText) => {
-            // Simulated valid check
-            handleScan('valid');
+            // Un vrai scan est détecté
+            setScanCode(decodedText);
+            handleScanApi(decodedText);
           },
           (errorMessage) => {
             // Ignore parsing errors (very frequent when no QR code is in frame)
@@ -47,6 +50,28 @@ export default function SectionScanner() {
       }
     };
   }, []);
+
+  const handleScanApi = async (code: string) => {
+    if (!code.trim()) return;
+    try {
+      const res = await fetch('/api/tickets/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrCodeToken: code.trim() }),
+      });
+      const data = await res.json();
+      setScanData(data);
+      setScanResult(data.status as any);
+      setTimeout(() => {
+        setScanResult('idle');
+        setScanCode('');
+      }, 5000); // Reset after 5s
+    } catch (error) {
+      console.error(error);
+      setScanResult('invalid');
+      setTimeout(() => setScanResult('idle'), 4000);
+    }
+  };
 
   const handleScan = (type: 'valid' | 'invalid') => {
     setScanResult(type);
@@ -80,10 +105,27 @@ export default function SectionScanner() {
 
           <p className="relative z-10 mt-6 text-sm font-semibold text-white">Placez le QR Code dans le cadre</p>
 
+          {/* Saisie Manuelle */}
+          <div className="relative z-10 mt-6 w-full max-w-sm flex gap-2">
+            <input 
+              type="text" 
+              placeholder="Numéro du billet (ex: AR-1234)"
+              className="flex-1 bg-white/10 dark:bg-black/40 border border-slate-200/20 dark:border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 placeholder:text-slate-400"
+              value={scanCode}
+              onChange={(e) => setScanCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleScanApi(scanCode)}
+            />
+            <button 
+              onClick={() => handleScanApi(scanCode)}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              Valider
+            </button>
+          </div>
+
           {/* Boutons de test (pour la démo) */}
           <div className="relative z-10 mt-6 flex gap-3">
-            <button onClick={() => handleScan('valid')} className="text-xs bg-slate-100 dark:bg-[#222222] text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#333333] transition-colors">Test: Billet Valide</button>
-            <button onClick={() => handleScan('invalid')} className="text-xs bg-slate-100 dark:bg-[#222222] text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#333333] transition-colors">Test: Billet Invalide</button>
+            <button onClick={() => handleScanApi('AR-TEST-VALID')} className="text-xs bg-slate-100 dark:bg-[#222222] text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#333333] transition-colors">Test</button>
           </div>
         </div>
 
@@ -107,20 +149,34 @@ export default function SectionScanner() {
                 <div className="flex items-center gap-3 border-b border-slate-200 dark:border-[#2A2A2A] pb-3 transition-colors">
                   <div className="w-10 h-10 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center transition-colors"><User className="w-5 h-5 text-orange-500 dark:text-orange-400" /></div>
                   <div>
-                    <p className="text-slate-900 dark:text-white font-bold transition-colors">Mamadou Ndiaye</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">AR-74892374</p>
+                    <p className="text-slate-900 dark:text-white font-bold transition-colors">{scanData?.passengerName || 'Passager'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">{scanData?.route || 'Trajet'}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-slate-500">Siège</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">14A</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{scanData?.seatNumber || '-'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Bagage</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white transition-colors">1 (18 kg)</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white transition-colors">Standard</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          ) : scanResult === 'already_used' ? (
+            <div className="space-y-5 animate-in fade-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto ring-4 ring-amber-500/20">
+                <CheckCircle2 className="w-10 h-10 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Billet Déjà Utilisé</h3>
+                <p className="text-amber-500 dark:text-amber-400 font-semibold mt-1 transition-colors">L'embarquement a déjà été validé</p>
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5 w-full max-w-sm mx-auto transition-colors">
+                <p className="text-sm text-amber-600 dark:text-amber-300 transition-colors">{scanData?.message || "Ce billet a déjà été scanné."}</p>
+                <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mt-2">{scanData?.passengerName} - Siège {scanData?.seatNumber}</p>
               </div>
             </div>
           ) : (
@@ -130,10 +186,10 @@ export default function SectionScanner() {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Billet Invalide</h3>
-                <p className="text-rose-500 dark:text-rose-400 font-semibold mt-1 transition-colors">Déjà utilisé ou inconnu</p>
+                <p className="text-rose-500 dark:text-rose-400 font-semibold mt-1 transition-colors">Inconnu ou annulé</p>
               </div>
               <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl p-5 w-full max-w-sm mx-auto transition-colors">
-                <p className="text-sm text-rose-600 dark:text-rose-300 transition-colors">Ce billet a déjà été scanné aujourd'hui à 08:14 pour ce trajet.</p>
+                <p className="text-sm text-rose-600 dark:text-rose-300 transition-colors">{scanData?.message || "Ce billet est introuvable."}</p>
               </div>
             </div>
           )}
