@@ -10,7 +10,7 @@ import {
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 type BilletState = 'idle' | 'generating' | 'success';
-type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid' | 'already_used';
+type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid' | 'already_used' | 'success';
 
 export default function DispatcherDashboard() {
   const [phone, setPhone] = useState('');
@@ -21,6 +21,7 @@ export default function DispatcherDashboard() {
 
   const [scanState, setScanState] = useState<ScanState>('idle');
   const [scanCode, setScanCode] = useState('');
+  const [scanData, setScanData] = useState<any>(null);
   const [showScanModal, setShowScanModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -51,7 +52,6 @@ export default function DispatcherDashboard() {
     setNomClient('');
   };
 
-  // Validation simulée d'un scan QR
   const handleScan = async () => {
     if (!scanCode.trim()) { alert('Veuillez saisir ou coller un code QR.'); return; }
     setScanState('scanning');
@@ -60,14 +60,46 @@ export default function DispatcherDashboard() {
       const res = await fetch('/api/tickets/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: scanCode.trim() }),
+        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'info' }),
       });
       const data = await res.json();
-      
+      setScanData(data);
       setScanState(data.status as ScanState);
+      
+      if (data.status !== 'valid') {
+        setTimeout(() => {
+          if (scanState !== 'success') {
+            setScanState('idle');
+            setScanCode('');
+          }
+        }, 5000);
+      }
     } catch (error) {
       console.error(error);
       setScanState('invalid');
+      setTimeout(() => setScanState('idle'), 4000);
+    }
+  };
+
+  const handleBoarding = async () => {
+    if (!scanCode.trim()) return;
+    setScanState('scanning');
+    try {
+      const res = await fetch('/api/tickets/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'board' }),
+      });
+      const data = await res.json();
+      setScanData(data);
+      setScanState(data.status as ScanState);
+      setTimeout(() => {
+        setScanState('idle');
+        setScanCode('');
+      }, 3000);
+    } catch (error) {
+      setScanState('invalid');
+      setTimeout(() => setScanState('idle'), 4000);
     }
   };
 
@@ -630,15 +662,15 @@ export default function DispatcherDashboard() {
                   <div className="space-y-2 bg-[#0A0A0A] rounded-xl p-4 border border-[#2A2A2A] mb-5">
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400 flex items-center gap-1"><User className="w-3 h-3 text-orange-400" /> Passager</span>
-                      <span className="text-white font-semibold">Fatou Diop</span>
+                      <span className="text-white font-semibold">{scanData?.passengerName || 'Passager'}</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3 text-orange-400" /> Ligne</span>
-                      <span className="text-white font-semibold">Dakar ➔ Touba</span>
+                      <span className="text-white font-semibold">{scanData?.route || 'Trajet'}</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400 flex items-center gap-1"><TicketCheck className="w-3 h-3 text-orange-400" /> Siège</span>
-                      <span className="text-orange-400 font-bold">#14 (VIP)</span>
+                      <span className="text-orange-400 font-bold">#{scanData?.seatNumber || '-'}</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400">Réf.</span>
@@ -646,7 +678,26 @@ export default function DispatcherDashboard() {
                     </div>
                   </div>
 
-                  <button onClick={resetScan} className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">
+                  <div className="flex gap-3">
+                    <button onClick={resetScan} className="flex-1 bg-[#1A1A1A] hover:bg-[#222222] border border-[#333333] text-slate-300 font-bold py-3 rounded-xl text-sm transition-colors">
+                      Annuler
+                    </button>
+                    <button onClick={handleBoarding} className="flex-[2] bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">
+                      Valider l'embarquement
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {scanState === 'success' && (
+                <div>
+                  <div className="flex items-center justify-center w-16 h-16 bg-emerald-500/20 border-2 border-emerald-500 rounded-full mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-white mb-1">Embarquement Réussi</h3>
+                  <p className="text-center text-xs text-emerald-400 font-semibold mb-5">{scanData?.message || 'Le passager est à bord.'}</p>
+
+                  <button onClick={resetScan} className="w-full bg-[#1A1A1A] hover:bg-[#222222] text-white font-bold py-3 rounded-xl text-sm transition-colors border border-[#333333]">
                     Scanner un autre billet
                   </button>
                 </div>

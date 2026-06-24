@@ -4,7 +4,7 @@ import { QrCode, Camera, CheckCircle2, XCircle, User } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 export default function SectionScanner() {
-  const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid' | 'already_used'>('idle');
+  const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid' | 'already_used' | 'success' | 'scanning'>('idle');
   const [scanCode, setScanCode] = useState('');
   const [scanData, setScanData] = useState<any>(null);
   const [hasCameraError, setHasCameraError] = useState(false);
@@ -57,17 +57,41 @@ export default function SectionScanner() {
       const res = await fetch('/api/tickets/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: code.trim() }),
+        body: JSON.stringify({ qrCodeToken: code.trim(), action: 'info' }),
       });
       const data = await res.json();
       setScanData(data);
       setScanResult(data.status as any);
+      if (data.status !== 'valid') {
+        setTimeout(() => {
+          setScanResult('idle');
+          setScanCode('');
+        }, 5000); // Reset after 5s if not valid
+      }
+    } catch (error) {
+      console.error(error);
+      setScanResult('invalid');
+      setTimeout(() => setScanResult('idle'), 4000);
+    }
+  };
+
+  const handleBoarding = async () => {
+    if (!scanCode.trim()) return;
+    setScanResult('scanning');
+    try {
+      const res = await fetch('/api/tickets/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'board' }),
+      });
+      const data = await res.json();
+      setScanData(data);
+      setScanResult(data.status as any); // Should be 'success'
       setTimeout(() => {
         setScanResult('idle');
         setScanCode('');
-      }, 5000); // Reset after 5s
+      }, 3000);
     } catch (error) {
-      console.error(error);
       setScanResult('invalid');
       setTimeout(() => setScanResult('idle'), 4000);
     }
@@ -136,6 +160,11 @@ export default function SectionScanner() {
               <QrCode className="w-16 h-16 mx-auto text-slate-500" />
               <p className="text-sm font-medium text-slate-900 dark:text-white transition-colors">En attente de scan...</p>
             </div>
+          ) : scanResult === 'scanning' ? (
+            <div className="opacity-50 space-y-3">
+              <div className="w-16 h-16 mx-auto border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm font-medium text-slate-900 dark:text-white transition-colors">Vérification...</p>
+            </div>
           ) : scanResult === 'valid' ? (
             <div className="space-y-5 animate-in fade-in zoom-in duration-300">
               <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto ring-4 ring-emerald-500/20">
@@ -163,6 +192,33 @@ export default function SectionScanner() {
                     <p className="text-sm font-bold text-slate-900 dark:text-white transition-colors">Standard</p>
                   </div>
                 </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button 
+                  onClick={() => {
+                    setScanResult('idle');
+                    setScanCode('');
+                  }} 
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-sm transition-colors border border-slate-200 dark:border-[#333333]"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={handleBoarding}
+                  className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/20"
+                >
+                  Valider l'embarquement
+                </button>
+              </div>
+            </div>
+          ) : scanResult === 'success' ? (
+            <div className="space-y-5 animate-in fade-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto ring-4 ring-emerald-500/20">
+                <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Embarquement Réussi</h3>
+                <p className="text-emerald-500 dark:text-emerald-400 font-semibold mt-1 transition-colors">{scanData?.message || 'Le passager est à bord.'}</p>
               </div>
             </div>
           ) : scanResult === 'already_used' ? (

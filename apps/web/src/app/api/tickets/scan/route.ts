@@ -8,7 +8,7 @@ export const fetchCache = 'force-no-store';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { qrCodeToken } = body;
+    const { qrCodeToken, action = 'info' } = body;
 
     if (!qrCodeToken) {
       return NextResponse.json({ status: 'invalid', message: 'Token manquant' }, { status: 400 });
@@ -52,23 +52,35 @@ export async function POST(req: Request) {
     }
 
     if (booking.status === 'CONFIRMED' || booking.status === 'PENDING_PAYMENT') {
-      // Valider le billet
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: {
-          status: 'BOARDED',
-          boardedAt: new Date(),
-        }
-      });
+      if (action === 'info') {
+        // Juste retourner les infos sans modifier
+        return NextResponse.json({ 
+          status: 'valid', 
+          message: 'Billet valide pour embarquement.',
+          passengerName: booking.user.fullName,
+          seatNumber: booking.seatNumber,
+          route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`
+        });
+      } else if (action === 'board') {
+        // Valider le billet
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            status: 'BOARDED',
+            boardedAt: new Date(),
+          }
+        });
 
-      return NextResponse.json({ 
-        status: 'valid', 
-        message: 'Embarquement validé.',
-        passengerName: booking.user.fullName,
-        seatNumber: booking.seatNumber,
-        route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`
-      });
+        return NextResponse.json({ 
+          status: 'success', 
+          message: 'Embarquement validé avec succès.',
+          passengerName: booking.user.fullName,
+          seatNumber: booking.seatNumber,
+          route: `${booking.trip.route.originStation.city} ➔ ${booking.trip.route.destinationStation.city}`
+        });
+      }
     }
+
 
     return NextResponse.json({ status: 'invalid', message: 'Statut du billet inconnu' });
 
