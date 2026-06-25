@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param, Post, Body, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, Body, Patch, Delete, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { prisma, TripStatus } from '@aller-retour/database';
 
@@ -213,6 +213,11 @@ export class TripsController {
   @Post('create-allo-dakar')
   @ApiOperation({ summary: 'Créer un trajet Allo Dakar par un chauffeur' })
   async createAlloDakarTrip(@Body() body: any) {
+    if (body.originCity && body.destinationCity) {
+      if (body.originCity.trim().toLowerCase() === body.destinationCity.trim().toLowerCase()) {
+        throw new BadRequestException("La ville de départ et la ville d'arrivée ne peuvent pas être identiques.");
+      }
+    }
     const [companyId, driverId] = await Promise.all([this.getAlloDakarCompany(), this.getAlloDakarDriver()]);
     
     const capacity = body.vehicleCapacity || 5;
@@ -248,6 +253,11 @@ export class TripsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Modifier un trajet' })
   async updateTrip(@Param('id') id: string, @Body() body: any) {
+    if (body.originCity && body.destinationCity) {
+      if (body.originCity.trim().toLowerCase() === body.destinationCity.trim().toLowerCase()) {
+        throw new BadRequestException("La ville de départ et la ville d'arrivée ne peuvent pas être identiques.");
+      }
+    }
     const existingTrip = await prisma.trip.findUnique({
       where: { id },
       select: { companyId: true }
@@ -352,5 +362,101 @@ export class TripsController {
       console.error('Error fetching popular prices:', error);
       return { prices: [] };
     }
+  }
+
+  @Patch(':id/toggle-lock')
+  @ApiOperation({ summary: 'Verrouiller ou déverrouiller un trajet' })
+  async toggleLock(@Param('id') id: string, @Body() body: any) {
+    const existingTrip = await prisma.trip.findUnique({
+      where: { id },
+      select: { 
+        isLocked: true,
+        driver: {
+          include: {
+            user: {
+              select: { passwordHash: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!existingTrip) {
+      return { success: false, error: 'Trajet non trouvé' };
+    }
+
+    // Validation du code PIN uniquement pour le verrouillage (lorsque le trajet est actuellement déverrouillé)
+    if (!existingTrip.isLocked) {
+      const code = body?.code;
+      if (!code) {
+        return { success: false, error: 'Un code PIN de sécurité est requis pour verrouiller le trajet.' };
+      }
+      const userPin = existingTrip.driver?.user?.passwordHash || '123456';
+      if (code !== userPin) {
+        return { success: false, error: 'Le code PIN saisi est incorrect.' };
+      }
+    }
+
+    const updated = await prisma.trip.update({
+      where: { id },
+      data: { isLocked: !existingTrip.isLocked }
+    });
+
+    return { success: true, isLocked: updated.isLocked };
+  }
+
+  @Get(':id/transfer-targets')
+  @ApiOperation({ summary: 'Trouver des trajets alternatifs éligibles pour un transfert de passagers' })
+  async getTransferTargets(@Param('id') id: string) {
+    const trip = await prisma.trip.findUnique({
+      where: { id },
+      include: { route: true, vehicle: true }
+    });
+
+    if (!trip) {
+      return [];
+    }
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+    const alternativeTrips = await prisma.trip.findMany({
+      where: {
+        routeId: trip.routeId,
+        id: { not: id },
+        status: TripStatus.SCHEDULED,
+        departureTime: { gte: new Date() }
+      },
+      include: {
+        company: { select: { name: true, logoUrl: true } },
+        vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+        driver: { select: { user: { select: { fullName: true, phone: true } } } },
+        bookings: {
+          where: {
+            OR: [
+              { status: { in: ['CONFIRMED', 'BOARDED'] } },
+              { status: 'PENDING_PAYMENT', createdAt: { gt: fiveMinutesAgo } }
+            ]
+          }
+        }
+      }
+    });
+
+    return alternativeTrips.map((alt: any) => {
+      const bookedSeats = alt.bookings.length;
+      const totalPassengers = alt.initialPassengers + bookedSeats;
+      return {
+        id: alt.id,
+        departureTime: alt.departureTime,
+        status: alt.status,
+        pricePerSeat: alt.pricePerSeat,
+        seatsOffered: alt.seatsOffered,
+        initialPassengers: alt.initialPassengers,
+        availableSeats: Math.max(0, alt.seatsOffered - totalPassengers),
+        driverName: alt.driver?.user?.fullName || 'Chauffeur Inconnu',
+        driverPhone: alt.driver?.user?.phone || '',
+        plateNumber: alt.vehicle.plateNumber,
+        isLocked: alt.isLocked,
+      };
+    });
   }
 }

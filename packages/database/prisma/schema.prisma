@@ -225,6 +225,7 @@ model Trip {
   status          TripStatus @default(SCHEDULED)
   pricePerSeat    Float      // Prix effectif de la place sur ce départ
   isMarketplace   Boolean    @default(false) // Trajet de chauffeur libre
+  isLocked        Boolean    @default(false) // Verrouillage du trajet pour bloquer les réservations publiques
   seatsOffered      Int        @default(4)
   initialPassengers Int        @default(0)
   currentLat        Float?

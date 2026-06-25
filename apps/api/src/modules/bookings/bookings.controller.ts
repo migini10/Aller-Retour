@@ -6,7 +6,18 @@ import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
 import { UserRole, PaymentMethod } from '@aller-retour/database';
-import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray } from 'class-validator';
+
+export class TransferBookingsDto {
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty()
+  bookingIds!: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  targetTripId!: string;
+}
 
 export class CreateBookingDto {
   @IsString()
@@ -71,5 +82,14 @@ export class BookingsController {
   @ApiOperation({ summary: 'Annuler une réservation et obtenir un remboursement dans le Wallet' })
   async cancelBooking(@Param('id') id: string, @Req() req: any) {
     return this.bookingsService.cancelBooking(id, req.user.id);
+  }
+
+  @Post('transfer')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN, UserRole.SUPER_ADMIN)
+  @Permissions('bookings:update')
+  @ApiOperation({ summary: 'Transférer des passagers vers un autre trajet' })
+  async transfer(@Req() req: any, @Body() dto: TransferBookingsDto) {
+    return this.bookingsService.transferBookings(req.user.id, dto.bookingIds, dto.targetTripId);
   }
 }

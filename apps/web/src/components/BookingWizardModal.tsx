@@ -459,6 +459,15 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               apiData = await res.json();
               setIsQueued(false);
             } else {
+              if (res.status === 401) {
+                localStorage.removeItem('ar_auth_token');
+                localStorage.removeItem('ar_auth_user');
+                localStorage.removeItem('isAuthenticated');
+                setGlobalError('Votre session a expiré ou est invalide. Veuillez recharger la page ou vous reconnecter.');
+                setIsSearching(false);
+                return;
+              }
+
               let errorData: any = {};
               try {
                 errorData = await res.json();

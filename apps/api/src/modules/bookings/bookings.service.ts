@@ -37,6 +37,10 @@ export class BookingsService {
 
       if (!trip) throw new NotFoundException("Trajet introuvable.");
 
+      if (trip.isLocked) {
+        throw new BadRequestException("Ce trajet est verrouillé. Les réservations ne sont pas autorisées.");
+      }
+
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       const allBookings = await tx.booking.findMany({
         where: {
@@ -52,10 +56,18 @@ export class BookingsService {
       const takenSeats = new Set(allBookings.map((b: any) => b.seatNumber));
       
       let assignedSeat = seatNumber;
-      if (assignedSeat < 1 || assignedSeat > trip.vehicle.capacity || takenSeats.has(assignedSeat)) {
+      if (trip.vehicle.capacity <= 7) {
+        // Véhicule particulier de 5 ou 7 places : pas de numéro de siège imposé
         assignedSeat = 1;
         while (takenSeats.has(assignedSeat) && assignedSeat <= trip.vehicle.capacity) {
           assignedSeat++;
+        }
+      } else {
+        if (assignedSeat < 1 || assignedSeat > trip.vehicle.capacity || takenSeats.has(assignedSeat)) {
+          assignedSeat = 1;
+          while (takenSeats.has(assignedSeat) && assignedSeat <= trip.vehicle.capacity) {
+            assignedSeat++;
+          }
         }
       }
 
@@ -322,5 +334,82 @@ export class BookingsService {
     }
 
     return { success: true, message: "Réservation annulée. Si vous aviez payé, le montant a été reversé sur votre Wallet Allo Dakar." };
+  }
+
+  async transferBookings(operatorUserId: string, bookingIds: string[], targetTripId: string) {
+    if (!bookingIds || bookingIds.length === 0) {
+      throw new BadRequestException("Aucune réservation spécifiée pour le transfert.");
+    }
+
+    return await prisma.$transaction(async (tx: any) => {
+      // 1. Récupérer le trajet cible
+      const targetTrip = await tx.trip.findUnique({
+        where: { id: targetTripId },
+        include: { vehicle: true },
+      });
+
+      if (!targetTrip) throw new NotFoundException("Trajet cible introuvable.");
+
+      // 2. Récupérer les réservations à transférer
+      const bookingsToTransfer = await tx.booking.findMany({
+        where: { id: { in: bookingIds } },
+        include: { trip: true },
+      });
+
+      if (bookingsToTransfer.length !== bookingIds.length) {
+        throw new NotFoundException("Certaines réservations à transférer sont introuvables.");
+      }
+
+      // 3. Calculer les places déjà prises sur le trajet cible
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const targetBookings = await tx.booking.findMany({
+        where: {
+          tripId: targetTripId,
+          OR: [
+            { status: { in: ['CONFIRMED', 'BOARDED'] } },
+            { status: 'PENDING_PAYMENT', createdAt: { gt: fiveMinutesAgo } }
+          ]
+        },
+        select: { seatNumber: true },
+      });
+
+      const takenSeats = new Set(targetBookings.map((b: any) => b.seatNumber));
+      const availableSeatsCount = targetTrip.seatsOffered - (targetTrip.initialPassengers + targetBookings.length);
+
+      if (availableSeatsCount < bookingsToTransfer.length) {
+        throw new BadRequestException(
+          `Nombre de places insuffisant sur le trajet cible. Places disponibles : ${Math.max(0, availableSeatsCount)}, Demandées : ${bookingsToTransfer.length}`
+        );
+      }
+
+      // 4. Procéder au transfert de chaque réservation
+      const updatedBookings = [];
+
+      for (const booking of bookingsToTransfer) {
+        // Déterminer le numéro de siège
+        let assignedSeat = 1;
+        while (takenSeats.has(assignedSeat) && assignedSeat <= targetTrip.vehicle.capacity) {
+          assignedSeat++;
+        }
+
+        takenSeats.add(assignedSeat);
+
+        const updated = await tx.booking.update({
+          where: { id: booking.id },
+          data: {
+            tripId: targetTripId,
+            seatNumber: assignedSeat,
+          },
+        });
+        updatedBookings.push(updated);
+      }
+
+      return {
+        success: true,
+        message: `${bookingsToTransfer.length} client(s) transféré(s) avec succès.`,
+        transferredCount: bookingsToTransfer.length,
+        bookings: updatedBookings,
+      };
+    });
   }
 }

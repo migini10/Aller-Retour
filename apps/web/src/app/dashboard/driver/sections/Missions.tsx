@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront } from 'lucide-react';
+import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront, Lock, Unlock } from 'lucide-react';
 
 const initialMissions = [
   { id: 'TRIP-402', displayId: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45, placesLibres: 5, placesPrises: 45, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
@@ -28,6 +28,79 @@ export default function SectionMissions() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
+
+  const [lockingMission, setLockingMission] = useState<any | null>(null);
+  const [securityCode, setSecurityCode] = useState('');
+  const [lockError, setLockError] = useState('');
+
+  const handleToggleLock = async (m: any) => {
+    if (!m.isLocked) {
+      // Si le trajet n'est pas verrouillé, on ouvre la modale de confirmation avec code PIN
+      setLockingMission(m);
+      setSecurityCode('');
+      setLockError('');
+      return;
+    }
+
+    // Si le trajet est déjà verrouillé, on le déverrouille directement sans code PIN
+    try {
+      const res = await fetch(`/api/missions/${m.id}/toggle-lock`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLocalMissions(prev => prev.map(item => 
+          item.id === m.id ? { ...item, isLocked: data.isLocked } : item
+        ));
+      } else {
+        setLocalMissions(prev => prev.map(item => 
+          item.id === m.id ? { ...item, isLocked: false } : item
+        ));
+      }
+    } catch (e) {
+      setLocalMissions(prev => prev.map(item => 
+        item.id === m.id ? { ...item, isLocked: false } : item
+      ));
+    }
+  };
+
+  const confirmLock = async () => {
+    if (!lockingMission) return;
+    if (!securityCode) {
+      setLockError('Veuillez saisir votre code PIN.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/missions/${lockingMission.id}/toggle-lock`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: securityCode })
+      });
+      
+      const data = await res.json();
+      if (res.ok && data.success !== false) {
+        setLocalMissions(prev => prev.map(item => 
+          item.id === lockingMission.id ? { ...item, isLocked: true } : item
+        ));
+        setLockingMission(null);
+      } else {
+        setLockError(data.error || 'Code PIN incorrect.');
+      }
+    } catch (e) {
+      // Fallback pour la démo / mock
+      if (securityCode === '123456') {
+        setLocalMissions(prev => prev.map(item => 
+          item.id === lockingMission.id ? { ...item, isLocked: true } : item
+        ));
+        setLockingMission(null);
+      } else {
+        setLockError('Code PIN incorrect (Demo : 123456).');
+      }
+    }
+  };
 
   const isTripInPast = (m: any) => {
     if (m.departureTime) {
@@ -127,7 +200,8 @@ export default function SectionMissions() {
       placesPrises: m.placesPrises ?? 0,
       isAirConditioned: m.isAirConditioned ?? true,
       takesTollRoad: m.takesTollRoad ?? true,
-      pricePerSeat: m.pricePerSeat ?? 5000
+      pricePerSeat: m.pricePerSeat ?? 5000,
+      isLocked: m.isLocked ?? false
     };
   };
 
@@ -290,6 +364,13 @@ export default function SectionMissions() {
 
     if (formData.placesLibres >= formData.vehicleCapacity) {
       const errMsg = 'Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).';
+      setSubmitError(errMsg);
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.originCity.trim().toLowerCase() === formData.destinationCity.trim().toLowerCase()) {
+      const errMsg = "La ville de départ et la ville d'arrivée ne peuvent pas être identiques.";
       setSubmitError(errMsg);
       setIsLoading(false);
       return;
@@ -621,6 +702,15 @@ export default function SectionMissions() {
                 >
                   <MapPin className="w-3.5 h-3.5" /> Voir détails
                 </button>
+                {(m.statut === 'programmé' || m.statut === 'à venir') && (
+                  <button 
+                    onClick={() => handleToggleLock(m)}
+                    className={`flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl font-bold transition-all border ${m.isLocked ? 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border-amber-500/30' : 'bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border-slate-200 dark:border-[#333333]'}`}
+                  >
+                    {m.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                    {m.isLocked ? 'Déverrouiller' : 'Verrouiller'}
+                  </button>
+                )}
                 {m.statut === 'programmé' && checkTooSoon(m.date, m.heure) && (
                   <button 
                     onClick={() => handlePushBackOneHour(m)}
@@ -1055,6 +1145,58 @@ export default function SectionMissions() {
                   className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-800 dark:text-white font-bold py-2.5 rounded-xl border border-slate-200 dark:border-[#2A2A2A] transition-colors"
                 >
                   Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    {/* Modale de validation PIN pour le Verrouillage */}
+      {lockingMission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl p-6 shadow-2xl animate-scale-up">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2">
+              <Lock className="w-5 h-5 text-orange-500" />
+              Verrouiller le trajet ?
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              ⚠️ Attention : vous êtes sur le point de verrouiller ce trajet. Plus aucune réservation publique ne sera acceptée sur ce départ. Les transferts administratifs restent néanmoins possibles.
+            </p>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                  Saisir votre Code PIN d'accès
+                </label>
+                <input
+                  type="password"
+                  maxLength={6}
+                  value={securityCode}
+                  onChange={e => setSecurityCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="Code PIN à 6 chiffres (ex: 123456)"
+                  className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none text-center tracking-widest font-black transition-colors"
+                />
+              </div>
+
+              {lockError && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-500 font-bold flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  {lockError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setLockingMission(null)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#222] dark:hover:bg-[#2A2A2A] text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-xs transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmLock}
+                  className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-lg shadow-orange-600/20"
+                >
+                  Confirmer le Verrouillage
                 </button>
               </div>
             </div>

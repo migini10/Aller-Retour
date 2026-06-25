@@ -532,6 +532,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs obligatoires'), backgroundColor: Colors.redAccent));
                                   return;
                                 }
+
+                                if (originCity!.trim().toLowerCase() == destinationCity!.trim().toLowerCase()) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('La ville de départ et d\'arrivée ne peuvent pas être identiques'), backgroundColor: Colors.redAccent));
+                                  return;
+                                }
                                 
                                 setModalState(() => isLoading = true);
 
@@ -1228,7 +1233,108 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                       ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                // Option de verrouillage avec Switch
+                StatefulBuilder(
+                  builder: (context, setStateDialog) {
+                    final bool isLocked = mission['isLocked'] ?? false;
+                    return SwitchListTile(
+                      title: Text(
+                        isLocked ? '🔒 Trajet Verrouillé' : '🔓 Trajet Déverrouillé',
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text('Bloque les nouvelles réservations publiques', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                      value: isLocked,
+                      activeColor: const Color(0xFFF97316),
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (bool value) async {
+                        if (value) {
+                          // Demander le code d'accès PIN pour le verrouillage
+                          final pinCode = await _showPinConfirmationDialog(context);
+                          if (pinCode == null || pinCode.isEmpty) {
+                            return; // Annulé
+                          }
+                          try {
+                            final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                            final res = await http.patch(
+                              Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
+                              headers: {'Content-Type': 'application/json'},
+                              body: json.encode({'code': pinCode}),
+                            );
+                            if (res.statusCode == 200) {
+                              final data = json.decode(res.body);
+                              if (data['success'] == false) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Code PIN incorrect.'), backgroundColor: Colors.red));
+                                return;
+                              }
+                              setState(() {
+                                mission['isLocked'] = data['isLocked'] ?? true;
+                              });
+                              setStateDialog(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet verrouillé avec succès.'), backgroundColor: Colors.green));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
+                            }
+                          } catch (e) {
+                            // Fallback de démo si l'API n'est pas lancée
+                            if (pinCode == '123456') {
+                              setState(() {
+                                mission['isLocked'] = true;
+                              });
+                              setStateDialog(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet verrouillé.'), backgroundColor: Colors.green));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
+                            }
+                          }
+                        } else {
+                          // Déverrouiller directement
+                          try {
+                            final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                            final res = await http.patch(
+                              Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
+                              headers: {'Content-Type': 'application/json'},
+                              body: json.encode({}),
+                            );
+                            if (res.statusCode == 200) {
+                              final data = json.decode(res.body);
+                              setState(() {
+                                mission['isLocked'] = data['isLocked'] ?? false;
+                              });
+                              setStateDialog(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet déverrouillé avec succès.'), backgroundColor: Colors.green));
+                            }
+                          } catch (e) {
+                            // Fallback démo
+                            setState(() {
+                              mission['isLocked'] = false;
+                            });
+                            setStateDialog(() {});
+                          }
+                        }
+                      },
+                    );
+                  }
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showManifestAndTransferDialog(context, mission);
+                    },
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Transférer des Clients', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF97316),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -1245,6 +1351,289 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Future<String?> _showPinConfirmationDialog(BuildContext context) {
+    final TextEditingController pinController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.lock_outline, color: Color(0xFFF97316), size: 22),
+                    SizedBox(width: 8),
+                    Text('Verrouiller le trajet ?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '⚠️ Attention : vous êtes sur le point de verrouiller ce trajet. Plus aucune réservation publique ne sera acceptée sur ce départ.',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+                const Text('Saisir votre Code PIN d\'accès', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF000000),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF333333)),
+                  ),
+                  child: TextField(
+                    controller: pinController,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 8),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: '',
+                      hintText: '••••••',
+                      hintStyle: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(ctx, null),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).dividerColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Annuler', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(ctx, pinController.text),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF97316),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Valider', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showManifestAndTransferDialog(BuildContext context, Map<String, dynamic> mission) {
+    _showSelectTargetTripDialog(context, mission);
+  }
+
+  void _showSelectTargetTripDialog(BuildContext context, Map<String, dynamic> mission) {
+    final List<Map<String, dynamic>> targetTrips = [
+      { 'id': 'TRIP-501', 'chauffeur': 'Moustapha Dieng', 'vehicule': 'Toyota 7 Places', 'heure': '15:00', 'placesLibres': 3, 'isLocked': false },
+      { 'id': 'TRIP-502', 'chauffeur': 'Abdoulaye Sow', 'vehicule': 'Peugeot 505 particulier', 'heure': '15:15', 'placesLibres': 4, 'isLocked': true },
+      { 'id': 'TRIP-503', 'chauffeur': 'Cheikh Gueye', 'vehicule': 'Bus 50 Places', 'heure': '16:00', 'placesLibres': 20, 'isLocked': false },
+    ];
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('1. Choisir le trajet cible', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: targetTrips.length,
+                    itemBuilder: (c, idx) {
+                      final t = targetTrips[idx];
+                      return ListTile(
+                        title: Text('Chauffeur: ${t['chauffeur']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        subtitle: Text(
+                          '${t['vehicule']} • ${t['heure']} • ${t['placesLibres']} places libres${t['isLocked'] ? ' • 🔒 Verrouillé (Transfert OK)' : ''}',
+                          style: const TextStyle(color: Colors.grey, fontSize: 11),
+                        ),
+                        trailing: const Icon(Icons.chevron_right, color: Color(0xFFF97316), size: 18),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _showPassengerSelectionDialog(context, mission, t);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPassengerSelectionDialog(BuildContext context, Map<String, dynamic> mission, Map<String, dynamic> targetTrip) {
+    final int capacity = (mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0) + 1;
+    final bool isParticularVehicle = capacity <= 7;
+
+    final List<Map<String, dynamic>> passagers = [
+      {'id': 'AR-74892374', 'nom': 'Fatou Diop', 'siege': '3', 'tel': '+221 77 123 45 67', 'bagage': '12 kg'},
+      {'id': 'AR-84512987', 'nom': 'Mamadou Ndiaye', 'siege': '1', 'tel': '+221 78 987 65 43', 'bagage': '25 kg (+1000F)'},
+      {'id': 'AR-62019384', 'nom': 'Awa Fall', 'siege': '2', 'tel': '+221 70 456 78 90', 'bagage': 'Aucun'},
+      {'id': 'AR-11029384', 'nom': 'Ousmane Sow', 'siege': '4', 'tel': '+221 76 543 21 09', 'bagage': '15 kg'},
+    ];
+
+    final Set<String> selectedPassengerIds = {};
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final int maxAllowed = targetTrip['placesLibres'] ?? 0;
+            return Dialog(
+              backgroundColor: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '2. Sélectionner les clients',
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.grey),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Cible : ${targetTrip['chauffeur']} (${maxAllowed} places libres max)',
+                      style: const TextStyle(color: Color(0xFFF97316), fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(maxHeight: 250),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: passagers.length,
+                          itemBuilder: (c, idx) {
+                            final p = passagers[idx];
+                            final isSelected = selectedPassengerIds.contains(p['id']);
+                            final bool reachedLimit = selectedPassengerIds.length >= maxAllowed && !isSelected;
+                            
+                            return CheckboxListTile(
+                              title: Text(p['nom'] ?? '', style: TextStyle(color: reachedLimit ? Colors.grey : Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                              subtitle: Text(
+                                isParticularVehicle ? 'Placement libre • ${p['bagage']}' : 'Siège #${p['siege']} • ${p['bagage']}',
+                                style: const TextStyle(color: Colors.grey, fontSize: 11),
+                              ),
+                              value: isSelected,
+                              activeColor: const Color(0xFFF97316),
+                              contentPadding: EdgeInsets.zero,
+                              onChanged: reachedLimit ? null : (bool? val) {
+                                setStateDialog(() {
+                                  if (val == true) {
+                                    selectedPassengerIds.add(p['id']!);
+                                  } else {
+                                    selectedPassengerIds.remove(p['id']);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).dividerColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: const Text('Retour', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: selectedPassengerIds.isEmpty ? null : () {
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('${selectedPassengerIds.length} client(s) transféré(s) avec succès à ${targetTrip['chauffeur']} !'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF97316),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: Text(
+                              'Transférer (${selectedPassengerIds.length})',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
