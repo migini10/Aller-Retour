@@ -468,6 +468,27 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       ),
     );
   }
+  String _getTicketStatusText(Map<String, dynamic> ticket) {
+    final bookingStatus = ticket['status'];
+    final tripStatus = ticket['trip']?['status'];
+    final tripDate = DateTime.parse(ticket['trip']['departureTime']).toLocal();
+    final isPast = tripDate.isBefore(DateTime.now());
+
+    if (bookingStatus == 'CANCELLED') return 'Annulé';
+
+    if (bookingStatus == 'BOARDED') {
+      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Terminé';
+      return 'Embarqué';
+    }
+
+    if (bookingStatus == 'CONFIRMED' || bookingStatus == 'PENDING_PAYMENT') {
+      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Expiré';
+      if (isPast && tripStatus != 'SCHEDULED' && tripStatus != 'BOARDING') return 'Expiré';
+      return 'Valide';
+    }
+
+    return bookingStatus;
+  }
 }
 
 class QRCodeBrandEngine extends StatelessWidget {
