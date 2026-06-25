@@ -50,7 +50,8 @@ export async function GET() {
         status: trip.status === 'SCHEDULED' ? 'programmé' : trip.status === 'BOARDING' ? 'à venir' : trip.status === 'IN_TRANSIT' ? 'en cours' : 'terminé',
         minScore: 60,
         isAirConditioned: true,
-        takesTollRoad: true
+        takesTollRoad: true,
+        isLocked: trip.isLocked
       };
     });
 

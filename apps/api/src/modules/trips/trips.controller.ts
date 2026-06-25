@@ -106,6 +106,7 @@ export class TripsController {
   ) {
     const whereClause: any = {
       status: TripStatus.SCHEDULED,
+      isLocked: false,
     };
 
     if (originCity && destinationCity) {
