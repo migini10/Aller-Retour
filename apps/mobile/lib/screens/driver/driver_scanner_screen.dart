@@ -317,7 +317,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
           ],
         ),
       ),
-      if (scanResult == 'valid')
+      if (scanResult == 'valid' || scanResult == 'expired')
         Positioned.fill(
           child: _buildValidModalOverlay(),
         ),
@@ -341,6 +341,7 @@ Widget _buildValidModalOverlay() {
   }
   
   final String amount = scanData?['amountPaid']?.toString() ?? '0';
+  final bool isExpired = scanResult == 'expired';
 
   return Container(
     color: Colors.black.withValues(alpha: 0.8),
@@ -358,7 +359,7 @@ Widget _buildValidModalOverlay() {
                 border: Border.all(color: const Color(0xFF2A2A2A)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withValues(alpha: 0.15),
+                    color: isExpired ? Colors.redAccent.withValues(alpha: 0.15) : Colors.greenAccent.withValues(alpha: 0.15),
                     blurRadius: 50,
                     spreadRadius: 0,
                   ),
@@ -371,9 +372,9 @@ Widget _buildValidModalOverlay() {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF10B981), // Emerald 500
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(31), topRight: Radius.circular(31)),
+                    decoration: BoxDecoration(
+                      color: isExpired ? const Color(0xFFF43F5E) : const Color(0xFF10B981), // Rose 500 or Emerald 500
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(31), topRight: Radius.circular(31)),
                     ),
                     child: Column(
                       children: [
@@ -385,12 +386,12 @@ Widget _buildValidModalOverlay() {
                             shape: BoxShape.circle,
                             boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                           ),
-                          child: const Icon(Icons.check_circle, color: Colors.white, size: 36),
+                          child: Icon(isExpired ? Icons.cancel : Icons.check_circle, color: Colors.white, size: 36),
                         ),
                         const SizedBox(height: 12),
-                        const Text('Billet Valide', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
+                        Text(isExpired ? 'Billet Expiré' : 'Billet Valide', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
                         const SizedBox(height: 4),
-                        const Text('Prêt pour l\'embarquement', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600)),
+                        Text(isExpired ? 'Trajet déjà passé' : 'Prêt pour l\'embarquement', style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -552,14 +553,14 @@ Widget _buildValidModalOverlay() {
                           child: ElevatedButton(
                             onPressed: _handleBoardingApi,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.greenAccent,
-                              foregroundColor: Colors.black,
+                              backgroundColor: isExpired ? const Color(0xFFF43F5E) : Colors.greenAccent,
+                              foregroundColor: isExpired ? Colors.white : Colors.black,
                               elevation: 10,
-                              shadowColor: Colors.greenAccent.withValues(alpha: 0.3),
+                              shadowColor: (isExpired ? const Color(0xFFF43F5E) : Colors.greenAccent).withValues(alpha: 0.3),
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
-                            child: const FittedBox(fit: BoxFit.scaleDown, child: Text('Valider l\'embarquement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+                            child: FittedBox(fit: BoxFit.scaleDown, child: Text(isExpired ? 'Réactiver et Embarquer' : 'Valider l\'embarquement', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                           ),
                         ),
                       ],

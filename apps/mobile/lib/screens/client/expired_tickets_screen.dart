@@ -131,24 +131,41 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                     ),
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('$origin ➔ $dest', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                              child: Text(_getTicketStatusText(t), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('$origin ➔ $dest', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                                    child: Text(_getTicketStatusText(t), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text('$dateStr à $timeStr', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                              const SizedBox(height: 4),
+                              Text('Réf: VOY-${t['id'].toString().split('-').first.toUpperCase()}', style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'monospace')),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text('$dateStr à $timeStr', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text('Réf: VOY-${t['id'].toString().split('-').first.toUpperCase()}', style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'monospace')),
+                        const SizedBox(width: 16),
+                        Opacity(
+                          opacity: 0.5,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                            child: QRCodeBrandEngine(value: t['qrCodeToken'], size: 64),
+                          ),
+                        ),
                       ],
                     ),
                   ),

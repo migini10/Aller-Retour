@@ -53,11 +53,17 @@ export async function POST(req: Request) {
     }
 
     if (booking.status === 'CONFIRMED' || booking.status === 'PENDING_PAYMENT') {
+      const isPast = new Date(booking.trip.departureTime).getTime() < Date.now();
+      const tripStatus = booking.trip.status;
+      let isExpired = false;
+      if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') isExpired = true;
+      if (isPast && tripStatus !== 'SCHEDULED' && tripStatus !== 'BOARDING') isExpired = true;
+
       if (action === 'info') {
         // Juste retourner les infos sans modifier
         return NextResponse.json({ 
-          status: 'valid', 
-          message: 'Billet valide pour embarquement.',
+          status: isExpired ? 'expired' : 'valid', 
+          message: isExpired ? 'Billet expiré.' : 'Billet valide pour embarquement.',
           ticketId: booking.id,
           passengerName: booking.user.fullName,
           seatNumber: booking.seatNumber,

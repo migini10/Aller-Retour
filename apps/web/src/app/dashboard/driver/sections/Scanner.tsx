@@ -210,16 +210,16 @@ export default function SectionScanner() {
           )}
         </div>
       </div>
-      {scanResult === 'valid' && (
+      {(scanResult === 'valid' || scanResult === 'expired') && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
           <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
             {/* Header Modale */}
-            <div className="bg-emerald-500 p-6 flex flex-col items-center justify-center text-white relative">
+            <div className={`${scanResult === 'expired' ? 'bg-rose-500' : 'bg-emerald-500'} p-6 flex flex-col items-center justify-center text-white relative`}>
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                <CheckCircle2 className="w-8 h-8 text-white" />
+                {scanResult === 'expired' ? <XCircle className="w-8 h-8 text-white" /> : <CheckCircle2 className="w-8 h-8 text-white" />}
               </div>
-              <h2 className="text-2xl font-bold">Billet Valide</h2>
-              <p className="text-emerald-100 text-sm mt-1">Prêt pour l'embarquement</p>
+              <h2 className="text-2xl font-bold">{scanResult === 'expired' ? 'Billet Expiré' : 'Billet Valide'}</h2>
+              <p className={`${scanResult === 'expired' ? 'text-rose-100' : 'text-emerald-100'} text-sm mt-1`}>{scanResult === 'expired' ? 'Trajet déjà passé' : 'Prêt pour l\'embarquement'}</p>
             </div>
             
             {/* Corps de la Modale */}
@@ -281,9 +281,9 @@ export default function SectionScanner() {
               </button>
               <button 
                 onClick={handleBoarding}
-                className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-emerald-500/20"
+                className={`flex-[2] ${scanResult === 'expired' ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'} text-white font-bold py-4 rounded-xl transition-colors shadow-lg`}
               >
-                Valider l'embarquement
+                {scanResult === 'expired' ? 'Réactiver et Embarquer' : 'Valider l\'embarquement'}
               </button>
             </div>
           </div>
