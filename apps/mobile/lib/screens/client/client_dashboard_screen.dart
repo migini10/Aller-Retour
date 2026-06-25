@@ -433,43 +433,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
         left: 20,
         right: 80, // Space for the fixed hamburger menu
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.deepOrange.shade400, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(Icons.directions_car, color: Colors.deepOrange.shade400, size: 18),
-          ),
-          const SizedBox(width: 10),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                fontWeight: FontWeight.w900, 
-                fontSize: 24,
-                letterSpacing: -0.5,
-                fontFamily: 'Roboto',
-                shadows: [
-                  Shadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 1)),
-                ],
-              ),
-              children: [
-                TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
-              ],
-            ),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Image.asset(
+          'assets/images/logo_allogoo.png',
+          height: 28,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
