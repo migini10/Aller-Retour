@@ -42,8 +42,33 @@ export default function QrCodePage() {
     fetchTickets();
   }, [token]);
 
-  const activeTickets = tickets.filter(t => (t.status === 'PENDING_PAYMENT' || t.status === 'CONFIRMED' || t.status === 'BOARDED') && (!t.trip?.departureTime || new Date(t.trip.departureTime).getTime() > Date.now()));
-  const pastTickets = tickets.filter(t => (t.status !== 'PENDING_PAYMENT' && t.status !== 'CONFIRMED' && t.status !== 'BOARDED') || (t.trip?.departureTime && new Date(t.trip.departureTime).getTime() < Date.now()));
+  const getTicketStatusText = (ticket: any) => {
+    const bookingStatus = ticket.status;
+    const tripStatus = ticket.trip?.status;
+    const isPast = new Date(ticket.trip?.departureTime).getTime() < Date.now();
+
+    if (bookingStatus === 'CANCELLED') return 'Annulé';
+    if (bookingStatus === 'BOARDED') {
+      if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Terminé';
+      return 'Embarqué';
+    }
+    if (bookingStatus === 'CONFIRMED' || bookingStatus === 'PENDING_PAYMENT') {
+      if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Expiré';
+      if (isPast && tripStatus !== 'SCHEDULED' && tripStatus !== 'BOARDING') return 'Expiré';
+      return 'Valide';
+    }
+    return bookingStatus;
+  };
+
+  const activeTickets = tickets.filter(t => {
+    const s = getTicketStatusText(t);
+    return s === 'Valide' || s === 'Embarqué';
+  });
+  
+  const pastTickets = tickets.filter(t => {
+    const s = getTicketStatusText(t);
+    return s === 'Expiré' || s === 'Terminé' || s === 'Annulé';
+  });
 
   
 
@@ -128,9 +153,12 @@ export default function QrCodePage() {
                            <QRCodeBrandEngine value={t.qrCodeToken} size={56} />
                         </div>
                         <div>
-                           <div className="flex items-center gap-3 mb-1.5">
+                           <div className="flex flex-wrap items-center gap-3 mb-1.5">
                               <span className={`font-bold text-base sm:text-lg text-slate-900 dark:text-white font-black`}>{origin} ➔ {dest}</span>
                               <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-600 dark:bg-[#222] dark:text-slate-300">
+                                {getTicketStatusText(t)}
+                              </span>
                            </div>
                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                              <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}

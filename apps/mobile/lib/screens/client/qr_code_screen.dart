@@ -150,9 +150,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               )
             else
               ..._tickets.where((t) {
-                final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
-                final isPast = t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED' || tripDate.isBefore(DateTime.now());
-                return !isPast;
+                final status = _getTicketStatusText(t);
+                return status == 'Valide' || status == 'Embarqué';
               }).map((t) {
                 final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
                 final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
@@ -165,7 +164,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 final card = _buildTicketCard(
                   context,
                   isActive: true,
-                  status: t['status'],
+                  status: _getTicketStatusText(t),
                   ref: t['qrCodeToken'],
                   date: dateStr,
                   time: timeStr,

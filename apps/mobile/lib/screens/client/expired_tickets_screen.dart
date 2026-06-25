@@ -37,8 +37,8 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
           final allTickets = jsonDecode(response.body) as List<dynamic>;
           setState(() {
             _expiredTickets = allTickets.where((t) {
-              final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
-              return t['status'] != 'PENDING_PAYMENT' && t['status'] != 'CONFIRMED' && t['status'] != 'BOARDED' || tripDate.isBefore(DateTime.now());
+              final status = _getTicketStatusText(t);
+              return status == 'Expiré' || status == 'Terminé' || status == 'Annulé';
             }).toList();
             _isLoading = false;
           });
@@ -51,6 +51,28 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
     } else {
       setState(() => _isLoading = false);
     }
+  }
+  
+  String _getTicketStatusText(Map<String, dynamic> ticket) {
+    final bookingStatus = ticket['status'];
+    final tripStatus = ticket['trip']?['status'];
+    final tripDate = DateTime.parse(ticket['trip']['departureTime']).toLocal();
+    final isPast = tripDate.isBefore(DateTime.now());
+
+    if (bookingStatus == 'CANCELLED') return 'Annulé';
+
+    if (bookingStatus == 'BOARDED') {
+      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Terminé';
+      return 'Embarqué';
+    }
+
+    if (bookingStatus == 'CONFIRMED' || bookingStatus == 'PENDING_PAYMENT') {
+      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Expiré';
+      if (isPast && tripStatus != 'SCHEDULED' && tripStatus != 'BOARDING') return 'Expiré';
+      return 'Valide';
+    }
+
+    return bookingStatus;
   }
 
   @override
@@ -119,7 +141,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                              child: Text('Expiré', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                              child: Text(_getTicketStatusText(t), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
                             ),
                           ],
                         ),
