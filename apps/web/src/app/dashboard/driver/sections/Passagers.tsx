@@ -238,8 +238,8 @@ export default function SectionPassagers() {
       {/* Transfer Modal */}
       {isTransferModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl overflow-hidden shadow-2xl animate-scale-up">
-            <div className="p-6 border-b border-slate-100 dark:border-[#2A2A2A] flex justify-between items-center">
+          <div className="w-full max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl overflow-hidden shadow-2xl animate-scale-up">
+            <div className="p-6 border-b border-slate-100 dark:border-[#2A2A2A] flex justify-between items-center shrink-0">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <ArrowLeftRight className="w-5 h-5 text-orange-500" />
                 Transférer des Clients
@@ -250,7 +250,7 @@ export default function SectionPassagers() {
             </div>
 
             {transferSuccess ? (
-              <div className="p-12 text-center space-y-4">
+              <div className="p-12 text-center space-y-4 overflow-y-auto">
                 <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
                   <Check className="w-8 h-8" />
                 </div>
@@ -258,7 +258,7 @@ export default function SectionPassagers() {
                 <p className="text-sm text-slate-500">Les passagers sélectionnés ont été déplacés sur le nouveau trajet.</p>
               </div>
             ) : (
-              <div className="p-6 space-y-6">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 
                 {/* Étape 1 : Choisir le chauffeur / trajet cible */}
                 <div className="space-y-3">
