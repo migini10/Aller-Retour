@@ -40,8 +40,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       where: {
         routeId: trip.routeId,
         id: { not: tripId },
-        status: TripStatus.SCHEDULED,
-        departureTime: { gte: new Date() }
+        status: { in: [TripStatus.SCHEDULED, TripStatus.BOARDING] }
       },
       include: {
         company: { select: { name: true, logoUrl: true } },

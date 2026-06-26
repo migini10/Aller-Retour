@@ -424,8 +424,7 @@ export class TripsController {
       where: {
         routeId: trip.routeId,
         id: { not: id },
-        status: TripStatus.SCHEDULED,
-        departureTime: { gte: new Date() }
+        status: { in: [TripStatus.SCHEDULED, TripStatus.BOARDING] }
       },
       include: {
         company: { select: { name: true, logoUrl: true } },
