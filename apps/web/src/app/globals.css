@@ -49,6 +49,8 @@
   margin-top: 4px;
   font-family: inherit;
   z-index: 9999 !important;
+  max-height: 250px;
+  overflow-y: auto;
 }
 .pac-item {
   padding: 10px 16px;
