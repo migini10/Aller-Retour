@@ -306,6 +306,11 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         fields: ['formatted_address'] 
       };
 
+      const neighborhoodOptions = {
+        componentRestrictions: { country: 'sn' },
+        fields: ['formatted_address']
+      };
+
       if (departInputRef.current) {
         const autocomplete = new (window as any).google.maps.places.Autocomplete(departInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
@@ -318,6 +323,20 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
+        });
+      }
+      if (pickupInputRef.current) {
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(pickupInputRef.current, neighborhoodOptions);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setPickupLocation(place.formatted_address);
+        });
+      }
+      if (quartierArriveeInputRef.current) {
+        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, neighborhoodOptions);
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) setSearchParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
     };
@@ -580,35 +599,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 </button>
               </div>
               <input 
+                ref={pickupInputRef}
                 type="text" 
                 placeholder="Entrez l'adresse exacte du passager"
                 className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-lg py-2 px-3 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 text-sm transition-colors"
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
-                onFocus={() => setShowPickupSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
               />
-              {showPickupSuggestions && (displayPickupQuartiers.length > 0 || (pickupLocation && !departCityQuartiers.some(q => q.toLowerCase() === pickupLocation.toLowerCase()))) && (
-                <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
-                  {displayPickupQuartiers.map((q) => (
-                    <div 
-                      key={q}
-                      onClick={() => setPickupLocation(q)}
-                      className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
-                    >
-                      {q}
-                    </div>
-                  ))}
-                  {pickupLocation && !departCityQuartiers.some(q => q.toLowerCase() === pickupLocation.toLowerCase()) && (
-                    <div 
-                      onClick={() => setPickupLocation(pickupLocation)}
-                      className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
-                    >
-                      Utiliser "{pickupLocation}"
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           )}
 
@@ -627,35 +624,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="relative z-[30]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
             <input 
+              ref={quartierArriveeInputRef}
               type="text" 
               placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
               className="w-full bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-slate-300 focus:outline-none focus:border-orange-500 text-sm transition-colors"
               value={searchParams.quartierArrivee}
               onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
-              onFocus={() => setShowQuartierSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
             />
-            {showQuartierSuggestions && (displayQuartiers.length > 0 || (searchParams.quartierArrivee && !selectedCityQuartiers.some(q => q.toLowerCase() === searchParams.quartierArrivee.toLowerCase()))) && (
-              <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
-                {displayQuartiers.map((q) => (
-                  <div 
-                    key={q}
-                    onClick={() => setSearchParams({...searchParams, quartierArrivee: q})}
-                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
-                  >
-                    {q}
-                  </div>
-                ))}
-                {searchParams.quartierArrivee && !selectedCityQuartiers.some(q => q.toLowerCase() === searchParams.quartierArrivee.toLowerCase()) && (
-                  <div 
-                    onClick={() => setSearchParams({...searchParams, quartierArrivee: searchParams.quartierArrivee})}
-                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
-                  >
-                    Utiliser "{searchParams.quartierArrivee}"
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 relative z-[20]">
