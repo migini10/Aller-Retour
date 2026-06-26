@@ -739,6 +739,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         passagers: t.passagers ?? 0,
         placesPrises: t.placesPrises ?? 0,
         availableSeats: t.availableSeats || 4,
+        seatsOffered: t.seatsOffered || 4,
         isTooSoon,
         driverPhone: t.driverPhone || '+221 77 000 00 00'
       };
@@ -787,7 +788,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="bg-slate-100 dark:bg-[#222222] text-xs text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{service.type}</span>
                       <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {service.passagers ?? 0} passagers prévus • {service.placesPrises ?? 0} places prises • {service.availableSeats} places restantes
+                        Capacité : {service.seatsOffered} places • Réservé : {service.placesPrises} • Disponible : {service.availableSeats}
                       </span>
                       {service.options === 'Climatisé' && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
