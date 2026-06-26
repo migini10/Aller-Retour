@@ -16,9 +16,21 @@ export default function TransferWizardModal({ isOpen, onClose }: TransferWizardM
   const [recipientName, setRecipientName] = useState('');
   const [accessCode, setAccessCode] = useState('');
 
+  const formatPhoneForSubmit = (p: string): string => {
+    let clean = p.replace(/\s+/g, '');
+    if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
+      return `+221${clean}`;
+    } else if (clean.startsWith('221')) {
+      return `+${clean}`;
+    } else if (clean.startsWith('00221')) {
+      return clean.replace('00221', '+221');
+    }
+    return clean;
+  };
+
   React.useEffect(() => {
-    const cleanPhone = phone.replace(/\s/g, '');
-    if (cleanPhone.length >= 9) {
+    const formatted = formatPhoneForSubmit(phone);
+    if (formatted.length >= 12) {
       // Simulation d'un appel API pour récupérer le nom du voyageur
       setRecipientName('Mamadou Ndiaye');
     } else {

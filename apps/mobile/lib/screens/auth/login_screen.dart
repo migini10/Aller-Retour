@@ -34,7 +34,17 @@ class _LoginScreenState extends State<LoginScreen> {
         Uri.parse('$apiUrl/v1/auth/login-mobile'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'phone': _phoneController.text.trim(),
+          'phone': (() {
+            String clean = _phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+            if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
+              return '+221$clean';
+            } else if (clean.startsWith('221')) {
+              return '+$clean';
+            } else if (clean.startsWith('00221')) {
+              return clean.replaceFirst('00221', '+221');
+            }
+            return clean;
+          })(),
           'pin': _passwordController.text.trim()
         }),
       );

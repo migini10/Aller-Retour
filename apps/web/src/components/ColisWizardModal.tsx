@@ -55,6 +55,18 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     return found || '';
   };
 
+  const formatPhoneForSubmit = (p: string): string => {
+    let clean = p.replace(/\s+/g, '');
+    if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
+      return `+221${clean}`;
+    } else if (clean.startsWith('221')) {
+      return `+${clean}`;
+    } else if (clean.startsWith('00221')) {
+      return clean.replace('00221', '+221');
+    }
+    return clean;
+  };
+
   const departCityKey = getCityKey(colisParams.depart);
   const selectedDepartQuartiers = departCityKey ? (quartiersSenegal[departCityKey] || []) : [];
   const filteredDepartQuartiers = selectedDepartQuartiers.filter(q => 
@@ -167,10 +179,10 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             destinataire: colisParams.destinataireNom,
-            tel: colisParams.destinataireTel,
+            tel: formatPhoneForSubmit(colisParams.destinataireTel),
             taille: colisParams.taille,
             senderName: user?.fullName || 'Expéditeur Anonyme',
-            senderPhone: user?.phone || '+221770000000',
+            senderPhone: formatPhoneForSubmit(user?.phone || '+221770000000'),
             email: (user as any)?.email || 'allogoosn@gmail.com',
             usePoints: colisParams.usePoints
           })

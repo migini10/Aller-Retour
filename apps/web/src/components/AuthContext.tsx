@@ -103,12 +103,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(userData);
   };
 
+  const formatPhoneForSubmit = (p: string): string => {
+    let clean = p.replace(/\s+/g, '');
+    if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
+      return `+221${clean}`;
+    } else if (clean.startsWith('221')) {
+      return `+${clean}`;
+    } else if (clean.startsWith('00221')) {
+      return clean.replace('00221', '+221');
+    }
+    return clean;
+  };
+
   const login = async (phone: string, pin: string) => {
     try {
+      const formattedPhone = formatPhoneForSubmit(phone);
       const res = await fetch(`${API_URL}/auth/login-mobile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, pin })
+        body: JSON.stringify({ phone: formattedPhone, pin })
       });
       const data = await res.json();
       
@@ -125,10 +138,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (phone: string, fullName: string, pin: string) => {
     try {
+      const formattedPhone = formatPhoneForSubmit(phone);
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, fullName, pin })
+        body: JSON.stringify({ phone: formattedPhone, fullName, pin })
       });
       const data = await res.json();
       
