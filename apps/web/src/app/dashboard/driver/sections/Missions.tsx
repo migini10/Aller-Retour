@@ -362,8 +362,11 @@ export default function SectionMissions() {
       return;
     }
 
-    if (formData.placesLibres >= formData.vehicleCapacity) {
-      const errMsg = 'Le nombre de places disponibles doit être inférieur à la capacité totale du véhicule (il faut compter la place du chauffeur !).';
+    const totalPassengerSeats = Number(formData.placesLibres) + Number(formData.passagers);
+    const maxPassengerSeats = Number(formData.vehicleCapacity) - 1;
+
+    if (totalPassengerSeats > maxPassengerSeats) {
+      const errMsg = `Pour un véhicule de ${formData.vehicleCapacity} places, le total des places (disponibles + passagers prévus) ne peut pas dépasser ${maxPassengerSeats} places (la place restante étant réservée au chauffeur).`;
       setSubmitError(errMsg);
       setIsLoading(false);
       return;
