@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront, Lock, Unlock } from 'lucide-react';
+import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront, Lock, Unlock, ArrowLeftRight } from 'lucide-react';
 
 const initialMissions = [
   { id: 'TRIP-402', displayId: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45, placesLibres: 5, placesPrises: 45, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
@@ -709,6 +709,18 @@ export default function SectionMissions() {
                 </button>
                 {(m.statut === 'programmé' || m.statut === 'à venir') && (
                   <button 
+                    onClick={() => {
+                      localStorage.setItem('transfer_source_trip_id', m.tripId || m.id);
+                      localStorage.setItem('auto_open_transfer_modal', 'true');
+                      window.location.hash = 'passagers';
+                    }}
+                    className="flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold transition-colors shadow-lg shadow-orange-600/20"
+                  >
+                    <ArrowLeftRight className="w-3.5 h-3.5" /> Transférer clients
+                  </button>
+                )}
+                {(m.statut === 'programmé' || m.statut === 'à venir') && (
+                  <button 
                     onClick={() => handleToggleLock(m)}
                     className={`flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-xl font-bold transition-all border ${m.isLocked ? 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border-amber-500/30' : 'bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border-slate-200 dark:border-[#333333]'}`}
                   >
@@ -1144,7 +1156,20 @@ export default function SectionMissions() {
                 )}
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
+                {(selectedDetailMission.statut === 'programmé' || selectedDetailMission.statut === 'à venir') && (
+                  <button 
+                    onClick={() => {
+                      localStorage.setItem('transfer_source_trip_id', selectedDetailMission.tripId || selectedDetailMission.id);
+                      localStorage.setItem('auto_open_transfer_modal', 'true');
+                      setSelectedDetailMission(null);
+                      window.location.hash = 'passagers';
+                    }}
+                    className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ArrowLeftRight className="w-4 h-4" /> Transférer des Clients
+                  </button>
+                )}
                 <button 
                   onClick={() => setSelectedDetailMission(null)}
                   className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-800 dark:text-white font-bold py-2.5 rounded-xl border border-slate-200 dark:border-[#2A2A2A] transition-colors"

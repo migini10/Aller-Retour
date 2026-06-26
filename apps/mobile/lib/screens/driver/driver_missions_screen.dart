@@ -1014,6 +1014,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 _buildActionButton(Icons.edit, 'Modifier', const Color(0xFF2563EB), Colors.white, () {
                                   _showCreateMissionBottomSheet(context, missionToEdit: mission);
                                 }),
+                              if (mission['statut'] == 'programmé' || mission['statut'] == 'à venir')
+                                _buildActionButton(Icons.swap_horiz, 'Transférer clients', const Color(0xFFF97316), Colors.white, () {
+                                  _showManifestAndTransferDialog(context, mission);
+                                }),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, CheckCircle2, Phone, MessageSquare, AlertCircle, ArrowLeftRight, Check, Loader2, Clock } from 'lucide-react';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 
@@ -19,10 +19,10 @@ const mockTargetTrips = [
 ];
 
 export default function SectionPassagers() {
-  const [passagers, setPassagers] = useState(initialPassagers);
+  const [passagers, setPassagers] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-  const [targetTrips, setTargetTrips] = useState(mockTargetTrips);
+  const [targetTrips, setTargetTrips] = useState<any[]>([]);
   const [selectedTargetTripId, setSelectedTargetTripId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transferSuccess, setTransferSuccess] = useState(false);
@@ -31,38 +31,109 @@ export default function SectionPassagers() {
   const [vehicleCapacity, setVehicleCapacity] = useState(7); 
   const isParticularVehicle = vehicleCapacity <= 7;
 
+  const [tripInfo, setTripInfo] = useState<any>({ displayId: 'TRIP-402', trajet: 'Dakar ➔ Touba' });
+  const [loading, setLoading] = useState(true);
+  const [tripId, setTripId] = useState<string>('');
+
+  useEffect(() => {
+    const storedTripId = localStorage.getItem('transfer_source_trip_id') || 'TRIP-402';
+    setTripId(storedTripId);
+
+    const shouldAutoOpen = localStorage.getItem('auto_open_transfer_modal') === 'true';
+    if (shouldAutoOpen) {
+      setIsTransferModalOpen(true);
+      localStorage.removeItem('auto_open_transfer_modal');
+    }
+
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // 1. Fetch manifest
+        const resManifest = await fetch(`/api/trips/${storedTripId}/manifest`);
+        if (resManifest.ok) {
+          const manifest = await resManifest.json();
+          setPassagers(manifest.tickets || []);
+          setVehicleCapacity(manifest.vehicleCapacity || 7);
+          setTripInfo({
+            displayId: manifest.displayId || storedTripId,
+            trajet: manifest.trajet || 'Dakar ➔ Touba'
+          });
+        } else {
+          // Fallback to mock
+          setPassagers(initialPassagers);
+          setVehicleCapacity(7);
+        }
+
+        // 2. Fetch target trips
+        const resTargets = await fetch(`/api/trips/${storedTripId}/transfer-targets`);
+        if (resTargets.ok) {
+          const targets = await resTargets.json();
+          setTargetTrips(targets || []);
+        } else {
+          setTargetTrips(mockTargetTrips);
+        }
+      } catch (err) {
+        console.error('Error fetching manifest or transfer targets:', err);
+        setPassagers(initialPassagers);
+        setTargetTrips(mockTargetTrips);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const handleSelectOneInModal = (id: string) => {
     setSelectedIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
 
-  const executeTransfer = () => {
+  const executeTransfer = async () => {
     if (!selectedTargetTripId || selectedIds.length === 0) return;
     setIsSubmitting(true);
     
-    // Simulation de l'appel API POST /bookings/transfer
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/bookings/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingIds: selectedIds,
+          targetTripId: selectedTargetTripId
+        })
+      });
+
+      if (res.ok) {
+        setIsSubmitting(false);
+        setTransferSuccess(true);
+        
+        // Mettre à jour la liste des passagers en enlevant ceux transférés
+        setPassagers(prev => prev.filter(p => !selectedIds.includes(p.id)));
+        
+        // Mettre à jour les places du trajet cible
+        setTargetTrips(prev => prev.map(t => 
+          t.id === selectedTargetTripId 
+            ? { ...t, placesLibres: Math.max(0, t.placesLibres - selectedIds.length) }
+            : t
+        ));
+        
+        setTimeout(() => {
+          setIsTransferModalOpen(false);
+          setTransferSuccess(false);
+          setSelectedIds([]);
+          setSelectedTargetTripId(null);
+        }, 2000);
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || 'Une erreur est survenue lors du transfert.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Transfer API error:', error);
+      alert('Erreur réseau lors du transfert.');
       setIsSubmitting(false);
-      setTransferSuccess(true);
-      
-      // Mettre à jour la liste des passagers en enlevant ceux transférés
-      setPassagers(prev => prev.filter(p => !selectedIds.includes(p.id)));
-      
-      // Mettre à jour les places du trajet cible
-      setTargetTrips(prev => prev.map(t => 
-        t.id === selectedTargetTripId 
-          ? { ...t, placesLibres: Math.max(0, t.placesLibres - selectedIds.length) }
-          : t
-      ));
-      
-      setTimeout(() => {
-        setIsTransferModalOpen(false);
-        setTransferSuccess(false);
-        setSelectedIds([]);
-        setSelectedTargetTripId(null);
-      }, 2000);
-    }, 1500);
+    }
   };
 
   const handleOpenTransferModal = () => {
@@ -84,11 +155,12 @@ export default function SectionPassagers() {
         </div>
         <div className="flex items-center gap-2">
           <span className="bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333333] px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors">
-            TRIP-402 • Dakar ➔ Touba
+            {tripInfo.displayId} • {tripInfo.trajet}
           </span>
           <button 
+            disabled={loading || passagers.length === 0}
             onClick={handleOpenTransferModal}
-            className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shadow-orange-600/10 flex items-center gap-1.5"
+            className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shadow-orange-600/10 flex items-center gap-1.5"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
             Transférer des Clients
