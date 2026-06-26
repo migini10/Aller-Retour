@@ -32,6 +32,8 @@ export default function SectionPassagers() {
   const isParticularVehicle = vehicleCapacity <= 7;
 
   const [tripInfo, setTripInfo] = useState<any>({ displayId: 'TRIP-402', trajet: 'Dakar ➔ Touba' });
+  const [securityCode, setSecurityCode] = useState('');
+  const [pinError, setPinError] = useState('');
   const [loading, setLoading] = useState(true);
   const [tripId, setTripId] = useState<string>('');
 
@@ -92,6 +94,10 @@ export default function SectionPassagers() {
 
   const executeTransfer = async () => {
     if (!selectedTargetTripId || selectedIds.length === 0) return;
+    if (securityCode !== '123456') {
+      setPinError('Code PIN incorrect (Démo : 123456).');
+      return;
+    }
     setIsSubmitting(true);
     
     try {
@@ -139,6 +145,8 @@ export default function SectionPassagers() {
   const handleOpenTransferModal = () => {
     setSelectedIds([]);
     setSelectedTargetTripId(null);
+    setSecurityCode('');
+    setPinError('');
     setIsTransferModalOpen(true);
   };
 
@@ -317,6 +325,29 @@ export default function SectionPassagers() {
                       <p className="text-xs text-orange-600 font-semibold text-right">
                         {selectedIds.length} client(s) sélectionné(s)
                       </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Étape 3 : Code PIN de validation */}
+                {selectedIds.length > 0 && (
+                  <div className="space-y-1.5 animate-fade-in pt-2 border-t border-slate-100 dark:border-[#222]">
+                    <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider block text-center">
+                      Saisir votre Code PIN d'accès
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      value={securityCode}
+                      onChange={e => {
+                        setSecurityCode(e.target.value.replace(/\D/g, ''));
+                        setPinError('');
+                      }}
+                      placeholder="Code PIN à 6 chiffres (ex: 123456)"
+                      className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none text-center tracking-widest font-black transition-colors"
+                    />
+                    {pinError && (
+                      <p className="text-xs text-rose-500 font-bold text-center">{pinError}</p>
                     )}
                   </div>
                 )}
