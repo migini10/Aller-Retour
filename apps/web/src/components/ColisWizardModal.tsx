@@ -86,7 +86,11 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
     const initAutocomplete = () => {
       if (!(window as any).google || !(window as any).google.maps || !(window as any).google.maps.places) return;
-      const options = { componentRestrictions: { country: 'sn' }, fields: ['formatted_address'] };
+      const options = { 
+        componentRestrictions: { country: 'sn' }, 
+        types: ['(cities)'],
+        fields: ['formatted_address'] 
+      };
 
       if (departInputRef.current) {
         const autocomplete = new (window as any).google.maps.places.Autocomplete(departInputRef.current, options);
