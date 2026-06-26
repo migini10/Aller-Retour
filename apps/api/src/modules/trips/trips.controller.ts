@@ -373,7 +373,7 @@ export class TripsController {
       select: { 
         isLocked: true,
         driver: {
-          include: {
+          select: {
             user: {
               select: { passwordHash: true }
             }
