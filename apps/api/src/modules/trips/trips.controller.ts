@@ -183,7 +183,7 @@ export class TripsController {
         driverName: trip.driver?.user?.fullName || null,
         driverPhone: trip.driver?.user?.phone || null,
       };
-    }).filter((trip: any) => trip.availableSeats > 0);
+    });
 
     return formattedTrips;
   }
