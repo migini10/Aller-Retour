@@ -420,11 +420,19 @@ export class TripsController {
 
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
+    const departureDate = new Date(trip.departureTime);
+    const startOfDay = new Date(departureDate.toISOString().split('T')[0] + 'T00:00:00.000Z');
+    const endOfDay = new Date(departureDate.toISOString().split('T')[0] + 'T23:59:59.999Z');
+
     const alternativeTrips = await prisma.trip.findMany({
       where: {
         routeId: trip.routeId,
         id: { not: id },
-        status: { in: [TripStatus.SCHEDULED, TripStatus.BOARDING] }
+        status: { in: [TripStatus.SCHEDULED, TripStatus.BOARDING] },
+        departureTime: {
+          gte: startOfDay,
+          lte: endOfDay
+        }
       },
       include: {
         company: { select: { name: true, logoUrl: true } },
