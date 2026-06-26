@@ -267,21 +267,27 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     });
   };
 
-  const filteredDepart = searchParams.depart ? VILLES_SENEGAL.filter(v => v.toLowerCase().includes(searchParams.depart.toLowerCase())) : VILLES_SENEGAL;
-  const filteredArrivee = searchParams.arrivee ? VILLES_SENEGAL.filter(v => v.toLowerCase().includes(searchParams.arrivee.toLowerCase())) : VILLES_SENEGAL;
-  const allQuartiers = Object.values(quartiersSenegal).flat();
-  const selectedCityQuartiers = searchParams.arrivee ? (quartiersSenegal[searchParams.arrivee] || []) : allQuartiers;
+  const getCityKey = (address: string) => {
+    if (!address) return '';
+    const clean = address.toLowerCase();
+    const found = Object.keys(quartiersSenegal).find(city => clean.includes(city.toLowerCase()));
+    return found || '';
+  };
+
+  const arriveeCityKey = getCityKey(searchParams.arrivee);
+  const selectedCityQuartiers = arriveeCityKey ? (quartiersSenegal[arriveeCityKey] || []) : [];
   const filteredQuartiers = selectedCityQuartiers.filter(q => searchParams.quartierArrivee && q.toLowerCase().includes(searchParams.quartierArrivee.toLowerCase()));
   const displayQuartiers = searchParams.quartierArrivee 
     ? filteredQuartiers.slice(0, 15) 
-    : (searchParams.arrivee ? selectedCityQuartiers : []);
+    : (arriveeCityKey ? selectedCityQuartiers : []);
 
-  const departCityQuartiers = searchParams.depart ? (quartiersSenegal[searchParams.depart] || []) : allQuartiers;
+  const departCityKey = getCityKey(searchParams.depart);
+  const departCityQuartiers = departCityKey ? (quartiersSenegal[departCityKey] || []) : [];
   const filteredPickupQuartiers = departCityQuartiers.filter(q => pickupLocation && q.toLowerCase().includes(pickupLocation.toLowerCase()));
-  // If pickupLocation is empty and depart is not set, show nothing. Otherwise, show filtered or all depart quartiers.
   const displayPickupQuartiers = pickupLocation 
-    ? filteredPickupQuartiers.slice(0, 15) // Limit to 15 to avoid massive dropdowns
-    : (searchParams.depart ? departCityQuartiers : []);
+    ? filteredPickupQuartiers.slice(0, 15)
+    : (departCityKey ? departCityQuartiers : []);
+
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
 
   const departInputRef = useRef<HTMLInputElement>(null);
@@ -308,20 +314,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
-        });
-      }
-      if (pickupInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(pickupInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) setPickupLocation(place.formatted_address || '');
-        });
-      }
-      if (quartierArriveeInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) setSearchParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
     };
@@ -584,13 +576,27 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 </button>
               </div>
               <input 
-                ref={pickupInputRef}
                 type="text" 
                 placeholder="Entrez l'adresse exacte du passager"
                 className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-lg py-2 px-3 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 text-sm transition-colors"
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
+                onFocus={() => setShowPickupSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
               />
+              {showPickupSuggestions && displayPickupQuartiers.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
+                  {displayPickupQuartiers.map((q) => (
+                    <div 
+                      key={q}
+                      onClick={() => setPickupLocation(q)}
+                      className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
+                    >
+                      {q}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -609,13 +615,27 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="relative z-[30]">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
             <input 
-              ref={quartierArriveeInputRef}
               type="text" 
               placeholder={isAlloDakar ? "Quartier ou point de chute exact" : "Quartier (Optionnel)"}
               className="w-full bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-slate-300 focus:outline-none focus:border-orange-500 text-sm transition-colors"
               value={searchParams.quartierArrivee}
               onChange={(e) => setSearchParams({...searchParams, quartierArrivee: e.target.value})}
+              onFocus={() => setShowQuartierSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
             />
+            {showQuartierSuggestions && displayQuartiers.length > 0 && (
+              <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
+                {displayQuartiers.map((q) => (
+                  <div 
+                    key={q}
+                    onClick={() => setSearchParams({...searchParams, quartierArrivee: q})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
+                  >
+                    {q}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 relative z-[20]">

@@ -9,6 +9,7 @@ import QRCodeBrandEngine from './QRCodeBrandEngine';
 import html2canvas from 'html2canvas';
 import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 import { useAuth } from './AuthContext';
+import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 
 interface ColisWizardModalProps {
   isOpen: boolean;
@@ -32,6 +33,46 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     usePoints: false
   });
 
+  const [showQuartierDepartSuggestions, setShowQuartierDepartSuggestions] = useState(false);
+  const [showQuartierArriveeSuggestions, setShowQuartierArriveeSuggestions] = useState(false);
+  const [quartiersSenegal, setQuartiersSenegal] = useState<Record<string, string[]>>(INITIAL_QUARTIERS);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('custom_quartiers');
+    if (saved) {
+      try {
+        setQuartiersSenegal(JSON.parse(saved));
+      } catch (e) {
+        console.error("Erreur lecture custom_quartiers", e);
+      }
+    }
+  }, []);
+
+  const getCityKey = (address: string) => {
+    if (!address) return '';
+    const clean = address.toLowerCase();
+    const found = Object.keys(quartiersSenegal).find(city => clean.includes(city.toLowerCase()));
+    return found || '';
+  };
+
+  const departCityKey = getCityKey(colisParams.depart);
+  const selectedDepartQuartiers = departCityKey ? (quartiersSenegal[departCityKey] || []) : [];
+  const filteredDepartQuartiers = selectedDepartQuartiers.filter(q => 
+    colisParams.quartierDepart && q.toLowerCase().includes(colisParams.quartierDepart.toLowerCase())
+  );
+  const displayDepartQuartiers = colisParams.quartierDepart 
+    ? filteredDepartQuartiers.slice(0, 15) 
+    : (departCityKey ? selectedDepartQuartiers : []);
+
+  const arriveeCityKey = getCityKey(colisParams.arrivee);
+  const selectedArriveeQuartiers = arriveeCityKey ? (quartiersSenegal[arriveeCityKey] || []) : [];
+  const filteredArriveeQuartiers = selectedArriveeQuartiers.filter(q => 
+    colisParams.quartierArrivee && q.toLowerCase().includes(colisParams.quartierArrivee.toLowerCase())
+  );
+  const displayArriveeQuartiers = colisParams.quartierArrivee 
+    ? filteredArriveeQuartiers.slice(0, 15) 
+    : (arriveeCityKey ? selectedArriveeQuartiers : []);
+
   const [generatedTicket, setGeneratedTicket] = useState<any>(null);
 
   const departInputRef = useRef<HTMLInputElement>(null);
@@ -54,25 +95,11 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
           if (place.formatted_address) setColisParams(s => ({ ...s, depart: place.formatted_address || '' }));
         });
       }
-      if (quartierDepartInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierDepartInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) setColisParams(s => ({ ...s, quartierDepart: place.formatted_address || '' }));
-        });
-      }
       if (arriveeInputRef.current) {
         const autocomplete = new (window as any).google.maps.places.Autocomplete(arriveeInputRef.current, options);
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, arrivee: place.formatted_address || '' }));
-        });
-      }
-      if (quartierArriveeInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, options);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) setColisParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
     };
@@ -251,15 +278,29 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             </button>
           </div>
 
-          <div className="relative">
+          <div className="relative z-[50]">
             <input 
-              ref={quartierDepartInputRef}
               type="text" 
               placeholder="Sous-quartier de retrait exact"
               className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-2 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
               value={colisParams.quartierDepart}
               onChange={(e) => setColisParams({...colisParams, quartierDepart: e.target.value})}
+              onFocus={() => setShowQuartierDepartSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowQuartierDepartSuggestions(false), 200)}
             />
+            {showQuartierDepartSuggestions && displayDepartQuartiers.length > 0 && (
+              <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
+                {displayDepartQuartiers.map((q) => (
+                  <div 
+                    key={q}
+                    onClick={() => setColisParams({...colisParams, quartierDepart: q})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
+                  >
+                    {q}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="relative z-[40] mt-4">
@@ -274,15 +315,29 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
             />
           </div>
 
-          <div className="relative">
+          <div className="relative z-[30]">
             <input 
-              ref={quartierArriveeInputRef}
               type="text" 
               placeholder="Sous-quartier de livraison exact"
               className="w-full bg-white dark:bg-black border border-slate-200 dark:border-[#2A2A2A] rounded-xl py-2 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 transition-colors"
               value={colisParams.quartierArrivee}
               onChange={(e) => setColisParams({...colisParams, quartierArrivee: e.target.value})}
+              onFocus={() => setShowQuartierArriveeSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowQuartierArriveeSuggestions(false), 200)}
             />
+            {showQuartierArriveeSuggestions && displayArriveeQuartiers.length > 0 && (
+              <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
+                {displayArriveeQuartiers.map((q) => (
+                  <div 
+                    key={q}
+                    onClick={() => setColisParams({...colisParams, quartierArrivee: q})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-slate-800 dark:text-slate-200 text-sm cursor-pointer transition-colors"
+                  >
+                    {q}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
