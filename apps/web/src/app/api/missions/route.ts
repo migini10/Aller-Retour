@@ -68,7 +68,7 @@ export async function POST(req: Request) {
 
     const vehicleCapacity = body.vehicleCapacity ? parseInt(body.vehicleCapacity.toString(), 10) : 5;
     const pricePerSeat = body.pricePerSeat ? parseFloat(body.pricePerSeat.toString()) : 5000;
-    const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
+    const seatsOffered = vehicleCapacity - 1;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
     let company = await prisma.company.findFirst({ where: { name: 'Allogoo' } });

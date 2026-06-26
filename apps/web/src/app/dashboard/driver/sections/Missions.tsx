@@ -201,7 +201,9 @@ export default function SectionMissions() {
       isAirConditioned: m.isAirConditioned ?? true,
       takesTollRoad: m.takesTollRoad ?? true,
       pricePerSeat: m.pricePerSeat ?? 5000,
-      isLocked: m.isLocked ?? false
+      isLocked: m.isLocked ?? false,
+      vehicleCapacity: m.vehicleCapacity ?? 5,
+      seatsOffered: m.seatsOffered ?? 4
     };
   };
 
@@ -737,7 +739,7 @@ export default function SectionMissions() {
                         date: (m as any).rawDate || (m.date === "Aujourd'hui" ? getTodayStr() : m.date === "Demain" ? (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })() : getTodayStr()),
                         heure: m.heure,
                         pricePerSeat: m.pricePerSeat || 5000,
-                        vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,
+                        vehicleCapacity: m.vehicleCapacity || 5,
                         placesLibres: m.placesLibres || 0,
                         passagers: m.passagers || 0,
                         isAirConditioned: m.isAirConditioned ?? true,
