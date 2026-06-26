@@ -93,6 +93,9 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
   const quartierArriveeInputRef = useRef<HTMLInputElement>(null);
   const ticketRef = useRef<HTMLDivElement>(null);
 
+  const quartierDepartAutocompleteRef = useRef<any>(null);
+  const quartierArriveeAutocompleteRef = useRef<any>(null);
+
   useEffect(() => {
     if (!isOpen || step !== 1) return;
 
@@ -124,16 +127,16 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         });
       }
       if (quartierDepartInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierDepartInputRef.current, neighborhoodOptions);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
+        quartierDepartAutocompleteRef.current = new (window as any).google.maps.places.Autocomplete(quartierDepartInputRef.current, neighborhoodOptions);
+        quartierDepartAutocompleteRef.current.addListener('place_changed', () => {
+          const place = quartierDepartAutocompleteRef.current.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, quartierDepart: place.formatted_address || '' }));
         });
       }
       if (quartierArriveeInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, neighborhoodOptions);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
+        quartierArriveeAutocompleteRef.current = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, neighborhoodOptions);
+        quartierArriveeAutocompleteRef.current.addListener('place_changed', () => {
+          const place = quartierArriveeAutocompleteRef.current.getPlace();
           if (place.formatted_address) setColisParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
@@ -150,6 +153,30 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
       setTimeout(initAutocomplete, 500);
     }
   }, [isOpen, step]);
+
+  // Restreindre le quartier de départ à la ville de départ sélectionnée
+  useEffect(() => {
+    if (!colisParams.depart || !quartierDepartAutocompleteRef.current || !(window as any).google) return;
+    const geocoder = new (window as any).google.maps.Geocoder();
+    geocoder.geocode({ address: colisParams.depart }, (results: any, status: any) => {
+      if (status === 'OK' && results && results[0] && results[0].geometry.viewport) {
+        quartierDepartAutocompleteRef.current.setBounds(results[0].geometry.viewport);
+        quartierDepartAutocompleteRef.current.setOptions({ strictBounds: true });
+      }
+    });
+  }, [colisParams.depart]);
+
+  // Restreindre le quartier d'arrivée à la ville d'arrivée sélectionnée
+  useEffect(() => {
+    if (!colisParams.arrivee || !quartierArriveeAutocompleteRef.current || !(window as any).google) return;
+    const geocoder = new (window as any).google.maps.Geocoder();
+    geocoder.geocode({ address: colisParams.arrivee }, (results: any, status: any) => {
+      if (status === 'OK' && results && results[0] && results[0].geometry.viewport) {
+        quartierArriveeAutocompleteRef.current.setBounds(results[0].geometry.viewport);
+        quartierArriveeAutocompleteRef.current.setOptions({ strictBounds: true });
+      }
+    });
+  }, [colisParams.arrivee]);
 
   useEffect(() => {
     if (isOpen) {

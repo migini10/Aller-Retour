@@ -295,6 +295,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const arriveeInputRef = useRef<HTMLInputElement>(null);
   const quartierArriveeInputRef = useRef<HTMLInputElement>(null);
 
+  const pickupAutocompleteRef = useRef<any>(null);
+  const quartierArriveeAutocompleteRef = useRef<any>(null);
+
   useEffect(() => {
     if (!isOpen || step !== 1) return;
 
@@ -326,16 +329,16 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         });
       }
       if (pickupInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(pickupInputRef.current, neighborhoodOptions);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
+        pickupAutocompleteRef.current = new (window as any).google.maps.places.Autocomplete(pickupInputRef.current, neighborhoodOptions);
+        pickupAutocompleteRef.current.addListener('place_changed', () => {
+          const place = pickupAutocompleteRef.current.getPlace();
           if (place.formatted_address) setPickupLocation(place.formatted_address);
         });
       }
       if (quartierArriveeInputRef.current) {
-        const autocomplete = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, neighborhoodOptions);
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
+        quartierArriveeAutocompleteRef.current = new (window as any).google.maps.places.Autocomplete(quartierArriveeInputRef.current, neighborhoodOptions);
+        quartierArriveeAutocompleteRef.current.addListener('place_changed', () => {
+          const place = quartierArriveeAutocompleteRef.current.getPlace();
           if (place.formatted_address) setSearchParams(s => ({ ...s, quartierArrivee: place.formatted_address || '' }));
         });
       }
@@ -352,6 +355,30 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
       setTimeout(initAutocomplete, 500);
     }
   }, [isOpen, step]);
+
+  // Restreindre l'adresse de prise en charge (pickupLocation) à la ville de départ sélectionnée
+  useEffect(() => {
+    if (!searchParams.depart || !pickupAutocompleteRef.current || !(window as any).google) return;
+    const geocoder = new (window as any).google.maps.Geocoder();
+    geocoder.geocode({ address: searchParams.depart }, (results: any, status: any) => {
+      if (status === 'OK' && results && results[0] && results[0].geometry.viewport) {
+        pickupAutocompleteRef.current.setBounds(results[0].geometry.viewport);
+        pickupAutocompleteRef.current.setOptions({ strictBounds: true });
+      }
+    });
+  }, [searchParams.depart]);
+
+  // Restreindre le quartier d'arrivée à la ville d'arrivée sélectionnée
+  useEffect(() => {
+    if (!searchParams.arrivee || !quartierArriveeAutocompleteRef.current || !(window as any).google) return;
+    const geocoder = new (window as any).google.maps.Geocoder();
+    geocoder.geocode({ address: searchParams.arrivee }, (results: any, status: any) => {
+      if (status === 'OK' && results && results[0] && results[0].geometry.viewport) {
+        quartierArriveeAutocompleteRef.current.setBounds(results[0].geometry.viewport);
+        quartierArriveeAutocompleteRef.current.setOptions({ strictBounds: true });
+      }
+    });
+  }, [searchParams.arrivee]);
 
   const ticketRef = useRef<HTMLDivElement>(null);
 
