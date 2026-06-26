@@ -588,7 +588,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 onFocus={() => setShowPickupSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
               />
-              {showPickupSuggestions && displayPickupQuartiers.length > 0 && (
+              {showPickupSuggestions && (displayPickupQuartiers.length > 0 || (pickupLocation && !departCityQuartiers.some(q => q.toLowerCase() === pickupLocation.toLowerCase()))) && (
                 <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
                   {displayPickupQuartiers.map((q) => (
                     <div 
@@ -599,6 +599,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                       {q}
                     </div>
                   ))}
+                  {pickupLocation && !departCityQuartiers.some(q => q.toLowerCase() === pickupLocation.toLowerCase()) && (
+                    <div 
+                      onClick={() => setPickupLocation(pickupLocation)}
+                      className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
+                    >
+                      Utiliser "{pickupLocation}"
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -627,7 +635,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               onFocus={() => setShowQuartierSuggestions(true)}
               onBlur={() => setTimeout(() => setShowQuartierSuggestions(false), 200)}
             />
-            {showQuartierSuggestions && displayQuartiers.length > 0 && (
+            {showQuartierSuggestions && (displayQuartiers.length > 0 || (searchParams.quartierArrivee && !selectedCityQuartiers.some(q => q.toLowerCase() === searchParams.quartierArrivee.toLowerCase()))) && (
               <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
                 {displayQuartiers.map((q) => (
                   <div 
@@ -638,6 +646,14 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                     {q}
                   </div>
                 ))}
+                {searchParams.quartierArrivee && !selectedCityQuartiers.some(q => q.toLowerCase() === searchParams.quartierArrivee.toLowerCase()) && (
+                  <div 
+                    onClick={() => setSearchParams({...searchParams, quartierArrivee: searchParams.quartierArrivee})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
+                  >
+                    Utiliser "{searchParams.quartierArrivee}"
+                  </div>
+                )}
               </div>
             )}
           </div>

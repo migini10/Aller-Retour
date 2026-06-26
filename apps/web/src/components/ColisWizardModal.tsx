@@ -304,7 +304,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               onFocus={() => setShowQuartierDepartSuggestions(true)}
               onBlur={() => setTimeout(() => setShowQuartierDepartSuggestions(false), 200)}
             />
-            {showQuartierDepartSuggestions && displayDepartQuartiers.length > 0 && (
+            {showQuartierDepartSuggestions && (displayDepartQuartiers.length > 0 || (colisParams.quartierDepart && !selectedDepartQuartiers.some(q => q.toLowerCase() === colisParams.quartierDepart.toLowerCase()))) && (
               <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
                 {displayDepartQuartiers.map((q) => (
                   <div 
@@ -315,6 +315,14 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                     {q}
                   </div>
                 ))}
+                {colisParams.quartierDepart && !selectedDepartQuartiers.some(q => q.toLowerCase() === colisParams.quartierDepart.toLowerCase()) && (
+                  <div 
+                    onClick={() => setColisParams({...colisParams, quartierDepart: colisParams.quartierDepart})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
+                  >
+                    Utiliser "{colisParams.quartierDepart}"
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -341,7 +349,7 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
               onFocus={() => setShowQuartierArriveeSuggestions(true)}
               onBlur={() => setTimeout(() => setShowQuartierArriveeSuggestions(false), 200)}
             />
-            {showQuartierArriveeSuggestions && displayArriveeQuartiers.length > 0 && (
+            {showQuartierArriveeSuggestions && (displayArriveeQuartiers.length > 0 || (colisParams.quartierArrivee && !selectedArriveeQuartiers.some(q => q.toLowerCase() === colisParams.quartierArrivee.toLowerCase()))) && (
               <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-lg max-h-60 overflow-y-auto z-[999]">
                 {displayArriveeQuartiers.map((q) => (
                   <div 
@@ -352,6 +360,14 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
                     {q}
                   </div>
                 ))}
+                {colisParams.quartierArrivee && !selectedArriveeQuartiers.some(q => q.toLowerCase() === colisParams.quartierArrivee.toLowerCase()) && (
+                  <div 
+                    onClick={() => setColisParams({...colisParams, quartierArrivee: colisParams.quartierArrivee})}
+                    className="px-4 py-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm cursor-pointer border-t border-slate-100 dark:border-[#222222] transition-colors"
+                  >
+                    Utiliser "{colisParams.quartierArrivee}"
+                  </div>
+                )}
               </div>
             )}
           </div>
