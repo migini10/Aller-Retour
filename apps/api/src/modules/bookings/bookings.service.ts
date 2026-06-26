@@ -376,6 +376,15 @@ export class BookingsService {
       const takenSeats = new Set(targetBookings.map((b: any) => b.seatNumber));
       const availableSeatsCount = targetTrip.seatsOffered - (targetTrip.initialPassengers + targetBookings.length);
 
+      // Héritage de l'heure de départ si le trajet cible n'a aucun client pré-existant
+      const sourceTrip = bookingsToTransfer[0]?.trip;
+      if (sourceTrip && targetBookings.length === 0 && targetTrip.initialPassengers === 0) {
+        await tx.trip.update({
+          where: { id: targetTripId },
+          data: { departureTime: sourceTrip.departureTime }
+        });
+      }
+
       if (availableSeatsCount < bookingsToTransfer.length) {
         throw new BadRequestException(
           `Nombre de places insuffisant sur le trajet cible. Places disponibles : ${Math.max(0, availableSeatsCount)}, Demandées : ${bookingsToTransfer.length}`
