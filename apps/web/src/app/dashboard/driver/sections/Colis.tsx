@@ -1,6 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Package, MapPin, Clock, CheckCircle2, Truck, AlertTriangle } from 'lucide-react';
+import { Package, MapPin, Clock, CheckCircle2, Truck, AlertTriangle, ArrowLeftRight, Loader2, Check, Navigation, X } from 'lucide-react';
 
 export default function SectionColis() {
   const [colis, setColis] = useState<any[]>([]);
@@ -16,6 +15,73 @@ export default function SectionColis() {
 
   const [selectedColisForAction, setSelectedColisForAction] = useState<string | null>(null);
   const [nextStatutForAction, setNextStatutForAction] = useState<string | null>(null);
+
+  // Colis Transfer states
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [selectedColisForTransfer, setSelectedColisForTransfer] = useState<any | null>(null);
+  const [targetTrips, setTargetTrips] = useState<any[]>([]);
+  const [selectedTargetTripId, setSelectedTargetTripId] = useState<string | null>(null);
+  const [transferPinCode, setTransferPinCode] = useState('');
+  const [transferPinError, setTransferPinError] = useState('');
+  const [isSubmittingTransfer, setIsSubmittingTransfer] = useState(false);
+  const [transferSuccess, setTransferSuccess] = useState(false);
+
+  const handleOpenTransferModal = async (c: any) => {
+    setSelectedColisForTransfer(c);
+    setSelectedTargetTripId(null);
+    setTransferPinCode('');
+    setTransferPinError('');
+    setTransferSuccess(false);
+    setIsTransferModalOpen(true);
+    
+    try {
+      const res = await fetch(`/api/colis/${c.id}/transfer-targets`);
+      if (res.ok) {
+        const data = await res.json();
+        setTargetTrips(data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching target trips:', err);
+    }
+  };
+
+  const executeTransfer = async () => {
+    if (!selectedColisForTransfer || !selectedTargetTripId) return;
+    
+    if (transferPinCode !== '1234') {
+      setTransferPinError('Code PIN incorrect (Démo : 1234).');
+      return;
+    }
+    
+    setIsSubmittingTransfer(true);
+    try {
+      const res = await fetch(`/api/colis/${selectedColisForTransfer.id}/transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetTripId: selectedTargetTripId }),
+      });
+      
+      if (res.ok) {
+        setTransferSuccess(true);
+        loadColis();
+        window.dispatchEvent(new Event('colis_updated'));
+        setTimeout(() => {
+          setIsTransferModalOpen(false);
+          setTransferSuccess(false);
+          setSelectedColisForTransfer(null);
+          setSelectedTargetTripId(null);
+        }, 2000);
+      } else {
+        const errorData = await res.json();
+        setTransferPinError(errorData.error || 'Erreur lors du transfert.');
+      }
+    } catch (err) {
+      console.error(err);
+      setTransferPinError('Erreur réseau.');
+    } finally {
+      setIsSubmittingTransfer(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -257,8 +323,16 @@ export default function SectionColis() {
                   <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{c.destinataire || 'Inconnu'}</p>
                   <p className="text-xs text-slate-500 font-mono mt-0.5 truncate">{c.tel || 'Aucun numéro'}</p>
                 </div>
-                <div className="sm:w-48 lg:w-full shrink-0">
+                <div className="sm:w-48 lg:w-full shrink-0 flex flex-col gap-2">
                   {getActionBtn(c)}
+                  {c.statut !== 'Livré' && (
+                    <button 
+                      onClick={() => handleOpenTransferModal(c)}
+                      className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#222222] text-slate-700 dark:text-white border border-slate-200 dark:border-[#333333] font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-xs"
+                    >
+                      <ArrowLeftRight className="w-3.5 h-3.5" /> Transférer Colis
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -354,7 +428,7 @@ export default function SectionColis() {
             <div className="absolute top-0 left-0 right-0 h-24 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
             <div className="absolute bottom-0 left-0 right-0 h-16 z-10" onPointerDownCapture={(e) => e.stopPropagation()} />
             <div className="absolute inset-0 bg-[#0a1520]/10 pointer-events-none z-10" />
-
+ 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-20">
               <div className="bg-white/90 dark:bg-[#1A1A1A]/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/50 dark:border-[#333333]/50 shadow-2xl animate-bounce-slow">
                 <div className="flex items-center gap-4">
@@ -368,6 +442,113 @@ export default function SectionColis() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Transfert Colis */}
+      {isTransferModalOpen && selectedColisForTransfer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-slate-100 dark:border-[#2A2A2A] flex justify-between items-center shrink-0">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <ArrowLeftRight className="w-5 h-5 text-orange-500" />
+                Transférer le Colis {selectedColisForTransfer.id}
+              </h3>
+              <button onClick={() => setIsTransferModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-sm">
+                Fermer
+              </button>
+            </div>
+
+            {transferSuccess ? (
+              <div className="p-12 text-center space-y-4 overflow-y-auto">
+                <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <Check className="w-8 h-8" />
+                </div>
+                <h4 className="text-lg font-bold text-slate-950 dark:text-white">Transfert effectué !</h4>
+                <p className="text-sm text-slate-500">Le colis a bien été transféré sur le nouveau trajet.</p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                
+                {/* 1. Sélectionner le trajet cible */}
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">1. Choisir le chauffeur et trajet cible :</p>
+                  
+                  {targetTrips.length === 0 ? (
+                    <p className="text-sm text-slate-500 py-4 text-center">Aucun trajet alternatif de même destination trouvé pour aujourd'hui.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {targetTrips.map(trip => (
+                        <button
+                          key={trip.id}
+                          onClick={() => {
+                            setSelectedTargetTripId(trip.id);
+                            setTransferPinError('');
+                          }}
+                          className={`w-full text-left p-4 rounded-xl border text-sm transition-all flex flex-col justify-between gap-1 ${selectedTargetTripId === trip.id ? 'border-orange-500 bg-orange-500/5 dark:bg-orange-500/10' : 'border-slate-200 dark:border-[#222] hover:border-slate-300'}`}
+                        >
+                          <div className="flex justify-between items-center w-full">
+                            <p className="font-bold text-slate-900 dark:text-white">Chauffeur: {trip.chauffeur}</p>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{trip.vehicule} • Départ : {trip.heure}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Validation par code PIN */}
+                {selectedTargetTripId && (
+                  <div className="space-y-1.5 animate-fade-in pt-2 border-t border-slate-100 dark:border-[#222]">
+                    <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider block text-center">
+                      Saisir votre Code d'accès Chauffeur
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={transferPinCode}
+                      onChange={e => {
+                        setTransferPinCode(e.target.value.replace(/\D/g, ''));
+                        setTransferPinError('');
+                      }}
+                      placeholder="Code PIN à 4 chiffres (ex: 1234)"
+                      className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none text-center tracking-widest font-black transition-colors"
+                    />
+                    {transferPinError && (
+                      <p className="text-xs text-rose-500 font-bold text-center">{transferPinError}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setIsTransferModalOpen(false)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#222] dark:hover:bg-[#2A2A2A] text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl text-xs transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    disabled={!selectedTargetTripId || isSubmittingTransfer || transferPinCode.length < 4}
+                    onClick={executeTransfer}
+                    className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    {isSubmittingTransfer ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Transfert...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Confirmer le transfert
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

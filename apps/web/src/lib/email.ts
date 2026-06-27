@@ -60,3 +60,51 @@ export const sendDeliveryCodeEmail = async (
     return false;
   }
 };
+
+export const sendParcelTransferEmail = async (
+  toEmail: string,
+  recipientName: string,
+  trackingCode: string,
+  newTripInfo: string
+) => {
+  if (!EMAIL_APP_PASSWORD) {
+    console.warn('⚠️ EMAIL_APP_PASSWORD manquant. E-mail non envoyé.');
+    console.warn(`[Mock Email] À: ${toEmail} | Colis ${trackingCode} transféré vers ${newTripInfo}`);
+    return false;
+  }
+
+  const mailOptions = {
+    from: `"Allogoo" <${EMAIL_USER}>`,
+    to: toEmail,
+    subject: `📦 Transfert de votre colis ${trackingCode}`,
+    text: `Bonjour ${recipientName},\n\nVotre colis (Suivi: ${trackingCode}) a été transféré avec succès vers un nouveau trajet : ${newTripInfo}.\n\nMerci de faire confiance à Allogoo !`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
+        <div style="background-color: #ff7900; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Allogoo</h1>
+        </div>
+        <div style="padding: 20px;">
+          <p>Bonjour <strong>${recipientName}</strong>,</p>
+          <p>Votre colis portant le numéro de suivi <strong>${trackingCode}</strong> a été transféré avec succès vers un nouveau trajet :</p>
+          
+          <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #666;">Nouveau trajet</p>
+            <h3 style="margin: 10px 0 0 0; color: #ff7900;">${newTripInfo}</h3>
+          </div>
+          
+          <p>Merci de votre confiance !<br>L'équipe Allogoo.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ E-mail de transfert envoyé avec succès à ${toEmail}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'envoi de l\'e-mail de transfert :', error);
+    return false;
+  }
+};
+
