@@ -195,7 +195,7 @@ export default function SectionLocalisation() {
         <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Voyageurs à récupérer</h3>
         {passagers.length === 0 ? (
           <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-8 text-center text-slate-500 font-semibold transition-colors">
-            ici vont apparaitre vos passager reservé
+            Ici vont apparaître vos passagers réservés
           </div>
         ) : (
           passagers.sort((a, b) => a.distance - b.distance).map(p => (
