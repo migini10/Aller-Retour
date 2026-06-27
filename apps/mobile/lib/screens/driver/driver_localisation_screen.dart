@@ -43,8 +43,13 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
       final missionsResponse = await http.get(Uri.parse('$nextApiUrl/api/missions'));
       if (missionsResponse.statusCode == 200) {
         final missions = jsonDecode(missionsResponse.body) as List<dynamic>;
+        final todayStr = DateTime.now().toIso8601String().split('T')[0];
         final activeMission = missions.firstWhere(
-          (m) => m['status'] != 'terminé',
+          (m) {
+            final String? depTime = m['departureTime'];
+            final isToday = depTime != null && depTime.split('T')[0] == todayStr;
+            return m['status'] != 'terminé' && isToday;
+          },
           orElse: () => null,
         );
         if (activeMission != null) {

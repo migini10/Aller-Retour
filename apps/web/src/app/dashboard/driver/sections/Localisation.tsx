@@ -24,8 +24,12 @@ export default function SectionLocalisation() {
         const resMissions = await fetch('/api/missions', { cache: 'no-store' });
         if (resMissions.ok) {
           const missions = await resMissions.json();
-          // Find first active/scheduled mission (status not 'terminé')
-          const activeMission = missions.find((m: any) => m.status !== 'terminé');
+          // Find first active/scheduled mission (status not 'terminé' and scheduled for today)
+          const todayStr = new Date().toISOString().split('T')[0];
+          const activeMission = missions.find((m: any) => {
+            const isToday = m.departureTime && m.departureTime.split('T')[0] === todayStr;
+            return m.status !== 'terminé' && isToday;
+          });
           
           if (activeMission) {
             // 2. Fetch manifest for this mission
