@@ -1024,9 +1024,11 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
 
   const renderStep5Payment = () => {
     const basePrice = selectedTrip?.price || 5000;
+    const ticketSubtotal = basePrice * searchParams.passagers;
     const luggageFee = voyageurInfo.bagages > 1 ? (voyageurInfo.bagages - 1) * 1000 : 0;
     const taxes = 250;
-    const total = (basePrice * searchParams.passagers) + luggageFee + taxes;
+    const clientFee = Math.round(ticketSubtotal * 0.03);
+    const total = ticketSubtotal + luggageFee + taxes + clientFee;
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -1035,14 +1037,18 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
               <span>Billet {selectedTrip?.company}</span>
-              <span>{basePrice * searchParams.passagers} FCFA</span>
+              <span>{ticketSubtotal} FCFA</span>
             </div>
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
               <span>Frais de colis ({voyageurInfo.bagages})</span>
               <span>{luggageFee} FCFA</span>
             </div>
             <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs">
-              <span>Taxes et frais de service</span>
+              <span>Frais de service client (3%)</span>
+              <span>{clientFee} FCFA</span>
+            </div>
+            <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs">
+              <span>Taxes et redevances</span>
               <span>{taxes} FCFA</span>
             </div>
             <div className="border-t border-slate-200 dark:border-[#2A2A2A] pt-3 mt-3 flex justify-between items-center transition-colors">

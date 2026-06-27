@@ -463,10 +463,33 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
     </div>
   );
 
-  const renderStep3Paiement = () => (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] space-y-5 transition-colors">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Mode de paiement</h3>
+  const renderStep3Paiement = () => {
+    const basePrice = 3000;
+    const clientFee = Math.round(basePrice * 0.03);
+    const total = basePrice + clientFee;
+
+    return (
+      <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-4 sm:p-6 transition-colors font-sans">
+          <h3 className="text-slate-900 dark:text-white font-bold mb-4">Résumé de l'envoi</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between text-slate-600 dark:text-slate-300">
+              <span>Expédition Colis ({colisParams.taille})</span>
+              <span>{basePrice} FCFA</span>
+            </div>
+            <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs">
+              <span>Frais de service client (3%)</span>
+              <span>{clientFee} FCFA</span>
+            </div>
+            <div className="border-t border-slate-200 dark:border-[#2A2A2A] pt-3 mt-3 flex justify-between items-center transition-colors">
+              <span className="font-bold text-slate-900 dark:text-white">Total à payer</span>
+              <span className="text-xl font-bold text-orange-500">{total} FCFA</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 dark:bg-[#1A1A1A]/50 p-4 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#2A2A2A] space-y-5 transition-colors">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Mode de paiement</h3>
         
         <div className="space-y-3">
           {[
@@ -531,8 +554,9 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
         >
           Valider et créer le reçu <CheckCircle2 className="w-5 h-5" />
         </button>
-    </div>
-  );
+      </div>
+    );
+  };
 
   const renderStep3Ticket = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">

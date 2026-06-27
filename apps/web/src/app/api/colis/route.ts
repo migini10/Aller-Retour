@@ -117,8 +117,9 @@ export async function POST(request: Request) {
     const usePoints = data.usePoints === true;
     let earnedPoints = 0;
 
+    const senderPhone = data.senderPhone || "+221770000000";
     const senderUser = await prisma.user.findUnique({
-      where: { phone: data.senderPhone || "+221770000000" }
+      where: { phone: senderPhone }
     });
 
     if (senderUser) {
@@ -136,6 +137,34 @@ export async function POST(request: Request) {
           data: { colisPoints: { increment: pointsToAdd } }
         });
         earnedPoints = updated.colisPoints;
+      }
+    }
+
+    // Debit client's wallet for parcel shipping (incl. 3% fees)
+    const clientFee = Math.round(finalPrice * 0.03);
+    const totalDebit = finalPrice + clientFee;
+
+    if (senderUser) {
+      const passengerWallet = await prisma.wallet.findFirst({
+        where: { userId: senderUser.id, type: 'PASSENGER_WALLET' }
+      });
+      if (passengerWallet) {
+        if (passengerWallet.balance < totalDebit) {
+          return NextResponse.json({ error: 'Solde insuffisant dans votre Wallet (incluant 3% de frais).' }, { status: 400 });
+        }
+        await prisma.wallet.update({
+          where: { id: passengerWallet.id },
+          data: { balance: { decrement: totalDebit } }
+        });
+        await prisma.transaction.create({
+          data: {
+            type: 'TICKET_PURCHASE',
+            status: 'SUCCESS',
+            amount: totalDebit,
+            description: `Expédition colis (incl. 3% frais)`,
+            sourceWalletId: passengerWallet.id,
+          }
+        });
       }
     }
 

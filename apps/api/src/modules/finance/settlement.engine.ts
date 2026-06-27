@@ -65,10 +65,12 @@ export class PaymentSettlementEngine {
       });
 
       // Crédit des Frais de Passerelle Mobile Money
-      await tx.wallet.update({ where: { id: gatewayWallet.id }, data: { balance: { increment: commBreakdown.paymentGatewayFee } } });
-      await tx.transaction.create({
-        data: { type: TransactionType.COMMISSION_FEE, amount: commBreakdown.paymentGatewayFee, description: `Frais Mobile Money - Billet #${booking.id}`, sourceWalletId: escrowWallet.id, targetWalletId: gatewayWallet.id, status: 'SUCCESS' }
-      });
+      if (commBreakdown.paymentGatewayFee > 0) {
+        await tx.wallet.update({ where: { id: gatewayWallet.id }, data: { balance: { increment: commBreakdown.paymentGatewayFee } } });
+        await tx.transaction.create({
+          data: { type: TransactionType.COMMISSION_FEE, amount: commBreakdown.paymentGatewayFee, description: `Frais Mobile Money - Billet #${booking.id}`, sourceWalletId: escrowWallet.id, targetWalletId: gatewayWallet.id, status: 'SUCCESS' }
+        });
+      }
 
       // Crédit de la Commission Plateforme Aller-Retour
       await tx.wallet.update({ where: { id: platformWallet.id }, data: { balance: { increment: commBreakdown.platformFee } } });

@@ -113,27 +113,29 @@ export class BookingsService {
       }
 
       const totalPrice = trip.pricePerSeat * passengersCount;
+      const clientFee = Math.round(totalPrice * 0.03);
+      const totalDebit = totalPrice + clientFee;
 
       if (paymentMethod === 'WALLET') {
         const passengerWallet = await tx.wallet.findFirst({
           where: { userId: userId, type: 'PASSENGER_WALLET' }
         });
         
-        if (!passengerWallet || passengerWallet.balance < totalPrice) {
-          throw new HttpException("Solde insuffisant dans votre Wallet.", HttpStatus.PAYMENT_REQUIRED);
+        if (!passengerWallet || passengerWallet.balance < totalDebit) {
+          throw new HttpException("Solde insuffisant dans votre Wallet (incluant 3% de frais).", HttpStatus.PAYMENT_REQUIRED);
         }
 
         await tx.wallet.update({
           where: { id: passengerWallet.id },
-          data: { balance: { decrement: totalPrice } }
+          data: { balance: { decrement: totalDebit } }
         });
 
         await tx.transaction.create({
           data: {
             type: 'TICKET_PURCHASE',
             status: 'SUCCESS',
-            amount: totalPrice,
-            description: `Paiement réservation trajet #${trip.id.substring(0, 8)} (${passengersCount} places)`,
+            amount: totalDebit,
+            description: `Paiement réservation trajet #${trip.id.substring(0, 8)} (${passengersCount} places, incl. 3% frais)`,
             sourceWalletId: passengerWallet.id,
           }
         });
@@ -403,22 +405,44 @@ export class BookingsService {
 
         takenSeats.add(assignedSeat);
 
-        const updated = await tx.booking.update({
-          where: { id: booking.id },
-          data: {
-            tripId: targetTripId,
-            seatNumber: assignedSeat,
-          },
-        });
-        updatedBookings.push(updated);
-      }
+         const updated = await tx.booking.update({
+           where: { id: booking.id },
+           data: {
+             tripId: targetTripId,
+             seatNumber: assignedSeat,
+           },
+         });
+         updatedBookings.push(updated);
+       }
 
-      return {
-        success: true,
-        message: `${bookingsToTransfer.length} client(s) transféré(s) avec succès.`,
-        transferredCount: bookingsToTransfer.length,
-        bookings: updatedBookings,
-      };
-    });
+       // 5. Clean up source trip if it has no remaining bookings and no initial passengers
+       const sourceTripId = bookingsToTransfer[0]?.tripId;
+       if (sourceTripId) {
+         const remainingBookingsCount = await tx.booking.count({
+           where: {
+             tripId: sourceTripId,
+             status: { in: ['CONFIRMED', 'BOARDED'] }
+           }
+         });
+
+         const sourceTripObj = await tx.trip.findUnique({
+           where: { id: sourceTripId }
+         });
+
+         if (remainingBookingsCount === 0 && (!sourceTripObj || sourceTripObj.initialPassengers === 0)) {
+           // Delete related entities to prevent foreign key errors
+           await tx.parcel.deleteMany({ where: { tripId: sourceTripId } });
+           await tx.seatLock.deleteMany({ where: { tripId: sourceTripId } });
+           await tx.trip.delete({ where: { id: sourceTripId } });
+         }
+       }
+ 
+       return {
+         success: true,
+         message: `${bookingsToTransfer.length} client(s) transféré(s) avec succès.`,
+         transferredCount: bookingsToTransfer.length,
+         bookings: updatedBookings,
+       };
+     });
   }
 }
