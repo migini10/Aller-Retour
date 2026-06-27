@@ -1814,7 +1814,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             Widget buildStep4() {
               int passagersCount = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
               int basePrice = selectedTrip?['price'] ?? 5000;
-              int total = basePrice * passagersCount;
+              int subtotal = basePrice * passagersCount;
+              int clientFee = (subtotal * 0.03).round();
+              int total = subtotal + clientFee;
 
               Widget buildPaymentMethodOption(String id, String name, IconData icon, Color color, {Widget? customIcon}) {
                 bool isSelected = paymentMethod == id;
@@ -1858,7 +1860,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           children: [
                             Expanded(child: Text('Billet ${selectedTrip?['company'] ?? 'Allo Dakar'}', style: TextStyle(color: textMutedColor), overflow: TextOverflow.ellipsis)),
                             const SizedBox(width: 8),
-                            Text('$total FCFA', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+                            Text('$subtotal FCFA', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Frais de service (3%)', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                            Text('$clientFee FCFA', style: TextStyle(color: textMutedColor, fontSize: 12)),
                           ],
                         ),
                         const SizedBox(height: 8),

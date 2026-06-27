@@ -354,12 +354,58 @@ Widget _buildTailleOption(BuildContext context, String title, IconData icon, Str
 }
 
 Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(String) onModeSelected, bool usePoints, int colisPoints, Function(bool) onUsePointsToggled) {
+  final int basePrice = 3000;
+  final int clientFee = (basePrice * 0.03).round();
+  final int total = basePrice + clientFee;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final borderColor = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE2E8F0);
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text('Mode de paiement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       Text('Comment souhaitez-vous payer l\'envoi ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+      const SizedBox(height: 20),
+
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Expédition Colis', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                Text('$basePrice FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Frais de service (3%)', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                Text('$clientFee FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Divider(color: borderColor),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Total à payer', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('$total FCFA', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ),
+          ],
+        ),
+      ),
       const SizedBox(height: 20),
       
       _buildPaymentOption(context, 'Wave', 'Payer via l\'application Wave', Icons.phone_android, modePaiement, onModeSelected),
