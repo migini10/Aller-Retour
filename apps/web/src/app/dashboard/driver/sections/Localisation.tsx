@@ -24,8 +24,8 @@ export default function SectionLocalisation() {
         const resMissions = await fetch('/api/missions', { cache: 'no-store' });
         if (resMissions.ok) {
           const missions = await resMissions.json();
-          // Find first active/scheduled mission
-          const activeMission = missions.find((m: any) => m.status !== 'terminé') || missions[0];
+          // Find first active/scheduled mission (status not 'terminé')
+          const activeMission = missions.find((m: any) => m.status !== 'terminé');
           
           if (activeMission) {
             // 2. Fetch manifest for this mission

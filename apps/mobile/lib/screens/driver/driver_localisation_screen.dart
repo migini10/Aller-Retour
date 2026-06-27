@@ -45,7 +45,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
         final missions = jsonDecode(missionsResponse.body) as List<dynamic>;
         final activeMission = missions.firstWhere(
           (m) => m['status'] != 'terminé',
-          orElse: () => missions.isNotEmpty ? missions.first : null,
+          orElse: () => null,
         );
         if (activeMission != null) {
           final tripId = activeMission['tripId'];
