@@ -73,6 +73,7 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
                 'tel': t['tel'] ?? '+221 77 123 45 67',
               });
             }
+            mapped.sort((a, b) => a['distance'].compareTo(b['distance']));
             if (mounted) {
               setState(() {
                 passagers = mapped;

@@ -202,7 +202,7 @@ export default function SectionLocalisation() {
             Ici vont apparaître vos passagers réservés
           </div>
         ) : (
-          passagers.sort((a, b) => a.distance - b.distance).map(p => (
+          [...passagers].sort((a, b) => a.distance - b.distance).map(p => (
             <button 
               key={p.id} 
               onClick={() => handleStartNavigation(p)}
