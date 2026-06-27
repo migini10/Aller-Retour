@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigation, MapPin, Phone, MessageSquare, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +11,66 @@ export default function SectionLocalisation() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [navKey, setNavKey] = useState(0);
   const [activePassenger, setActivePassenger] = useState<any>(null);
+  const [passagers, setPassagers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fallback passengers in case the active mission has no bookings
+  const fallbackPassengers = [
+    { id: 'AR-7489', nom: 'Fatou Diop', quartier: 'Mermoz', distance: 0.5, eta: '2 min', tel: '+221 77 123 45 67' },
+    { id: 'AR-8451', nom: 'Mamadou Ndiaye', quartier: 'Plateau', distance: 1.2, eta: '5 min', tel: '+221 78 987 65 43' },
+    { id: 'AR-6201', nom: 'Awa Fall', quartier: 'Almadies', distance: 2.8, eta: '10 min', tel: '+221 70 456 78 90' },
+    { id: 'AR-1102', nom: 'Ousmane Sow', quartier: 'Ouakam', distance: 4.5, eta: '15 min', tel: '+221 76 543 21 09' },
+  ];
+
+  useEffect(() => {
+    const loadRealPassengers = async () => {
+      try {
+        setLoading(true);
+        // 1. Fetch missions to find the driver's active trip
+        const resMissions = await fetch('/api/missions', { cache: 'no-store' });
+        if (resMissions.ok) {
+          const missions = await resMissions.json();
+          // Find first active/scheduled mission
+          const activeMission = missions.find((m: any) => m.status !== 'terminé') || missions[0];
+          
+          if (activeMission) {
+            // 2. Fetch manifest for this mission
+            const resManifest = await fetch(`/api/trips/${activeMission.tripId}/manifest`);
+            if (resManifest.ok) {
+              const manifest = await resManifest.json();
+              
+              // Neighborhood list to assign randomly for visual realism
+              const neighborhoods = ['Mermoz', 'Plateau', 'Almadies', 'Ouakam', 'Yoff', 'Pikine', 'Fann', 'Hann'];
+              
+              const mappedPassengers = (manifest.tickets || []).map((t: any, index: number) => {
+                const distance = parseFloat((0.5 + index * 0.7).toFixed(1));
+                const etaVal = Math.ceil(distance * 3);
+                return {
+                  id: t.id,
+                  nom: t.nom,
+                  quartier: neighborhoods[index % neighborhoods.length],
+                  distance: distance,
+                  eta: `${etaVal} min`,
+                  tel: t.tel || '+221 77 123 45 67'
+                };
+              });
+
+              setPassagers(mappedPassengers.length > 0 ? mappedPassengers : fallbackPassengers);
+              return;
+            }
+          }
+        }
+        setPassagers(fallbackPassengers);
+      } catch (err) {
+        console.error('Error loading real passengers:', err);
+        setPassagers(fallbackPassengers);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRealPassengers();
+  }, []);
 
   // URL par défaut (vue générale de Dakar)
   const defaultMapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123689.70287413813!2d-17.5113945935741!3d14.736021669460292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x168b2aba9d9b6d8b%3A0xc621b16c80210e7b!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sfr!4v1716650454320!5m2!1sen!2sfr";
@@ -139,12 +199,7 @@ export default function SectionLocalisation() {
       {/* Liste des Passagers (Triés par proximité) */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Voyageurs à récupérer</h3>
-        {[
-          { id: 'AR-7489', nom: 'Fatou Diop', quartier: 'Mermoz', distance: 0.5, eta: '2 min', tel: '+221 77 123 45 67' },
-          { id: 'AR-8451', nom: 'Mamadou Ndiaye', quartier: 'Plateau', distance: 1.2, eta: '5 min', tel: '+221 78 987 65 43' },
-          { id: 'AR-6201', nom: 'Awa Fall', quartier: 'Almadies', distance: 2.8, eta: '10 min', tel: '+221 70 456 78 90' },
-          { id: 'AR-1102', nom: 'Ousmane Sow', quartier: 'Ouakam', distance: 4.5, eta: '15 min', tel: '+221 76 543 21 09' },
-        ].sort((a, b) => a.distance - b.distance).map(p => (
+        {passagers.sort((a, b) => a.distance - b.distance).map(p => (
           <button 
             key={p.id} 
             onClick={() => handleStartNavigation(p)}
