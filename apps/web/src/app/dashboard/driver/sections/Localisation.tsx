@@ -14,13 +14,7 @@ export default function SectionLocalisation() {
   const [passagers, setPassagers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fallback passengers in case the active mission has no bookings
-  const fallbackPassengers = [
-    { id: 'AR-7489', nom: 'Fatou Diop', quartier: 'Mermoz', distance: 0.5, eta: '2 min', tel: '+221 77 123 45 67' },
-    { id: 'AR-8451', nom: 'Mamadou Ndiaye', quartier: 'Plateau', distance: 1.2, eta: '5 min', tel: '+221 78 987 65 43' },
-    { id: 'AR-6201', nom: 'Awa Fall', quartier: 'Almadies', distance: 2.8, eta: '10 min', tel: '+221 70 456 78 90' },
-    { id: 'AR-1102', nom: 'Ousmane Sow', quartier: 'Ouakam', distance: 4.5, eta: '15 min', tel: '+221 76 543 21 09' },
-  ];
+
 
   useEffect(() => {
     const loadRealPassengers = async () => {
@@ -55,15 +49,15 @@ export default function SectionLocalisation() {
                 };
               });
 
-              setPassagers(mappedPassengers.length > 0 ? mappedPassengers : fallbackPassengers);
+              setPassagers(mappedPassengers);
               return;
             }
           }
         }
-        setPassagers(fallbackPassengers);
+        setPassagers([]);
       } catch (err) {
         console.error('Error loading real passengers:', err);
-        setPassagers(fallbackPassengers);
+        setPassagers([]);
       } finally {
         setLoading(false);
       }
@@ -199,34 +193,40 @@ export default function SectionLocalisation() {
       {/* Liste des Passagers (Triés par proximité) */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Voyageurs à récupérer</h3>
-        {passagers.sort((a, b) => a.distance - b.distance).map(p => (
-          <button 
-            key={p.id} 
-            onClick={() => handleStartNavigation(p)}
-            className={`w-full text-left bg-white dark:bg-[#141414] border ${activePassenger?.id === p.id ? 'border-orange-500 shadow-orange-500/10' : 'border-slate-200 dark:border-[#2A2A2A]/80'} rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between transition-colors gap-4 hover:border-orange-500/50 hover:shadow-lg group`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${activePassenger?.id === p.id ? 'bg-orange-500 text-white' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 group-hover:text-orange-600 dark:group-hover:text-orange-400'}`}>
-                {p.nom.charAt(0)}
+        {passagers.length === 0 ? (
+          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-2xl p-8 text-center text-slate-500 font-semibold transition-colors">
+            ici vont apparaitre vos passager reservé
+          </div>
+        ) : (
+          passagers.sort((a, b) => a.distance - b.distance).map(p => (
+            <button 
+              key={p.id} 
+              onClick={() => handleStartNavigation(p)}
+              className={`w-full text-left bg-white dark:bg-[#141414] border ${activePassenger?.id === p.id ? 'border-orange-500 shadow-orange-500/10' : 'border-slate-200 dark:border-[#2A2A2A]/80'} rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between transition-colors gap-4 hover:border-orange-500/50 hover:shadow-lg group`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${activePassenger?.id === p.id ? 'bg-orange-500 text-white' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 group-hover:text-orange-600 dark:group-hover:text-orange-400'}`}>
+                  {p.nom.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 dark:text-white transition-colors">{p.nom}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors mt-0.5">
+                    <MapPin className="w-3 h-3 inline mr-1 text-orange-500" />
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">{p.quartier}</span>
+                    À {p.distance} km ({p.eta})
+                  </p>
+                  <p className="text-xs font-mono text-slate-400 dark:text-slate-500 mt-0.5">
+                    <Phone className="w-3 h-3 inline mr-1" /> {p.tel}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-slate-900 dark:text-white transition-colors">{p.nom}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors mt-0.5">
-                  <MapPin className="w-3 h-3 inline mr-1 text-orange-500" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">{p.quartier}</span>
-                  À {p.distance} km ({p.eta})
-                </p>
-                <p className="text-xs font-mono text-slate-400 dark:text-slate-500 mt-0.5">
-                  <Phone className="w-3 h-3 inline mr-1" /> {p.tel}
-                </p>
+              <div className="flex gap-2 self-end sm:self-auto">
+                <a href={`sms:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4" /></a>
+                <a href={`tel:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors cursor-pointer"><Phone className="w-4 h-4" /></a>
               </div>
-            </div>
-            <div className="flex gap-2 self-end sm:self-auto">
-              <a href={`sms:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[#333333] rounded-xl flex items-center justify-center text-slate-700 dark:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4" /></a>
-              <a href={`tel:${p.tel.replace(/\s+/g, '')}`} onClick={(e) => e.stopPropagation()} className="w-10 h-10 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 transition-colors cursor-pointer"><Phone className="w-4 h-4" /></a>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))
+        )}
       </div>
 
     </div>
