@@ -18,9 +18,10 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 let connectionString = process.env.DATABASE_URL;
 
 // Auto-fix for production (Render/Vercel) to bypass Supabase PgBouncer issues with Prisma
+// BUT do not replace port 6543 (PgBouncer transaction-mode pooler) with 5432 (session-mode pooler) 
+// to prevent exceeding the strict max 15 session-connection limit on Supabase Free Tier.
 if (connectionString) {
   connectionString = connectionString
-    .replace(':6543', ':5432')
     .replace('?pgbouncer=true', '')
     .replace('&pgbouncer=true', '');
 }
