@@ -284,7 +284,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Text('${req['origin']} → ${req['destination']}', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.black, fontSize: 16)),
+                        Text('${req['origin']} → ${req['destination']}', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 6),
                         Text('Date : ${req['departureDate']} • Prix proposé : ${req['price']} FCFA', style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 12)),
                         
