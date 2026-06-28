@@ -16,6 +16,8 @@ class ExpiredTicketsScreen extends StatefulWidget {
 class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
   List<dynamic> _expiredTickets = [];
   bool _isLoading = true;
+  List<String> _deletedIds = [];
+  List<String> _selectedIds = [];
 
   @override
   void initState() {
@@ -25,6 +27,11 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
   Future<void> _loadExpiredTickets() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedDeleted = prefs.getStringList('deleted_tickets') ?? [];
+    setState(() {
+      _deletedIds = savedDeleted;
+    });
+
     final token = prefs.getString('auth_token');
     if (token != null) {
       try {
@@ -48,6 +55,56 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
     } else {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _deleteSelectedTickets() async {
+    if (_selectedIds.isEmpty) return;
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmer la suppression'),
+        content: Text('Êtes-vous sûr de vouloir supprimer définitivement ces ${_selectedIds.length} billet(s) de votre historique ?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final newDeleted = [..._deletedIds, ..._selectedIds];
+    await prefs.setStringList('deleted_tickets', newDeleted);
+    setState(() {
+      _deletedIds = newDeleted;
+      _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelectTicket(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _selectAllTickets(List<dynamic> visiblePast) {
+    final List<String> targetIds = visiblePast.map<String>((t) => t['id'] as String).toList();
+    final bool allSelected = targetIds.every((id) => _selectedIds.contains(id));
+    setState(() {
+      if (allSelected) {
+        _selectedIds.removeWhere((id) => targetIds.contains(id));
+      } else {
+        _selectedIds.addAll(targetIds.where((id) => !_selectedIds.contains(id)));
+      }
+    });
   }
   
   bool _isTicketPastOrUsed(Map<String, dynamic> ticket) {
@@ -87,102 +144,157 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final visiblePast = _expiredTickets.where((t) => !_deletedIds.contains(t['id'])).toList();
+
     return SharedScaffold(
       title: 'Billets Expirés',
       subtitle: 'Historique de vos anciens trajets.',
       icon: Icons.history,
       iconColor: Colors.grey,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Consultez la liste de vos billets passés et expirés.',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
-            else if (_expiredTickets.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(32),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
-                ),
-                child: Column(
-                  children: [
-                    Icon(Icons.history_toggle_off, size: 64, color: Theme.of(context).dividerColor),
-                    const SizedBox(height: 16),
-                    Text("Aucun billet expiré", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text("Vous n'avez pas de billets dans l'historique.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
-                  ],
-                ),
-              )
-            else
-              ..._expiredTickets.map((t) {
-                final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
-                final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
-                final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
-                final origin = t['trip']['route']['originStation']['city'];
-                final dest = t['trip']['route']['destinationStation']['city'];
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Consultez la liste de vos billets passés et expirés.',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  const SizedBox(height: 24),
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
+                  else if (visiblePast.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.history_toggle_off, size: 64, color: Theme.of(context).dividerColor),
+                          const SizedBox(height: 16),
+                          Text("Aucun billet expiré", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Text("Vous n'avez pas de billets dans l'historique.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+                        ],
+                      ),
+                    )
+                  else
+                    ...visiblePast.map((t) {
+                      final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
+                      final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
+                      final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
+                      final origin = t['trip']['route']['originStation']['city'];
+                      final dest = t['trip']['route']['destinationStation']['city'];
 
-                return Opacity(
-                  opacity: 0.7,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
+                      final bool isSelected = _selectedIds.contains(t['id']);
+
+                      return Opacity(
+                        opacity: isSelected ? 0.9 : 0.7,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: isSelected ? Colors.orangeAccent : Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+                          ),
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('$origin ➔ $dest', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                                    child: Text(_getTicketStatusText(t), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-                                  ),
-                                ],
+                              Checkbox(
+                                value: isSelected,
+                                onChanged: (val) => _toggleSelectTicket(t['id']),
+                                activeColor: Colors.orangeAccent,
                               ),
-                              const SizedBox(height: 8),
-                              Text('$dateStr à $timeStr', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                              const SizedBox(height: 4),
-                              Text('Réf: VOY-${t['id'].toString().split('-').first.toUpperCase()}', style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'monospace')),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(child: Text('$origin ➔ $dest', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                                          child: Text(_getTicketStatusText(t), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text('$dateStr à $timeStr', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                                    const SizedBox(height: 4),
+                                    Text('Réf: VOY-${t['id'].toString().split('-').first.toUpperCase()}', style: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'monospace')),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Opacity(
+                                opacity: 0.5,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                                  child: QRCodeBrandEngine(value: t['qrCodeToken'], size: 64),
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Opacity(
-                          opacity: 0.5,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                            child: QRCodeBrandEngine(value: t['qrCodeToken'], size: 64),
+                      );
+                    }),
+                  const SizedBox(height: 80), // padding for floating action bar
+                ],
+              ),
+            ),
+          ),
+          if (_selectedIds.isNotEmpty)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Card(
+                elevation: 10,
+                color: Theme.of(context).cardColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_selectedIds.length} sélectionné(s)',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => _selectAllTickets(visiblePast),
+                            child: const Text('Tout'),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: _deleteSelectedTickets,
+                            icon: const Icon(Icons.delete, size: 16, color: Colors.white),
+                            label: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                );
-              }),
-          ],
-        ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

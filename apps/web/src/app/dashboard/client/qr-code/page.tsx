@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, X, List, LayoutGrid, CheckCircle2, Calendar, Clock, ArrowUpRight, Building2, Bus, Eye, Download, Share2, QrCode, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, X, List, LayoutGrid, CheckCircle2, Calendar, Clock, ArrowUpRight, Building2, Bus, Eye, Download, Share2, QrCode, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { useUser } from '../../../../hooks/useUser';
@@ -15,6 +15,43 @@ export default function QrCodePage() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('deleted_tickets');
+    if (saved) {
+      try {
+        setDeletedIds(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
+
+  const toggleSelectTicket = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = (activeOnly = true) => {
+    const targets = activeOnly ? activeTickets : tickets.filter(t => !deletedIds.includes(t.id));
+    const targetIds = targets.map(t => t.id);
+    const allSelected = targetIds.every(id => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !targetIds.includes(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...targetIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer les ${selectedIds.length} billet(s) sélectionné(s) de la liste ?`)) return;
+    const newDeleted = [...deletedIds, ...selectedIds];
+    setDeletedIds(newDeleted);
+    localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
+    setSelectedIds([]);
+  };
 
   const fetchTickets = async () => {
     if (!token) {
@@ -130,9 +167,9 @@ export default function QrCodePage() {
     return bookingStatus;
   };
 
-  const activeTickets = tickets.filter(t => !isTicketPastOrUsed(t));
-  
-  const pastTickets = tickets.filter(t => isTicketPastOrUsed(t));
+  const visibleTickets = tickets.filter(t => !deletedIds.includes(t.id));
+  const activeTickets = visibleTickets.filter(t => !isTicketPastOrUsed(t));
+  const pastTickets = visibleTickets.filter(t => isTicketPastOrUsed(t));
 
   
 
@@ -211,40 +248,48 @@ export default function QrCodePage() {
                  const dest = t.trip.route.destinationStation.city;
 
                  return (
-                   <div key={t.id} className={`bg-white dark:bg-[#141414] border border-orange-500/40 hover:border-orange-500/80 shadow-sm hover:shadow-lg hover:shadow-orange-500/10 rounded-2xl p-5 flex flex-col md:flex-row justify-between md:items-center gap-5 transition-all`}>
-                     <div className="flex items-center gap-5">
-                        <div className={`shrink-0 p-2 bg-white rounded-xl shadow-sm border border-slate-100 dark:border-none`}>
-                           <QRCodeBrandEngine value={t.qrCodeToken} size={56} />
-                        </div>
-                        <div>
-                           <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                              <span className={`font-bold text-base sm:text-lg text-slate-900 dark:text-white font-black`}>{origin} ➔ {dest}</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-600 dark:bg-[#222] dark:text-slate-300">
-                                {getTicketStatusText(t)}
-                              </span>
-                           </div>
-                           <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                             <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}
-                           </p>
-                           <p className={`text-xs mt-1 text-slate-500 font-medium`}>{t.trip.company?.name || 'Allogoo'} • {userName}</p>
-                        </div>
-                     </div>
-                     <div className="flex items-center gap-2 md:shrink-0 mt-2 md:mt-0">
-                         <button onClick={() => setSelectedTicket(t)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                            <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
-                         </button>
-                         <button onClick={() => handleCancelTicket(t.id)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-500/20 rounded-xl text-sm font-bold transition-all flex justify-center items-center gap-2 shadow-sm">
-                            Annuler
-                         </button>
-                         <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Télécharger</span>
-                         </button>
-                         <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-orange-600/20 flex justify-center items-center gap-2">
-                            <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
-                         </button>
-                     </div>
-                   </div>
+                    <div key={t.id} className={`bg-white dark:bg-[#141414] border ${selectedIds.includes(t.id) ? 'border-orange-500 bg-orange-500/5' : 'border-orange-500/40 hover:border-orange-500/80'} shadow-sm hover:shadow-lg hover:shadow-orange-500/10 rounded-2xl p-5 flex flex-col md:flex-row justify-between md:items-center gap-5 transition-all`}>
+                      <div className="flex items-center gap-5">
+                         <div className="flex items-center gap-3">
+                            <input 
+                              type="checkbox"
+                              checked={selectedIds.includes(t.id)}
+                              onChange={() => toggleSelectTicket(t.id)}
+                              className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-orange-500 focus:ring-orange-500 accent-orange-500 cursor-pointer"
+                            />
+                            <div className={`shrink-0 p-2 bg-white rounded-xl shadow-sm border border-slate-100 dark:border-none`}>
+                               <QRCodeBrandEngine value={t.qrCodeToken} size={56} />
+                            </div>
+                         </div>
+                         <div>
+                            <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                               <span className={`font-bold text-base sm:text-lg text-slate-900 dark:text-white font-black`}>{origin} ➔ {dest}</span>
+                               <span className={`text-[10px] px-2 py-0.5 rounded-md font-mono border bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20`}>VOY-{t.id.split('-')[0].toUpperCase()}</span>
+                               <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-slate-100 text-slate-600 dark:bg-[#222] dark:text-slate-300">
+                                 {getTicketStatusText(t)}
+                               </span>
+                            </div>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                              <Calendar className="w-3.5 h-3.5" /> {dateStr} • <Clock className="w-3.5 h-3.5 ml-1" /> {timeStr} • Siège #{t.seatNumber}
+                            </p>
+                            <p className={`text-xs mt-1 text-slate-500 font-medium`}>{t.trip.company?.name || 'Allogoo'} • {userName}</p>
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-2 md:shrink-0 mt-2 md:mt-0">
+                          <button onClick={() => setSelectedTicket(t)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                             <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
+                          </button>
+                          <button onClick={() => handleCancelTicket(t.id)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-500/20 rounded-xl text-sm font-bold transition-all flex justify-center items-center gap-2 shadow-sm">
+                             Annuler
+                          </button>
+                          <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
+                             <Download className="w-4 h-4" /> <span className="hidden sm:inline">Télécharger</span>
+                          </button>
+                          <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-orange-600/20 flex justify-center items-center gap-2">
+                             <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Partager</span>
+                          </button>
+                      </div>
+                    </div>
                  );
                })}
              </div>
@@ -259,9 +304,17 @@ export default function QrCodePage() {
                  const companyName = t.trip.company?.name || 'Allogoo';
 
                  return (
-                   <div key={t.id} className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A]/80 rounded-3xl overflow-hidden relative shadow-xl">
+                   <div key={t.id} className={`bg-white dark:bg-[#141414] border ${selectedIds.includes(t.id) ? 'border-orange-500' : 'border-slate-200 dark:border-[#2A2A2A]/80'} rounded-3xl overflow-hidden relative shadow-xl`}>
                       <div className="bg-orange-600 px-5 py-2.5 text-xs font-bold text-white flex justify-between items-center">
-                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.status}</span>
+                        <span className="flex items-center gap-1.5">
+                           <input 
+                             type="checkbox"
+                             checked={selectedIds.includes(t.id)}
+                             onChange={() => toggleSelectTicket(t.id)}
+                             className="w-3.5 h-3.5 rounded border-white/30 text-orange-500 focus:ring-orange-500 accent-orange-500 cursor-pointer mr-1.5"
+                           />
+                           <CheckCircle2 className="w-4 h-4" /> Statut: {t.status}
+                        </span>
                         <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>
                       </div>
                       
@@ -373,6 +426,28 @@ export default function QrCodePage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Action Bar for Deletion */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-6 z-50 animate-bounce-short">
+          <span className="text-sm font-bold text-slate-900 dark:text-white">
+            {selectedIds.length} billet(s) sélectionné(s)
+          </span>
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
+          <button 
+            onClick={() => handleSelectAll(true)}
+            className="text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+          >
+            {activeTickets.every(t => selectedIds.includes(t.id)) ? 'Désélectionner tout' : 'Tout sélectionner'}
+          </button>
+          <button 
+            onClick={handleDeleteSelected}
+            className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-red-500/20"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Supprimer
+          </button>
         </div>
       )}
     </div>

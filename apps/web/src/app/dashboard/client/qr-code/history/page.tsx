@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, History, CheckCircle2, Calendar, Clock, ArrowUpRight, QrCode, Loader2 } from 'lucide-react';
+import { ArrowLeft, History, CheckCircle2, Calendar, Clock, ArrowUpRight, QrCode, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import QRCodeBrandEngine from '../../../../../components/QRCodeBrandEngine';
 import { useAuth } from '../../../../../components/AuthContext';
@@ -10,6 +10,42 @@ export default function QrCodeHistoryPage() {
   const { token } = useAuth();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('deleted_tickets');
+    if (saved) {
+      try {
+        setDeletedIds(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
+
+  const toggleSelectTicket = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const targetIds = tickets.map(t => t.id);
+    const allSelected = targetIds.every(id => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !targetIds.includes(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...targetIds])));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement les ${selectedIds.length} billet(s) de votre historique ?`)) return;
+    const newDeleted = [...deletedIds, ...selectedIds];
+    setDeletedIds(newDeleted);
+    localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
+    setSelectedIds([]);
+  };
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -78,7 +114,7 @@ export default function QrCodeHistoryPage() {
             return bookingStatus;
           };
 
-          const pastTickets = data.filter((t: any) => isTicketPastOrUsed(t))
+          const pastTickets = data.filter((t: any) => isTicketPastOrUsed(t) && !deletedIds.includes(t.id))
             .map((t: any) => ({ ...t, displayStatus: getTicketStatusText(t) }));
           
           setTickets(pastTickets);
@@ -131,9 +167,17 @@ export default function QrCodeHistoryPage() {
                  const dest = t.trip.route.destinationStation.city;
 
                  return (
-                    <div key={t.id} className="bg-slate-100/40 dark:bg-[#141414]/20 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl overflow-hidden relative opacity-50 grayscale transition-all duration-300 hover:opacity-75 hover:grayscale-[50%]">
+                    <div key={t.id} className={`bg-slate-100/40 dark:bg-[#141414]/20 border ${selectedIds.includes(t.id) ? 'border-orange-500 bg-orange-500/5' : 'border-slate-200/60 dark:border-slate-800/60'} rounded-3xl overflow-hidden relative opacity-50 grayscale transition-all duration-300 hover:opacity-75 hover:grayscale-[50%]`}>
                       <div className="bg-slate-200 dark:bg-[#222222] px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 flex justify-between items-center">
-                         <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.displayStatus}</span>
+                         <span className="flex items-center gap-1.5">
+                            <input 
+                              type="checkbox"
+                              checked={selectedIds.includes(t.id)}
+                              onChange={() => toggleSelectTicket(t.id)}
+                              className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-orange-500 focus:ring-orange-500 accent-orange-500 cursor-pointer mr-1.5"
+                            />
+                            <CheckCircle2 className="w-4 h-4" /> Statut: {t.displayStatus}
+                         </span>
                          <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>
                       </div>
                       
@@ -162,8 +206,29 @@ export default function QrCodeHistoryPage() {
              </div>
           )}
         </div>
-
       </div>
+
+      {/* Floating Action Bar for Deletion */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-6 z-50 animate-bounce-short">
+          <span className="text-sm font-bold text-slate-900 dark:text-white">
+            {selectedIds.length} billet(s) sélectionné(s)
+          </span>
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
+          <button 
+            onClick={handleSelectAll}
+            className="text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+          >
+            {tickets.every(t => selectedIds.includes(t.id)) ? 'Désélectionner tout' : 'Tout sélectionner'}
+          </button>
+          <button 
+            onClick={handleDeleteSelected}
+            className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-red-500/20"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Supprimer
+          </button>
+        </div>
+      )}
     </div>
   );
 }

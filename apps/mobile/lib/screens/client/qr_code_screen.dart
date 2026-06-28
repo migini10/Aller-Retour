@@ -19,6 +19,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   List<dynamic> _tickets = [];
   bool _isLoading = true;
   Timer? _refreshTimer;
+  List<String> _deletedIds = [];
+  List<String> _selectedIds = [];
 
   @override
   void initState() {
@@ -35,8 +37,10 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedDeleted = prefs.getStringList('deleted_tickets') ?? [];
     setState(() {
       _userName = prefs.getString('userName') ?? 'Utilisateur';
+      _deletedIds = savedDeleted;
     });
     
     final token = prefs.getString('auth_token');
@@ -61,6 +65,56 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     } else {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _deleteSelectedTickets() async {
+    if (_selectedIds.isEmpty) return;
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmer la suppression'),
+        content: Text('Êtes-vous sûr de vouloir supprimer ces ${_selectedIds.length} billet(s) de la liste ?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final newDeleted = [..._deletedIds, ..._selectedIds];
+    await prefs.setStringList('deleted_tickets', newDeleted);
+    setState(() {
+      _deletedIds = newDeleted;
+      _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelectTicket(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _selectAllTickets(List<dynamic> visibleActive) {
+    final List<String> targetIds = visibleActive.map<String>((t) => t['id'] as String).toList();
+    final bool allSelected = targetIds.every((id) => _selectedIds.contains(id));
+    setState(() {
+      if (allSelected) {
+        _selectedIds.removeWhere((id) => targetIds.contains(id));
+      } else {
+        _selectedIds.addAll(targetIds.where((id) => !_selectedIds.contains(id)));
+      }
+    });
   }
 
   Future<void> _cancelTicket(String ticketId) async {
@@ -138,133 +192,179 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final visibleActive = _tickets.where((t) => !_isTicketPastOrUsed(t) && !_deletedIds.contains(t['id'])).toList();
+
     return SharedScaffold(
       title: 'QR Code & Billets',
       subtitle: 'Vos titres de transport toujours à portée de main.',
       icon: Icons.qr_code_scanner,
       iconColor: Colors.purpleAccent,
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Vos billets, réservations et historiques de voyage.',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
-            ),
-            SizedBox(height: 24),
-            
-            // Search Bar
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: TextField(
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                decoration: InputDecoration(
-                  icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  border: InputBorder.none,
-                  hintText: 'Rechercher un QR code, trajet...',
-                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30)),
-                ),
-              ),
-            ),
-            SizedBox(height: 32),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Liste de mes QR codes', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Vos billets, réservations et historiques de voyage.',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Search Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: TextField(
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      decoration: InputDecoration(
+                        icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        border: InputBorder.none,
+                        hintText: 'Rechercher un QR code, trajet...',
+                        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Liste de mes QR codes', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.orangeAccent.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+                            ),
+                            child: Text('${visibleActive.length} Billet(s) actif(s)', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: () => Navigator.pushNamed(context, '/expired-tickets'),
+                            icon: const Icon(Icons.history, size: 16),
+                            label: const Text('Historique', style: TextStyle(fontSize: 11)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                              foregroundColor: Theme.of(context).colorScheme.onSurface,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              minimumSize: Size.zero,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
+                  else if (visibleActive.isEmpty)
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.all(32),
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Colors.orangeAccent.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                       ),
-                      child: Text('${_tickets.where((t) => !_isTicketPastOrUsed(t)).length} Billet(s) actif(s)', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.pushNamed(context, '/expired-tickets'),
-                      icon: const Icon(Icons.history, size: 16),
-                      label: const Text('Historique', style: TextStyle(fontSize: 11)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.2),
-                        foregroundColor: Theme.of(context).colorScheme.onSurface,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        minimumSize: Size.zero,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: Column(
+                        children: [
+                          Icon(Icons.qr_code, size: 64, color: Theme.of(context).dividerColor),
+                          const SizedBox(height: 16),
+                          Text("Aucun billet trouvé", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Text("Vous n'avez pas encore effectué de réservation.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            
-            if (_isLoading)
-              Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
-            else if (_tickets.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(32),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
-                ),
-                child: Column(
-                  children: [
-                    Icon(Icons.qr_code, size: 64, color: Theme.of(context).dividerColor),
-                    const SizedBox(height: 16),
-                    Text("Aucun billet trouvé", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text("Vous n'avez pas encore effectué de réservation.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
-                  ],
-                ),
-              )
-            else
-              ..._tickets.where((t) => !_isTicketPastOrUsed(t)).map((t) {
-                final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
-                final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
-                final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
-                final origin = t['trip']['route']['originStation']['city'];
-                final dest = t['trip']['route']['destinationStation']['city'];
-                final company = t['trip']['company'] != null ? t['trip']['company']['name'] : 'Allogoo';
-                final vehicle = t['trip']['vehicle'] != null ? t['trip']['vehicle']['type'] : 'Voiture';
-                
-                final card = _buildTicketCard(
-                  context,
-                  isActive: true,
-                  status: _getTicketStatusText(t),
-                  ref: t['qrCodeToken'],
-                  date: dateStr,
-                  time: timeStr,
-                  from: origin,
-                  to: dest,
-                  ticketNo: 'VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
-                  seat: '#${t['seatNumber']}',
-                  passenger: _userName,
-                  vehicle: vehicle,
-                  price: '${t['amountPaid']} FCFA',
-                  ticketId: t['id'],
-                );
+                    )
+                  else
+                    ...visibleActive.map((t) {
+                      final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
+                      final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
+                      final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
+                      final origin = t['trip']['route']['originStation']['city'];
+                      final dest = t['trip']['route']['destinationStation']['city'];
+                      final company = t['trip']['company'] != null ? t['trip']['company']['name'] : 'Allogoo';
+                      final vehicle = t['trip']['vehicle'] != null ? t['trip']['vehicle']['type'] : 'Voiture';
+                      
+                      final card = _buildTicketCard(
+                        context,
+                        isActive: true,
+                        status: _getTicketStatusText(t),
+                        ref: t['qrCodeToken'],
+                        date: dateStr,
+                        time: timeStr,
+                        from: origin,
+                        to: dest,
+                        ticketNo: 'VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
+                        seat: '#${t['seatNumber']}',
+                        passenger: _userName,
+                        vehicle: vehicle,
+                        price: '${t['amountPaid']} FCFA',
+                        ticketId: t['id'],
+                      );
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: card,
-                );
-              }),
-            SizedBox(height: 40),
-          ],
-        ),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: card,
+                      );
+                    }),
+                  const SizedBox(height: 80), // extra padding for floating bar
+                ],
+              ),
+            ),
+          ),
+          if (_selectedIds.isNotEmpty)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Card(
+                elevation: 10,
+                color: Theme.of(context).cardColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_selectedIds.length} sélectionné(s)',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => _selectAllTickets(visibleActive),
+                            child: const Text('Tout'),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: _deleteSelectedTickets,
+                            icon: const Icon(Icons.delete, size: 16, color: Colors.white),
+                            label: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -305,6 +405,20 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 Expanded(
                   child: Row(
                     children: [
+                      if (ticketId.isNotEmpty) ...[
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _selectedIds.contains(ticketId),
+                            onChanged: (val) => _toggleSelectTicket(ticketId),
+                            activeColor: Colors.white,
+                            checkColor: Colors.orangeAccent,
+                            side: const BorderSide(color: Colors.white70),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                       Icon(Icons.check_circle, color: isActive ? Colors.white : Colors.white54, size: 16),
                       const SizedBox(width: 6),
                       Expanded(
