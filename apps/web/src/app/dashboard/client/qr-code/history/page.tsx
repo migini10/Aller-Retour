@@ -28,11 +28,26 @@ export default function QrCodeHistoryPage() {
         if (res.ok) {
           const data = await res.json();
           // Filter only expired/past tickets
+          const parseDepartureTime = (dateStr: any) => {
+            if (!dateStr) return 0;
+            try {
+              let formatted = String(dateStr).trim();
+              formatted = formatted.replace(' ', 'T');
+              if (!formatted.endsWith('Z') && !formatted.includes('+') && !formatted.match(/-\d{2}:\d{2}$/)) {
+                formatted += 'Z';
+              }
+              const parsed = new Date(formatted).getTime();
+              return isNaN(parsed) ? 0 : parsed;
+            } catch (e) {
+              return 0;
+            }
+          };
+
           const isTicketPastOrUsed = (ticket: any) => {
             const bookingStatus = ticket.status;
             const tripStatus = ticket.trip?.status;
-            const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
-            const isPast = departureTime < Date.now();
+            const departureTime = parseDepartureTime(ticket.trip?.departureTime);
+            const isPast = departureTime > 0 && departureTime < Date.now();
 
             if (bookingStatus === 'CANCELLED' || 
                 bookingStatus === 'BOARDED' || 
@@ -48,8 +63,8 @@ export default function QrCodeHistoryPage() {
           const getTicketStatusText = (ticket: any) => {
             const bookingStatus = ticket.status;
             const tripStatus = ticket.trip?.status;
-            const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
-            const isPast = departureTime < Date.now();
+            const departureTime = parseDepartureTime(ticket.trip?.departureTime);
+            const isPast = departureTime > 0 && departureTime < Date.now();
 
             if (bookingStatus === 'CANCELLED') return 'Annulé';
             if (bookingStatus === 'BOARDED') return 'Utilisé';
