@@ -17,6 +17,13 @@ export default function QrCodePage() {
   const [loading, setLoading] = useState(true);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    showPinInput?: boolean;
+    onConfirm: (pin?: string) => void;
+  } | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('deleted_tickets');
@@ -26,6 +33,19 @@ export default function QrCodePage() {
       } catch (e) {}
     }
   }, []);
+
+  const showCustomConfirm = (title: string, message: string, onConfirm: (pin?: string) => void, showPinInput = false) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      showPinInput,
+      onConfirm: (pin) => {
+        onConfirm(pin);
+        setConfirmModal(null);
+      }
+    });
+  };
 
   const toggleSelectTicket = (id: string) => {
     setSelectedIds(prev => 
@@ -46,11 +66,38 @@ export default function QrCodePage() {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer les ${selectedIds.length} billet(s) sélectionné(s) de la liste ?`)) return;
-    const newDeleted = [...deletedIds, ...selectedIds];
-    setDeletedIds(newDeleted);
-    localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
-    setSelectedIds([]);
+    
+    showCustomConfirm(
+      "Confirmer la suppression",
+      `Êtes-vous sûr de vouloir supprimer définitivement ces ${selectedIds.length} billet(s) de la liste active ?\n\nCette action nécessite la saisie de votre code secret pour valider la suppression :`,
+      async (pin) => {
+        if (!pin) return;
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const verifyRes = await fetchWithAuth(`${apiUrl}/v1/auth/verify-pin`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pin })
+          });
+          
+          if (verifyRes.ok) {
+            const newDeleted = [...deletedIds, ...selectedIds];
+            setDeletedIds(newDeleted);
+            localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
+            setSelectedIds([]);
+            showCustomConfirm("Succès", "Les billets sélectionnés ont été supprimés avec succès.", () => {});
+          } else {
+            const errData = await verifyRes.json();
+            showCustomConfirm("Erreur", errData.message || "Code secret incorrect.", () => {});
+          }
+        } catch (e: any) {
+          showCustomConfirm("Erreur de connexion", `Impossible de vérifier le code: ${e.message}`, () => {});
+        }
+      },
+      true // show pin input
+    );
   };
 
   const fetchTickets = async () => {
@@ -78,35 +125,33 @@ export default function QrCodePage() {
   };
 
   const handleCancelTicket = async (ticketId: string) => {
-    const confirmCancel = window.confirm("Êtes-vous sûr de vouloir annuler ce billet ? Le montant sera reversé sur votre Wallet.");
-    if (!confirmCancel) return;
-
-    const secretCode = window.prompt("Veuillez saisir votre code secret de connexion pour confirmer l'annulation :");
-    if (secretCode === null) return;
-    if (!secretCode.trim()) {
-      alert("Le code secret est obligatoire pour confirmer l'annulation.");
-      return;
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-      const res = await fetchWithAuth(`${apiUrl}/v1/bookings/${ticketId}/cancel`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ secretCode: secretCode.trim() })
-      });
-      if (res.ok) {
-        alert("Réservation annulée avec succès. Le montant a été remboursé sur votre Wallet.");
-        fetchTickets();
-      } else {
-        const errData = await res.json();
-        alert(errData.message || "Erreur lors de l'annulation.");
-      }
-    } catch (e: any) {
-      alert(`Erreur de connexion: ${e.message}`);
-    }
+    showCustomConfirm(
+      "Confirmer l'annulation",
+      "Êtes-vous sûr de vouloir annuler ce billet ? Le montant sera reversé sur votre Wallet.\n\nSaisissez votre code secret de connexion pour valider :",
+      async (secretCode) => {
+        if (!secretCode) return;
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const res = await fetchWithAuth(`${apiUrl}/v1/bookings/${ticketId}/cancel`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ secretCode: secretCode.trim() })
+          });
+          if (res.ok) {
+            showCustomConfirm("Succès", "Réservation annulée avec succès. Le montant a été remboursé sur votre Wallet.", () => {});
+            fetchTickets();
+          } else {
+            const errData = await res.json();
+            showCustomConfirm("Erreur", errData.message || "Erreur lors de l'annulation.", () => {});
+          }
+        } catch (e: any) {
+          showCustomConfirm("Erreur de connexion", `Erreur: ${e.message}`, () => {});
+        }
+      },
+      true // show pin input
+    );
   };
 
   useEffect(() => {
@@ -448,6 +493,54 @@ export default function QrCodePage() {
           >
             <Trash2 className="w-3.5 h-3.5" /> Supprimer
           </button>
+        </div>
+      {/* CUSTOM CONFIRM/ALERT/PROMPT MODAL */}
+      {confirmModal && confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmModal(null)} />
+          <div className="relative w-full max-w-md bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{confirmModal.title}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 whitespace-pre-line">{confirmModal.message}</p>
+            
+            {confirmModal.showPinInput && (
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Code secret de connexion</label>
+                <input 
+                  type="password"
+                  id="modal-pin-input"
+                  placeholder="Saisissez votre code PIN..."
+                  maxLength={6}
+                  className="w-full bg-slate-50 dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] hover:border-orange-500 focus:border-orange-500 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm outline-none transition-all font-mono"
+                />
+              </div>
+            )}
+            
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setConfirmModal(null)}
+                className="px-5 py-2.5 bg-slate-100 dark:bg-[#1A1A1A] hover:bg-slate-200 dark:hover:bg-[#222222] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold transition-colors"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={() => {
+                  let pin = "";
+                  if (confirmModal.showPinInput) {
+                    const inputEl = document.getElementById('modal-pin-input') as HTMLInputElement;
+                    pin = inputEl?.value || "";
+                    if (!pin.trim()) {
+                      showCustomConfirm("Attention", "Veuillez saisir votre code secret.", () => {}, true);
+                      return;
+                    }
+                  }
+                  confirmModal.onConfirm(pin.trim());
+                }}
+                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-orange-600/10"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

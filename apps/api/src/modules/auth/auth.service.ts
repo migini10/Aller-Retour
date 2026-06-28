@@ -240,6 +240,15 @@ export class AuthService {
     return { success: true, message: "Le compte a été débloqué avec succès." };
   }
 
+  async verifyUserPin(userId: string, pin: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException("Utilisateur introuvable.");
+    if (user.passwordHash !== pin) {
+      throw new BadRequestException("Code secret de connexion incorrect.");
+    }
+    return { success: true, message: "Code PIN valide." };
+  }
+
   private generateToken(user: any) {
     const payload = { sub: user.id, phone: user.phone, role: user.role, companyId: user.companyId };
     return this.jwtService.sign(payload, {

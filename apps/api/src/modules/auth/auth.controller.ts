@@ -1,7 +1,14 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
 import { IsString, IsNotEmpty, Length } from 'class-validator';
+
+export class VerifyPinDto {
+  @IsString()
+  @IsNotEmpty()
+  pin!: string;
+}
 
 export class LoginDto {
   @IsString()
@@ -82,5 +89,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Réinitialiser le PIN à l\'aide du code OTP' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPasswordWithOtp(dto.phone, dto.code, dto.newPin);
+  }
+
+  @Post('verify-pin')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Vérifier le code PIN de l\'utilisateur connecté' })
+  async verifyPin(@Req() req: any, @Body() dto: VerifyPinDto) {
+    return this.authService.verifyUserPin(req.user.id, dto.pin);
   }
 }

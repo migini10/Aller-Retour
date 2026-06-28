@@ -69,30 +69,84 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
   Future<void> _deleteSelectedTickets() async {
     if (_selectedIds.isEmpty) return;
-    final bool? confirm = await showDialog<bool>(
+    final TextEditingController pinController = TextEditingController();
+
+    final String? pin = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmer la suppression'),
-        content: Text('Êtes-vous sûr de vouloir supprimer ces ${_selectedIds.length} billet(s) de la liste ?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Êtes-vous sûr de vouloir supprimer ces ${_selectedIds.length} billet(s) de la liste ?\n\nSaisissez votre code secret de connexion pour valider :'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: pinController,
+              keyboardType: TextInputType.number,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Code secret',
+                hintText: 'Ex: 1234',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
+          TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Annuler')),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.redAccent)),
+            onPressed: () {
+              Navigator.pop(context, pinController.text);
+            },
+            child: const Text('Confirmer', style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
     );
 
-    if (confirm != true) return;
+    if (pin == null || pin.trim().isEmpty) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    final newDeleted = [..._deletedIds, ..._selectedIds];
-    await prefs.setStringList('deleted_tickets', newDeleted);
-    setState(() {
-      _deletedIds = newDeleted;
-      _selectedIds.clear();
-    });
+    setState(() => _isLoading = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) return;
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      
+      final response = await http.post(
+        Uri.parse('$apiUrl/v1/auth/verify-pin'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'pin': pin.trim()}),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final newDeleted = [..._deletedIds, ..._selectedIds];
+        await prefs.setStringList('deleted_tickets', newDeleted);
+        setState(() {
+          _deletedIds = newDeleted;
+          _selectedIds.clear();
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Billets supprimés avec succès.')),
+        );
+      } else {
+        final err = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
+        );
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: $e')),
+      );
+      setState(() => _isLoading = false);
+    }
   }
 
   void _toggleSelectTicket(String id) {
