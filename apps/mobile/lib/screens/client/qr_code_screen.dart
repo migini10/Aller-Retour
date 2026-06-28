@@ -548,6 +548,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
         bookingStatus == 'EXPIRED' ||
         tripStatus == 'COMPLETED' ||
         tripStatus == 'ARRIVED' ||
+        tripStatus == 'CANCELLED' ||
         isPast) {
       return true;
     }
@@ -560,7 +561,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     final tripDate = DateTime.parse(ticket['trip']['departureTime']).toLocal();
     final isPast = tripDate.isBefore(DateTime.now());
 
-    if (bookingStatus == 'CANCELLED') return 'Annulé';
+    if (bookingStatus == 'CANCELLED' || tripStatus == 'CANCELLED') return 'Annulé';
     if (bookingStatus == 'BOARDED') return 'Utilisé';
     if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED') return 'Terminé';
     if (isPast) return 'Expiré';

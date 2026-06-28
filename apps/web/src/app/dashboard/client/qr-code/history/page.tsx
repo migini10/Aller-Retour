@@ -54,6 +54,7 @@ export default function QrCodeHistoryPage() {
                 bookingStatus === 'EXPIRED' ||
                 tripStatus === 'COMPLETED' || 
                 tripStatus === 'ARRIVED' || 
+                tripStatus === 'CANCELLED' || 
                 isPast) {
               return true;
             }
@@ -66,7 +67,7 @@ export default function QrCodeHistoryPage() {
             const departureTime = parseDepartureTime(ticket.trip?.departureTime);
             const isPast = departureTime > 0 && departureTime < Date.now();
 
-            if (bookingStatus === 'CANCELLED') return 'Annulé';
+            if (bookingStatus === 'CANCELLED' || tripStatus === 'CANCELLED') return 'Annulé';
             if (bookingStatus === 'BOARDED') return 'Utilisé';
             if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED') return 'Terminé';
             if (isPast) return 'Expiré';
