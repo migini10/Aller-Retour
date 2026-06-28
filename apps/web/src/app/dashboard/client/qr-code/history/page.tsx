@@ -10,6 +10,7 @@ export default function QrCodeHistoryPage() {
   const { token, fetchWithAuth } = useAuth();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -276,6 +277,7 @@ export default function QrCodeHistoryPage() {
             <Trash2 className="w-3.5 h-3.5" /> Supprimer
           </button>
         </div>
+      )}
       {/* CUSTOM CONFIRM/ALERT/PROMPT MODAL */}
       {confirmModal && confirmModal.isOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">

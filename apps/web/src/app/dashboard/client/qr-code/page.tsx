@@ -15,6 +15,7 @@ export default function QrCodePage() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -212,10 +213,10 @@ export default function QrCodePage() {
     return bookingStatus;
   };
 
-  // Server already filters out hiddenByUser=true tickets — no client-side filtering needed
   const activeTickets = tickets.filter(t => !isTicketPastOrUsed(t));
   const pastTickets = tickets.filter(t => isTicketPastOrUsed(t));
 
+  
 
   return (
     <div className="flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
@@ -493,6 +494,7 @@ export default function QrCodePage() {
             <Trash2 className="w-3.5 h-3.5" /> Supprimer
           </button>
         </div>
+      )}
       {/* CUSTOM CONFIRM/ALERT/PROMPT MODAL */}
       {confirmModal && confirmModal.isOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
