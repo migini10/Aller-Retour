@@ -19,7 +19,6 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   List<dynamic> _tickets = [];
   bool _isLoading = true;
   Timer? _refreshTimer;
-  List<String> _deletedIds = [];
   List<String> _selectedIds = [];
 
   @override
@@ -37,10 +36,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedDeleted = prefs.getStringList('deleted_tickets') ?? [];
     setState(() {
       _userName = prefs.getString('userName') ?? 'Utilisateur';
-      _deletedIds = savedDeleted;
     });
     
     final token = prefs.getString('auth_token');
@@ -114,7 +111,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       if (token == null) return;
       final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
       
-      final response = await http.post(
+      // First verify PIN
+      final verifyResponse = await http.post(
         Uri.parse('$apiUrl/v1/auth/verify-pin'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -123,28 +121,53 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
         body: jsonEncode({'pin': pin.trim()}),
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final newDeleted = [..._deletedIds, ..._selectedIds];
-        await prefs.setStringList('deleted_tickets', newDeleted);
+      if (verifyResponse.statusCode != 200 && verifyResponse.statusCode != 201) {
+        final err = jsonDecode(verifyResponse.body);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
+          );
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // PIN valid — hide tickets server-side
+      final hideResponse = await http.post(
+        Uri.parse('$apiUrl/v1/bookings/hide'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'bookingIds': _selectedIds}),
+      );
+
+      if (hideResponse.statusCode == 200 || hideResponse.statusCode == 201) {
         setState(() {
-          _deletedIds = newDeleted;
           _selectedIds.clear();
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Billets supprimés avec succès.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Billets supprimés avec succès.')),
+          );
+        }
+        await _loadUserData(); // Refresh from server
       } else {
-        final err = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
-        );
+        final err = jsonDecode(hideResponse.body);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(err['message'] ?? 'Erreur lors de la suppression.')),
+          );
+        }
         setState(() => _isLoading = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
       setState(() => _isLoading = false);
     }
   }
@@ -246,7 +269,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final visibleActive = _tickets.where((t) => !_isTicketPastOrUsed(t) && !_deletedIds.contains(t['id'])).toList();
+    // Server already excludes hiddenByUser=true tickets — just filter by active status
+    final visibleActive = _tickets.where((t) => !_isTicketPastOrUsed(t)).toList();
 
     return SharedScaffold(
       title: 'QR Code & Billets',

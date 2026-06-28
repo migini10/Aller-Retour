@@ -266,7 +266,7 @@ export class BookingsService {
 
   async getUserBookings(userId: string) {
     const bookings = await prisma.booking.findMany({
-      where: { userId },
+      where: { userId, hiddenByUser: false },
       include: {
         trip: {
           include: {
@@ -284,6 +284,24 @@ export class BookingsService {
     });
 
     return bookings;
+  }
+
+  async hideBookings(userId: string, bookingIds: string[]) {
+    if (!bookingIds || bookingIds.length === 0) {
+      throw new BadRequestException('Aucun identifiant de billet fourni.');
+    }
+    // Verify all bookings belong to this user
+    const bookings = await prisma.booking.findMany({
+      where: { id: { in: bookingIds }, userId },
+    });
+    if (bookings.length !== bookingIds.length) {
+      throw new BadRequestException('Certains billets sont introuvables ou ne vous appartiennent pas.');
+    }
+    await prisma.booking.updateMany({
+      where: { id: { in: bookingIds }, userId },
+      data: { hiddenByUser: true },
+    });
+    return { success: true, message: `${bookings.length} billet(s) supprimé(s) de votre liste.` };
   }
 
   async cancelBooking(bookingId: string, userId: string, secretCode?: string) {

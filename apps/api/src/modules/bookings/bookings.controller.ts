@@ -24,6 +24,13 @@ export class TransferBookingsDto {
   targetTripId!: string;
 }
 
+export class HideBookingsDto {
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty()
+  bookingIds!: string[];
+}
+
 export class CreateBookingDto {
   @IsString()
   @IsNotEmpty()
@@ -78,6 +85,15 @@ export class BookingsController {
   @ApiOperation({ summary: 'Récupérer les billets (QR Codes) de l\'utilisateur connecté' })
   async getMyTickets(@Req() req: any) {
     return this.bookingsService.getUserBookings(req.user.id);
+  }
+
+  @Post('hide')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.PASSENGER)
+  @Permissions('bookings:update')
+  @ApiOperation({ summary: 'Masquer (supprimer) définitivement un ou plusieurs billets de la vue utilisateur' })
+  async hideTickets(@Req() req: any, @Body() dto: HideBookingsDto) {
+    return this.bookingsService.hideBookings(req.user.id, dto.bookingIds);
   }
 
   @Post(':id/cancel')

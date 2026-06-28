@@ -278,6 +278,7 @@ model Booking {
   paymentMethod   PaymentMethod
   paymentRef      String?       // Transaction ID de Wave / OM
   boardedAt       DateTime?
+  hiddenByUser    Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 

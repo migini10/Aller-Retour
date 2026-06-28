@@ -16,7 +16,6 @@ class ExpiredTicketsScreen extends StatefulWidget {
 class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
   List<dynamic> _expiredTickets = [];
   bool _isLoading = true;
-  List<String> _deletedIds = [];
   List<String> _selectedIds = [];
 
   @override
@@ -27,11 +26,6 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
   Future<void> _loadExpiredTickets() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedDeleted = prefs.getStringList('deleted_tickets') ?? [];
-    setState(() {
-      _deletedIds = savedDeleted;
-    });
-
     final token = prefs.getString('auth_token');
     if (token != null) {
       try {
@@ -43,6 +37,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
         if (response.statusCode == 200) {
           final allTickets = jsonDecode(response.body) as List<dynamic>;
           setState(() {
+            // Server already excludes hiddenByUser=true; just filter for past/used ones
             _expiredTickets = allTickets.where((t) => _isTicketPastOrUsed(t)).toList();
             _isLoading = false;
           });
@@ -104,7 +99,8 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
       if (token == null) return;
       final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
       
-      final response = await http.post(
+      // Verify PIN first
+      final verifyResponse = await http.post(
         Uri.parse('$apiUrl/v1/auth/verify-pin'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -113,28 +109,53 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
         body: jsonEncode({'pin': pin.trim()}),
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final newDeleted = [..._deletedIds, ..._selectedIds];
-        await prefs.setStringList('deleted_tickets', newDeleted);
+      if (verifyResponse.statusCode != 200 && verifyResponse.statusCode != 201) {
+        final err = jsonDecode(verifyResponse.body);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
+          );
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // PIN valid — hide server-side
+      final hideResponse = await http.post(
+        Uri.parse('$apiUrl/v1/bookings/hide'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'bookingIds': _selectedIds}),
+      );
+
+      if (hideResponse.statusCode == 200 || hideResponse.statusCode == 201) {
         setState(() {
-          _deletedIds = newDeleted;
           _selectedIds.clear();
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Billets supprimés définitivement de votre historique.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Billets supprimés définitivement de votre historique.')),
+          );
+        }
+        await _loadExpiredTickets(); // Refresh from server
       } else {
-        final err = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
-        );
+        final err = jsonDecode(hideResponse.body);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(err['message'] ?? 'Erreur lors de la suppression.')),
+          );
+        }
         setState(() => _isLoading = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
       setState(() => _isLoading = false);
     }
   }
@@ -198,7 +219,8 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final visiblePast = _expiredTickets.where((t) => !_deletedIds.contains(t['id'])).toList();
+    // Server already excludes hiddenByUser=true tickets
+    final visiblePast = _expiredTickets.toList();
 
     return SharedScaffold(
       title: 'Billets Expirés',

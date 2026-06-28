@@ -10,7 +10,6 @@ export default function QrCodeHistoryPage() {
   const { token, fetchWithAuth } = useAuth();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -19,15 +18,6 @@ export default function QrCodeHistoryPage() {
     showPinInput?: boolean;
     onConfirm: (pin?: string) => void;
   } | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('deleted_tickets');
-    if (saved) {
-      try {
-        setDeletedIds(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
 
   const showCustomConfirm = (title: string, message: string, onConfirm: (pin?: string) => void, showPinInput = false) => {
     setConfirmModal({
@@ -68,23 +58,34 @@ export default function QrCodeHistoryPage() {
         if (!pin) return;
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          // Verify PIN first
           const verifyRes = await fetchWithAuth(`${apiUrl}/v1/auth/verify-pin`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pin })
           });
-          
-          if (verifyRes.ok) {
-            const newDeleted = [...deletedIds, ...selectedIds];
-            setDeletedIds(newDeleted);
-            localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
-            setSelectedIds([]);
-            showCustomConfirm("Succès", "Les billets sélectionnés ont été supprimés définitivement de votre historique.", () => {});
-          } else {
+
+          if (!verifyRes.ok) {
             const errData = await verifyRes.json();
             showCustomConfirm("Erreur", errData.message || "Code secret incorrect.", () => {});
+            return;
+          }
+
+          // Hide tickets server-side
+          const hideRes = await fetchWithAuth(`${apiUrl}/v1/bookings/hide`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingIds: selectedIds })
+          });
+
+          if (hideRes.ok) {
+            setSelectedIds([]);
+            showCustomConfirm("Succès", "Les billets sélectionnés ont été supprimés définitivement de votre historique.", () => {});
+            // Refresh — will reload from server without hidden tickets
+            window.location.reload();
+          } else {
+            const errData = await hideRes.json();
+            showCustomConfirm("Erreur", errData.message || "Erreur lors de la suppression.", () => {});
           }
         } catch (e: any) {
           showCustomConfirm("Erreur de connexion", `Impossible de vérifier le code: ${e.message}`, () => {});
@@ -161,7 +162,7 @@ export default function QrCodeHistoryPage() {
             return bookingStatus;
           };
 
-          const pastTickets = data.filter((t: any) => isTicketPastOrUsed(t) && !deletedIds.includes(t.id))
+          const pastTickets = data.filter((t: any) => isTicketPastOrUsed(t))
             .map((t: any) => ({ ...t, displayStatus: getTicketStatusText(t) }));
           
           setTickets(pastTickets);

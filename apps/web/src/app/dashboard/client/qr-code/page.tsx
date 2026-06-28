@@ -15,7 +15,6 @@ export default function QrCodePage() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -24,15 +23,6 @@ export default function QrCodePage() {
     showPinInput?: boolean;
     onConfirm: (pin?: string) => void;
   } | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('deleted_tickets');
-    if (saved) {
-      try {
-        setDeletedIds(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
 
   const showCustomConfirm = (title: string, message: string, onConfirm: (pin?: string) => void, showPinInput = false) => {
     setConfirmModal({
@@ -54,7 +44,7 @@ export default function QrCodePage() {
   };
 
   const handleSelectAll = (activeOnly = true) => {
-    const targets = activeOnly ? activeTickets : tickets.filter(t => !deletedIds.includes(t.id));
+    const targets = activeOnly ? activeTickets : tickets;
     const targetIds = targets.map(t => t.id);
     const allSelected = targetIds.every(id => selectedIds.includes(id));
     if (allSelected) {
@@ -74,23 +64,33 @@ export default function QrCodePage() {
         if (!pin) return;
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          // First verify the PIN
           const verifyRes = await fetchWithAuth(`${apiUrl}/v1/auth/verify-pin`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pin })
           });
           
-          if (verifyRes.ok) {
-            const newDeleted = [...deletedIds, ...selectedIds];
-            setDeletedIds(newDeleted);
-            localStorage.setItem('deleted_tickets', JSON.stringify(newDeleted));
-            setSelectedIds([]);
-            showCustomConfirm("Succès", "Les billets sélectionnés ont été supprimés avec succès.", () => {});
-          } else {
+          if (!verifyRes.ok) {
             const errData = await verifyRes.json();
             showCustomConfirm("Erreur", errData.message || "Code secret incorrect.", () => {});
+            return;
+          }
+
+          // PIN valid — call the hide API to persist the deletion server-side
+          const hideRes = await fetchWithAuth(`${apiUrl}/v1/bookings/hide`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingIds: selectedIds })
+          });
+
+          if (hideRes.ok) {
+            setSelectedIds([]);
+            await fetchTickets(); // Refresh list from server — will no longer show hidden tickets
+            showCustomConfirm("Succès", "Les billets sélectionnés ont été supprimés avec succès.", () => {});
+          } else {
+            const errData = await hideRes.json();
+            showCustomConfirm("Erreur", errData.message || "Erreur lors de la suppression.", () => {});
           }
         } catch (e: any) {
           showCustomConfirm("Erreur de connexion", `Impossible de vérifier le code: ${e.message}`, () => {});
@@ -212,11 +212,10 @@ export default function QrCodePage() {
     return bookingStatus;
   };
 
-  const visibleTickets = tickets.filter(t => !deletedIds.includes(t.id));
-  const activeTickets = visibleTickets.filter(t => !isTicketPastOrUsed(t));
-  const pastTickets = visibleTickets.filter(t => isTicketPastOrUsed(t));
+  // Server already filters out hiddenByUser=true tickets — no client-side filtering needed
+  const activeTickets = tickets.filter(t => !isTicketPastOrUsed(t));
+  const pastTickets = tickets.filter(t => isTicketPastOrUsed(t));
 
-  
 
   return (
     <div className="flex flex-col items-center bg-slate-50 dark:bg-black transition-colors duration-300">
