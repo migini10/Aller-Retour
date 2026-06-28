@@ -41,11 +41,24 @@ export default function QrCodePage() {
   };
 
   const handleCancelTicket = async (ticketId: string) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir annuler ce billet ? Le montant sera reversé sur votre Wallet.")) return;
+    const confirmCancel = window.confirm("Êtes-vous sûr de vouloir annuler ce billet ? Le montant sera reversé sur votre Wallet.");
+    if (!confirmCancel) return;
+
+    const secretCode = window.prompt("Veuillez saisir votre code secret de connexion pour confirmer l'annulation :");
+    if (secretCode === null) return;
+    if (!secretCode.trim()) {
+      alert("Le code secret est obligatoire pour confirmer l'annulation.");
+      return;
+    }
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
       const res = await fetchWithAuth(`${apiUrl}/v1/bookings/${ticketId}/cancel`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ secretCode: secretCode.trim() })
       });
       if (res.ok) {
         alert("Réservation annulée avec succès. Le montant a été remboursé sur votre Wallet.");

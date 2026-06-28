@@ -64,19 +64,43 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   }
 
   Future<void> _cancelTicket(String ticketId) async {
-    final bool? confirm = await showDialog<bool>(
+    final TextEditingController pinController = TextEditingController();
+    
+    final String? secretCode = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmer l\'annulation'),
-        content: const Text('Êtes-vous sûr de vouloir annuler ce billet ? Le montant payé sera reversé sur votre Wallet.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Êtes-vous sûr de vouloir annuler ce billet ? Le montant payé sera reversé sur votre Wallet.\n\nSaisissez votre code secret de connexion pour valider :'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: pinController,
+              keyboardType: TextInputType.number,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Code secret',
+                hintText: 'Ex: 1234',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Non')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Oui, annuler')),
+          TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, pinController.text);
+            },
+            child: const Text('Confirmer l\'annulation', style: TextStyle(color: Colors.redAccent)),
+          ),
         ],
       ),
     );
     
-    if (confirm != true) return;
+    if (secretCode == null || secretCode.trim().isEmpty) return;
 
     setState(() => _isLoading = true);
     try {
@@ -86,7 +110,11 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
       final response = await http.post(
         Uri.parse('$apiUrl/v1/bookings/$ticketId/cancel'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'secretCode': secretCode.trim()}),
       );
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

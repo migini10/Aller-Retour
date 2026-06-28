@@ -286,7 +286,18 @@ export class BookingsService {
     return bookings;
   }
 
-  async cancelBooking(bookingId: string, userId: string) {
+  async cancelBooking(bookingId: string, userId: string, secretCode?: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException("Utilisateur introuvable.");
+
+    // Validate secret code
+    if (!secretCode) {
+      throw new BadRequestException("Le code secret est requis pour annuler un billet.");
+    }
+    if (user.passwordHash !== secretCode) {
+      throw new BadRequestException("Code secret incorrect.");
+    }
+
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
     });

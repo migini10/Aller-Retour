@@ -7,6 +7,11 @@ import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
 import { UserRole, PaymentMethod } from '@aller-retour/database';
 import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray } from 'class-validator';
+export class CancelBookingDto {
+  @IsString()
+  @IsNotEmpty()
+  secretCode!: string;
+}
 
 export class TransferBookingsDto {
   @IsArray()
@@ -80,8 +85,12 @@ export class BookingsController {
   @Roles(UserRole.PASSENGER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN)
   @Permissions('bookings:update')
   @ApiOperation({ summary: 'Annuler une réservation et obtenir un remboursement dans le Wallet' })
-  async cancelBooking(@Param('id') id: string, @Req() req: any) {
-    return this.bookingsService.cancelBooking(id, req.user.id);
+  async cancelBooking(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: CancelBookingDto,
+  ) {
+    return this.bookingsService.cancelBooking(id, req.user.id, dto.secretCode);
   }
 
   @Post('transfer')
