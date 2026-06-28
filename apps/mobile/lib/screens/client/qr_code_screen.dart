@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -17,11 +18,19 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   String _userName = 'Utilisateur';
   List<dynamic> _tickets = [];
   bool _isLoading = true;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadUserData());
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
