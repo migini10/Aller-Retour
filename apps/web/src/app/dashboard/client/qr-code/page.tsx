@@ -24,6 +24,7 @@ export default function QrCodePage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
       const res = await fetch(`${apiUrl}/v1/bookings/my-tickets`, {
+        cache: 'no-store',
         headers: {
           'Authorization': `Bearer ${token}`
         }
