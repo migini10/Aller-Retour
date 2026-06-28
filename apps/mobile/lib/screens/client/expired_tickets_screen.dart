@@ -36,10 +36,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
         if (response.statusCode == 200) {
           final allTickets = jsonDecode(response.body) as List<dynamic>;
           setState(() {
-            _expiredTickets = allTickets.where((t) {
-              final status = _getTicketStatusText(t);
-              return status == 'Expiré' || status == 'Terminé' || status == 'Annulé';
-            }).toList();
+            _expiredTickets = allTickets.where((t) => _isTicketPastOrUsed(t)).toList();
             _isLoading = false;
           });
         } else {
@@ -53,6 +50,23 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
     }
   }
   
+  bool _isTicketPastOrUsed(Map<String, dynamic> ticket) {
+    final bookingStatus = ticket['status'];
+    final tripStatus = ticket['trip']?['status'];
+    final tripDate = DateTime.parse(ticket['trip']['departureTime']).toLocal();
+    final isPast = tripDate.isBefore(DateTime.now());
+
+    if (bookingStatus == 'CANCELLED' ||
+        bookingStatus == 'BOARDED' ||
+        bookingStatus == 'EXPIRED' ||
+        tripStatus == 'COMPLETED' ||
+        tripStatus == 'ARRIVED' ||
+        isPast) {
+      return true;
+    }
+    return false;
+  }
+
   String _getTicketStatusText(Map<String, dynamic> ticket) {
     final bookingStatus = ticket['status'];
     final tripStatus = ticket['trip']?['status'];
@@ -60,18 +74,13 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
     final isPast = tripDate.isBefore(DateTime.now());
 
     if (bookingStatus == 'CANCELLED') return 'Annulé';
-
-    if (bookingStatus == 'BOARDED') {
-      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Terminé';
-      return 'Embarqué';
-    }
+    if (bookingStatus == 'BOARDED') return 'Utilisé';
+    if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED') return 'Terminé';
+    if (isPast) return 'Expiré';
 
     if (bookingStatus == 'CONFIRMED' || bookingStatus == 'PENDING_PAYMENT') {
-      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Expiré';
-      if (isPast && tripStatus != 'SCHEDULED' && tripStatus != 'BOARDING') return 'Expiré';
       return 'Valide';
     }
-
     return bookingStatus;
   }
 

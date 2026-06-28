@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Store, MapPin, Search, Calendar, ChevronRight, Package, AlertTriangle, X, Info } from 'lucide-react';
+import { Store, MapPin, Search, Calendar, ChevronRight, Package, AlertTriangle, X, Info, Users } from 'lucide-react';
 
 const initialMissions = [
   { id: 'M-104', trajet: 'Dakar → Saint-Louis', depart: 'Demain, 07:00', distance: '260 km', passagers: 4, remuneration: '18 000 FCFA', transporteur: 'Sénégal Express', urgent: true, status: 'disponible', minScore: 80 },
@@ -13,6 +13,7 @@ const driverReliabilityScore = 65; // Simulation d'un chauffeur pénalisé
 export default function SectionMarketplace() {
   const [missions, setMissions] = useState(initialMissions);
   const [colis, setColis] = useState<any[]>([]);
+  const [alloPriveRequests, setAlloPriveRequests] = useState<any[]>([]);
   const [hasClient, setHasClient] = useState(true);
 
   // State for the Release Modal
@@ -53,6 +54,15 @@ export default function SectionMarketplace() {
       } catch (e) {
         console.error('Failed to fetch colis', e);
       }
+
+      // Charger les demandes Allo Privé
+      try {
+        const res = await fetch('/api/allo-prive');
+        if (res.ok) {
+          const data = await res.json();
+          setAlloPriveRequests(data.requests || []);
+        }
+      } catch (e) {}
     };
     
     loadData();
@@ -73,6 +83,28 @@ export default function SectionMarketplace() {
         setColis(colis.map(c => c.id === id ? { ...c, status: 'accepte' } : c));
       } catch (e) {}
     }
+  };
+
+  const handleApplyAlloPrive = async (requestId: string) => {
+    try {
+      const res = await fetch(`/api/allo-prive/${requestId}/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          driverId: 'demo-driver-id',
+          driverName: 'Abdou Bakhe',
+          driverPhone: '+221776783412',
+          driverScore: driverReliabilityScore,
+        }),
+      });
+      if (res.ok) {
+        const resReq = await fetch('/api/allo-prive');
+        if (resReq.ok) {
+          const data = await resReq.json();
+          setAlloPriveRequests(data.requests || []);
+        }
+      }
+    } catch (e) {}
   };
 
   const handleOpenReleaseModal = (id: string, type: 'mission' | 'colis') => {
@@ -140,56 +172,63 @@ export default function SectionMarketplace() {
           </div>
         </div>
 
-        {missions.map(m => {
-          const isLocked = m.minScore > driverReliabilityScore;
+        {/* Appels d'offres Allo Privé (Voiture entière) */}
+        {alloPriveRequests.map((req) => {
+          const isOrdinary = req.type === 'ordinaire';
+          const minScore = isOrdinary ? 0 : 80;
+          const isLocked = minScore > driverReliabilityScore;
+          const hasApplied = req.applications.some((app: any) => app.driverId === 'demo-driver-id');
+          
           return (
-          <div key={m.id} className={`relative bg-white dark:bg-[#141414] border rounded-2xl p-5 transition-all group ${m.status === 'accepte' ? 'border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : isLocked ? 'border-rose-500/20' : 'border-slate-200 dark:border-[#2A2A2A]/80 hover:border-orange-500/30'}`}>
-            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 ${isLocked ? 'opacity-40' : ''}`}>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {m.urgent && <span className="bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Urgent</span>}
-                  {m.status === 'accepte' && <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Accepté</span>}
-                  <span className="text-xs text-slate-500 font-mono">Mission {String(m.id).startsWith('M-') || String(m.id).startsWith('TRIP-') ? m.id : (String(m.id).includes('-') ? `TRIP-${String(m.id).split('-')[0].toUpperCase()}` : m.id)}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors">• {m.transporteur}</span>
+            <div key={req.id} className={`relative bg-gradient-to-br from-orange-500/5 to-transparent dark:from-orange-500/10 dark:to-transparent border rounded-3xl p-6 transition-all ${isLocked ? 'border-rose-500/20' : isOrdinary ? 'border-slate-200 dark:border-[#2A2A2A]' : 'border-orange-500/30'}`}>
+              <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 ${isLocked ? 'opacity-40' : ''}`}>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    {isOrdinary ? (
+                      <span className="bg-slate-500 text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Allogoo Ordinaire</span>
+                    ) : (
+                      <>
+                        <span className="bg-orange-500 text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Premium : Allo Privé</span>
+                        <span className="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Urgent (80% requis)</span>
+                      </>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">{req.origin} → {req.destination}</h3>
+                  <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Départ : {req.departureDate}</span>
+                    <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {isOrdinary ? 'Place unique / Partagée' : 'Voiture Entière'}</span>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{m.trajet}</h3>
-                <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400 transition-colors">
-                  <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {m.depart}</span>
-                  <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {m.distance}</span>
-                </div>
-              </div>
 
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 dark:border-[#2A2A2A] transition-colors">
-                <div className="text-left md:text-right">
-                  <p className="text-xs text-slate-500 mb-0.5">Rémunération</p>
-                  <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{m.remuneration}</p>
-                </div>
-                <div className="flex gap-2">
-                  {m.status === 'disponible' ? (
-                    <>
-                      <button className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
-                      <button disabled={isLocked} onClick={() => handleAccept(m.id, 'mission')} className={`px-4 py-2 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 ${isLocked ? 'bg-slate-300 dark:bg-[#333]' : 'bg-orange-600 hover:bg-orange-500 shadow-lg shadow-orange-500/20'}`}>Accepter <ChevronRight className="w-3.5 h-3.5" /></button>
-                    </>
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 dark:border-[#2A2A2A]">
+                  <div className="text-left md:text-right">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Rémunération</p>
+                    <p className="text-lg font-black text-orange-500">{req.price} FCFA</p>
+                  </div>
+                  {isLocked ? (
+                    <button disabled className="bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2">
+                      Verrouillé (Score insuffisant)
+                    </button>
+                  ) : hasApplied ? (
+                    <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold">
+                      Candidature Envoyée
+                    </span>
                   ) : (
-                    <button onClick={() => handleOpenReleaseModal(m.id, 'mission')} className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-700 dark:text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-[#333] hover:border-rose-200 dark:hover:border-rose-500/30 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
-                      Libérer (Annuler)
+                    <button
+                      onClick={() => handleApplyAlloPrive(req.id)}
+                      className="bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-colors shadow-md shadow-orange-600/10"
+                    >
+                      Postuler à l'offre
                     </button>
                   )}
                 </div>
               </div>
             </div>
-            
-            {isLocked && (
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <div className="bg-rose-500/90 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 backdrop-blur-sm">
-                  <span className="font-bold text-sm">Score de {m.minScore}% requis</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )})}
+          );
+        })}
+
         {colis.length > 0 && (
-          <div className="mt-8 mb-4 border-t border-slate-200 dark:border-[#2A2A2A] pt-8">
+          <div className="mt-8 mb-4 border-t border-slate-200 dark:border-[#2A2A2A] pt-8 font-sans">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
               <Package className="w-5 h-5 text-purple-500" /> Colis Disponibles
             </h3>
@@ -255,59 +294,6 @@ export default function SectionMarketplace() {
           </div>
         )}
       </div>
-
-      {/* Release Confirmation Modal */}
-      {releaseModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm" onClick={() => setReleaseModalOpen(false)}></div>
-          <div className="relative bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
-            <button onClick={() => setReleaseModalOpen(false)} className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-[#222] hover:bg-slate-200 dark:hover:bg-[#333] rounded-full text-slate-500 dark:text-slate-400 transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-            
-            <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center mb-6">
-              <AlertTriangle className="w-6 h-6 text-rose-500" />
-            </div>
-            
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Libérer cette {releaseItemType} ?</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-              Si vous libérez cette {releaseItemType}, elle sera de nouveau visible par tous les autres chauffeurs. Veuillez préciser la raison.
-            </p>
-
-            <div className="space-y-3 mb-6">
-              {['Panne de véhicule', 'Client injoignable', 'Retard imprévu', 'Autre'].map(reason => (
-                <label key={reason} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${releaseReason === reason ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10' : 'border-slate-200 dark:border-[#333] hover:border-orange-500/50'}`}>
-                  <input type="radio" name="releaseReason" value={reason} checked={releaseReason === reason} onChange={(e) => setReleaseReason(e.target.value)} className="w-4 h-4 text-orange-500 focus:ring-orange-500 border-slate-300" />
-                  <span className={`text-sm font-semibold ${releaseReason === reason ? 'text-orange-600 dark:text-orange-400' : 'text-slate-700 dark:text-slate-300'}`}>{reason}</span>
-                </label>
-              ))}
-
-              {releaseReason === 'Autre' && (
-                <textarea 
-                  value={customReason}
-                  onChange={(e) => setCustomReason(e.target.value)}
-                  placeholder="Précisez la raison..." 
-                  className="w-full mt-2 p-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1A1A1A] text-sm text-slate-900 dark:text-white outline-none focus:border-orange-500 transition-colors"
-                  rows={3}
-                ></textarea>
-              )}
-            </div>
-
-            <div className="flex gap-3 mt-auto">
-              <button onClick={() => setReleaseModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 dark:bg-[#222] hover:bg-slate-200 dark:hover:bg-[#333] text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors">
-                Annuler
-              </button>
-              <button 
-                onClick={confirmRelease} 
-                disabled={!releaseReason || (releaseReason === 'Autre' && !customReason.trim())}
-                className="flex-1 px-4 py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 disabled:hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-rose-500/20"
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

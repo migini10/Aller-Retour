@@ -62,6 +62,9 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [queueMessage, setQueueMessage] = useState('');
   const [alternativeTrips, setAlternativeTrips] = useState<any[]>([]);
+  const [isAlloPrive, setIsAlloPrive] = useState(false);
+  const [isAlloPriveSuccess, setIsAlloPriveSuccess] = useState(false);
+  const [alloPriveRequestId, setAlloPriveRequestId] = useState('');
 
   // Réinitialiser les champs à chaque ouverture de la modale
   useEffect(() => {
@@ -687,33 +690,60 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               >
                 {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Passager{n > 1 ? 's' : ''}</option>)}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
+               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+            </div>          </div>
         </div>
       </div>
       <button 
         disabled={!searchParams.depart || !searchParams.arrivee || !searchParams.quartierArrivee || !pickupLocation || !searchParams.date || isSearching}
         onClick={async () => {
           setIsSearching(true);
-          try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-            const res = await fetch(`${apiUrl}/v1/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
-            const data = await res.json();
-            if (Array.isArray(data)) {
-              setRealTrips(data);
+          if (isAlloPrive) {
+            try {
+              const res = await fetch('/api/allo-prive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  clientId: userPhone || 'demo-client-id',
+                  clientName: userName || 'Client Allo Privé',
+                  clientPhone: userPhone || '+221776783412',
+                  origin: `${searchParams.depart} (${pickupLocation})`,
+                  destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                  departureDate: searchParams.date,
+                  price: 20000,
+                }),
+              });
+              if (res.ok) {
+                const data = await res.json();
+                setAlloPriveRequestId(data.request.id);
+                setIsAlloPriveSuccess(true);
+                setStep(6); // Go to success step directly
+              } else {
+                setGlobalError("Échec de la création de la demande Allo Privé.");
+              }
+            } catch (e: any) {
+              setGlobalError(`Erreur: ${e.message}`);
             }
-          } catch (e: any) {
-            console.error("Erreur de connexion au serveur", e);
-            setGlobalError(`Impossible de joindre l'API en ligne: ${e.message}`);
+          } else {
+            try {
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+              const res = await fetch(`${apiUrl}/v1/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
+              const data = await res.json();
+              if (Array.isArray(data)) {
+                setRealTrips(data);
+              }
+            } catch (e: any) {
+              console.error("Erreur de connexion au serveur", e);
+              setGlobalError(`Impossible de joindre l'API en ligne: ${e.message}`);
+            }
+            nextStep();
           }
           setIsSearching(false);
-          nextStep();
         }}
         className="w-full bg-orange-600 disabled:bg-slate-200 dark:disabled:bg-[#222222] disabled:text-slate-400 dark:disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-600/20"
       >
         {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-        {isSearching ? 'Recherche...' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.date) ? 'Rechercher un trajet' : 'Informations incomplètes')}
+        {isSearching ? 'Recherche...' : (isAlloPrive ? 'Créer la demande Allo Privé' : ((searchParams.depart && searchParams.arrivee && pickupLocation && searchParams.quartierArrivee && searchParams.date) ? 'Rechercher un trajet' : 'Informations incomplètes'))}
       </button>
     </div>
   );
@@ -751,8 +781,80 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           <div className="space-y-3">
             {displayTrips.length === 0 ? (
               <div className="bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] p-6 rounded-2xl text-center transition-colors">
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Aucun trajet trouvé sur cette liaison en temps réel.</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Veuillez vérifier que le serveur est allumé et la base de données remplie.</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Aucun trajet trouvé sur cette liaison.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Vous pouvez faire une demande Allogoo ordinaire ou privatiser une voiture avec Allo Privé.</p>
+                <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                  <button
+                    onClick={async () => {
+                      setIsSearching(true);
+                      try {
+                        const res = await fetch('/api/allo-prive', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            clientId: userPhone || 'demo-client-id',
+                            clientName: userName || 'Client',
+                            clientPhone: userPhone || '+221776783412',
+                            origin: `${searchParams.depart} (${pickupLocation})`,
+                            destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                            departureDate: searchParams.date,
+                            price: 5000,
+                            type: 'ordinaire',
+                          }),
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setAlloPriveRequestId(data.request.id);
+                          setIsAlloPriveSuccess(true);
+                          setStep(6);
+                        } else {
+                          setGlobalError("Échec de la création de la demande Allogoo ordinaire.");
+                        }
+                      } catch (e: any) {
+                        setGlobalError(`Erreur: ${e.message}`);
+                      }
+                      setIsSearching(false);
+                    }}
+                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-xl transition-colors border border-slate-700"
+                  >
+                    Demande Allogoo ordinaire
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setIsSearching(true);
+                      try {
+                        const res = await fetch('/api/allo-prive', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            clientId: userPhone || 'demo-client-id',
+                            clientName: userName || 'Client Allo Privé',
+                            clientPhone: userPhone || '+221776783412',
+                            origin: `${searchParams.depart} (${pickupLocation})`,
+                            destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                            departureDate: searchParams.date,
+                            price: 20000,
+                            type: 'allo-prive',
+                          }),
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setAlloPriveRequestId(data.request.id);
+                          setIsAlloPriveSuccess(true);
+                          setStep(6);
+                        } else {
+                          setGlobalError("Échec de la création de la demande Allo Privé.");
+                        }
+                      } catch (e: any) {
+                        setGlobalError(`Erreur: ${e.message}`);
+                      }
+                      setIsSearching(false);
+                    }}
+                    className="flex-1 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-3 rounded-xl transition-colors shadow-lg shadow-orange-600/20"
+                  >
+                    Demande Allo Privé
+                  </button>
+                </div>
               </div>
             ) : displayTrips.map((service: any) => (
               <div 
@@ -1565,19 +1667,48 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               {globalSuccess}
             </div>
           )}
-          {step === 1 && renderStep1Search()}
-          {step === 2 && renderStep2Results()}
-          
-          {step === 3 && !isAlloDakar && renderStep3Seats()}
-          {step === 3 && isAlloDakar && renderStep4Info()}
+          {isAlloPriveSuccess ? (
+            <div className="flex flex-col items-center justify-center py-10 px-4 text-center animate-in zoom-in-95 duration-300 font-sans">
+              <div className="w-20 h-20 bg-orange-100 dark:bg-orange-500/10 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-10 h-10 text-orange-500" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Demande Allo Privé créée !</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">
+                Votre appel d'offres pour une voiture entière de <b>{searchParams.depart}</b> à <b>{searchParams.arrivee}</b> a été publié. Les chauffeurs qualifiés (fiabilité ≥ 80%) vont postuler.
+              </p>
+              <div className="bg-slate-50 dark:bg-[#141414] p-4 rounded-xl border border-slate-200 dark:border-[#2A2A2A] w-full max-w-sm text-left mb-6 space-y-2">
+                <p className="text-xs text-slate-600 dark:text-slate-400"><span className="font-semibold text-slate-900 dark:text-white">Départ:</span> {searchParams.date}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400"><span className="font-semibold text-slate-900 dark:text-white">Lieu:</span> {pickupLocation}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400"><span className="font-semibold text-slate-900 dark:text-white">Budget:</span> 20 000 FCFA</p>
+              </div>
+              <button
+                onClick={() => {
+                  setIsAlloPriveSuccess(false);
+                  setIsAlloPrive(false);
+                  handleClose();
+                }}
+                className="w-full max-w-xs bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-orange-600/20"
+              >
+                Fermer
+              </button>
+            </div>
+          ) : (
+            <>
+              {step === 1 && renderStep1Search()}
+              {step === 2 && renderStep2Results()}
+              
+              {step === 3 && !isAlloDakar && renderStep3Seats()}
+              {step === 3 && isAlloDakar && renderStep4Info()}
 
-          {step === 4 && !isAlloDakar && renderStep4Info()}
-          {step === 4 && isAlloDakar && renderStep5Payment()}
+              {step === 4 && !isAlloDakar && renderStep4Info()}
+              {step === 4 && isAlloDakar && renderStep5Payment()}
 
-          {step === 5 && !isAlloDakar && renderStep5Payment()}
-          {step === 5 && isAlloDakar && renderStep6SuccessAlloDakar()}
+              {step === 5 && !isAlloDakar && renderStep5Payment()}
+              {step === 5 && isAlloDakar && renderStep6SuccessAlloDakar()}
 
-          {step === 6 && !isAlloDakar && renderStep6SuccessBus()}
+              {step === 6 && !isAlloDakar && renderStep6SuccessBus()}
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -40,6 +40,43 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   List<Map<String, String>> _destinations = [];
   List<dynamic> activeParcels = [];
   List<dynamic> recentHistory = [];
+  List<dynamic> priveRequests = [];
+  Timer? _priveRequestsTimer;
+  Timer? _walletTimer;
+
+  Future<void> _fetchPriveRequests() async {
+    try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.get(Uri.parse('$nextApiUrl/api/allo-prive'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final list = data['requests'] as List<dynamic>? ?? [];
+        if (mounted) {
+          setState(() {
+            priveRequests = list.where((r) => r['clientPhone'] == _userPhone || r['clientPhone'] == '+221776783412').toList();
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching private requests: $e');
+    }
+  }
+
+  Future<void> _selectDriver(String requestId, String applicationId) async {
+    try {
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final response = await http.post(
+        Uri.parse('$nextApiUrl/api/allo-prive/$requestId/select'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'applicationId': applicationId}),
+      );
+      if (response.statusCode == 200) {
+        _fetchPriveRequests();
+      }
+    } catch (e) {
+      debugPrint('Error selecting driver: $e');
+    }
+  }
   
   final List<Map<String, String>> _allDestinations = [
     {'id': 'dakar', 'name': 'Dakar', 'price': '4000 FCFA', 'image': 'assets/images/destinations/dakar.jpg'},
@@ -56,7 +93,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     _destinations = List.from(_allDestinations);
     _loadUserData().then((_) {
       _fetchParcels();
+      _fetchPriveRequests();
     });
+    _priveRequestsTimer = Timer.periodic(const Duration(seconds: 5), (_) => _fetchPriveRequests());
+    _walletTimer = Timer.periodic(const Duration(seconds: 5), (_) => _fetchWalletBalance());
     _fetchLocationAndDestinations();
     _fetchWalletBalance();
     _pulseController = AnimationController(
@@ -105,6 +145,16 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             _walletBalance = data['balance'] is num ? (data['balance'] as num).toInt() : int.tryParse(data['balance'].toString());
           });
         }
+      } else if (response.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', false);
+        await prefs.remove('userPhone');
+        await prefs.remove('auth_token');
+        await prefs.remove('userName');
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        }
+        return;
       }
     } catch (e) {
       debugPrint('Erreur solde wallet: $e');
@@ -312,6 +362,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   @override
   void dispose() {
     _carouselTimer?.cancel();
+    _priveRequestsTimer?.cancel();
+    _walletTimer?.cancel();
     _promoController.dispose();
     _scrollController.dispose();
     _pulseController?.dispose();
@@ -346,6 +398,13 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       'icon': Icons.qr_code_scanner,
       'color': Colors.blueAccent,
       'route': '/qrcode',
+    },
+    {
+      'title': 'Allo Privé',
+      'description': 'Privatisez une voiture entière et suivez les offres.',
+      'icon': Icons.directions_car,
+      'color': Colors.amberAccent,
+      'route': '/allo-prive',
     },
   ];
 
@@ -399,7 +458,6 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: _buildServicesSection(context),
                     ),
-                    const SizedBox(height: 32.0),
                     _buildPromoCarousel(context),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
@@ -1173,6 +1231,161 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     );
   }
 
+  Widget _buildAlloPriveRequestsSection(BuildContext context) {
+    if (priveRequests.isEmpty) return const SizedBox.shrink();
+    
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(width: 4, height: 18, color: Colors.orangeAccent),
+              const SizedBox(width: 8),
+              Text(
+                'Demandes « Allo Privé »',
+                style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          for (var req in priveRequests)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.2)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'DEMANDE DE PRIVATISATION',
+                        style: TextStyle(color: Colors.orangeAccent, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (req['status'] == 'ACCEPTED' ? Colors.greenAccent : Colors.orangeAccent).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          req['status'] == 'ACCEPTED' ? 'Chauffeur sélectionné' : 'En attente',
+                          style: TextStyle(
+                            color: req['status'] == 'ACCEPTED' ? Colors.greenAccent : Colors.orangeAccent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${req['origin']} → ${req['destination']}',
+                    style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Départ : ${req['departureDate']}',
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 12),
+                  ),
+                  if (req['status'] == 'PENDING') ...[
+                    const SizedBox(height: 16),
+                    const Divider(height: 1),
+                    const SizedBox(height: 12),
+                    Text(
+                      'OFFRES DES CHAUFFEURS (${(req['applications'] as List<dynamic>?)?.length ?? 0})',
+                      style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    if ((req['applications'] as List<dynamic>?)?.isEmpty ?? true)
+                      Text(
+                        'Aucune offre pour le moment...',
+                        style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 11, fontStyle: FontStyle.italic),
+                      )
+                    else
+                      for (var app in req['applications'])
+                        Container(
+                          margin: const EdgeInsets.only(top: 8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          app['driverName'] ?? 'Chauffeur',
+                                          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12),
+                                        ),
+                                        if (app['driverVerified'] == true) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.greenAccent.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
+                                            ),
+                                            child: const Text('VÉRIFIÉ', style: TextStyle(color: Colors.greenAccent, fontSize: 7, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Fiabilité : ${app['driverScore']}% • ★ ${app['driverRating'] ?? "5.0"}',
+                                      style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => _selectDriver(req['id'], app['id']),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orangeAccent,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text('Choisir', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
+                              ),
+                            ],
+                          ),
+                        ),
+                  ],
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecentHistory(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1414,6 +1627,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     bool isQueued = false;
     String queueMessage = '';
     List<dynamic> alternativeTrips = [];
+    bool isAlloPrive = false;
+    bool isAlloPriveSuccess = false;
 
     final departController = TextEditingController(text: initialOrigin ?? '');
     final pickupController = TextEditingController(text: initialPickupAddress ?? '');
@@ -1578,6 +1793,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       Expanded(child: _buildDropdownInput(Icons.group, 'Passagers', ['1 Passager', '2 Passagers', '3 Passagers', '4 Passagers'], passagers, (val) => setState(() => passagers = val))),
                     ],
                   ),
+                  const SizedBox(height: 16),
                 ],
               );
             }
@@ -1654,14 +1870,135 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                   ),
                   if (realTrips.isEmpty)
                     Container(
+                      width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
                         border: Border.all(color: borderColor),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Center(
-                        child: Text("Aucun trajet trouvé pour cette date.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      child: Column(
+                        children: [
+                          Text("Aucun trajet trouvé sur cette liaison.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+                          const SizedBox(height: 8),
+                          Text("Vous pouvez faire une demande Allogoo ordinaire ou privatiser une voiture avec Allo Privé.", style: TextStyle(color: textMutedColor, fontSize: 12), textAlign: TextAlign.center),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() => isSearching = true);
+                                    try {
+                                      String formattedDate = '';
+                                      if (date == 'Demain') {
+                                        final d = DateTime.now().add(const Duration(days: 1));
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      } else if (date == 'Après-demain') {
+                                        final d = DateTime.now().add(const Duration(days: 2));
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      } else {
+                                        final d = DateTime.now();
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      }
+
+                                      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                      final response = await http.post(
+                                        Uri.parse('$nextApiUrl/api/allo-prive'),
+                                        headers: {'Content-Type': 'application/json'},
+                                        body: jsonEncode({
+                                          'clientId': telephone,
+                                          'clientName': nom,
+                                          'clientPhone': telephone,
+                                          'origin': '${departController.text} (${pickupController.text})',
+                                          'destination': '${arriveeController.text} (${quartierController.text})',
+                                          'departureDate': formattedDate,
+                                          'price': 5000,
+                                          'type': 'ordinaire',
+                                        }),
+                                      );
+                                      if (response.statusCode == 200) {
+                                        setState(() {
+                                          isSearching = false;
+                                          isAlloPriveSuccess = true;
+                                          step = 5;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          isSearching = false;
+                                          errorMessage = 'Échec de la création de la demande Allogoo ordinaire.';
+                                        });
+                                      }
+                                    } catch (e) {
+                                      setState(() { isSearching = false; errorMessage = 'Erreur: $e'; });
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[850],
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  child: const Text('Ordinaire', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() => isSearching = true);
+                                    try {
+                                      String formattedDate = '';
+                                      if (date == 'Demain') {
+                                        final d = DateTime.now().add(const Duration(days: 1));
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      } else if (date == 'Après-demain') {
+                                        final d = DateTime.now().add(const Duration(days: 2));
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      } else {
+                                        final d = DateTime.now();
+                                        formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                      }
+
+                                      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                      final response = await http.post(
+                                        Uri.parse('$nextApiUrl/api/allo-prive'),
+                                        headers: {'Content-Type': 'application/json'},
+                                        body: jsonEncode({
+                                          'clientId': telephone,
+                                          'clientName': nom,
+                                          'clientPhone': telephone,
+                                          'origin': '${departController.text} (${pickupController.text})',
+                                          'destination': '${arriveeController.text} (${quartierController.text})',
+                                          'departureDate': formattedDate,
+                                          'price': 20000,
+                                          'type': 'allo-prive',
+                                        }),
+                                      );
+                                      if (response.statusCode == 200) {
+                                        setState(() {
+                                          isSearching = false;
+                                          isAlloPriveSuccess = true;
+                                          step = 5;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          isSearching = false;
+                                          errorMessage = 'Échec de la création de la demande Allo Privé.';
+                                        });
+                                      }
+                                    } catch (e) {
+                                      setState(() { isSearching = false; errorMessage = 'Erreur: $e'; });
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFF97316),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  child: const Text('Allo Privé', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     )
                   else
@@ -1992,6 +2329,62 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
             }
 
             Widget buildStep5() {
+              if (isAlloPriveSuccess) {
+                return Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF97316).withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check_circle, color: Color(0xFFF97316), size: 40),
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Demande Allo Privé créée !', style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Votre appel d\'offres pour une voiture entière de ${departController.text} à ${arriveeController.text} a été publié. Les chauffeurs qualifiés (fiabilité >= 80%) vont postuler.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: textMutedColor, fontSize: 14),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Départ : ${date ?? "Aujourd\'hui"}', style: TextStyle(color: textColor, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          Text('Prise en charge : ${pickupController.text}', style: TextStyle(color: textColor, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          const Text('Budget estimé : 20 000 FCFA', style: TextStyle(color: Colors.orangeAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF97316),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text('Fermer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                );
+              }
               int passagersCount = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
               int basePrice = selectedTrip?['price'] ?? 5000;
               int total = basePrice * passagersCount;
@@ -2368,47 +2761,75 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           child: ElevatedButton.icon(
                             onPressed: isSearching || (step == 3 && (nom.isEmpty || telephone.isEmpty)) || (step == 4 && (isQueued || alternativeTrips.isNotEmpty)) ? null : () async {
                               if (step == 1) {
-                                setState(() => isSearching = true);
-                                try {
-                                  String formattedDate = '';
-                                  if (date == 'Demain') {
-                                    final d = DateTime.now().add(const Duration(days: 1));
-                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
-                                  } else if (date == 'Après-demain') {
-                                    final d = DateTime.now().add(const Duration(days: 2));
-                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
-                                  } else {
-                                    final d = DateTime.now();
-                                    formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
-                                  }
+                                 setState(() => isSearching = true);
+                                 try {
+                                   String formattedDate = '';
+                                   if (date == 'Demain') {
+                                     final d = DateTime.now().add(const Duration(days: 1));
+                                     formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                   } else if (date == 'Après-demain') {
+                                     final d = DateTime.now().add(const Duration(days: 2));
+                                     formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                   } else {
+                                     final d = DateTime.now();
+                                     formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                                   }
 
-                                  final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-                                  final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$formattedDate');
-                                  final response = await http.get(uri);
-                                  if (response.statusCode == 200) {
-                                    final List<dynamic> data = jsonDecode(response.body);
-                                    setState(() {
-                                      realTrips = data.map((e) => {
-                                        "id": e['id'],
-                                        "company": e['company'] != null ? e['company']['name'] : "Allogoo",
-                                        "price": e['pricePerSeat'] ?? 5000,
-                                        "type": e['vehicle'] != null ? (e['vehicle']['type'] == 'TAXI_7_PLACES' ? 'Taxi 7 Places' : e['vehicle']['type']) : "Voiture",
-                                        "options": "Climatisé",
-                                        "time": DateTime.parse(e['departureTime']).toLocal().toString().substring(11, 16),
-                                        "passagers": e['passagers'] ?? 0,
-                                        "placesPrises": e['placesPrises'] ?? 0,
-                                        "availableSeats": e['availableSeats'] ?? 5
-                                      }).toList();
-                                      isSearching = false;
-                                      step = 2;
-                                    });
-                                  } else {
-                                    setState(() { isSearching = false; });
-                                    setState(() { isSearching = false; errorMessage = 'Erreur de recherche'; });
-                                  }
-                                } catch (e) {
-                                  setState(() { isSearching = false; errorMessage = 'Erreur réseau: Vérifiez votre connexion'; });
-                                }
+                                   final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                   if (isAlloPrive) {
+                                     final response = await http.post(
+                                       Uri.parse('$nextApiUrl/api/allo-prive'),
+                                       headers: {'Content-Type': 'application/json'},
+                                       body: jsonEncode({
+                                         'clientId': telephone,
+                                         'clientName': nom,
+                                         'clientPhone': telephone,
+                                         'origin': '${departController.text} (${pickupController.text})',
+                                         'destination': '${arriveeController.text} (${quartierController.text})',
+                                         'departureDate': formattedDate,
+                                         'price': 20000,
+                                       }),
+                                     );
+                                     if (response.statusCode == 200) {
+                                       setState(() {
+                                         isSearching = false;
+                                         isAlloPriveSuccess = true;
+                                         step = 5;
+                                       });
+                                     } else {
+                                       setState(() {
+                                         isSearching = false;
+                                         errorMessage = 'Échec de la création de la demande Allo Privé.';
+                                       });
+                                     }
+                                   } else {
+                                     final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                     final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$formattedDate');
+                                     final response = await http.get(uri);
+                                     if (response.statusCode == 200) {
+                                       final List<dynamic> data = jsonDecode(response.body);
+                                       setState(() {
+                                         realTrips = data.map((e) => {
+                                           "id": e['id'],
+                                           "company": e['company'] != null ? e['company']['name'] : "Allogoo",
+                                           "price": e['pricePerSeat'] ?? 5000,
+                                           "type": e['vehicle'] != null ? (e['vehicle']['type'] == 'TAXI_7_PLACES' ? 'Taxi 7 Places' : e['vehicle']['type']) : "Voiture",
+                                           "options": "Climatisé",
+                                           "time": DateTime.parse(e['departureTime']).toLocal().toString().substring(11, 16),
+                                           "passagers": e['passagers'] ?? 0,
+                                           "placesPrises": e['placesPrises'] ?? 0,
+                                           "availableSeats": e['availableSeats'] ?? 5
+                                         }).toList();
+                                         isSearching = false;
+                                         step = 2;
+                                       });
+                                     } else {
+                                       setState(() { isSearching = false; errorMessage = 'Erreur de recherche'; });
+                                     }
+                                   }
+                                 } catch (e) {
+                                   setState(() { isSearching = false; errorMessage = 'Erreur réseau: Vérifiez votre connexion'; });
+                                 }
                               } else if (step == 3) {
                                 if (nom.isNotEmpty && telephone.isNotEmpty) {
                                   setState(() => step = 4);
@@ -2435,9 +2856,21 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                           'paymentMethod': paymentMethod == 'om' ? 'ORANGE_MONEY' : (paymentMethod == 'wallet' ? 'WALLET' : paymentMethod!.toUpperCase())
                                         })
                                       );
-                                      if (response.statusCode == 201 || response.statusCode == 200) {
-                                        final apiData = jsonDecode(response.body);
-                                        setState(() => isQueued = false);
+                                       if (response.statusCode == 401) {
+                                         setState(() => isSearching = false);
+                                         final prefs = await SharedPreferences.getInstance();
+                                         await prefs.setBool('isLoggedIn', false);
+                                         await prefs.remove('userPhone');
+                                         await prefs.remove('auth_token');
+                                         await prefs.remove('userName');
+                                         if (context.mounted) {
+                                           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                                         }
+                                         return;
+                                       }
+                                       if (response.statusCode == 201 || response.statusCode == 200) {
+                                         final apiData = jsonDecode(response.body);
+                                         setState(() => isQueued = false);
                                         
                                         if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
                                           if (apiData['paymentSession'] != null && apiData['paymentSession']['paymentUrl'] != null) {

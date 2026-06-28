@@ -27,28 +27,42 @@ export default function QrCodeHistoryPage() {
         if (res.ok) {
           const data = await res.json();
           // Filter only expired/past tickets
+          const isTicketPastOrUsed = (ticket: any) => {
+            const bookingStatus = ticket.status;
+            const tripStatus = ticket.trip?.status;
+            const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
+            const isPast = departureTime < Date.now();
+
+            if (bookingStatus === 'CANCELLED' || 
+                bookingStatus === 'BOARDED' || 
+                bookingStatus === 'EXPIRED' ||
+                tripStatus === 'COMPLETED' || 
+                tripStatus === 'ARRIVED' || 
+                isPast) {
+              return true;
+            }
+            return false;
+          };
+
           const getTicketStatusText = (ticket: any) => {
             const bookingStatus = ticket.status;
             const tripStatus = ticket.trip?.status;
-            const isPast = new Date(ticket.trip?.departureTime).getTime() < Date.now();
+            const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
+            const isPast = departureTime < Date.now();
 
             if (bookingStatus === 'CANCELLED') return 'Annulé';
-            if (bookingStatus === 'BOARDED') {
-              if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Terminé';
-              return 'Embarqué';
-            }
+            if (bookingStatus === 'BOARDED') return 'Utilisé';
+            if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED') return 'Terminé';
+            if (isPast) return 'Expiré';
+            
             if (bookingStatus === 'CONFIRMED' || bookingStatus === 'PENDING_PAYMENT') {
-              if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Expiré';
-              if (isPast && tripStatus !== 'SCHEDULED' && tripStatus !== 'BOARDING') return 'Expiré';
               return 'Valide';
             }
             return bookingStatus;
           };
 
-          const pastTickets = data.filter((t: any) => {
-            const s = getTicketStatusText(t);
-            return s === 'Expiré' || s === 'Terminé' || s === 'Annulé';
-          }).map((t: any) => ({ ...t, displayStatus: getTicketStatusText(t) }));
+          const pastTickets = data.filter((t: any) => isTicketPastOrUsed(t))
+            .map((t: any) => ({ ...t, displayStatus: getTicketStatusText(t) }));
           
           setTickets(pastTickets);
         }
@@ -100,7 +114,7 @@ export default function QrCodeHistoryPage() {
                  const dest = t.trip.route.destinationStation.city;
 
                  return (
-                   <div key={t.id} className="bg-white dark:bg-[#141414]/50 border border-slate-200 dark:border-[#2A2A2A]/50 rounded-3xl overflow-hidden relative opacity-75 hover:opacity-100 transition-opacity grayscale-[30%] hover:grayscale-0">
+                    <div key={t.id} className="bg-slate-100/40 dark:bg-[#141414]/20 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl overflow-hidden relative opacity-50 grayscale transition-all duration-300 hover:opacity-75 hover:grayscale-[50%]">
                       <div className="bg-slate-200 dark:bg-[#222222] px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 flex justify-between items-center">
                          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Statut: {t.displayStatus}</span>
                          <span className="font-mono tracking-wider">Réf: VOY-{t.id.split('-')[0].toUpperCase()}</span>

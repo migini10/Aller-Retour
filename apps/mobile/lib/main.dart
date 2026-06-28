@@ -13,6 +13,7 @@ import 'screens/client/colis_screen.dart';
 import 'screens/client/fidelite_screen.dart';
 import 'screens/client/qr_code_screen.dart';
 import 'screens/client/profile_screen.dart';
+import 'screens/client/allo_prive_screen.dart';
 import 'screens/client/history_screen.dart';
 import 'screens/client/transactions_screen.dart';
 import 'screens/client/transactions_screen.dart';
@@ -132,6 +133,7 @@ class AllerRetourApp extends StatelessWidget {
         '/qrcode': (context) => const QrCodeScreen(),
         '/expired-tickets': (context) => const ExpiredTicketsScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/allo-prive': (context) => const AlloPriveScreen(),
         '/history': (context) => const HistoryScreen(),
         '/transactions': (context) => const TransactionsScreen(),
         '/settings': (context) => const SettingsScreen(),

@@ -9,66 +9,98 @@ import { useAuth } from '../../../../components/AuthContext';
 
 export default function QrCodePage() {
   const { userName, userPhone } = useUser();
-  const { token } = useAuth();
+  const { token, fetchWithAuth } = useAuth();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-        const res = await fetch(`${apiUrl}/v1/bookings/my-tickets`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setTickets(data);
+  const fetchTickets = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+      const res = await fetch(`${apiUrl}/v1/bookings/my-tickets`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error) {
-        console.error("Erreur lors de la récupération des billets", error);
-      } finally {
-        setLoading(false);
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTickets(data);
       }
-    };
+    } catch (error) {
+      console.error("Erreur lors de la récupération des billets", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelTicket = async (ticketId: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir annuler ce billet ? Le montant sera reversé sur votre Wallet.")) return;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+      const res = await fetchWithAuth(`${apiUrl}/v1/bookings/${ticketId}/cancel`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        alert("Réservation annulée avec succès. Le montant a été remboursé sur votre Wallet.");
+        fetchTickets();
+      } else {
+        const errData = await res.json();
+        alert(errData.message || "Erreur lors de l'annulation.");
+      }
+    } catch (e: any) {
+      alert(`Erreur de connexion: ${e.message}`);
+    }
+  };
+
+  useEffect(() => {
     fetchTickets();
   }, [token]);
+
+  const isTicketPastOrUsed = (ticket: any) => {
+    const bookingStatus = ticket.status;
+    const tripStatus = ticket.trip?.status;
+    
+    // Check if the departure date has passed
+    const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
+    const isPast = departureTime < Date.now();
+
+    if (bookingStatus === 'CANCELLED' || 
+        bookingStatus === 'BOARDED' || 
+        bookingStatus === 'EXPIRED' ||
+        tripStatus === 'COMPLETED' || 
+        tripStatus === 'ARRIVED' || 
+        isPast) {
+      return true;
+    }
+    return false;
+  };
 
   const getTicketStatusText = (ticket: any) => {
     const bookingStatus = ticket.status;
     const tripStatus = ticket.trip?.status;
-    const isPast = new Date(ticket.trip?.departureTime).getTime() < Date.now();
+    const departureTime = ticket.trip?.departureTime ? new Date(ticket.trip.departureTime).getTime() : 0;
+    const isPast = departureTime < Date.now();
 
     if (bookingStatus === 'CANCELLED') return 'Annulé';
-    if (bookingStatus === 'BOARDED') {
-      if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Terminé';
-      return 'Embarqué';
-    }
+    if (bookingStatus === 'BOARDED') return 'Utilisé';
+    if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED') return 'Terminé';
+    if (isPast) return 'Expiré';
+    
     if (bookingStatus === 'CONFIRMED' || bookingStatus === 'PENDING_PAYMENT') {
-      if (tripStatus === 'COMPLETED' || tripStatus === 'ARRIVED' || tripStatus === 'CANCELLED') return 'Expiré';
-      if (isPast && tripStatus !== 'SCHEDULED' && tripStatus !== 'BOARDING') return 'Expiré';
       return 'Valide';
     }
     return bookingStatus;
   };
 
-  const activeTickets = tickets.filter(t => {
-    const s = getTicketStatusText(t);
-    return s === 'Valide' || s === 'Embarqué';
-  });
+  const activeTickets = tickets.filter(t => !isTicketPastOrUsed(t));
   
-  const pastTickets = tickets.filter(t => {
-    const s = getTicketStatusText(t);
-    return s === 'Expiré' || s === 'Terminé' || s === 'Annulé';
-  });
+  const pastTickets = tickets.filter(t => isTicketPastOrUsed(t));
 
   
 
@@ -170,6 +202,9 @@ export default function QrCodePage() {
                          <button onClick={() => setSelectedTicket(t)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
                             <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Détails</span>
                          </button>
+                         <button onClick={() => handleCancelTicket(t.id)} className="flex-1 md:flex-none p-2.5 md:px-4 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-500/20 rounded-xl text-sm font-bold transition-all flex justify-center items-center gap-2 shadow-sm">
+                            Annuler
+                         </button>
                          <button className="flex-1 md:flex-none p-2.5 md:px-4 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2">
                             <Download className="w-4 h-4" /> <span className="hidden sm:inline">Télécharger</span>
                          </button>
@@ -248,6 +283,9 @@ export default function QrCodePage() {
                          <div className="flex gap-3">
                             <button onClick={() => setSelectedTicket(t)} className="flex-1 bg-slate-50 dark:bg-[#1A1A1A] hover:bg-slate-100 dark:bg-[#222222] border border-slate-200 dark:border-[#333333] text-slate-900 dark:text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
                                <Eye className="w-4 h-4" /> Détails
+                            </button>
+                            <button onClick={() => handleCancelTicket(t.id)} className="flex-1 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-500/20 font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                               Annuler
                             </button>
                             <button className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2">
                                <Download className="w-4 h-4" /> Télécharger

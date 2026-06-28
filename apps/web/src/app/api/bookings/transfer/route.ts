@@ -84,6 +84,28 @@ export async function POST(request: Request) {
         updatedBookings.push(updated);
       }
 
+      // 5. Clean up source trip if it has no remaining bookings and no initial passengers
+      const sourceTripId = bookingsToTransfer[0]?.tripId;
+      if (sourceTripId) {
+        const remainingBookingsCount = await tx.booking.count({
+          where: {
+            tripId: sourceTripId,
+            status: { in: ['CONFIRMED', 'BOARDED'] }
+          }
+        });
+
+        const sourceTripObj = await tx.trip.findUnique({
+          where: { id: sourceTripId }
+        });
+
+        if (remainingBookingsCount === 0 && (!sourceTripObj || sourceTripObj.initialPassengers === 0)) {
+          // Delete related entities to prevent foreign key errors
+          await tx.parcel.deleteMany({ where: { tripId: sourceTripId } });
+          await tx.seatLock.deleteMany({ where: { tripId: sourceTripId } });
+          await tx.trip.delete({ where: { id: sourceTripId } });
+        }
+      }
+
       return {
         success: true,
         message: `${bookingsToTransfer.length} client(s) transféré(s) avec succès.`,

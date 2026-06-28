@@ -107,6 +107,7 @@ model DriverProfile {
   kycStatus       KYCStatus  @default(PENDING)
   rating          Float      @default(5.0)
   totalTrips      Int        @default(0)
+  isVerified      Boolean    @default(false)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
@@ -497,4 +498,39 @@ model GeoLandmark {
 
   @@index([name])
   @@map("geo_landmarks")
+}
+
+model AlloPriveRequest {
+  id              String      @id @default(uuid())
+  clientId        String
+  clientName      String
+  clientPhone     String
+  origin          String
+  destination     String
+  departureDate   String
+  price           Int
+  type            String      @default("allo-prive") // "allo-prive" or "ordinaire"
+  status          String      @default("PENDING") // PENDING, ACCEPTED, COMPLETED
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  applications    AlloPriveApplication[]
+
+  @@map("allo_prive_requests")
+}
+
+model AlloPriveApplication {
+  id              String      @id @default(uuid())
+  requestId       String
+  request         AlloPriveRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  driverId        String
+  driverName      String
+  driverPhone     String
+  driverRating    Float
+  driverVerified  Boolean     @default(false)
+  driverScore     Int         @default(100)
+  status          String      @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("allo_prive_applications")
 }

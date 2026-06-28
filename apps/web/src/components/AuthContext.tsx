@@ -20,6 +20,7 @@ interface AuthContextType {
   register: (phone: string, fullName: string, pin: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   openAuthModal: (callback?: () => void) => void;
+  fetchWithAuth: (url: string, options?: RequestInit) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -177,6 +178,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setErrorMsg('');
   };
 
+  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+    const headers = {
+      ...options.headers,
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+      logout();
+      window.location.href = '/auth/login';
+    }
+    return res;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -203,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal, fetchWithAuth }}>
       {children}
 
       {!!token && isLocked && pathname?.startsWith('/dashboard') && (

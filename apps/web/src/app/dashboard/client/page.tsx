@@ -47,7 +47,7 @@ const getPopularDestinations = (currentCity: string) => {
 
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
-  const { user } = useAuth();
+  const { user, fetchWithAuth } = useAuth();
   const carouselRef = useRef<HTMLDivElement>(null);
   
   const [currentCity, setCurrentCity] = useState<string | null>(null);
@@ -66,9 +66,7 @@ export default function ClientDashboard() {
       if (!token) return;
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-        const res = await fetch(`${apiUrl}/v1/wallets/my-balance`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetchWithAuth(`${apiUrl}/v1/wallets/my-balance`);
         if (res.ok) {
           const data = await res.json();
           setWalletBalance(data.balance);
@@ -80,10 +78,13 @@ export default function ClientDashboard() {
     
     fetchBalance();
 
+    const interval = setInterval(fetchBalance, 5000);
+
     window.addEventListener('focus', fetchBalance);
     window.addEventListener('wallet_updated', fetchBalance);
 
     return () => {
+      clearInterval(interval);
       window.removeEventListener('focus', fetchBalance);
       window.removeEventListener('wallet_updated', fetchBalance);
     };
@@ -230,6 +231,27 @@ export default function ClientDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  const [priveRequests, setPriveRequests] = useState<any[]>([]);
+
+  const fetchPriveRequests = async () => {
+    try {
+      const res = await fetch('/api/allo-prive');
+      if (res.ok) {
+        const data = await res.json();
+        const myRequests = data.requests.filter((r: any) => r.clientPhone === user?.phone || r.clientPhone === '+221776783412');
+        setPriveRequests(myRequests);
+      }
+    } catch (e) {
+      console.error('Error fetching private requests', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchPriveRequests();
+    const intv = setInterval(fetchPriveRequests, 5000);
+    return () => clearInterval(intv);
+  }, [user]);
+
   const sections = [
     {
       id: 'colis',
@@ -270,6 +292,16 @@ export default function ClientDashboard() {
       color: 'text-orange-500',
       bg: 'bg-orange-500/10',
       border: 'border-orange-500/20'
+    },
+    {
+      id: 'allo-prive',
+      title: 'Allo Privé',
+      description: 'Privatisez une voiture entière, lancez des appels d\'offres et suivez les offres de chauffeurs.',
+      icon: CarFront,
+      href: '/dashboard/client/allo-prive',
+      color: 'text-amber-500',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/20'
     }
   ];
 
@@ -398,6 +430,7 @@ export default function ClientDashboard() {
             })}
           </div>
         </div>
+
 
         {/* Desktop Split Grid: Offres Exclusives & Historique Récent */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">

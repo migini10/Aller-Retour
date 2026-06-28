@@ -54,6 +54,51 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     }
   }
 
+  Future<void> _cancelTicket(String ticketId) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmer l\'annulation'),
+        content: const Text('Êtes-vous sûr de vouloir annuler ce billet ? Le montant payé sera reversé sur votre Wallet.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Non')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Oui, annuler')),
+        ],
+      ),
+    );
+    
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) return;
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      final response = await http.post(
+        Uri.parse('$apiUrl/v1/bookings/$ticketId/cancel'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Réservation annulée. Montant remboursé sur votre Wallet.')),
+        );
+        _loadUserData(); // Refresh tickets and wallet
+      } else {
+        final err = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err['message'] ?? 'Erreur lors de l\'annulation.')),
+        );
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: $e')),
+      );
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SharedScaffold(
@@ -105,7 +150,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
                       ),
-                      child: Text('${_tickets.where((t) => (t['status'] == 'PENDING_PAYMENT' || t['status'] == 'CONFIRMED' || t['status'] == 'BOARDED') && DateTime.parse(t['trip']['departureTime']).toLocal().isAfter(DateTime.now())).length} Billet(s) actif(s)', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: Text('${_tickets.where((t) => !_isTicketPastOrUsed(t)).length} Billet(s) actif(s)', style: const TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
@@ -149,10 +194,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 ),
               )
             else
-              ..._tickets.where((t) {
-                final status = _getTicketStatusText(t);
-                return status == 'Valide' || status == 'Embarqué';
-              }).map((t) {
+              ..._tickets.where((t) => !_isTicketPastOrUsed(t)).map((t) {
                 final tripDate = DateTime.parse(t['trip']['departureTime']).toLocal();
                 final dateStr = "${tripDate.day}/${tripDate.month}/${tripDate.year}";
                 final timeStr = "${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}";
@@ -175,6 +217,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                   passenger: _userName,
                   vehicle: vehicle,
                   price: '${t['amountPaid']} FCFA',
+                  ticketId: t['id'],
                 );
 
                 return Padding(
@@ -203,6 +246,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     required String passenger,
     required String vehicle,
     required String price,
+    String ticketId = '',
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -367,6 +411,22 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                       ),
                     ],
                   ),
+                  if (ticketId.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _cancelTicket(ticketId),
+                        icon: const Icon(Icons.cancel, color: Colors.redAccent, size: 16),
+                        label: const Text('Annuler ma réservation', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
                 if (!isActive) ...[
                   const SizedBox(height: 24),
@@ -468,6 +528,23 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       ),
     );
   }
+  bool _isTicketPastOrUsed(Map<String, dynamic> ticket) {
+    final bookingStatus = ticket['status'];
+    final tripStatus = ticket['trip']?['status'];
+    final tripDate = DateTime.parse(ticket['trip']['departureTime']).toLocal();
+    final isPast = tripDate.isBefore(DateTime.now());
+
+    if (bookingStatus == 'CANCELLED' ||
+        bookingStatus == 'BOARDED' ||
+        bookingStatus == 'EXPIRED' ||
+        tripStatus == 'COMPLETED' ||
+        tripStatus == 'ARRIVED' ||
+        isPast) {
+      return true;
+    }
+    return false;
+  }
+
   String _getTicketStatusText(Map<String, dynamic> ticket) {
     final bookingStatus = ticket['status'];
     final tripStatus = ticket['trip']?['status'];
@@ -475,18 +552,13 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     final isPast = tripDate.isBefore(DateTime.now());
 
     if (bookingStatus == 'CANCELLED') return 'Annulé';
-
-    if (bookingStatus == 'BOARDED') {
-      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Terminé';
-      return 'Embarqué';
-    }
+    if (bookingStatus == 'BOARDED') return 'Utilisé';
+    if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED') return 'Terminé';
+    if (isPast) return 'Expiré';
 
     if (bookingStatus == 'CONFIRMED' || bookingStatus == 'PENDING_PAYMENT') {
-      if (tripStatus == 'COMPLETED' || tripStatus == 'ARRIVED' || tripStatus == 'CANCELLED') return 'Expiré';
-      if (isPast && tripStatus != 'SCHEDULED' && tripStatus != 'BOARDING') return 'Expiré';
       return 'Valide';
     }
-
     return bookingStatus;
   }
 }
