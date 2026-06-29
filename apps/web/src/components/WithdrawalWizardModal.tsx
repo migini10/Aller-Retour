@@ -86,22 +86,35 @@ export default function WithdrawalWizardModal({ isOpen, onClose, maxAmount }: Wi
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('ar_auth_token');
+      const activeToken = localStorage.getItem('ar_auth_token');
       const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
       const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
 
-      const response = await fetch(`${apiUrl}/wallets/driver-balance`); // Verify wallet availability
+      const response = await fetch(`${apiUrl}/wallets/driver-withdrawal`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${activeToken}`
+        },
+        body: JSON.stringify({
+          operator,
+          amount: numericAmount,
+          phone,
+          fullName
+        })
+      });
+
+      const resData = await response.json();
+      if (!response.ok) {
+        setErrorMessage(resData.message || 'Le retrait a échoué. Veuillez réessayer.');
+        return;
+      }
       
-      // Simulate real operator payout system execution
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In production, this would request the backend API to deduct the driver's wallet
-      // and call Wave/Orange Payout API. We simulate the successful flow:
       setStep(3);
       window.dispatchEvent(new Event('wallet_updated'));
       window.dispatchEvent(new Event('driver_wallet_updated'));
     } catch (e) {
-      setErrorMessage('Une erreur est survenue lors de la communication avec le réseau opérateur.');
+      setErrorMessage('Une erreur est survenue lors du traitement du retrait. Veuillez vérifier votre connexion.');
     } finally {
       setLoading(false);
     }

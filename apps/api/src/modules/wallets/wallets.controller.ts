@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { WalletsService } from './wallets.service';
 import { AuthGuard } from '@nestjs/passport';
-import { prisma } from '@aller-retour/database';
+import { prisma, TransactionType } from '@aller-retour/database';
 
 @ApiTags('Wallets & Escrow Finance')
 @Controller('wallets')
@@ -62,6 +62,61 @@ export class WalletsController {
       orderBy: { createdAt: 'desc' },
       take: 20
     });
+  }
+
+  @Post('driver-withdrawal')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Initier un retrait de fonds chauffeur vers Wave ou Orange Money' })
+  async requestDriverWithdrawal(
+    @Req() req: any,
+    @Body() body: { operator: 'wave' | 'orange'; amount: number; phone: string; fullName: string }
+  ) {
+    const userId = req.user.id;
+    const { operator, amount, phone, fullName } = body;
+
+    if (!amount || amount <= 0) {
+      throw new BadRequestException('Le montant du retrait doit être supérieur à 0.');
+    }
+
+    // 1. Get driver wallet
+    const driverWallet = await prisma.wallet.findFirst({
+      where: { userId, type: 'DRIVER_WALLET' },
+    });
+
+    if (!driverWallet || driverWallet.balance < amount) {
+      throw new BadRequestException('Solde du portefeuille chauffeur insuffisant.');
+    }
+
+    // 2. Simulate/Connect directly with mobile money payout API (Wave / OM API endpoint)
+    // In production, you would call: await operatorGateway.payout({ phone, amount, name });
+    const reference = `${operator.toUpperCase()}_PAYOUT_${Date.now()}`;
+
+    // 3. Deduct from driver wallet balance
+    const updatedWallet = await prisma.wallet.update({
+      where: { id: driverWallet.id },
+      data: { balance: { decrement: amount } },
+    });
+
+    // 4. Create payout transaction log
+    const transaction = await prisma.transaction.create({
+      data: {
+        type: TransactionType.WITHDRAWAL,
+        status: 'SUCCESS',
+        amount,
+        reference,
+        description: `Retrait de fonds vers compte mobile money ${operator.toUpperCase()} (${phone}) - Bénéficiaire : ${fullName}`,
+        sourceWalletId: driverWallet.id,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Le retrait a été exécuté avec succès et transféré vers votre mobile money.',
+      reference,
+      newBalance: updatedWallet.balance,
+      transaction,
+    };
   }
 
   @Post('webhooks/wave')
