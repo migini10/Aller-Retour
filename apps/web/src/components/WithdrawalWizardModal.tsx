@@ -47,9 +47,24 @@ export default function WithdrawalWizardModal({ isOpen, onClose, maxAmount }: Wi
   }, [step, handleCloseAndReset]);
 
   useEffect(() => {
-    if (isOpen && isLoaded) {
-      setFullName(userName);
-      setPhone(userPhone);
+    if (isOpen) {
+      const storedName = localStorage.getItem('userName') || 'Utilisateur';
+      const storedPhone = localStorage.getItem('userPhone') || '';
+      
+      // Try to read from current user session object too
+      const storedUser = localStorage.getItem('ar_auth_user');
+      let sessionName = '';
+      let sessionPhone = '';
+      try {
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          sessionName = parsed.fullName || '';
+          sessionPhone = parsed.phone || '';
+        }
+      } catch (e) {}
+
+      setFullName(sessionName || storedName);
+      setPhone(sessionPhone || storedPhone);
     }
   }, [isOpen, isLoaded, userName, userPhone]);
 
