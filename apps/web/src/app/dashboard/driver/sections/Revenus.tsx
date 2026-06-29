@@ -70,12 +70,6 @@ export default function SectionRevenus() {
     })
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const stats = [
-    { label: 'Revenus aujourd\'hui', val: `${todayEarnings.toLocaleString('fr-FR')} F`, type: 'jour' },
-    { label: 'Revenus semaine', val: `${weekEarnings.toLocaleString('fr-FR')} F`, type: 'semaine' },
-    { label: 'Revenus mois', val: `${monthEarnings.toLocaleString('fr-FR')} F`, type: 'mois' },
-  ];
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -84,6 +78,12 @@ export default function SectionRevenus() {
       </div>
     );
   }
+
+  const stats = [
+    { label: 'Revenus aujourd\'hui', val: `${todayEarnings.toLocaleString('fr-FR')} F`, type: 'jour' },
+    { label: 'Revenus semaine', val: `${weekEarnings.toLocaleString('fr-FR')} F`, type: 'semaine' },
+    { label: 'Revenus mois', val: `${monthEarnings.toLocaleString('fr-FR')} F`, type: 'mois' },
+  ];
 
   return (
     <div className="space-y-6">
