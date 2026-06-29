@@ -5,6 +5,7 @@ import BookingWizardModal from './BookingWizardModal';
 import ColisWizardModal from './ColisWizardModal';
 import RechargeWizardModal from './RechargeWizardModal';
 import TransferWizardModal from './TransferWizardModal';
+import WithdrawalWizardModal from './WithdrawalWizardModal';
 import { ErrorBoundary } from './ErrorBoundary';
 
 interface ModalContextType {
@@ -14,6 +15,7 @@ interface ModalContextType {
   openColisWizard: () => void;
   openRechargeWizard: () => void;
   openTransferWizard: () => void;
+  openWithdrawalWizard: (maxAmount: number) => void;
 }
 
 const ModalContext = createContext<ModalContextType>({
@@ -23,6 +25,7 @@ const ModalContext = createContext<ModalContextType>({
   openColisWizard: () => {},
   openRechargeWizard: () => {},
   openTransferWizard: () => {},
+  openWithdrawalWizard: () => {},
 });
 
 export const useModal = () => useContext(ModalContext);
@@ -33,6 +36,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isColisOpen, setIsColisOpen] = useState(false);
   const [isRechargeOpen, setIsRechargeOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
+  const [withdrawalMax, setWithdrawalMax] = useState(0);
   const [bookingWizardType, setBookingWizardType] = useState<'bus' | 'allo-dakar'>('allo-dakar');
   const [bookingWizardData, setBookingWizardData] = useState<{ origin?: string; destination?: string, pickupLocation?: string } | undefined>();
   const [modalConfig, setModalConfig] = useState({
@@ -70,8 +75,14 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const openTransferWizard = () => setIsTransferOpen(true);
   const closeTransferWizard = () => setIsTransferOpen(false);
 
+  const openWithdrawalWizard = (maxAmount: number) => {
+    setWithdrawalMax(maxAmount);
+    setIsWithdrawalOpen(true);
+  };
+  const closeWithdrawalWizard = () => setIsWithdrawalOpen(false);
+
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard, openColisWizard, openRechargeWizard, openTransferWizard }}>
+    <ModalContext.Provider value={{ openModal, closeModal, openBookingWizard, openColisWizard, openRechargeWizard, openTransferWizard, openWithdrawalWizard }}>
       {children}
       <MockModal 
         isOpen={isOpen} 
@@ -100,6 +111,11 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         <TransferWizardModal
           isOpen={isTransferOpen}
           onClose={closeTransferWizard}
+        />
+        <WithdrawalWizardModal
+          isOpen={isWithdrawalOpen}
+          onClose={closeWithdrawalWizard}
+          maxAmount={withdrawalMax}
         />
       </ErrorBoundary>
     </ModalContext.Provider>

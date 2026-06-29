@@ -2,14 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, ArrowUpRight, TrendingUp, Calendar, CreditCard, ChevronRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../../../../components/AuthContext';
+import { useModal } from '../../../../components/ModalContext';
 
 export default function SectionRevenus() {
   const { token, fetchWithAuth } = useAuth();
+  const { openWithdrawalWizard } = useModal();
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Add custom listener for driver updates
+    const handleDriverUpdate = () => {
+      fetchFinanceData();
+    };
+    window.addEventListener('driver_wallet_updated', handleDriverUpdate);
+    window.addEventListener('wallet_updated', handleDriverUpdate);
+
     const fetchFinanceData = async () => {
       const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('ar_auth_token') : null);
       if (!activeToken) {
@@ -41,6 +50,11 @@ export default function SectionRevenus() {
     };
 
     fetchFinanceData();
+
+    return () => {
+      window.removeEventListener('driver_wallet_updated', handleDriverUpdate);
+      window.removeEventListener('wallet_updated', handleDriverUpdate);
+    };
   }, [token]);
 
   // Calculate stats dynamically from transaction history
@@ -100,10 +114,16 @@ export default function SectionRevenus() {
           <p className="text-sm font-medium opacity-80 uppercase tracking-wider">Solde Disponible</p>
           <p className="text-4xl sm:text-5xl font-bold mt-2">{(balance ?? 0).toLocaleString('fr-FR')} <span className="text-2xl font-semibold">FCFA</span></p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <button className="flex-1 bg-white text-orange-600 hover:bg-slate-50 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <button 
+              onClick={() => openWithdrawalWizard(balance ?? 0)}
+              className="flex-1 bg-white text-orange-600 hover:bg-slate-50 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
               <ArrowUpRight className="w-5 h-5" /> Retrait instantané
             </button>
-            <button className="flex-1 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <button 
+              onClick={() => openWithdrawalWizard(balance ?? 0)}
+              className="flex-1 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
               <CreditCard className="w-5 h-5" /> Méthodes de retrait
             </button>
           </div>
