@@ -5,18 +5,35 @@ import { prisma, TransactionType } from '@aller-retour/database';
 export class WalletsService {
 
   async getMyWalletBalance(userId: string) {
-    const wallet = await prisma.wallet.findFirst({
+    // Try to find passenger wallet first
+    let wallet = await prisma.wallet.findFirst({
       where: { userId, type: 'PASSENGER_WALLET' },
     });
-    if (!wallet) throw new NotFoundException("Wallet introuvable.");
+    // If not found, try to fallback to driver wallet
+    if (!wallet) {
+      wallet = await prisma.wallet.findFirst({
+        where: { userId, type: 'DRIVER_WALLET' },
+      });
+    }
+    // If still not found, auto-create a passenger wallet as a safe fallback
+    if (!wallet) {
+      wallet = await prisma.wallet.create({
+        data: { userId, type: 'PASSENGER_WALLET', balance: 0.0 }
+      });
+    }
     return wallet;
   }
 
   async getMyWalletTransactions(userId: string) {
-    const wallet = await prisma.wallet.findFirst({
+    let wallet = await prisma.wallet.findFirst({
       where: { userId, type: 'PASSENGER_WALLET' },
     });
-    if (!wallet) throw new NotFoundException("Wallet introuvable.");
+    if (!wallet) {
+      wallet = await prisma.wallet.findFirst({
+        where: { userId, type: 'DRIVER_WALLET' },
+      });
+    }
+    if (!wallet) return [];
 
     const transactions = await prisma.transaction.findMany({
       where: { 

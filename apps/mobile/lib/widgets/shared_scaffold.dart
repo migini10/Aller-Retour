@@ -9,6 +9,7 @@ class SharedScaffold extends StatefulWidget {
   final IconData? icon;
   final Color? iconColor;
   final Future<void> Function()? onRefresh;
+  final Widget? bottomNavigationBar;
 
   const SharedScaffold({
     super.key,
@@ -19,6 +20,7 @@ class SharedScaffold extends StatefulWidget {
     this.icon,
     this.iconColor,
     this.onRefresh,
+    this.bottomNavigationBar,
   });
 
   @override
@@ -39,6 +41,7 @@ class _SharedScaffoldState extends State<SharedScaffold> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // slate-950
       endDrawer: AppDrawer(isDriverMode: widget.isDriverMode),
+      bottomNavigationBar: widget.bottomNavigationBar,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 550),
