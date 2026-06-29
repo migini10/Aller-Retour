@@ -1,8 +1,58 @@
 'use client';
-import React from 'react';
-import { Bus, Route, MapPin, Navigation, Wallet, ArrowUpRight, TrendingUp, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bus, Route, MapPin, Navigation, Wallet, ArrowUpRight, TrendingUp, CheckCircle2, Loader2 } from 'lucide-react';
+import { useAuth } from '../../../../components/AuthContext';
 
 export default function SectionAccueil() {
+  const { token, fetchWithAuth } = useAuth();
+  const [balance, setBalance] = useState<number | null>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFinanceData = async () => {
+      if (!token) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        
+        // Fetch driver wallet balance
+        const balanceRes = await fetchWithAuth(`${apiUrl}/v1/wallets/driver-balance`);
+        if (balanceRes.ok) {
+          const balanceData = await balanceRes.json();
+          setBalance(balanceData.balance);
+        }
+
+        // Fetch driver transactions
+        const txRes = await fetchWithAuth(`${apiUrl}/v1/wallets/driver-transactions`);
+        if (txRes.ok) {
+          const txData = await txRes.json();
+          setTransactions(txData);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données financières du chauffeur", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFinanceData();
+  }, [token]);
+
+  // Calculate today's earnings dynamically from transaction history
+  const today = new Date().toDateString();
+  const todayEarnings = transactions
+    .filter(t => new Date(t.createdAt).toDateString() === today && t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        <p className="text-sm text-slate-500 dark:text-slate-400">Chargement de votre espace...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Hero Banner */}
@@ -30,7 +80,7 @@ export default function SectionAccueil() {
             Bonjour Moussa 👋
           </h2>
           <p className="text-slate-200 mt-2 text-base sm:text-lg max-w-xl leading-relaxed">
-            Vous avez <strong className="text-white font-black">1 trajet programmé</strong> aujourd'hui. Assurez-vous d'avoir validé tous vos documents avant de démarrer.
+            Votre solde actuel est de <strong className="text-white font-black">{(balance ?? 0).toLocaleString('fr-FR')} FCFA</strong>. Assurez-vous d'avoir validé tous vos documents avant de démarrer.
           </p>
           
           <div className="mt-8 flex flex-wrap gap-4">
@@ -120,7 +170,7 @@ export default function SectionAccueil() {
               <div className="p-5 bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 rounded-2xl">
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 font-bold mb-1">Revenus du jour</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  45 000 <span className="text-lg text-slate-500 font-bold">CFA</span>
+                  {todayEarnings.toLocaleString('fr-FR')} <span className="text-lg text-slate-500 font-bold">CFA</span>
                 </p>
               </div>
               
