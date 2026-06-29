@@ -187,31 +187,32 @@ export default function WithdrawalWizardModal({ isOpen, onClose, maxAmount }: Wi
           {step === 2 && (
             <div className="space-y-4 animate-fade-in">
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nom complet (enregistré chez l'opérateur)</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nom complet (bénéficiaire vérifié)</label>
                 <div className="relative">
                   <User className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input 
                     type="text" 
-                    placeholder="Entrez votre nom complet"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all dark:text-white"
+                    readOnly
+                    className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-[#333333] rounded-xl outline-none transition-all dark:text-slate-400 cursor-not-allowed opacity-80"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Numéro de téléphone de réception</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Numéro de téléphone de réception (non modifiable)</label>
                 <div className="relative">
                   <Phone className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input 
                     type="tel" 
-                    placeholder="Ex: 77 123 45 67"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-[#141414] border border-slate-200 dark:border-[#333333] rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all dark:text-white"
+                    readOnly
+                    className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-[#333333] rounded-xl outline-none transition-all dark:text-slate-400 cursor-not-allowed opacity-80"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                  ⚠️ Par sécurité, seul un **administrateur** Aller-Retour peut modifier votre numéro de téléphone de réception de fonds.
+                </p>
               </div>
 
               <div>
