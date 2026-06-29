@@ -11,7 +11,8 @@ export default function SectionAccueil() {
 
   useEffect(() => {
     const fetchFinanceData = async () => {
-      if (!token) return;
+      const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('ar_auth_token') : null);
+      if (!activeToken) return;
       try {
         const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
         const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;

@@ -11,7 +11,11 @@ export default function SectionRevenus() {
 
   useEffect(() => {
     const fetchFinanceData = async () => {
-      if (!token) return;
+      const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('ar_auth_token') : null);
+      if (!activeToken) {
+        // Keep loader running if we're waiting for the auth context state to hydrate
+        return;
+      }
       try {
         const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
         const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
