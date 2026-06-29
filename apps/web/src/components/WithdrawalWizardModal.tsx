@@ -210,9 +210,6 @@ export default function WithdrawalWizardModal({ isOpen, onClose, maxAmount }: Wi
                     value={phone}
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
-                  ⚠️ Par sécurité, seul un **administrateur** Aller-Retour peut modifier votre numéro de téléphone de réception de fonds.
-                </p>
               </div>
 
               <div>
