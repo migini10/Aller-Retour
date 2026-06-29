@@ -69,12 +69,25 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
   @override
   Widget build(BuildContext context) {
     // Calculate today's earnings dynamically
-    final todayStr = DateTime.now().toLocal().toString().split(' ').first;
+    final now = DateTime.now();
+    final todayStr = now.toLocal().toString().split(' ').first;
+    final oneWeekAgo = now.subtract(const Duration(days: 7));
+    
     int todayEarnings = 0;
+    int weekEarnings = 0;
+
     for (var tx in _transactions) {
-      final txDateStr = DateTime.parse(tx['createdAt']).toLocal().toString().split(' ').first;
-      if (txDateStr == todayStr && tx['amount'] > 0) {
-        todayEarnings += (tx['amount'] as num).toInt();
+      final txDateTime = DateTime.parse(tx['createdAt']).toLocal();
+      final txDateStr = txDateTime.toString().split(' ').first;
+      final amount = (tx['amount'] as num).toInt();
+
+      if (amount > 0) {
+        if (txDateStr == todayStr) {
+          todayEarnings += amount;
+        }
+        if (txDateTime.isAfter(oneWeekAgo) && txDateTime.isBefore(now)) {
+          weekEarnings += amount;
+        }
       }
     }
 
@@ -127,7 +140,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildStatMiniCard('Aujourd\'hui', '$todayEarnings F'),
-                _buildStatMiniCard('Estimation Semaine', '${((_walletBalance ?? 0) * 0.7).toInt()} F'),
+                _buildStatMiniCard('Cette Semaine', '$weekEarnings F'),
               ],
             ),
             const SizedBox(height: 32),
@@ -175,11 +188,11 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       leading: CircleAvatar(
                         backgroundColor: amount > 0 
-                            ? Colors.emerald.withValues(alpha: 0.15) 
+                            ? Colors.green.withValues(alpha: 0.15) 
                             : Colors.redAccent.withValues(alpha: 0.15),
                         child: Icon(
                           amount > 0 ? Icons.trending_up : Icons.trending_down, 
-                          color: amount > 0 ? Colors.emerald : Colors.redAccent,
+                          color: amount > 0 ? Colors.green : Colors.redAccent,
                           size: 20
                         ),
                       ),
@@ -190,7 +203,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
                       subtitle: Text(dateStr, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                       trailing: Text(
                         '${amount > 0 ? '+' : ''} $amount F', 
-                        style: TextStyle(color: amount > 0 ? Colors.emerald : Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 15)
+                        style: TextStyle(color: amount > 0 ? Colors.green : Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 15)
                       ),
                     ),
                   );
@@ -216,7 +229,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
         children: [
           Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.black)),
+          Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w900)),
         ],
       ),
     );

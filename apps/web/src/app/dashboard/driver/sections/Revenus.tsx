@@ -39,15 +39,40 @@ export default function SectionRevenus() {
   }, [token]);
 
   // Calculate stats dynamically from transaction history
-  const today = new Date().toDateString();
+  const today = new Date();
+  
+  // Today's earnings (positive amounts only)
   const todayEarnings = transactions
-    .filter(t => new Date(t.createdAt).toDateString() === today && t.amount > 0)
+    .filter(t => {
+      const txDate = new Date(t.createdAt);
+      return txDate.toDateString() === today.toDateString() && t.amount > 0;
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  // This week's earnings (7 days ago till now)
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(today.getDate() - 7);
+  const weekEarnings = transactions
+    .filter(t => {
+      const txDate = new Date(t.createdAt);
+      return txDate >= oneWeekAgo && txDate <= today && t.amount > 0;
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  // This month's earnings (30 days ago till now)
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setDate(today.getDate() - 30);
+  const monthEarnings = transactions
+    .filter(t => {
+      const txDate = new Date(t.createdAt);
+      return txDate >= oneMonthAgo && txDate <= today && t.amount > 0;
+    })
     .reduce((sum, t) => sum + t.amount, 0);
 
   const stats = [
     { label: 'Revenus aujourd\'hui', val: `${todayEarnings.toLocaleString('fr-FR')} F`, type: 'jour' },
-    { label: 'Revenus semaine', val: `${(balance ? balance * 0.7 : 0).toLocaleString('fr-FR')} F`, type: 'semaine' },
-    { label: 'Revenus mois', val: `${(balance ? balance * 2.8 : 0).toLocaleString('fr-FR')} F`, type: 'mois' },
+    { label: 'Revenus semaine', val: `${weekEarnings.toLocaleString('fr-FR')} F`, type: 'semaine' },
+    { label: 'Revenus mois', val: `${monthEarnings.toLocaleString('fr-FR')} F`, type: 'mois' },
   ];
 
   if (loading) {
