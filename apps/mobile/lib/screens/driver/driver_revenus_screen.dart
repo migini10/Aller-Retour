@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'widgets/withdrawal_modal.dart';
 
 class DriverRevenusScreen extends StatefulWidget {
   const DriverRevenusScreen({super.key});
@@ -131,6 +132,45 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
                         ? '${_walletBalance.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ')} FCFA'
                         : '0 FCFA', 
                     style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            showWithdrawalModal(context, _walletBalance ?? 0, () {
+                              _fetchDriverFinanceData();
+                            });
+                          },
+                          icon: const Icon(Icons.call_made, color: Color(0xFFF97316), size: 16),
+                          label: const Text('Retrait instantané', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            showWithdrawalModal(context, _walletBalance ?? 0, () {
+                              _fetchDriverFinanceData();
+                            });
+                          },
+                          icon: const Icon(Icons.credit_card, color: Colors.white, size: 16),
+                          label: const Text('Méthodes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white54),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
