@@ -13,17 +13,18 @@ export default function SectionRevenus() {
     const fetchFinanceData = async () => {
       if (!token) return;
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
         
         // Fetch driver wallet balance
-        const balanceRes = await fetchWithAuth(`${apiUrl}/v1/wallets/driver-balance`);
+        const balanceRes = await fetchWithAuth(`${apiUrl}/wallets/driver-balance`);
         if (balanceRes.ok) {
           const balanceData = await balanceRes.json();
           setBalance(balanceData.balance);
         }
 
         // Fetch driver transactions
-        const txRes = await fetchWithAuth(`${apiUrl}/v1/wallets/driver-transactions`);
+        const txRes = await fetchWithAuth(`${apiUrl}/wallets/driver-transactions`);
         if (txRes.ok) {
           const txData = await txRes.json();
           setTransactions(txData);
