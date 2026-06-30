@@ -173,7 +173,7 @@ export default function SectionMarketplace() {
         </div>
 
         {/* Appels d'offres Allo Privé (Voiture entière) */}
-        {alloPriveRequests.map((req) => {
+        {alloPriveRequests.filter(req => req.status === 'PENDING').map((req) => {
           const isOrdinary = req.type === 'ordinaire';
           const minScore = isOrdinary ? 0 : 80;
           const isLocked = minScore > driverReliabilityScore;
@@ -227,7 +227,7 @@ export default function SectionMarketplace() {
           );
         })}
 
-        {colis.length > 0 && (
+        {colis.filter(c => c.status === 'disponible').length > 0 && (
           <div className="mt-8 mb-4 border-t border-slate-200 dark:border-[#2A2A2A] pt-8 font-sans">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
               <Package className="w-5 h-5 text-purple-500" /> Colis Disponibles
@@ -244,12 +244,11 @@ export default function SectionMarketplace() {
             )}
 
             <div className="space-y-4">
-              {colis.map(c => (
-                <div key={c.id} className={`bg-white dark:bg-[#141414] border hover:border-purple-500/30 rounded-2xl p-5 transition-colors group ${c.status === 'accepte' ? 'border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-slate-200 dark:border-[#2A2A2A]/80'}`}>
+              {colis.filter(c => c.status === 'disponible').map(c => (
+                <div key={c.id} className="bg-white dark:bg-[#141414] border hover:border-purple-500/30 rounded-2xl p-5 transition-colors group border-slate-200 dark:border-[#2A2A2A]/80">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        {c.status === 'accepte' && <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Accepté</span>}
                         <span className="text-xs text-slate-500 font-mono">Colis {String(c.id).startsWith('COL-') || String(c.id).startsWith('COLIS-') ? c.id : (String(c.id).includes('-') ? `COL-${String(c.id).split('-')[0].toUpperCase()}` : c.id)}</span>
                         <span className="text-xs text-slate-500 dark:text-slate-400">• {c.taille}</span>
                       </div>
@@ -265,26 +264,18 @@ export default function SectionMarketplace() {
                         <p className="text-lg font-bold text-purple-600 dark:text-purple-400">5 000 FCFA</p>
                       </div>
                       <div className="flex gap-2">
-                        {c.status === 'disponible' ? (
-                          <>
-                            <button className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 text-slate-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
-                            <button 
-                              disabled={!hasClient}
-                              onClick={() => handleAccept(c.id, 'colis')}
-                              className={`px-4 py-2 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 ${
-                                hasClient 
-                                  ? 'bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-500/20' 
-                                  : 'bg-slate-300 dark:bg-[#333333] cursor-not-allowed opacity-50'
-                              }`}
-                            >
-                              Prendre le colis <ChevronRight className="w-3.5 h-3.5" />
-                            </button>
-                          </>
-                        ) : (
-                          <button onClick={() => handleOpenReleaseModal(c.id, 'colis')} className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-700 dark:text-rose-500 hover:text-rose-600 border border-slate-200 dark:border-[#333] hover:border-rose-200 dark:hover:border-rose-500/30 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
-                            Libérer (Annuler)
-                          </button>
-                        )}
+                        <button className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 text-slate-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
+                        <button 
+                          disabled={!hasClient}
+                          onClick={() => handleAccept(c.id, 'colis')}
+                          className={`px-4 py-2 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 ${
+                            hasClient 
+                              ? 'bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-500/20' 
+                              : 'bg-slate-300 dark:bg-[#333333] cursor-not-allowed opacity-50'
+                          }`}
+                        >
+                          Prendre le colis <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -293,6 +284,7 @@ export default function SectionMarketplace() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
