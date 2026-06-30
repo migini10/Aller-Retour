@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const TextSpan(text: 'Bienvenue sur '),
                     TextSpan(
                       text: 'Allogoo', 
-                      style: TextStyle(color: Colors.orange.shade600, fontWeight: FontWeight.extrabold)
+                      style: TextStyle(color: Colors.orange.shade600, fontWeight: FontWeight.w900)
                     ),
                   ],
                 ),

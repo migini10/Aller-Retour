@@ -113,7 +113,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             _buildMenuItem(context, Icons.route_outlined, 'Missions & Trajets', Colors.green, route: '/driver/missions'),
                             _buildMenuItem(context, Icons.location_on_outlined, 'Localisation Client', Colors.cyan, route: '/driver/localisation'),
                             _buildMenuItem(context, Icons.qr_code_scanner, 'Scanner Billet', Colors.purple, route: '/driver/scanner'),
-                            _buildMenuItem(context, Icons.people_outline, 'Passagers', Colors.blue, route: '/driver/passagers'),
+                            _buildMenuItem(context, Icons.people_outline, 'Passagers', Colors.blue, route: '/driver/missions'),
                             _buildMenuItem(context, Icons.account_balance_wallet_outlined, 'Revenus', Colors.teal, route: '/driver/revenus'),
                             _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigo, route: '/driver/marketplace'),
                             _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amber, route: '/driver/colis'),
