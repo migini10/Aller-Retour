@@ -252,12 +252,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                 bottom: MediaQuery.of(context).padding.bottom + 80,
               ),
               children: [
-                 if (alloPriveRequests.isNotEmpty) ...[
+                 if (alloPriveRequests.where((req) => req['status'] == 'PENDING').isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text('Appels d\'offres Allo Privé', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                   ...alloPriveRequests.map((req) {
+                   ...alloPriveRequests.where((req) => req['status'] == 'PENDING').map((req) {
                     final reqId = req['id'];
                     final List<dynamic> applications = req['applications'] as List<dynamic>? ?? [];
                     final hasApplied = applications.any((app) => app['driverId'] == 'demo-driver-id');
@@ -268,12 +268,12 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                if (colis.isNotEmpty) ...[
+                if (colis.where((c) => c['statut'] == 'En attente de prise en charge').isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.only(top: 16, bottom: 16),
                     child: Text('Colis Disponibles', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  ...colis.map((c) {
+                  ...colis.where((c) => c['statut'] == 'En attente de prise en charge').map((c) {
                     final isAccepted = c['statut'] == 'Accepté' || c['statut'] == 'En transit';
                     return _buildItemCard(c, true, isAccepted, false);
                   }),
