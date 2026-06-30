@@ -119,11 +119,13 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-          <img 
-            src="/logo-allogoo.png" 
-            alt="Allogoo Logo" 
-            className="w-20 h-20 object-contain rounded-2xl"
-          />
+          <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200/50 dark:border-slate-800/30 flex items-center justify-center w-28 h-20">
+            <img 
+              src="/logo-allogoo.png" 
+              alt="Allogoo Logo" 
+              className="w-full h-full object-contain"
+            />
+          </div>
         </div>
         <h2 className="text-center text-3xl font-extrabold text-slate-900 dark:text-white">
           Bienvenue sur <span className="text-orange-500">Allogoo</span>

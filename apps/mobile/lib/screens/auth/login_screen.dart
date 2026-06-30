@@ -101,18 +101,23 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 60),
               Center(
                 child: Container(
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      'assets/images/logo_allogoo.png',
-                      fit: BoxFit.cover,
-                    ),
+                  child: Image.asset(
+                    'assets/images/logo_allogoo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
