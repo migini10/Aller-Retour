@@ -174,8 +174,8 @@ class _SharedScaffoldState extends State<SharedScaffold> {
                   fontFamily: 'Roboto',
                 ),
                 children: [
-                  TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  const TextSpan(text: 'Retour', style: TextStyle(color: Color(0xFFF97316))),
+                  TextSpan(text: 'Allo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  const TextSpan(text: 'goo', style: TextStyle(color: Color(0xFFF97316))),
                 ],
               ),
             ),

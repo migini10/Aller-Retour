@@ -88,8 +88,8 @@ class SharedHeader extends StatelessWidget {
                       ],
                     ),
                     children: [
-                      TextSpan(text: 'Aller-', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                      TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
+                      TextSpan(text: 'Allo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      TextSpan(text: 'goo', style: TextStyle(color: Colors.deepOrange.shade400)),
                     ],
                   ),
                 ),
