@@ -99,16 +99,21 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 60),
-              // App Logo
               Center(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 2),
                   ),
-                  child: const Icon(Icons.directions_car, size: 60, color: Colors.orange),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.asset(
+                      'assets/images/logo_allogoo.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
