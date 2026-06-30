@@ -122,23 +122,33 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Welcome Text
-              Text(
-                'Bienvenue sur',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: isDark ? Colors.white70 : Colors.black54),
-              ),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 32, letterSpacing: -1, fontFamily: 'Roboto'),
+                  style: TextStyle(
+                    fontSize: 28, 
+                    fontWeight: FontWeight.bold, 
+                    color: isDark ? Colors.white : Colors.black87
+                  ),
                   children: [
-                    TextSpan(text: 'Allo', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    TextSpan(text: 'goo', style: TextStyle(color: Colors.deepOrange.shade400)),
+                    const TextSpan(text: 'Bienvenue sur '),
+                    TextSpan(
+                      text: 'Allogoo', 
+                      style: TextStyle(color: Colors.orange.shade600, fontWeight: FontWeight.extrabold)
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 8),
+              Text(
+                'Connectez-vous pour accéder à votre espace sécurisé',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14, 
+                  color: isDark ? Colors.white54 : Colors.black54
+                ),
+              ),
+              const SizedBox(height: 36),
 
               // Phone Field
               TextField(
