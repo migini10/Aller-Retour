@@ -252,16 +252,16 @@ export default function SectionMarketplace() {
                         <span className="text-xs text-slate-500 font-mono">Colis {String(c.id).startsWith('COL-') || String(c.id).startsWith('COLIS-') ? c.id : (String(c.id).includes('-') ? `COL-${String(c.id).split('-')[0].toUpperCase()}` : c.id)}</span>
                         <span className="text-xs text-slate-500 dark:text-slate-400">• {c.taille}</span>
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{c.trajet}</h3>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{c.destinataire} - {c.tel}</h3>
                       <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {c.date}</span>
+                        <span className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5" /> {c.taille}</span>
                       </div>
                     </div>
 
                     <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 dark:border-[#2A2A2A]">
                       <div className="text-left md:text-right">
                         <p className="text-xs text-slate-500 mb-0.5">Rémunération estimée</p>
-                        <p className="text-lg font-bold text-purple-600 dark:text-purple-400">5 000 FCFA</p>
+                        <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{c.prix}</p>
                       </div>
                       <div className="flex gap-2">
                         <button className="px-4 py-2 bg-slate-100 dark:bg-[#222222] hover:bg-slate-200 text-slate-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">Ignorer</button>
