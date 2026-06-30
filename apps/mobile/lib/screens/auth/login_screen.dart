@@ -123,8 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 text: TextSpan(
                   style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 32, letterSpacing: -1, fontFamily: 'Roboto'),
                   children: [
-                    TextSpan(text: 'Aller-', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    TextSpan(text: 'Retour', style: TextStyle(color: Colors.deepOrange.shade400)),
+                    TextSpan(text: 'Allo', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+                    TextSpan(text: 'goo', style: TextStyle(color: Colors.deepOrange.shade400)),
                   ],
                 ),
               ),
