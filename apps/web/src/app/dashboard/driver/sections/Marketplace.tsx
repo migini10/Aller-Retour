@@ -177,7 +177,7 @@ export default function SectionMarketplace() {
           const isOrdinary = req.type === 'ordinaire';
           const minScore = isOrdinary ? 0 : 80;
           const isLocked = minScore > driverReliabilityScore;
-          const hasApplied = req.applications.some((app: any) => app.driverId === 'demo-driver-id');
+          const hasApplied = (req.applications || []).some((app: any) => app.driverId === 'demo-driver-id');
           
           return (
             <div key={req.id} className={`relative bg-gradient-to-br from-orange-500/5 to-transparent dark:from-orange-500/10 dark:to-transparent border rounded-3xl p-6 transition-all ${isLocked ? 'border-rose-500/20' : isOrdinary ? 'border-slate-200 dark:border-[#2A2A2A]' : 'border-orange-500/30'}`}>
