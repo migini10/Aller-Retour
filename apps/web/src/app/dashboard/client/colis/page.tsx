@@ -200,6 +200,7 @@ export default function ColisPage() {
                 const isAccepted = colis.statut === 'Accepté';
                 const isTransit = colis.statut === 'En transit';
                 const isDelivered = colis.statut === 'Livré';
+                const isExpired = colis.statut === 'Expiré';
                 
                 let progressWidth = '10%';
                 
@@ -250,6 +251,18 @@ export default function ColisPage() {
                   hoverBgColor = 'hover:bg-emerald-500/10';
                   hoverTextColor = 'hover:text-emerald-500';
                 }
+                if (isExpired) { 
+                  progressWidth = '0%'; 
+                  borderColor = 'border-rose-500/30';
+                  hoverBorderColor = 'hover:border-rose-500/60';
+                  bgColor = 'bg-rose-500/10';
+                  iconBorderColor = 'border-rose-500/20';
+                  textColor = 'text-rose-500';
+                  bgSolidColor = 'bg-rose-500';
+                  borderSolidColor = 'border-rose-500';
+                  hoverBgColor = 'hover:bg-rose-500/10';
+                  hoverTextColor = 'hover:text-rose-500';
+                }
 
                 return (
                   <div key={idx} className={`bg-white dark:bg-[#141414] border ${borderColor} ${hoverBorderColor} rounded-3xl p-6 transition-all shadow-sm flex flex-col md:flex-row gap-6`}>
@@ -294,12 +307,21 @@ export default function ColisPage() {
                         <p className="font-bold text-slate-900 dark:text-white">{colis.destinataire}</p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">{colis.tel}</p>
                       </div>
-                      <button 
-                        onClick={() => setTrackingColis(colis)}
-                        className={`px-4 py-2 bg-slate-100 dark:bg-[#222222] ${hoverBgColor} text-slate-700 dark:text-slate-300 ${hoverTextColor} rounded-xl text-sm font-bold transition-colors flex items-center gap-2`}
-                      >
-                        Suivre <ArrowRight className="w-4 h-4" />
-                      </button>
+                      {isExpired ? (
+                        <button 
+                          onClick={() => openColisWizard()}
+                          className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold transition-colors flex items-center gap-2"
+                        >
+                          Soumettre à nouveau <Plus className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => setTrackingColis(colis)}
+                          className={`px-4 py-2 bg-slate-100 dark:bg-[#222222] ${hoverBgColor} text-slate-700 dark:text-slate-300 ${hoverTextColor} rounded-xl text-sm font-bold transition-colors flex items-center gap-2`}
+                        >
+                          Suivre <ArrowRight className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

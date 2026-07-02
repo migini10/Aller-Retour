@@ -8,6 +8,20 @@ export const fetchCache = 'force-no-store';
 
 export async function GET() {
   try {
+    // Expirer automatiquement les colis en attente (status = REGISTERED) soumis depuis plus de 2 jours
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    await prisma.parcel.updateMany({
+      where: {
+        status: 'REGISTERED',
+        createdAt: {
+          lt: twoDaysAgo
+        }
+      },
+      data: {
+        status: 'LOST' // Utiliser 'LOST' pour représenter le statut expiré
+      }
+    });
+
     const parcels = await prisma.parcel.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
@@ -25,6 +39,7 @@ export async function GET() {
       if (p.status === 'ACCEPTED') statutFrontend = 'Accepté';
       if (p.status === 'IN_TRANSIT') statutFrontend = 'En transit';
       if (p.status === 'DELIVERED') statutFrontend = 'Livré';
+      if (p.status === 'LOST') statutFrontend = 'Expiré';
 
       return {
         id: p.trackingCode,

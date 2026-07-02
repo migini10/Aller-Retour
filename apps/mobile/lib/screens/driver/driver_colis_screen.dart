@@ -626,6 +626,8 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
         return Colors.indigoAccent;
       case 'Livré':
         return Colors.greenAccent;
+      case 'Expiré':
+        return Colors.roseAccent;
       default:
         return Colors.white54;
     }
