@@ -72,7 +72,7 @@ export default function ColisPage() {
                 <span className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Total</span>
               </div>
               <div>
-                <p className="text-2xl font-black text-slate-900 dark:text-white">12</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">{localColis.length}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis envoyés (Année)</p>
               </div>
             </div>
@@ -89,7 +89,9 @@ export default function ColisPage() {
                 <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Actif</span>
               </div>
               <div>
-                <p className="text-2xl font-black text-slate-900 dark:text-white">1</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">
+                  {localColis.filter(c => c.statut !== 'Livré' && c.statut !== 'Expiré').length}
+                </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">En cours d'expédition</p>
               </div>
             </div>
@@ -105,7 +107,9 @@ export default function ColisPage() {
                 </div>
               </div>
               <div>
-                <p className="text-2xl font-black text-slate-900 dark:text-white">11</p>
+                <p className="text-2xl font-black text-slate-900 dark:text-white">
+                  {localColis.filter(c => c.statut === 'Livré').length}
+                </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Colis livrés</p>
               </div>
             </div>

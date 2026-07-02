@@ -14,8 +14,8 @@ export default function ColisActifsPage() {
         const res = await fetch('/api/colis');
         if (res.ok) {
           const data = await res.json();
-          // Filter only active parcels
-          const actifs = data.filter((c: any) => c.statut !== 'Livré');
+          // Filter only active (non-delivered, non-expired) parcels
+          const actifs = data.filter((c: any) => c.statut !== 'Livré' && c.statut !== 'Expiré');
           setColis(actifs);
         }
       } catch (err) {
