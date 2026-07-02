@@ -135,6 +135,10 @@ export default function ClientDashboard() {
               icon = <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
               color = 'green';
               if (p.deliveredAt) timeVal = new Date(p.deliveredAt).getTime();
+            } else if (p.statut === 'Expiré') {
+              title = 'Colis expiré';
+              icon = <svg className="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
+              color = 'rose';
             } else if (p.statut === 'En transit') {
               title = 'Colis en transit';
               icon = <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>;
@@ -481,6 +485,7 @@ export default function ClientDashboard() {
                         item.color === 'green' ? 'bg-green-100 dark:bg-green-500/20' :
                         item.color === 'orange' ? 'bg-orange-100 dark:bg-orange-500/20' :
                         item.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-500/20' :
+                        item.color === 'rose' ? 'bg-rose-100 dark:bg-rose-500/20' :
                         'bg-blue-100 dark:bg-blue-500/20'
                       }`}>
                         {item.icon}
