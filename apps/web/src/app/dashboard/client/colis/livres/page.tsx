@@ -14,9 +14,9 @@ export default function ColisLivresPage() {
         const res = await fetch('/api/colis');
         if (res.ok) {
           const data = await res.json();
-          // Filter only delivered parcels
-          const livres = data.filter((c: any) => c.statut === 'Livré');
-          setColis(livres);
+          // Filter delivered and expired (LOST) parcels
+          const historyItems = data.filter((c: any) => c.statut === 'Livré' || c.statut === 'Expiré');
+          setColis(historyItems);
         }
       } catch (err) {
         console.error(err);
@@ -78,9 +78,15 @@ export default function ColisLivresPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 dark:bg-[#222] px-2 py-1 rounded">Réf: {c.id}</span>
-                    <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                      Livré
-                    </span>
+                    {c.statut === 'Expiré' ? (
+                      <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400">
+                        Expiré
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        Livré
+                      </span>
+                    )}
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-white text-lg">{c.trajet}</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">

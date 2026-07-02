@@ -16,6 +16,16 @@ class HistoryScreen extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20),
         children: [
+           _buildHistoryItem(
+            context: context,
+            isRecent: true,
+            isColis: true,
+            title: 'Dakar ➔ Touba',
+            date: 'Il y a 2 jours • En attente expirée',
+            price: '3 000 FCFA',
+            status: 'EXPIRÉ',
+            color: Colors.redAccent,
+          ),
           _buildHistoryItem(
             context: context,
             isRecent: true,
