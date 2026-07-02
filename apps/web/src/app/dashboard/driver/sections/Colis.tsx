@@ -230,18 +230,14 @@ export default function SectionColis() {
             DEBUG ERROR: {debugError}
           </div>
         )}
-        {colis.length === 0 && !debugError ? (
+        {colis.filter((c: any) => c.statut !== 'Livré').length === 0 && !debugError ? (
           <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-8 text-center transition-colors">
             <AlertTriangle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">Aucun colis disponible pour le moment.</p>
+            <p className="text-slate-500 font-medium">Aucun colis actif en cours de livraison.</p>
           </div>
         ) : (
           (() => {
-            let displayColis = colis.filter((c: any) => c.statut !== 'Livré');
-            if (displayColis.length === 0 && colis.length > 0) {
-              displayColis = [colis[colis.length - 1]];
-            }
-            return displayColis;
+            return colis.filter((c: any) => c.statut !== 'Livré');
           })().map((c: any, idx: number) => {
             const isAccepted = c.statut === 'Accepté';
             const isTransit = c.statut === 'En transit';

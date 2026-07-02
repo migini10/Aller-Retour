@@ -646,7 +646,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
-          : colis.isEmpty
+          : colis.where((c) => c['statut'] != 'Livré').isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -654,7 +654,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                       Icon(Icons.inventory_2, size: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                       const SizedBox(height: 16),
                       Text(
-                        'Aucun colis disponible', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                        'Aucun colis actif en cours', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
                       ),
                     ],
                   ),
@@ -666,18 +666,9 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                     top: 16,
                     bottom: MediaQuery.of(context).padding.bottom + 80,
                   ),
-                  itemCount: () {
-                    List<dynamic> displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
-                    if (displayColis.isEmpty && colis.isNotEmpty) {
-                      displayColis = [colis.last];
-                    }
-                    return displayColis.length;
-                  }(),
+                  itemCount: colis.where((c) => c['statut'] != 'Livré').length,
                   itemBuilder: (context, index) {
-                    List<dynamic> displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
-                    if (displayColis.isEmpty && colis.isNotEmpty) {
-                      displayColis = [colis.last];
-                    }
+                    final displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
                     final c = displayColis[index];
                     final badgeColor = _getBadgeColor(c['statut'] ?? '');
 
