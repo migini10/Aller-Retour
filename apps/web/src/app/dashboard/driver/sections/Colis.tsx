@@ -1,4 +1,5 @@
 'use client';
+import React, { useState, useEffect } from 'react';
 import { Package, MapPin, Clock, CheckCircle2, Truck, AlertTriangle, ArrowLeftRight, Loader2, Check, Navigation, X } from 'lucide-react';
 
 export default function SectionColis() {
