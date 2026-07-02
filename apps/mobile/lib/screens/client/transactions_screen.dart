@@ -143,10 +143,33 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     );
                   }
 
-                  final tx = _transactions[index];
+                   final tx = _transactions[index];
                   final isPositive = tx['type'] == 'DEPOSIT' || tx['type'] == 'REFUND';
                   final amount = (tx['amount'] as num).toInt();
-                  final String title = tx['type'] == 'DEPOSIT' ? 'Rechargement Wallet' : tx['type'] == 'TICKET_PURCHASE' ? 'Achat de Billet' : tx['type'] == 'TRANSFER' ? 'Transfert' : 'Transaction';
+                  
+                  // Differentiate exact transaction types
+                  String title = 'Transaction';
+                  final typeStr = (tx['type'] ?? '').toString().toUpperCase();
+                  final descriptionStr = (tx['description'] ?? '').toString().toLowerCase();
+                  
+                  if (typeStr == 'DEPOSIT') {
+                    if (descriptionStr.contains('wave')) {
+                      title = 'Paiement Wave';
+                    } else {
+                      title = 'Recharge Wallet';
+                    }
+                  } else if (typeStr == 'WITHDRAWAL') {
+                    title = 'Retrait Wallet';
+                  } else if (typeStr == 'TICKET_PURCHASE' || typeStr == 'TRIP_PAYMENT') {
+                    title = 'Voyage';
+                  } else if (typeStr == 'PARCEL_PAYMENT' || descriptionStr.contains('colis')) {
+                    title = 'Colis';
+                  } else if (typeStr == 'TRANSFER') {
+                    title = 'Paiement Wallet';
+                  } else if (typeStr == 'REFUND') {
+                    title = 'Remboursement Wallet';
+                  }
+                  
                   final dateStr = tx['createdAt'].toString().substring(0, 10);
 
                   return _buildTransactionItem(

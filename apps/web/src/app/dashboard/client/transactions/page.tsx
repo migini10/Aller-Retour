@@ -8,8 +8,8 @@ export default function TransactionsHistoryPage() {
   const transactions = [
     {
       id: 'TRX_001',
-      type: 'transfer_out',
-      title: 'Transfert vers Mamadou N.',
+      type: 'retrait_wallet',
+      title: 'Retrait wallet vers Mamadou N.',
       date: 'Aujourd\'hui • 10:42',
       amount: '- 15 000 FCFA',
       status: 'En attente',
@@ -20,8 +20,8 @@ export default function TransactionsHistoryPage() {
     },
     {
       id: 'TRX_002',
-      type: 'recharge',
-      title: 'Recharge Wave',
+      type: 'payement_wave',
+      title: 'Paiement Wave',
       date: 'Hier • 15:30',
       amount: '+ 20 000 FCFA',
       status: 'Terminé',
@@ -31,8 +31,8 @@ export default function TransactionsHistoryPage() {
     },
     {
       id: 'TRX_003',
-      type: 'payment',
-      title: 'Paiement Colis Express',
+      type: 'colis',
+      title: 'Expédition Colis Express',
       date: '12 Mai 2026 • 09:15',
       amount: '- 2 500 FCFA',
       status: 'Terminé',
@@ -42,8 +42,8 @@ export default function TransactionsHistoryPage() {
     },
     {
       id: 'TRX_004',
-      type: 'payment',
-      title: 'Réservation Billet Dakar-Touba',
+      type: 'voyage',
+      title: 'Voyage Dakar-Touba',
       date: '10 Mai 2026 • 18:20',
       amount: '- 7 500 FCFA',
       status: 'Terminé',
@@ -53,14 +53,25 @@ export default function TransactionsHistoryPage() {
     },
     {
       id: 'TRX_005',
-      type: 'recharge',
-      title: 'Recharge Orange Money',
+      type: 'recharge_wallet',
+      title: 'Recharge wallet Orange Money',
       date: '05 Mai 2026 • 11:00',
       amount: '+ 50 000 FCFA',
       status: 'Terminé',
       icon: ArrowDownLeft,
       color: 'bg-green-500/10 text-green-500',
       isNegative: false,
+    },
+    {
+      id: 'TRX_006',
+      type: 'payement_wallet',
+      title: 'Paiement wallet Aller-Retour',
+      date: '02 Mai 2026 • 14:05',
+      amount: '- 3 500 FCFA',
+      status: 'Terminé',
+      icon: CreditCard,
+      color: 'bg-purple-500/10 text-purple-500',
+      isNegative: true,
     }
   ];
 
