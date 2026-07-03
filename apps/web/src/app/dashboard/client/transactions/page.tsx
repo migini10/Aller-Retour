@@ -98,14 +98,24 @@ export default function TransactionsHistoryPage() {
                 title = desc.includes('wave') ? 'Paiement Wave' : 'Recharge Wallet';
               } else if (typeStr === 'WITHDRAWAL') {
                 title = 'Retrait Wallet';
-              } else if (typeStr === 'TICKET_PURCHASE' || typeStr === 'TRIP_PAYMENT') {
-                title = 'Voyage';
+              } else if (typeStr === 'TICKET_PURCHASE' || typeStr === 'TRIP_PAYMENT' || typeStr === 'ESCROW_HOLD') {
+                if (desc.includes('colis') || desc.includes('parcel')) {
+                  title = 'Paiement Colis';
+                } else {
+                  title = 'Voyage';
+                }
               } else if (typeStr === 'PARCEL_PAYMENT' || desc.includes('colis')) {
                 title = 'Colis';
               } else if (typeStr === 'TRANSFER') {
                 title = 'Paiement Wallet';
               } else if (typeStr === 'REFUND') {
                 title = 'Remboursement Wallet';
+              } else if (typeStr === 'ESCROW_RELEASE') {
+                title = 'Libération de fonds';
+              } else if (typeStr === 'COMMISSION_FEE') {
+                title = 'Frais plate-forme';
+              } else if (typeStr === 'TAX_DEDUCTION') {
+                title = 'Taxe / Redevance';
               }
               let icon = CreditCard;
               if (typeStr === 'DEPOSIT' || typeStr === 'REFUND') {
