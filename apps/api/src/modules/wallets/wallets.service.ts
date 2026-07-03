@@ -25,25 +25,22 @@ export class WalletsService {
   }
 
   async getMyWalletTransactions(userId: string) {
-    let wallet = await prisma.wallet.findFirst({
-      where: { userId, type: 'PASSENGER_WALLET' },
+    const wallets = await prisma.wallet.findMany({
+      where: { userId }
     });
-    if (!wallet) {
-      wallet = await prisma.wallet.findFirst({
-        where: { userId, type: 'DRIVER_WALLET' },
-      });
-    }
-    if (!wallet) return [];
+    if (wallets.length === 0) return [];
+
+    const walletIds = wallets.map(w => w.id);
 
     const transactions = await prisma.transaction.findMany({
       where: { 
         OR: [
-          { sourceWalletId: wallet.id },
-          { targetWalletId: wallet.id }
+          { sourceWalletId: { in: walletIds } },
+          { targetWalletId: { in: walletIds } }
         ]
       },
       orderBy: { createdAt: 'desc' },
-      take: 20
+      take: 100
     });
     return transactions;
   }
