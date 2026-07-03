@@ -246,9 +246,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     amount: '${isPositive ? '+' : '-'} $amount FCFA',
                     amountColor: isPositive ? Colors.greenAccent : Theme.of(context).colorScheme.onSurface,
                     status: tx['status'],
-                    statusColor: (tx['status'] == 'COMPLETED' || tx['status'] == 'Terminé') 
+                    statusColor: (tx['status'] == 'COMPLETED' || tx['status'] == 'Terminé' || tx['status'] == 'SUCCESS') 
                         ? Colors.greenAccent 
-                        : ((tx['status'] == 'ESCROW' || tx['status'] == 'En attente') ? Colors.orangeAccent : Colors.grey),
+                        : ((tx['status'] == 'ESCROW' || tx['status'] == 'En attente' || tx['status'] == 'PENDING') ? Colors.orangeAccent : Colors.grey),
                   );
                 },
               ),
