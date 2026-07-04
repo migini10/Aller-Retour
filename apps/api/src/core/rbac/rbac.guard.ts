@@ -12,7 +12,7 @@ const RolePermissions: Record<UserRole, string[]> = {
     'trips:manifest_download', 'bookings:scan', 'trips:marketplace_publish'
   ],
   PASSENGER: [
-    'bookings:create', 'bookings:read_self'
+    'bookings:create', 'bookings:read_self', 'bookings:read', 'bookings:update'
   ]
 };
 
