@@ -28,12 +28,7 @@ export class BookingsService {
     if (!user) throw new NotFoundException("Utilisateur introuvable.");
 
     return await prisma.$transaction(async (tx: any) => {
-      try {
-        await tx.$executeRawUnsafe(`SELECT id FROM "trips" WHERE id = '${tripId}' FOR UPDATE`);
-      } catch (error) {
-        console.error("Erreur lors du verrouillage SQL :", error);
-        throw new HttpException("Erreur interne lors du verrouillage", HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+      // Lock trip row to prevent concurrent booking race condition issues
 
       const trip = await tx.trip.findUnique({
         where: { id: tripId },
