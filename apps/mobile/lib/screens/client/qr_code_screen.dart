@@ -571,7 +571,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                       ),
-                      child: QRCodeBrandEngine(value: ref, size: 75),
+                      child: QRCodeBrandEngine(value: ref, size: 110),
                     ),
                   ],
                 ),
@@ -713,7 +713,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(24)),
-              child: QRCodeBrandEngine(value: ref, size: 180),
+              child: QRCodeBrandEngine(value: ref, size: 250),
             ),
             const SizedBox(height: 24),
             Text('Billet N° $ticketNo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
@@ -801,7 +801,7 @@ class QRCodeBrandEngine extends StatelessWidget {
   const QRCodeBrandEngine({
     super.key,
     required this.value,
-    this.size = 80,
+    this.size = 120,
   });
 
   @override
@@ -815,7 +815,7 @@ class QRCodeBrandEngine extends StatelessWidget {
           QrImageView(
             data: value,
             version: QrVersions.auto,
-            errorCorrectionLevel: QrErrorCorrectLevel.H,
+            errorCorrectionLevel: QrErrorCorrectLevel.M,
             size: size,
             backgroundColor: Colors.white,
             eyeStyle: const QrEyeStyle(
@@ -823,22 +823,22 @@ class QRCodeBrandEngine extends StatelessWidget {
               color: Color(0xFFE65100), // deep orange
             ),
             dataModuleStyle: const QrDataModuleStyle(
-              dataModuleShape: QrDataModuleShape.circle, // Make data modules dots
-              color: Colors.black87,
+              dataModuleShape: QrDataModuleShape.square, // Square modules for maximum visibility
+              color: Colors.black,
             ),
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(8),
           ),
           // Logo in the center
           Container(
-            width: size * 0.3,
-            height: size * 0.3,
+            width: size * 0.22,
+            height: size * 0.22,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.onSurface,
               borderRadius: BorderRadius.circular(size * 0.08),
               border: Border.all(color: Colors.deepOrangeAccent, width: 1.5),
             ),
             child: Center(
-              child: Icon(Icons.directions_car, color: Colors.deepOrange, size: size * 0.18),
+              child: Icon(Icons.directions_car, color: Colors.deepOrange, size: size * 0.13),
             ),
           ),
         ],
