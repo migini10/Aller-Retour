@@ -89,7 +89,11 @@ export class PaymentService {
     // Check if booking already paid (idempotency check)
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { trip: true }
+      include: {
+        trip: {
+          include: { driver: true }
+        }
+      }
     });
 
     if (!booking) {
@@ -116,7 +120,7 @@ export class PaymentService {
       await tx.driverEarning.create({
         data: {
           bookingId: bookingId,
-          driverId: booking.trip.driverId,
+          driverId: booking.trip.driver.userId,
           basePrice: pricing.basePrice,
           driverCut: pricing.driverCut,
           platformCommission: pricing.platformCommission,
