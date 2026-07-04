@@ -15,20 +15,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     const existingTrip = await prisma.trip.findUnique({
       where: { id },
-      include: { company: true }
     });
 
     if (!existingTrip) {
       return NextResponse.json({ error: 'Trajet non trouvé' }, { status: 404 });
     }
 
-    const companyId = existingTrip.companyId;
-
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId, capacity: vehicleCapacity } });
+    let vehicle = await prisma.vehicle.findFirst({ where: { capacity: vehicleCapacity } });
     if (!vehicle) {
       vehicle = await prisma.vehicle.create({
         data: { 
-          companyId, 
           plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
           type: 'TAXI_7_PLACES', 
           capacity: vehicleCapacity,
@@ -45,12 +41,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!destination) destination = await prisma.station.create({ data: { name: `Gare ${body.destinationCity}`, city: body.destinationCity, country: 'SN', latitude: 14.7, longitude: -17.3 } });
 
     let route = await prisma.route.findFirst({
-      where: { originStationId: origin.id, destinationStationId: destination.id, companyId }
+      where: { originStationId: origin.id, destinationStationId: destination.id }
     });
     if (!route) {
       route = await prisma.route.create({
         data: {
-          companyId,
           name: `${body.originCity} - ${body.destinationCity}`,
           originStationId: origin.id,
           destinationStationId: destination.id,

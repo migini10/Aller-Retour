@@ -71,13 +71,6 @@ export async function POST(req: Request) {
     const seatsOffered = vehicleCapacity - 1;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
-    let company = await prisma.company.findFirst({ where: { name: 'Allogoo' } });
-    if (!company) {
-      company = await prisma.company.create({
-        data: { name: 'Allogoo' }
-      });
-    }
-
     let driverProfile = await prisma.driverProfile.findFirst();
     if (!driverProfile) {
       const defaultUser = await prisma.user.findFirst() || await prisma.user.create({
@@ -88,11 +81,10 @@ export async function POST(req: Request) {
       });
     }
 
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId: company.id, capacity: vehicleCapacity } });
+    let vehicle = await prisma.vehicle.findFirst({ where: { capacity: vehicleCapacity } });
     if (!vehicle) {
       vehicle = await prisma.vehicle.create({
         data: { 
-          companyId: company.id, 
           plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, 
           type: 'TAXI_7_PLACES', 
           capacity: vehicleCapacity,
@@ -109,12 +101,11 @@ export async function POST(req: Request) {
     if (!destination) destination = await prisma.station.create({ data: { name: `Gare ${body.destinationCity}`, city: body.destinationCity, country: 'SN', latitude: 14.7, longitude: -17.3 } });
 
     let route = await prisma.route.findFirst({
-      where: { originStationId: origin.id, destinationStationId: destination.id, companyId: company.id }
+      where: { originStationId: origin.id, destinationStationId: destination.id }
     });
     if (!route) {
       route = await prisma.route.create({
         data: {
-          companyId: company.id,
           name: `${body.originCity} - ${body.destinationCity}`,
           originStationId: origin.id,
           destinationStationId: destination.id,
@@ -127,7 +118,6 @@ export async function POST(req: Request) {
 
     const trip = await prisma.trip.create({
       data: {
-        companyId: company.id,
         routeId: route.id,
         vehicleId: vehicle.id,
         driverId: driverProfile.id,
