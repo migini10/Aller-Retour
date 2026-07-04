@@ -1,4 +1,4 @@
-import { Company, User, Vehicle, Trip, Booking, Wallet, Transaction } from '@aller-retour/database';
+import { User, Vehicle, Trip, Booking } from '@aller-retour/database';
 
 export interface ApiResponse<T> {
   success: boolean;
