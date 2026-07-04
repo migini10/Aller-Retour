@@ -61,15 +61,6 @@ export class AuthService {
       },
     });
 
-    // Création du Wallet passager par défaut
-    await prisma.wallet.create({
-      data: {
-        type: 'PASSENGER_WALLET',
-        currency: 'XOF',
-        userId: user.id,
-      },
-    });
-
     const token = this.generateToken(user);
     return { success: true, user, token };
   }

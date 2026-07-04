@@ -3,21 +3,12 @@ import { prisma } from '@aller-retour/database';
 async function main() {
   console.log('🌱 Début du peuplement de la base de données (Seed)...');
 
-  // 1. Nettoyage partiel optionnel ou idempotence
-  const existingCompany = await prisma.company.findFirst({ where: { name: 'Allogoo Express' } });
-  
-  if (existingCompany) {
+  // 1. Check if user already exists
+  const existingDriver = await prisma.user.findFirst({ where: { phone: '+221778889900' } });
+  if (existingDriver) {
     console.log('Les données de base existent déjà. Skipping...');
     return;
   }
-
-  // 1. Création de la compagnie de transport
-  const company = await prisma.company.create({
-    data: {
-      name: 'Allogoo Express',
-      plan: 'STANDARD',
-    },
-  });
 
   // 2. Création d'un utilisateur chauffeur
   const driverUser = await prisma.user.create({
@@ -26,22 +17,22 @@ async function main() {
       fullName: 'Chauffeur Seed',
       role: 'DRIVER',
       phoneVerified: true,
-      companyId: company.id,
       driverProfile: {
         create: {
           licenseNumber: 'SN-SEED-001',
           licenseExpiry: new Date('2030-01-01'),
-          type: 'AFFILIATED',
+          type: 'FREELANCE',
         }
       }
     },
     include: { driverProfile: true }
   });
 
+  const driverProfileId = driverUser.driverProfile!.id;
+
   // 3. Création d'un véhicule
   const vehicle = await prisma.vehicle.create({
     data: {
-      companyId: company.id,
       plateNumber: 'DK-7777-ZZ',
       type: 'TAXI_7_PLACES',
       capacity: 7,
@@ -68,7 +59,6 @@ async function main() {
   // 5. Création des Lignes (Routes)
   const dakarToubaRoute = await prisma.route.create({
     data: {
-      companyId: company.id,
       name: 'Dakar - Touba',
       originStationId: dakarStation.id,
       destinationStationId: toubaStation.id,
@@ -80,7 +70,6 @@ async function main() {
 
   const thiesDakarRoute = await prisma.route.create({
     data: {
-      companyId: company.id,
       name: 'Thiès - Dakar',
       originStationId: thiesStation.id,
       destinationStationId: dakarStation.id,
@@ -99,10 +88,9 @@ async function main() {
   
   await prisma.trip.create({
     data: {
-      companyId: company.id,
       routeId: dakarToubaRoute.id,
       vehicleId: vehicle.id,
-      driverId: driverUser.driverProfile!.id,
+      driverId: driverProfileId,
       departureTime: departure1,
       pricePerSeat: 5000,
       seatsOffered: 7,
@@ -117,10 +105,9 @@ async function main() {
 
   await prisma.trip.create({
     data: {
-      companyId: company.id,
       routeId: dakarToubaRoute.id,
       vehicleId: vehicle.id,
-      driverId: driverUser.driverProfile!.id,
+      driverId: driverProfileId,
       departureTime: departure2,
       pricePerSeat: 5000,
       seatsOffered: 7,
@@ -136,10 +123,9 @@ async function main() {
 
   await prisma.trip.create({
     data: {
-      companyId: company.id,
       routeId: thiesDakarRoute.id,
       vehicleId: vehicle.id,
-      driverId: driverUser.driverProfile!.id,
+      driverId: driverProfileId,
       departureTime: departure3,
       pricePerSeat: 2000,
       seatsOffered: 4,

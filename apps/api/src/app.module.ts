@@ -5,10 +5,9 @@ import { DatabaseModule } from './core/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
-import { WalletsModule } from './modules/wallets/wallets.module';
-import { CompaniesModule } from './modules/companies/companies.module';
-import { FinanceModule } from './modules/finance/finance.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { PricingModule } from './modules/pricing/pricing.module';
+import { QrModule } from './modules/qr/qr.module';
 
 @Module({
   imports: [
@@ -19,10 +18,9 @@ import { PaymentModule } from './modules/payment/payment.module';
     AuthModule,
     TripsModule,
     BookingsModule,
-    WalletsModule,
-    CompaniesModule,
-    FinanceModule,
     PaymentModule,
+    PricingModule,
+    QrModule,
   ],
   controllers: [AppController],
   providers: [],

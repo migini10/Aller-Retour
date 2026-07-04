@@ -8,21 +8,11 @@ import { AuthenticatedRequest } from '../tenant/tenant.guard';
 // Définition de la carte des permissions par rôle
 const RolePermissions: Record<UserRole, string[]> = {
   SUPER_ADMIN: ['*'], // Accès total sans restriction
-  TENANT_ADMIN: [
-    'companies:read', 'companies:update',
-    'vehicles:create', 'vehicles:read', 'vehicles:update',
-    'drivers:read', 'drivers:assign',
-    'routes:manage', 'trips:schedule', 'trips:manifest_download',
-    'bookings:read', 'bookings:scan', 'wallets:read', 'wallets:withdraw'
-  ],
-  DISPATCHER: [
-    'trips:manifest_download', 'bookings:create', 'bookings:scan', 'vehicles:inspect'
-  ],
   DRIVER: [
-    'trips:manifest_download', 'bookings:scan', 'wallets:read', 'wallets:withdraw', 'trips:marketplace_publish'
+    'trips:manifest_download', 'bookings:scan', 'trips:marketplace_publish'
   ],
   PASSENGER: [
-    'bookings:create', 'bookings:read_self', 'wallets:read', 'wallets:deposit', 'wallets:withdraw'
+    'bookings:create', 'bookings:read_self'
   ]
 };
 

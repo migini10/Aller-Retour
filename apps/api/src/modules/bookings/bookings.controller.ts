@@ -55,7 +55,7 @@ export class BookingsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.PASSENGER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN)
+  @Roles(UserRole.PASSENGER)
   @Permissions('bookings:create')
   @ApiOperation({ summary: 'Réserver un siège sur un trajet' })
   async create(@Req() req: any, @Body() dto: CreateBookingDto) {
@@ -64,7 +64,7 @@ export class BookingsController {
 
   @Post('verify-qr/:token')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.DISPATCHER, UserRole.DRIVER, UserRole.TENANT_ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @Permissions('bookings:scan')
   @ApiOperation({ summary: 'Scanner et valider un billet QR Code en gare' })
   async verifyQr(@Param('token') token: string) {
@@ -98,7 +98,7 @@ export class BookingsController {
 
   @Post(':id/cancel')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.PASSENGER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN)
+  @Roles(UserRole.PASSENGER)
   @Permissions('bookings:update')
   @ApiOperation({ summary: 'Annuler une réservation et obtenir un remboursement dans le Wallet' })
   async cancelBooking(
@@ -111,7 +111,7 @@ export class BookingsController {
 
   @Post('transfer')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.DRIVER, UserRole.DISPATCHER, UserRole.TENANT_ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @Permissions('bookings:update')
   @ApiOperation({ summary: 'Transférer des passagers vers un autre trajet' })
   async transfer(@Req() req: any, @Body() dto: TransferBookingsDto) {

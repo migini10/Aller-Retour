@@ -1,35 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
+import { PricingService } from '../pricing/pricing.service';
+import { prisma } from '@aller-retour/database';
+
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
 
+  constructor(private readonly pricingService: PricingService) {}
+
   /**
    * Simule un appel à l'API Wave Business pour déclencher un Push USSD
-   * @param phone Le numéro de téléphone du client
-   * @param amount Le montant à payer
-   * @param reference Référence interne de la commande/billet
-   * @returns Un objet de session de paiement Wave simulé
    */
   async initiateWavePayment(phone: string, amount: number, reference: string) {
     this.logger.log(`Initiating WAVE payment for ${phone} - Amount: ${amount} XOF`);
-    
-    // En production: const response = await axios.post('https://api.wave.com/v1/checkout/sessions', ...)
-    
     const mockTransactionId = `wav_tx_${uuidv4().replace(/-/g, '').substring(0, 16)}`;
     const mockPaymentUrl = `https://pay.wave.com/checkout/${mockTransactionId}`;
-    
-    // Simulation du délai réseau
     await new Promise((resolve) => setTimeout(resolve, 500));
-
     return {
       success: true,
       transactionId: mockTransactionId,
       status: 'pending_validation',
       message: 'Push USSD envoyé au client sur son compte Wave.',
       provider: 'WAVE',
-      paymentUrl: mockPaymentUrl, // Lien pour générer un QR Code sur PC
+      paymentUrl: mockPaymentUrl,
       bookingId: reference,
       webhook_simulation_url: `/api/payment/webhook/wave/simulate?tx_id=${mockTransactionId}&ref=${reference}`
     };
@@ -37,23 +32,13 @@ export class PaymentService {
 
   /**
    * Simule un appel à l'API Orange Money Web Payment
-   * @param phone Le numéro de téléphone du client
-   * @param amount Le montant à payer
-   * @param reference Référence interne de la commande/billet
-   * @returns Un objet de session de paiement Orange Money simulé
    */
   async initiateOrangeMoneyPayment(phone: string, amount: number, reference: string) {
     this.logger.log(`Initiating ORANGE MONEY payment for ${phone} - Amount: ${amount} XOF`);
-    
-    // En production: const token = await getToken(); const response = await axios.post('https://api.orange.com/.../webpayment', ...)
-    
     const mockTransactionId = `om_tx_${uuidv4().replace(/-/g, '').substring(0, 16)}`;
     const mockPayToken = `mp_token_${uuidv4().substring(0, 8)}`;
     const mockPaymentUrl = `https://api.orange.com/webpayment/pay/${mockPayToken}`;
-    
-    // Simulation du délai réseau
     await new Promise((resolve) => setTimeout(resolve, 500));
-
     return {
       success: true,
       transactionId: mockTransactionId,
@@ -61,7 +46,7 @@ export class PaymentService {
       status: 'pending_validation',
       message: 'Push USSD envoyé au client via Orange Money.',
       provider: 'ORANGE_MONEY',
-      paymentUrl: mockPaymentUrl, // Lien pour générer un QR Code sur PC
+      paymentUrl: mockPaymentUrl,
       bookingId: reference,
       webhook_simulation_url: `/api/payment/webhook/om/simulate?tx_id=${mockTransactionId}&ref=${reference}`
     };
@@ -72,8 +57,14 @@ export class PaymentService {
    */
   async handleWaveWebhook(payload: any) {
     this.logger.log(`Received Wave Webhook: ${JSON.stringify(payload)}`);
-    // TODO: Mettre à jour la base de données (Prisma)
-    return { received: true };
+    const reference = payload.data?.client_reference;
+    const txId = payload.data?.id;
+
+    if (!reference || !txId) {
+      return { success: false, message: 'Invalid payload' };
+    }
+
+    return this.confirmBookingPayment(reference, txId);
   }
 
   /**
@@ -81,7 +72,59 @@ export class PaymentService {
    */
   async handleOrangeMoneyWebhook(payload: any) {
     this.logger.log(`Received Orange Money Webhook: ${JSON.stringify(payload)}`);
-    // TODO: Mettre à jour la base de données (Prisma)
-    return { received: true };
+    const reference = payload.tx_reference;
+    const txId = payload.notif_id;
+
+    if (!reference || !txId) {
+      return { success: false, message: 'Invalid payload' };
+    }
+
+    return this.confirmBookingPayment(reference, txId);
+  }
+
+  /**
+   * Idempotent payment confirmation that marks booking as PAID/CONFIRMED and logs driver earnings
+   */
+  private async confirmBookingPayment(bookingId: string, paymentRef: string) {
+    // Check if booking already paid (idempotency check)
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { trip: true }
+    });
+
+    if (!booking) {
+      return { success: false, message: 'Booking not found' };
+    }
+
+    if (booking.status === 'CONFIRMED' || booking.status === 'BOARDED') {
+      return { success: true, message: 'Booking already confirmed' };
+    }
+
+    const pricing = this.pricingService.calculatePricing(booking.basePrice);
+
+    await prisma.$transaction(async (tx) => {
+      // Update Booking status to CONFIRMED
+      await tx.booking.update({
+        where: { id: bookingId },
+        data: {
+          status: 'CONFIRMED',
+          paymentRef: paymentRef,
+        }
+      });
+
+      // Create Driver Earning row (pending payouts)
+      await tx.driverEarning.create({
+        data: {
+          bookingId: bookingId,
+          driverId: booking.trip.driverId,
+          basePrice: pricing.basePrice,
+          driverCut: pricing.driverCut,
+          platformCommission: pricing.platformCommission,
+          status: 'PENDING',
+        }
+      });
+    });
+
+    return { success: true, message: 'Booking confirmed and driver earnings registered' };
   }
 }

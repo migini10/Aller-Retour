@@ -33,20 +33,11 @@ export class TripsController {
   
   // Simple in-memory cache to speed up trip creations
   private static CACHE = {
-    companyId: null as string | null,
     driverProfileId: null as string | null,
     stations: new Map<string, string>(), // cityName -> id
     routes: new Map<string, string>(), // originCity-destCity -> id
     vehicles: new Map<string, string>(), // capacity -> id
   };
-
-  private async getAlloDakarCompany() {
-    if (TripsController.CACHE.companyId) return TripsController.CACHE.companyId;
-    let company = await prisma.company.findFirst({ where: { name: 'Allogoo' } });
-    if (!company) company = await prisma.company.create({ data: { name: 'Allogoo' } });
-    TripsController.CACHE.companyId = company.id;
-    return company.id;
-  }
 
   private async getAlloDakarDriver() {
     if (TripsController.CACHE.driverProfileId) return TripsController.CACHE.driverProfileId;
@@ -71,26 +62,26 @@ export class TripsController {
     return station.id;
   }
 
-  private async getVehicle(companyId: string, capacity: number) {
+  private async getVehicle(capacity: number) {
     const key = `${capacity}`;
     if (TripsController.CACHE.vehicles.has(key)) return TripsController.CACHE.vehicles.get(key)!;
-    let vehicle = await prisma.vehicle.findFirst({ where: { companyId, capacity } });
+    let vehicle = await prisma.vehicle.findFirst({ where: { capacity } });
     if (!vehicle) {
       vehicle = await prisma.vehicle.create({
-        data: { companyId, plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, type: 'TAXI_7_PLACES', capacity, insuranceExpiry: new Date('2030-01-01'), inspectionExpiry: new Date('2030-01-01') }
+        data: { plateNumber: `DK-${Math.floor(Math.random()*10000)}-AB`, type: 'TAXI_7_PLACES', capacity, insuranceExpiry: new Date('2030-01-01'), inspectionExpiry: new Date('2030-01-01') }
       });
     }
     TripsController.CACHE.vehicles.set(key, vehicle.id);
     return vehicle.id;
   }
 
-  private async getRoute(companyId: string, originCity: string, destinationCity: string, originId: string, destId: string) {
+  private async getRoute(originCity: string, destinationCity: string, originId: string, destId: string) {
     const key = `${originCity}-${destinationCity}`;
     if (TripsController.CACHE.routes.has(key)) return TripsController.CACHE.routes.get(key)!;
-    let route = await prisma.route.findFirst({ where: { originStationId: originId, destinationStationId: destId, companyId } });
+    let route = await prisma.route.findFirst({ where: { originStationId: originId, destinationStationId: destId } });
     if (!route) {
       route = await prisma.route.create({
-        data: { companyId, name: `${originCity} - ${destinationCity}`, originStationId: originId, destinationStationId: destId, distanceKm: 200, estimatedDurationMins: 180, defaultPrice: 5000 }
+        data: { name: `${originCity} - ${destinationCity}`, originStationId: originId, destinationStationId: destId, distanceKm: 200, estimatedDurationMins: 180, defaultPrice: 5000 }
       });
     }
     TripsController.CACHE.routes.set(key, route.id);
@@ -131,10 +122,7 @@ export class TripsController {
     if (date) {
       const startOfDay = new Date(date);
       if (!isNaN(startOfDay.getTime())) {
-        // Start at 00:00 UTC on the selected date
         startOfDay.setUTCHours(0, 0, 0, 0);
-        // End at 11:59:59 UTC the next day (36-hour window) to cover all timezone offsets
-        // A trip at 00:34 UTC on the next calendar day is still "tonight" in West Africa (UTC+0)
         const endOfDay = new Date(startOfDay);
         endOfDay.setDate(endOfDay.getDate() + 1);
         endOfDay.setUTCHours(11, 59, 59, 999);
@@ -147,7 +135,6 @@ export class TripsController {
     const trips = await prisma.trip.findMany({
       where: whereClause,
       include: {
-        company: { select: { name: true, logoUrl: true } },
         route: {
           include: {
             originStation: true,
@@ -219,23 +206,22 @@ export class TripsController {
         throw new BadRequestException("La ville de départ et la ville d'arrivée ne peuvent pas être identiques.");
       }
     }
-    const [companyId, driverId] = await Promise.all([this.getAlloDakarCompany(), this.getAlloDakarDriver()]);
+    const driverId = await this.getAlloDakarDriver();
     
     const capacity = body.vehicleCapacity || 5;
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
     const [vehicleId, originId, destinationId] = await Promise.all([
-      this.getVehicle(companyId, capacity),
+      this.getVehicle(capacity),
       this.getStation(body.originCity),
       this.getStation(body.destinationCity)
     ]);
 
-    const routeId = await this.getRoute(companyId, body.originCity, body.destinationCity, originId, destinationId);
+    const routeId = await this.getRoute(body.originCity, body.destinationCity, originId, destinationId);
 
     const trip = await prisma.trip.create({
       data: {
-        companyId,
         routeId,
         vehicleId,
         driverId,
@@ -261,26 +247,23 @@ export class TripsController {
     }
     const existingTrip = await prisma.trip.findUnique({
       where: { id },
-      select: { companyId: true }
     });
 
     if (!existingTrip) {
       return { success: false, error: 'Trajet non trouvé' };
     }
 
-    const companyId = existingTrip.companyId;
-
     const capacity = body.vehicleCapacity || 5;
     const seatsOffered = body.placesLibres ? parseInt(body.placesLibres.toString(), 10) : 4;
     const initialPassengers = body.passagers ? parseInt(body.passagers.toString(), 10) : 0;
 
     const [vehicleId, originId, destinationId] = await Promise.all([
-      this.getVehicle(companyId, capacity),
+      this.getVehicle(capacity),
       this.getStation(body.originCity),
       this.getStation(body.destinationCity)
     ]);
 
-    const routeId = await this.getRoute(companyId, body.originCity, body.destinationCity, originId, destinationId);
+    const routeId = await this.getRoute(body.originCity, body.destinationCity, originId, destinationId);
 
     const updatedTrip = await prisma.trip.update({
       where: { id },
@@ -435,7 +418,6 @@ export class TripsController {
         }
       },
       include: {
-        company: { select: { name: true, logoUrl: true } },
         vehicle: { select: { plateNumber: true, type: true, capacity: true } },
         driver: { select: { user: { select: { fullName: true, phone: true } } } },
         bookings: {

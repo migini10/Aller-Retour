@@ -8,50 +8,17 @@ generator client {
 }
 
 // ==========================================
-// 1. MULTI-TENANCY & UTILISATEURS
+// 1. UTILISATEURS & RÔLES
 // ==========================================
 
-enum TenantPlan {
-  FREE
-  STANDARD
-  PREMIUM
-  ENTERPRISE
-}
-
-model Company {
-  id          String     @id @default(uuid())
-  name        String
-  legalName   String?
-  taxId       String?    @unique // NINEA au Sénégal
-  address     String?
-  logoUrl     String?
-  plan        TenantPlan @default(STANDARD)
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  users       User[]
-  vehicles    Vehicle[]
-  routes      Route[]
-  trips       Trip[]
-  wallets     Wallet[]
-
-  @@map("companies")
-}
-
 enum UserRole {
-  SUPER_ADMIN     // Équipe Aller-Retour
-  TENANT_ADMIN    // Gestionnaire de GIE / Transporteur
-  DISPATCHER      // Guichetier / Chef de gare
-  DRIVER          // Chauffeur (Affilié ou Libre)
-  PASSENGER       // Client / Voyageur
+  SUPER_ADMIN
+  DRIVER
+  PASSENGER
 }
 
 model User {
   id            String    @id @default(uuid())
-  companyId     String?   // Obligatoire pour TENANT_ADMIN et DISPATCHER
-  company       Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
   email         String?   @unique
   phone         String    @unique // Numéro de téléphone principal (clé d'auth Mobile Money)
   phoneVerified Boolean   @default(false)
@@ -63,19 +30,21 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  driverProfile DriverProfile?
-  bookings      Booking[]
-  wallets       Wallet[]
-  seatLocks     SeatLock[]
+  driverProfile   DriverProfile?
+  bookings        Booking[]
+  seatLocks       SeatLock[]
+  driverEarnings  DriverEarning[]
+  
+  reviewsWritten  Review[]  @relation("ReviewAuthor")
+  reviewsReceived Review[]  @relation("ReviewReceiver")
 
-  failedAttempts Int       @default(0)
-  blockedUntil   DateTime?
+  failedAttempts  Int       @default(0)
+  blockedUntil    DateTime?
 
-  colisPoints    Int       @default(30)
-  transportPoints Int      @default(20)
+  colisPoints     Int       @default(30)
+  transportPoints Int       @default(20)
 
   @@index([phone])
-  @@index([companyId])
   @@map("users")
 }
 
@@ -84,8 +53,7 @@ model User {
 // ==========================================
 
 enum DriverType {
-  AFFILIATED // Rattaché à une compagnie/GIE
-  FREELANCE  // Chauffeur indépendant sur la Marketplace
+  FREELANCE
 }
 
 enum KYCStatus {
@@ -99,7 +67,7 @@ model DriverProfile {
   userId          String     @unique
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  type            DriverType @default(AFFILIATED)
+  type            DriverType @default(FREELANCE)
   licenseNumber   String     @unique
   licenseExpiry   DateTime
   licenseFrontUrl String?
@@ -132,9 +100,6 @@ enum VehicleStatus {
 
 model Vehicle {
   id               String        @id @default(uuid())
-  companyId        String
-  company          Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
   plateNumber      String        @unique
   type             VehicleType
   capacity         Int           // Nombre de sièges passagers
@@ -150,7 +115,6 @@ model Vehicle {
 
   trips            Trip[]
 
-  @@index([companyId])
   @@index([plateNumber])
   @@map("vehicles")
 }
@@ -179,9 +143,6 @@ model Station {
 
 model Route {
   id                   String   @id @default(uuid())
-  companyId            String
-  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
   name                 String   // ex: Dakar - Touba
   originStationId      String
   originStation        Station  @relation("RouteOrigin", fields: [originStationId], references: [id], onDelete: Restrict)
@@ -196,7 +157,6 @@ model Route {
 
   trips                Trip[]
 
-  @@index([companyId])
   @@index([originStationId, destinationStationId])
   @@map("routes")
 }
@@ -212,8 +172,6 @@ enum TripStatus {
 
 model Trip {
   id              String     @id @default(uuid())
-  companyId       String
-  company         Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   routeId         String
   route           Route      @relation(fields: [routeId], references: [id], onDelete: Restrict)
   vehicleId       String
@@ -225,8 +183,8 @@ model Trip {
   arrivalTime     DateTime?
   status          TripStatus @default(SCHEDULED)
   pricePerSeat    Float      // Prix effectif de la place sur ce départ
-  isMarketplace   Boolean    @default(false) // Trajet de chauffeur libre
-  isLocked        Boolean    @default(false) // Verrouillage du trajet pour bloquer les réservations publiques
+  isMarketplace   Boolean    @default(true) // Trajet de chauffeur libre
+  isLocked        Boolean    @default(false)
   seatsOffered      Int        @default(4)
   initialPassengers Int        @default(0)
   currentLat        Float?
@@ -238,7 +196,6 @@ model Trip {
   parcels         Parcel[]
   seatLocks       SeatLock[]
 
-  @@index([companyId])
   @@index([routeId])
   @@index([departureTime])
   @@map("trips")
@@ -274,15 +231,21 @@ model Booking {
   seatNumber      Int
   qrCodeToken     String        @unique // Token chiffré anticopie
   status          BookingStatus @default(PENDING_PAYMENT)
-  amountPaid      Float
+  
+  // Pricing Details
+  basePrice       Float
+  clientFee       Float         // basePrice * 3%
+  amountPaid      Float         // basePrice + clientFee
+  
   paymentMethod   PaymentMethod
-  paymentRef      String?       // Transaction ID de Wave / OM
+  paymentRef      String?       @unique // Transaction ID unique de Wave / OM pour idempotence
   boardedAt       DateTime?
   hiddenByUser    Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  // @@unique removed because it prevents seat reuse after cancellations/expirations
+  driverEarning   DriverEarning?
+
   @@index([userId])
   @@index([qrCodeToken])
   @@map("bookings")
@@ -336,170 +299,47 @@ model Parcel {
 }
 
 // ==========================================
-// 5. FINANCES, WALLETS & ESCROW
+// 5. DRIVER EARNINGS
 // ==========================================
 
-enum WalletType {
-  PASSENGER_WALLET
-  DRIVER_WALLET
-  COMPANY_WALLET
-  ESCROW_WALLET
-  PLATFORM_TREASURY
-  GOVERNMENT_TAX_WALLET
-  PAYMENT_GATEWAY_WALLET
-}
+model DriverEarning {
+  id                 String        @id @default(uuid())
+  bookingId          String        @unique
+  booking            Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  driverId           String
+  driver             User          @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  basePrice          Float
+  driverCut          Float         // basePrice - 3%
+  platformCommission Float         // basePrice * 6% total cut
+  status             String        @default("PENDING") // PENDING, PAID, CANCELLED
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
-model Wallet {
-  id              String        @id @default(uuid())
-  type            WalletType
-  currency        String        @default("XOF")
-  balance         Float         @default(0.0)
-  
-  userId          String?
-  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId       String?
-  company         Company?      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  transactionsDebit  Transaction[] @relation("WalletDebit")
-  transactionsCredit Transaction[] @relation("WalletCredit")
-
-  @@index([userId])
-  @@index([companyId])
-  @@map("wallets")
-}
-
-enum TransactionType {
-  DEPOSIT            // Dépôt par Mobile Money
-  WITHDRAWAL         // Retrait vers compte Wave/OM
-  TICKET_PURCHASE    // Achat d'un billet
-  ESCROW_HOLD        // Mise en séquestre du paiement
-  ESCROW_RELEASE     // Libération des fonds au chauffeur/transporteur
-  COMMISSION_FEE     // Prélèvement commission plateforme
-  TAX_DEDUCTION      // Prélèvement taxes d'État / redevance gare
-}
-
-enum TransactionStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
-}
-
-model Transaction {
-  id              String            @id @default(uuid())
-  type            TransactionType
-  status          TransactionStatus @default(PENDING)
-  amount          Float
-  currency        String            @default("XOF")
-  reference       String?           @unique // Reference externe de paiement
-  description     String?
-  
-  sourceWalletId  String?
-  sourceWallet    Wallet?           @relation("WalletDebit", fields: [sourceWalletId], references: [id], onDelete: Restrict)
-  targetWalletId  String?
-  targetWallet    Wallet?           @relation("WalletCredit", fields: [targetWalletId], references: [id], onDelete: Restrict)
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  @@index([sourceWalletId])
-  @@index([targetWalletId])
-  @@index([reference])
-  @@map("transactions")
+  @@index([driverId])
+  @@map("driver_earnings")
 }
 
 // ==========================================
-// 6. SYSTÈME GÉOGRAPHIQUE NATIONAL (SÉNÉGAL)
+// 6. AVIS / REVIEWS
 // ==========================================
 
-model GeoCountry {
-  id        String      @id @default(uuid())
-  code      String      @unique // ex: SN
-  name      String      // ex: Sénégal
-  currency  String      @default("FCFA")
-  regions   GeoRegion[]
+model Review {
+  id         String   @id @default(uuid())
+  authorId   String
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("ReviewReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  rating     Int      // 1 to 5
+  comment    String?
+  createdAt  DateTime @default(now())
 
-  @@map("geo_countries")
+  @@index([receiverId])
+  @@map("reviews")
 }
 
-model GeoRegion {
-  id          String           @id @default(uuid())
-  countryId   String
-  country     GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  name        String           // ex: Dakar, Thiès
-  departments GeoDepartment[]
-
-  @@map("geo_regions")
-}
-
-model GeoDepartment {
-  id        String      @id @default(uuid())
-  regionId  String
-  region    GeoRegion   @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  name      String      // ex: Département de Dakar, Pikine
-  cities    GeoCity[]
-
-  @@map("geo_departments")
-}
-
-model GeoCity {
-  id           String        @id @default(uuid())
-  departmentId String
-  department   GeoDepartment @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  name         String        // ex: Dakar, Pikine, Rufisque
-  communes     GeoCommune[]
-
-  @@map("geo_cities")
-}
-
-model GeoCommune {
-  id        String       @id @default(uuid())
-  cityId    String
-  city      GeoCity      @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  name      String       // ex: Plateau, Médina, Touba Mosquée
-  quarters  GeoQuarter[]
-
-  @@map("geo_communes")
-}
-
-model GeoQuarter {
-  id          String           @id @default(uuid())
-  communeId   String
-  commune     GeoCommune       @relation(fields: [communeId], references: [id], onDelete: Cascade)
-  name        String           // ex: HLM 1, Parcelles Assainies, Darou Khoudoss
-  subQuarters GeoSubQuarter[]
-
-  @@map("geo_quarters")
-}
-
-model GeoSubQuarter {
-  id        String        @id @default(uuid())
-  quarterId String
-  quarter   GeoQuarter    @relation(fields: [quarterId], references: [id], onDelete: Cascade)
-  name      String        // ex: Parcelles U1, Forage Baye Lahad
-  landmarks GeoLandmark[]
-
-  @@map("geo_sub_quarters")
-}
-
-model GeoLandmark {
-  id           String         @id @default(uuid())
-  subQuarterId String?
-  subQuarter   GeoSubQuarter? @relation(fields: [subQuarterId], references: [id], onDelete: Cascade)
-  name         String         // ex: Gare Routière Pompiers, Garage Bélel
-  latitude     Float
-  longitude    Float
-  
-  isActive     Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-
-  @@index([name])
-  @@map("geo_landmarks")
-}
+// ==========================================
+// 7. ALLO PRIVE
+// ==========================================
 
 model AlloPriveRequest {
   id              String      @id @default(uuid())
@@ -510,8 +350,8 @@ model AlloPriveRequest {
   destination     String
   departureDate   String
   price           Int
-  type            String      @default("allo-prive") // "allo-prive" or "ordinaire"
-  status          String      @default("PENDING") // PENDING, ACCEPTED, COMPLETED
+  type            String      @default("allo-prive")
+  status          String      @default("PENDING")
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   applications    AlloPriveApplication[]
@@ -529,7 +369,7 @@ model AlloPriveApplication {
   driverRating    Float
   driverVerified  Boolean     @default(false)
   driverScore     Int         @default(100)
-  status          String      @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  status          String      @default("PENDING")
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
