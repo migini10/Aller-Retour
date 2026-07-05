@@ -566,31 +566,31 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 30, 20, 40),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Espace Voyageur', 
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.left,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 38, // Plus grand, plus moderne
-                          letterSpacing: -1.5,
-                          height: 1.1,
+                          fontSize: 34,
+                          letterSpacing: -1.0,
+                          height: 1.2,
                           shadows: [
                             Shadow(color: Colors.black54, blurRadius: 15, offset: Offset(0, 4)),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text(
                         'Bienvenue sur votre tableau de bord.\nGérez vos réservations en toute simplicité.', 
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.left,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16, // Plus lisible
-                          height: 1.5,
-                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFE2E8F0),
+                          fontSize: 15,
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: 0.2,
                           shadows: [
                             Shadow(color: Colors.black87, blurRadius: 8, offset: Offset(0, 2)),
