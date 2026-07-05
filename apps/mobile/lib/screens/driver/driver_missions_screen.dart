@@ -12,8 +12,8 @@ class DriverMissionsScreen extends StatefulWidget {
 }
 
 class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
-  String selectedTab = 'Toutes';
-  final List<String> tabs = ['Toutes', 'Aujourd\'hui', 'Programmées', 'Historique'];
+  String selectedTab = 'Programmées';
+  final List<String> tabs = ['Programmées', 'Toutes', 'Aujourd\'hui', 'Historique'];
 
   List<Map<String, dynamic>> missions = [];
   bool isLoading = true;

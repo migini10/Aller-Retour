@@ -8,7 +8,7 @@ const initialMissions = [
   { id: 'TRIP-405', displayId: 'TRIP-405', trajet: 'Dakar → Saint-Louis', date: 'Demain', heure: '07:00', vehicule: 'Bus 50 Places', statut: 'programmé', passagers: 22, placesLibres: 28, placesPrises: 22, isAirConditioned: true, takesTollRoad: false, pricePerSeat: 5000 },
 ];
 
-const tabs = ['Toutes', 'Aujourd\'hui', 'Programmées', 'Historique'];
+const tabs = ['Programmées', 'Toutes', 'Aujourd\'hui', 'Historique'];
 
 const statutStyle: Record<string, string> = {
   'à venir': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
@@ -20,7 +20,7 @@ const statutStyle: Record<string, string> = {
 export default function SectionMissions() {
   const [isMounted, setIsMounted] = React.useState(false);
   const [cancelAlertMessage, setCancelAlertMessage] = useState('');
-  const [tab, setTab] = useState('Toutes');
+  const [tab, setTab] = useState('Programmées');
   const [localMissions, setLocalMissions] = useState(initialMissions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMissionId, setEditMissionId] = useState<string | null>(null);
