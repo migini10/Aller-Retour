@@ -316,7 +316,7 @@ export default function ClientDashboard() {
       <div className="w-full max-w-7xl px-5 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-12 space-y-8 animate-fade-in mx-auto">
         
         {/* Header & Wallet Quick Look with Hero Background */}
-        <div className="relative -mx-5 sm:-mx-8 lg:-mx-12 sm:rounded-3xl overflow-hidden mb-8 shadow-xl">
+        <div className="relative -mx-5 sm:-mx-8 lg:-mx-12 rounded-b-[32px] rounded-t-none overflow-hidden mb-8 shadow-xl">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <img src="/images/hero_client_premium.png" alt="Allogoo Premium Transport" className="w-full h-full object-cover object-center" />
