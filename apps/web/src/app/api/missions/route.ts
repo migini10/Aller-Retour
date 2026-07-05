@@ -8,7 +8,7 @@ export const fetchCache = 'force-no-store';
 export async function GET() {
   try {
     const trips = await prisma.trip.findMany({
-      orderBy: { departureTime: 'asc' },
+      orderBy: { departureTime: 'desc' },
       include: {
         route: {
           include: {
