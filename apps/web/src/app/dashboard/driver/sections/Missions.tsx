@@ -651,11 +651,13 @@ export default function SectionMissions() {
 
           return filteredMissions.map(m => {
             const isUrgentNotReady = m.statut === 'programmé' && checkTooSoon(m.date, m.heure);
+            const isExpiredStatus = m.statut === 'expiré';
+            const isRoseColored = isUrgentNotReady || isExpiredStatus;
             return (
             <div 
               key={m.id} 
               className={`border rounded-2xl p-5 transition-colors space-y-4 ${
-                isUrgentNotReady
+                isRoseColored
                   ? 'bg-rose-500/10 dark:bg-rose-950/20 border-rose-500/30 dark:border-rose-900/50 hover:border-rose-500/50'
                   : 'bg-white dark:bg-[#141414] border-slate-200 dark:border-[#2A2A2A]/80 hover:border-orange-500/30'
               }`}
