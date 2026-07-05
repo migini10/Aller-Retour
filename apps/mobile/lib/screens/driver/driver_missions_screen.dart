@@ -832,7 +832,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                         border: Border.all(color: isSelected ? const Color(0xFFF97316) : Theme.of(context).dividerColor),
                       ),
                       child: Text(t, style: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white54,
+                        color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       )),
@@ -1659,8 +1659,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   Widget _buildActionButton(IconData icon, String label, Color bgColor, Color textColor, VoidCallback onPressed, {Color? borderColor}) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 14),
-      label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+      icon: Icon(icon, size: 14, color: textColor),
+      label: Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 11)),
       style: ElevatedButton.styleFrom(
         backgroundColor: bgColor,
         foregroundColor: textColor,
