@@ -1808,13 +1808,21 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               for (var t in realTrips) {
                 int requestedPassengers = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
                 int availableSeats = t['availableSeats'] ?? 5;
+                int seatsOffered = t['seatsOffered'] ?? 5;
+                int placesPrises = t['placesPrises'] ?? 0;
                 bool isFull = requestedPassengers > availableSeats;
+                bool isTooSoon = t['isTooSoon'] == true;
+                bool isDisabled = isFull || isTooSoon;
 
                 tripWidgets.add(
                   GestureDetector(
                     onTap: () {
+                      if (isTooSoon) {
+                        setState(() { errorMessage = 'Vous ne pouvez pas réserver à moins d\'une heure du départ. Appelez le chauffeur au ${t['driverPhone']}'; });
+                        return;
+                      }
                       if (isFull) {
-                        setState(() { errorMessage = 'Places insuffisantes pour ce trajet.'; });
+                        setState(() { errorMessage = 'Impossible de choisir ce trajet : vous demandez $requestedPassengers place(s) mais il n\'en reste que $availableSeats.'; });
                         return;
                       }
                       setState(() {
@@ -1822,45 +1830,203 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         step = 3;
                       });
                     },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
-                        border: Border.all(color: isFull ? Colors.red.withValues(alpha: 0.5) : borderColor),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Opacity(
+                      opacity: isDisabled ? 0.7 : 1.0,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
+                          border: Border.all(color: isDisabled
+                            ? (isFull ? Colors.red.withValues(alpha: 0.5) : Theme.of(context).dividerColor.withValues(alpha: 0.5))
+                            : borderColor),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Row 1: Time badge + Company name
+                            Row(
                               children: [
-                                Text(t['company'] as String, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                                const SizedBox(height: 4),
-                                Text('${t['type']} • ${t['options']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
-                                if (isFull)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                                      child: Text('Places insuffisantes ($availableSeats)', style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isTooSoon
+                                      ? (isDark ? const Color(0xFF222222) : const Color(0xFFF1F5F9))
+                                      : (isDark ? const Color(0xFFF97316).withValues(alpha: 0.2) : const Color(0xFFFFF7ED)),
+                                    border: Border.all(color: isTooSoon
+                                      ? (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0))
+                                      : (isDark ? const Color(0xFFF97316).withValues(alpha: 0.3) : const Color(0xFFFED7AA))),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    t['time'] as String,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: isTooSoon
+                                        ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                                        : const Color(0xFFF97316),
                                     ),
-                                  )
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    t['company'] as String,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('${t['price']} FCFA', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
-                              const SizedBox(height: 4),
-                              Text('Départ à ${t['time']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12)),
-                            ],
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            
+                            // Row 2: Vehicle type pill + Capacity badge
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF222222) : const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(t['type'] as String, style: TextStyle(color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569), fontSize: 11)),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF97316).withValues(alpha: 0.1),
+                                    border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.2)),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'Capacité : $seatsOffered places • Réservé : $placesPrises • Disponible : $availableSeats',
+                                    style: const TextStyle(color: Color(0xFFF97316), fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            
+                            // Row 3: Tags (Climatisé, Autoroute)
+                            Row(
+                              children: [
+                                if (t['options'] == 'Climatisé')
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withValues(alpha: 0.1),
+                                      border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Text('❄️ Climatisé', style: TextStyle(color: Colors.blueAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ),
+                                if (t['route'] == 'Autoroute')
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.1),
+                                      border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Text('🛣️ Via Autoroute', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ),
+                              ],
+                            ),
+                            
+                            // Insufficient seats warning
+                            if (isFull)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                                  child: Text('⚠️ Places insuffisantes ($availableSeats restantes)', style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            
+                            const SizedBox(height: 12),
+                            
+                            // Row 4: Price + Action button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '${t['price']}',
+                                        style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 18),
+                                      ),
+                                      TextSpan(
+                                        text: ' FCFA / pers',
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (isTooSoon)
+                                  // Call button for too-soon trips
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final phone = t['driverPhone'] ?? '+221 77 000 00 00';
+                                      // ignore: deprecated_member_use
+                                      await launchUrl(Uri.parse('tel:$phone'));
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFE11D48),
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [BoxShadow(color: const Color(0xFFE11D48).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.phone, color: Colors.white, size: 14),
+                                          SizedBox(width: 6),
+                                          Text('Appeler', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                else if (!isFull)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEA580C),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [BoxShadow(color: const Color(0xFFEA580C).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('Choisir', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.arrow_forward, color: Colors.white, size: 14),
+                                      ],
+                                    ),
+                                  )
+                                else
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF222222) : const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text('Complet', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontWeight: FontWeight.bold, fontSize: 13)),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -2814,16 +2980,34 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                      if (response.statusCode == 200) {
                                        final List<dynamic> data = jsonDecode(response.body);
                                        setState(() {
-                                         realTrips = data.map((e) => {
-                                           "id": e['id'],
-                                           "company": e['company'] != null ? e['company']['name'] : "Allogoo",
-                                           "price": e['pricePerSeat'] ?? 5000,
-                                           "type": e['vehicle'] != null ? (e['vehicle']['type'] == 'TAXI_7_PLACES' ? 'Taxi 7 Places' : e['vehicle']['type']) : "Voiture",
-                                           "options": "Climatisé",
-                                           "time": DateTime.parse(e['departureTime']).toLocal().toString().substring(11, 16),
-                                           "passagers": e['passagers'] ?? 0,
-                                           "placesPrises": e['placesPrises'] ?? 0,
-                                           "availableSeats": e['availableSeats'] ?? 5
+                                         realTrips = data.map((e) {
+                                           final depTime = DateTime.parse(e['departureTime']).toLocal();
+                                           final now = DateTime.now();
+                                           final diffMinutes = depTime.difference(now).inMinutes;
+                                           final isTooSoon = diffMinutes >= 0 && diffMinutes < 60;
+                                           
+                                           // Vehicle type formatting
+                                           String vehicleType = "Voiture";
+                                           if (e['vehicle'] != null) {
+                                             final cap = e['vehicle']['capacity'] ?? 5;
+                                             vehicleType = "Voiture $cap places";
+                                           }
+                                           
+                                           return {
+                                            "id": e['id'],
+                                            "company": e['company'] != null ? e['company']['name'] : "Allogoo",
+                                            "price": e['pricePerSeat'] ?? 5000,
+                                            "type": vehicleType,
+                                            "options": (e['isAirConditioned'] != false) ? "Climatisé" : "Standard",
+                                            "route": (e['takesTollRoad'] != false) ? "Autoroute" : "Nationale",
+                                            "time": '${depTime.hour.toString().padLeft(2, '0')}:${depTime.minute.toString().padLeft(2, '0')}',
+                                            "passagers": e['passagers'] ?? 0,
+                                            "placesPrises": e['placesPrises'] ?? 0,
+                                            "availableSeats": e['availableSeats'] ?? 5,
+                                            "seatsOffered": e['seatsOffered'] ?? 5,
+                                            "isTooSoon": isTooSoon,
+                                            "driverPhone": e['driverPhone'] ?? '+221 77 000 00 00',
+                                           };
                                          }).toList();
                                          isSearching = false;
                                          step = 2;
