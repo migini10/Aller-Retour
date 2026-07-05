@@ -745,7 +745,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> filteredMissions = missions.where((m) {
       final isExpired = _isMissionExpired(m);
-      if (selectedTab == 'Toutes') return !isExpired;
+      if (selectedTab == 'Toutes') return true;
       if (selectedTab == 'Aujourd\'hui') {
         return (m['date'] == 'Aujourd\'hui' || m['rawDate'] == DateTime.now().toString().split(' ')[0]) && !isExpired;
       }
