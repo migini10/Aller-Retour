@@ -1,72 +1,42 @@
-datasource db {
-  provider  = "postgresql"
-}
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
-// ==========================================
-// 1. UTILISATEURS & RÔLES
-// ==========================================
-
-enum UserRole {
-  SUPER_ADMIN
-  DRIVER
-  PASSENGER
+datasource db {
+  provider = "postgresql"
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String?   @unique
-  phone         String    @unique // Numéro de téléphone principal (clé d'auth Mobile Money)
-  phoneVerified Boolean   @default(false)
-  passwordHash  String?   // Optionnel pour login par OTP/PIN Wave
-  fullName      String
-  avatarUrl     String?
-  role          UserRole  @default(PASSENGER)
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  driverProfile   DriverProfile?
-  bookings        Booking[]
-  seatLocks       SeatLock[]
-  driverEarnings  DriverEarning[]
-  
-  reviewsWritten  Review[]  @relation("ReviewAuthor")
-  reviewsReceived Review[]  @relation("ReviewReceiver")
-
-  failedAttempts  Int       @default(0)
+  id              String          @id @default(uuid())
+  email           String?         @unique
+  phone           String          @unique
+  phoneVerified   Boolean         @default(false)
+  passwordHash    String?
+  fullName        String
+  avatarUrl       String?
+  role            UserRole        @default(PASSENGER)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  failedAttempts  Int             @default(0)
   blockedUntil    DateTime?
-
-  colisPoints     Int       @default(30)
-  transportPoints Int       @default(20)
+  colisPoints     Int             @default(30)
+  transportPoints Int             @default(20)
+  bookings        Booking[]
+  driverEarnings  DriverEarning[]
+  driverProfile   DriverProfile?
+  reviewsWritten  Review[]        @relation("ReviewAuthor")
+  reviewsReceived Review[]        @relation("ReviewReceiver")
+  seatLocks       SeatLock[]
 
   @@index([phone])
   @@map("users")
 }
 
-// ==========================================
-// 2. CHAUFFEURS & VÉHICULES
-// ==========================================
-
-enum DriverType {
-  FREELANCE
-}
-
-enum KYCStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-}
-
 model DriverProfile {
   id              String     @id @default(uuid())
   userId          String     @unique
-  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   type            DriverType @default(FREELANCE)
   licenseNumber   String     @unique
   licenseExpiry   DateTime
@@ -78,10 +48,238 @@ model DriverProfile {
   isVerified      Boolean    @default(false)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
-
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   trips           Trip[]
 
   @@map("driver_profiles")
+}
+
+model Vehicle {
+  id               String        @id @default(uuid())
+  plateNumber      String        @unique
+  type             VehicleType
+  capacity         Int
+  brand            String?
+  model            String?
+  year             Int?
+  status           VehicleStatus @default(ACTIVE)
+  insuranceExpiry  DateTime
+  inspectionExpiry DateTime
+  photoUrl         String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  trips            Trip[]
+
+  @@index([plateNumber])
+  @@map("vehicles")
+}
+
+model Station {
+  id                   String   @id @default(uuid())
+  name                 String
+  city                 String
+  country              String   @default("SN")
+  latitude             Float
+  longitude            Float
+  geofenceRadiusMeters Int      @default(200)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  routesDestination    Route[]  @relation("RouteDestination")
+  routesOrigin         Route[]  @relation("RouteOrigin")
+
+  @@index([city, country])
+  @@map("stations")
+}
+
+model Route {
+  id                    String   @id @default(uuid())
+  name                  String
+  originStationId       String
+  destinationStationId  String
+  distanceKm            Float
+  estimatedDurationMins Int
+  defaultPrice          Float
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  destinationStation    Station  @relation("RouteDestination", fields: [destinationStationId], references: [id])
+  originStation         Station  @relation("RouteOrigin", fields: [originStationId], references: [id])
+  trips                 Trip[]
+
+  @@index([originStationId, destinationStationId])
+  @@map("routes")
+}
+
+model Trip {
+  id                String        @id @default(uuid())
+  routeId           String
+  vehicleId         String
+  driverId          String
+  departureTime     DateTime
+  arrivalTime       DateTime?
+  status            TripStatus    @default(SCHEDULED)
+  pricePerSeat      Float
+  isMarketplace     Boolean       @default(true)
+  isLocked          Boolean       @default(false)
+  seatsOffered      Int           @default(4)
+  initialPassengers Int           @default(0)
+  currentLat        Float?
+  currentLng        Float?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  bookings          Booking[]
+  parcels           Parcel[]
+  seatLocks         SeatLock[]
+  driver            DriverProfile @relation(fields: [driverId], references: [id])
+  route             Route         @relation(fields: [routeId], references: [id])
+  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
+
+  @@index([routeId])
+  @@index([departureTime])
+  @@map("trips")
+}
+
+model Booking {
+  id            String         @id @default(uuid())
+  tripId        String
+  userId        String
+  seatNumber    Int
+  qrCodeToken   String         @unique
+  status        BookingStatus  @default(PENDING_PAYMENT)
+  basePrice     Float
+  clientFee     Float
+  amountPaid    Float
+  paymentMethod PaymentMethod
+  paymentRef    String?        @unique
+  boardedAt     DateTime?
+  hiddenByUser  Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  trip          Trip           @relation(fields: [tripId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  driverEarning DriverEarning?
+
+  @@index([userId])
+  @@index([qrCodeToken])
+  @@map("bookings")
+}
+
+model SeatLock {
+  id          String   @id @default(uuid())
+  tripId      String
+  seatNumber  Int
+  userId      String
+  lockedUntil DateTime
+  createdAt   DateTime @default(now())
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, seatNumber])
+  @@map("seat_locks")
+}
+
+model Parcel {
+  id             String       @id @default(uuid())
+  tripId         String
+  senderName     String
+  senderPhone    String
+  recipientName  String
+  recipientPhone String
+  weightKg       Float
+  price          Float
+  trackingCode   String       @unique
+  deliveryCode   String?
+  status         ParcelStatus @default(REGISTERED)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  acceptedAt     DateTime?
+  inTransitAt    DateTime?
+  deliveredAt    DateTime?
+  trip           Trip         @relation(fields: [tripId], references: [id])
+
+  @@index([trackingCode])
+  @@map("parcels")
+}
+
+model DriverEarning {
+  id                 String   @id @default(uuid())
+  bookingId          String   @unique
+  driverId           String
+  basePrice          Float
+  driverCut          Float
+  platformCommission Float
+  status             String   @default("PENDING")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  booking            Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  driver             User     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId])
+  @@map("driver_earnings")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  authorId   String
+  receiverId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReviewReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([receiverId])
+  @@map("reviews")
+}
+
+model AlloPriveRequest {
+  id            String                 @id @default(uuid())
+  clientId      String
+  clientName    String
+  clientPhone   String
+  origin        String
+  destination   String
+  departureDate String
+  price         Int
+  type          String                 @default("allo-prive")
+  status        String                 @default("PENDING")
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  applications  AlloPriveApplication[]
+
+  @@map("allo_prive_requests")
+}
+
+model AlloPriveApplication {
+  id             String           @id @default(uuid())
+  requestId      String
+  driverId       String
+  driverName     String
+  driverPhone    String
+  driverRating   Float
+  driverVerified Boolean          @default(false)
+  driverScore    Int              @default(100)
+  status         String           @default("PENDING")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  request        AlloPriveRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("allo_prive_applications")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  DRIVER
+  PASSENGER
+}
+
+enum DriverType {
+  FREELANCE
+}
+
+enum KYCStatus {
+  PENDING
+  VERIFIED
+  REJECTED
 }
 
 enum VehicleType {
@@ -98,69 +296,6 @@ enum VehicleStatus {
   INACTIVE
 }
 
-model Vehicle {
-  id               String        @id @default(uuid())
-  plateNumber      String        @unique
-  type             VehicleType
-  capacity         Int           // Nombre de sièges passagers
-  brand            String?
-  model            String?
-  year             Int?
-  status           VehicleStatus @default(ACTIVE)
-  insuranceExpiry  DateTime
-  inspectionExpiry DateTime      // Visite technique
-  photoUrl         String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  trips            Trip[]
-
-  @@index([plateNumber])
-  @@map("vehicles")
-}
-
-// ==========================================
-// 3. MOBILITÉ, GARES & LIGNES
-// ==========================================
-
-model Station {
-  id                String   @id @default(uuid())
-  name              String   // ex: Gare Routière de Baux Maraîchers
-  city              String   // ex: Dakar
-  country           String   @default("SN") // Code ISO
-  latitude          Float
-  longitude         Float
-  geofenceRadiusMeters Int   @default(200) // Rayon en mètres pour check-in automatique
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  routesOrigin      Route[]  @relation("RouteOrigin")
-  routesDestination Route[]  @relation("RouteDestination")
-
-  @@index([city, country])
-  @@map("stations")
-}
-
-model Route {
-  id                   String   @id @default(uuid())
-  name                 String   // ex: Dakar - Touba
-  originStationId      String
-  originStation        Station  @relation("RouteOrigin", fields: [originStationId], references: [id], onDelete: Restrict)
-  destinationStationId String
-  destinationStation   Station  @relation("RouteDestination", fields: [destinationStationId], references: [id], onDelete: Restrict)
-  
-  distanceKm           Float
-  estimatedDurationMins Int
-  defaultPrice         Float    // Prix par défaut en FCFA
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-
-  trips                Trip[]
-
-  @@index([originStationId, destinationStationId])
-  @@map("routes")
-}
-
 enum TripStatus {
   SCHEDULED
   BOARDING
@@ -169,41 +304,6 @@ enum TripStatus {
   COMPLETED
   CANCELLED
 }
-
-model Trip {
-  id              String     @id @default(uuid())
-  routeId         String
-  route           Route      @relation(fields: [routeId], references: [id], onDelete: Restrict)
-  vehicleId       String
-  vehicle         Vehicle    @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  driverId        String
-  driver          DriverProfile @relation(fields: [driverId], references: [id], onDelete: Restrict)
-
-  departureTime   DateTime
-  arrivalTime     DateTime?
-  status          TripStatus @default(SCHEDULED)
-  pricePerSeat    Float      // Prix effectif de la place sur ce départ
-  isMarketplace   Boolean    @default(true) // Trajet de chauffeur libre
-  isLocked        Boolean    @default(false)
-  seatsOffered      Int        @default(4)
-  initialPassengers Int        @default(0)
-  currentLat        Float?
-  currentLng        Float?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-
-  bookings        Booking[]
-  parcels         Parcel[]
-  seatLocks       SeatLock[]
-
-  @@index([routeId])
-  @@index([departureTime])
-  @@map("trips")
-}
-
-// ==========================================
-// 4. RÉSERVATION, BILLETS & COLIS
-// ==========================================
 
 enum BookingStatus {
   PENDING_PAYMENT
@@ -221,157 +321,10 @@ enum PaymentMethod {
   CASH
 }
 
-model Booking {
-  id              String        @id @default(uuid())
-  tripId          String
-  trip            Trip          @relation(fields: [tripId], references: [id], onDelete: Restrict)
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  
-  seatNumber      Int
-  qrCodeToken     String        @unique // Token chiffré anticopie
-  status          BookingStatus @default(PENDING_PAYMENT)
-  
-  // Pricing Details
-  basePrice       Float
-  clientFee       Float         // basePrice * 3%
-  amountPaid      Float         // basePrice + clientFee
-  
-  paymentMethod   PaymentMethod
-  paymentRef      String?       @unique // Transaction ID unique de Wave / OM pour idempotence
-  boardedAt       DateTime?
-  hiddenByUser    Boolean       @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  driverEarning   DriverEarning?
-
-  @@index([userId])
-  @@index([qrCodeToken])
-  @@map("bookings")
-}
-
-model SeatLock {
-  id          String   @id @default(uuid())
-  tripId      String
-  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  seatNumber  Int
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lockedUntil DateTime
-  createdAt   DateTime @default(now())
-
-  @@unique([tripId, seatNumber])
-  @@map("seat_locks")
-}
-
 enum ParcelStatus {
   REGISTERED
   ACCEPTED
   IN_TRANSIT
   DELIVERED
   LOST
-}
-
-model Parcel {
-  id              String       @id @default(uuid())
-  tripId          String
-  trip            Trip         @relation(fields: [tripId], references: [id], onDelete: Restrict)
-  
-  senderName      String
-  senderPhone     String
-  recipientName   String
-  recipientPhone  String
-  weightKg        Float
-  price           Float
-  trackingCode    String       @unique
-  deliveryCode    String?
-
-  status          ParcelStatus @default(REGISTERED)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  acceptedAt      DateTime?
-  inTransitAt     DateTime?
-  deliveredAt     DateTime?
-
-  @@index([trackingCode])
-  @@map("parcels")
-}
-
-// ==========================================
-// 5. DRIVER EARNINGS
-// ==========================================
-
-model DriverEarning {
-  id                 String        @id @default(uuid())
-  bookingId          String        @unique
-  booking            Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  driverId           String
-  driver             User          @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  basePrice          Float
-  driverCut          Float         // basePrice - 3%
-  platformCommission Float         // basePrice * 6% total cut
-  status             String        @default("PENDING") // PENDING, PAID, CANCELLED
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-
-  @@index([driverId])
-  @@map("driver_earnings")
-}
-
-// ==========================================
-// 6. AVIS / REVIEWS
-// ==========================================
-
-model Review {
-  id         String   @id @default(uuid())
-  authorId   String
-  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  receiverId String
-  receiver   User     @relation("ReviewReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-  rating     Int      // 1 to 5
-  comment    String?
-  createdAt  DateTime @default(now())
-
-  @@index([receiverId])
-  @@map("reviews")
-}
-
-// ==========================================
-// 7. ALLO PRIVE
-// ==========================================
-
-model AlloPriveRequest {
-  id              String      @id @default(uuid())
-  clientId        String
-  clientName      String
-  clientPhone     String
-  origin          String
-  destination     String
-  departureDate   String
-  price           Int
-  type            String      @default("allo-prive")
-  status          String      @default("PENDING")
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  applications    AlloPriveApplication[]
-
-  @@map("allo_prive_requests")
-}
-
-model AlloPriveApplication {
-  id              String      @id @default(uuid())
-  requestId       String
-  request         AlloPriveRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  driverId        String
-  driverName      String
-  driverPhone     String
-  driverRating    Float
-  driverVerified  Boolean     @default(false)
-  driverScore     Int         @default(100)
-  status          String      @default("PENDING")
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  @@map("allo_prive_applications")
 }

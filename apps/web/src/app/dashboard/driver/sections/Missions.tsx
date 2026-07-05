@@ -605,48 +605,47 @@ export default function SectionMissions() {
           
           const processedMissions = localMissions.map(m => {
             if (m.statut === 'programmé' || m.statut === 'à venir') {
-              let isExpired = false;
+              let isPast2Hours = false;
               
               if ((m as any).departureTime) {
-                isExpired = new Date((m as any).departureTime).getTime() < Date.now();
+                const depTime = new Date((m as any).departureTime).getTime();
+                isPast2Hours = (Date.now() - depTime) > (2 * 60 * 60 * 1000);
               } else {
                 if (m.date && m.date !== "Aujourd'hui" && m.date !== "Demain") {
                   const mDate = new Date(m.date);
                   mDate.setHours(0, 0, 0, 0);
                   if (mDate < today) {
-                    isExpired = true;
+                    isPast2Hours = true;
                   } else if (mDate.getTime() === today.getTime() && m.heure) {
                     const parts = m.heure.split(':');
                     const h = parseInt(parts[0]);
                     const min = parseInt(parts[1]);
-                    if ((h * 60 + min) < currentTotalMinutes) {
-                      isExpired = true;
-                    }
+                    const depMinutes = h * 60 + min;
+                    isPast2Hours = (currentTotalMinutes - depMinutes) >= 120;
                   }
                 } else if (m.date === "Aujourd'hui") {
                   if (m.heure) {
                     const parts = m.heure.split(':');
                     const h = parseInt(parts[0]);
                     const min = parseInt(parts[1]);
-                    if ((h * 60 + min) < currentTotalMinutes) {
-                      isExpired = true;
-                    }
+                    const depMinutes = h * 60 + min;
+                    isPast2Hours = (currentTotalMinutes - depMinutes) >= 120;
                   }
                 }
               }
 
-              if (isExpired) {
-                return { ...m, statut: 'terminé' };
+              if (isPast2Hours) {
+                return { ...m, statut: 'expiré' };
               }
             }
             return m;
           });
 
           const filteredMissions = processedMissions.filter(m => {
-            if (tab === "Toutes") return m.statut !== 'terminé';
-            if (tab === "Aujourd'hui") return (m.date === "Aujourd'hui" || m.date === getTodayStr()) && m.statut !== 'terminé';
+            if (tab === "Toutes") return m.statut !== 'terminé' && m.statut !== 'expiré';
+            if (tab === "Aujourd'hui") return (m.date === "Aujourd'hui" || m.date === getTodayStr()) && m.statut !== 'terminé' && m.statut !== 'expiré';
             if (tab === "Programmées") return m.statut === 'programmé' || m.statut === 'à venir';
-            if (tab === "Historique") return m.statut === 'terminé';
+            if (tab === "Historique") return m.statut === 'terminé' || m.statut === 'expiré';
             return true;
           });
 
