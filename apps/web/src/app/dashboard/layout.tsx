@@ -95,13 +95,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         
         {/* Fond de la Topbar et Logo (Disparaissent au scroll) */}
         <header className={`absolute inset-0 bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2A2A2A]/80 flex items-center justify-between px-5 shadow-md transition-transform duration-300 ease-in-out pointer-events-auto ${showTopbar ? 'translate-y-0' : '-translate-y-full'}`}>
-          <Link href={getLogoLink()} className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-600/20 border border-orange-200 dark:border-orange-500/30 flex items-center justify-center transition-colors">
-              <CarFront className="w-4 h-4 text-orange-500" />
-            </div>
-            <span className="text-base font-bold text-slate-900 dark:text-white transition-colors">
-              Allo<span className="text-orange-500">goo</span>
-            </span>
+          <Link href={getLogoLink()} className="flex items-center bg-transparent dark:bg-white dark:px-2 dark:py-1 dark:rounded-lg transition-all duration-300">
+            <img src="/logo-allogoo.png" alt="Allogoo Logo" className="h-7 object-contain" />
           </Link>
           
           <div className="flex items-center gap-3 pr-12">

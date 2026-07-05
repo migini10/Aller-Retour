@@ -584,7 +584,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Bienvenue sur votre tableau de bord.\nGérez vos réservations et votre wallet en toute simplicité.', 
+                        'Bienvenue sur votre tableau de bord.\nGérez vos réservations en toute simplicité.', 
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,

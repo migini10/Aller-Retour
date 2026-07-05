@@ -320,18 +320,20 @@ export default function ClientDashboard() {
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <img src="/images/hero_client_premium.png" alt="Allogoo Premium Transport" className="w-full h-full object-cover object-center" />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40 dark:from-black/95 dark:via-black/80 dark:to-black/40"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
           </div>
 
-          <div className="relative z-10 px-5 sm:px-10 py-8 sm:py-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-            <div className="max-w-xl">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-3">Espace Voyageur</h1>
-              <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-                Bienvenue sur votre tableau de bord. Gérez vos réservations Allo Dakar, recharges Wave/OM et votre fidélité en un seul endroit.
+          <div className="relative z-10 px-5 py-10 flex flex-col items-center justify-center text-center w-full gap-8 min-h-[380px]">
+            <div className="max-w-xl flex flex-col items-center justify-center text-center w-full">
+              <h1 className="text-[38px] font-black text-white tracking-[-1.5px] leading-[1.1] text-center drop-shadow-[0_4px_15px_rgba(0,0,0,0.54)]">
+                Espace Voyageur
+              </h1>
+              <p className="text-white text-[16px] font-semibold tracking-[0.2px] leading-[1.5] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.87)] mt-4">
+                Bienvenue sur votre tableau de bord.<br />Gérez vos réservations en toute simplicité.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto shrink-0">
+            <div className="flex flex-col items-center justify-center gap-4 w-full max-w-[330px] shrink-0">
               {showWalletFeature && (
                 /* Wallet Card - Transparent avec effet lumineux turquoise (pulsing) */
                 <div className="relative w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10 group overflow-hidden">
@@ -354,13 +356,13 @@ export default function ClientDashboard() {
               )}
               
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2 w-full sm:w-auto">
+              <div className="flex flex-col gap-2 w-full">
                 {showWalletFeature && (
-                  <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 active:scale-95 text-sm border border-orange-500/50">
+                  <button onClick={openRechargeWizard} className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 active:scale-95 text-sm border border-orange-500/50">
                     <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
                   </button>
                 )}
-                <button onClick={() => openBookingWizard('allo-dakar')} className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/20 active:scale-95 text-sm">
+                <button onClick={() => openBookingWizard('allo-dakar')} className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/20 active:scale-95 text-sm">
                   <CarFront className="w-4 h-4" /> Réserver une voiture
                 </button>
               </div>
