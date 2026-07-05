@@ -809,40 +809,136 @@ class QRCodeBrandEngine extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          QrImageView(
-            data: value,
-            version: QrVersions.auto,
-            errorCorrectionLevel: QrErrorCorrectLevel.M,
-            size: size,
-            backgroundColor: Colors.white,
-            eyeStyle: const QrEyeStyle(
-              eyeShape: QrEyeShape.square, // Keep eyes square for contrast
-              color: Color(0xFFE65100), // deep orange
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // White background
+            Container(color: Colors.white),
+            // Custom-painted QR with guaranteed square modules
+            CustomPaint(
+              size: Size(size, size),
+              painter: _QrSquarePainter(
+                data: value,
+                moduleColor: Colors.black,
+                eyeColor: const Color(0xFFE65100),
+                backgroundColor: Colors.white,
+                padding: size * 0.06,
+              ),
             ),
-            dataModuleStyle: const QrDataModuleStyle(
-              dataModuleShape: QrDataModuleShape.square, // Square modules for maximum visibility
-              color: Colors.black,
+            // AR Logo in center
+            Container(
+              width: size * 0.22,
+              height: size * 0.22,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE65100),
+                borderRadius: BorderRadius.circular(size * 0.04),
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  'AR',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: size * 0.09,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
             ),
-            padding: const EdgeInsets.all(8),
-          ),
-          // Logo in the center
-          Container(
-            width: size * 0.22,
-            height: size * 0.22,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface,
-              borderRadius: BorderRadius.circular(size * 0.08),
-              border: Border.all(color: Colors.deepOrangeAccent, width: 1.5),
-            ),
-            child: Center(
-              child: Icon(Icons.directions_car, color: Colors.deepOrange, size: size * 0.13),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
+
+/// Custom QR painter that draws each module as a solid filled square.
+/// Bypasses qr_flutter rendering bugs on Flutter Web.
+class _QrSquarePainter extends CustomPainter {
+  final String data;
+  final Color moduleColor;
+  final Color eyeColor;
+  final Color backgroundColor;
+  final double padding;
+
+  _QrSquarePainter({
+    required this.data,
+    required this.moduleColor,
+    required this.eyeColor,
+    required this.backgroundColor,
+    required this.padding,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Fill background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()..color = backgroundColor,
+    );
+
+    try {
+      final qrCode = QrCode.fromData(
+        data: data,
+        errorCorrectLevel: QrErrorCorrectLevel.M,
+      );
+      final qrImage = QrImage(qrCode);
+      final moduleCount = qrCode.moduleCount;
+      final drawSize = size.width - (padding * 2);
+      final moduleSize = drawSize / moduleCount;
+
+      final modulePaint = Paint()
+        ..color = moduleColor
+        ..style = PaintingStyle.fill;
+
+      final eyePaint = Paint()
+        ..color = eyeColor
+        ..style = PaintingStyle.fill;
+
+      // Draw each module as a solid rectangle
+      for (int row = 0; row < moduleCount; row++) {
+        for (int col = 0; col < moduleCount; col++) {
+          if (qrImage.isDark(row, col)) {
+            final isEyeModule = _isFinderPattern(row, col, moduleCount);
+            final paint = isEyeModule ? eyePaint : modulePaint;
+
+            canvas.drawRect(
+              Rect.fromLTWH(
+                padding + col * moduleSize,
+                padding + row * moduleSize,
+                moduleSize + 0.5, // +0.5 to avoid sub-pixel gaps
+                moduleSize + 0.5,
+              ),
+              paint,
+            );
+          }
+        }
+      }
+    } catch (_) {
+      // Fallback: draw nothing if QR generation fails
+    }
+  }
+
+  /// Check if module is part of a finder pattern (the 3 big corner squares)
+  bool _isFinderPattern(int row, int col, int moduleCount) {
+    // Top-left
+    if (row < 7 && col < 7) return true;
+    // Top-right
+    if (row < 7 && col >= moduleCount - 7) return true;
+    // Bottom-left
+    if (row >= moduleCount - 7 && col < 7) return true;
+    return false;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
