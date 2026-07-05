@@ -47,7 +47,14 @@ export async function GET() {
         pricePerSeat: trip.pricePerSeat,
         transporteur: `Voiture ${trip.vehicle?.capacity || 5} places`,
         urgent: isUrgent,
-        status: trip.status === 'SCHEDULED' ? 'programmé' : trip.status === 'BOARDING' ? 'à venir' : trip.status === 'IN_TRANSIT' ? 'en cours' : 'terminé',
+        status: (() => {
+          const now = new Date();
+          const depTime = new Date(trip.departureTime);
+          const isPast2Hours = (now.getTime() - depTime.getTime()) > (2 * 60 * 60 * 1000);
+          const isExpired = isPast2Hours && totalPassengers === 0 && trip.status === 'SCHEDULED';
+          if (isExpired) return 'expiré';
+          return trip.status === 'SCHEDULED' ? 'programmé' : trip.status === 'BOARDING' ? 'à venir' : trip.status === 'IN_TRANSIT' ? 'en cours' : 'terminé';
+        })(),
         minScore: 60,
         isAirConditioned: true,
         takesTollRoad: true,

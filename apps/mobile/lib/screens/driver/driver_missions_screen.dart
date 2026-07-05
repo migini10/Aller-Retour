@@ -97,6 +97,19 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           } else {
             displayId = 'TRIP-${tripId.toString().split('-')[0].toUpperCase()}';
           }
+          String mappedStatut = m['status'] ?? 'programmé';
+          if (m['departureTime'] != null) {
+            try {
+              DateTime depTime = DateTime.parse(m['departureTime']).toLocal();
+              final isPast2Hours = DateTime.now().difference(depTime).inMinutes >= 120;
+              final hasNoPassengers = (m['passagers'] ?? 0) == 0;
+              final hasNotStarted = mappedStatut == 'programmé' || mappedStatut == 'à venir';
+              if (isPast2Hours && hasNoPassengers && hasNotStarted) {
+                mappedStatut = 'expiré';
+              }
+            } catch (_) {}
+          }
+
           return {
             'id': tripId,
             'displayId': displayId,
@@ -106,7 +119,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             'departureTime': m['departureTime'],
             'heure': heureStr,
             'vehicule': m['transporteur'] ?? 'Véhicule',
-            'statut': m['status'] ?? 'programmé',
+            'statut': mappedStatut,
             'passagers': m['passagers'] ?? 0,
             'placesLibres': m['placesLibres'] ?? 4,
             'placesPrises': m['placesPrises'] ?? 0,
@@ -149,6 +162,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       case 'terminé': return const Color(0xFF10B981);
       case 'programmé': return const Color(0xFF3B82F6);
       case 'en cours': return const Color(0xFFA855F7);
+      case 'expiré': return const Color(0xFFF43F5E); // Red for expired
       default: return Colors.white54;
     }
   }
@@ -699,7 +713,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
 
   bool _isMissionExpired(Map<String, dynamic> m) {
-    if (m['statut'] == 'terminé') return true;
+    if (m['statut'] == 'terminé' || m['statut'] == 'expiré') return true;
     if (m['departureTime'] == null) {
       try {
         DateTime now = DateTime.now();
