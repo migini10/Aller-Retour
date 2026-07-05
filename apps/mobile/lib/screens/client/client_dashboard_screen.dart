@@ -2584,18 +2584,20 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
+                        color: isDark ? const Color(0xFF0F172A) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isDark ? Colors.transparent : const Color(0xFFE2E8F0)),
+                        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4))],
                       ),
                       child: Column(
                         children: [
                           // Header ticket
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF0A0A0A),
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                            border: Border(bottom: BorderSide(color: Color(0xFFF97316), width: 3)),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF0A0A0A) : const Color(0xFF1E293B),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                            border: const Border(bottom: BorderSide(color: Color(0xFFF97316), width: 3)),
                           ),
                           child: Column(
                             children: [
@@ -2627,10 +2629,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('DÉPART', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('DÉPART', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
-                                        Text(departCity.split(',')[0], style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
-                                        Text('Sénégal', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text(departCity.split(',')[0], style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('Sénégal', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
                                       ],
                                     ),
                                   ),
@@ -2639,10 +2641,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        Text('ARRIVÉE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('ARRIVÉE', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
-                                        Text(arriveeCity.split(',')[0], style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
-                                        Text('Sénégal', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text(arriveeCity.split(',')[0], style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
+                                        Text('Sénégal', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.w900)),
                                       ],
                                     ),
                                   ),
@@ -2661,9 +2663,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('PASSAGER', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('PASSAGER', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
-                                        Text(nom, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text(nom, style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
@@ -2671,7 +2673,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('PLACES', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('PLACES', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
                                         Text('$passagersCount', style: TextStyle(color: Color(0xFFEA580C), fontSize: 16, fontWeight: FontWeight.bold)),
                                       ],
@@ -2689,9 +2691,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('DATE & HEURE', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('DATE & HEURE', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
-                                        Text('$dateStr à\nFlexible', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text('$dateStr à\nFlexible', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
@@ -2699,9 +2701,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('PRIX TOTAL', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                                        Text('PRIX TOTAL', style: TextStyle(color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
                                         SizedBox(height: 4),
-                                        Text('$total FCFA', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                        Text('$total FCFA', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 14, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
@@ -2739,12 +2741,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                       ),
                                     ),
                                     Container(
-                                      width: 40,
-                                      height: 40,
-                                      color: Color(0xFFEA580C),
-                                      alignment: Alignment.center,
-                                      child: Text('AR', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                                    ),
+                                       width: 44,
+                                       height: 44,
+                                       decoration: BoxDecoration(
+                                         color: const Color(0xFFEA580C),
+                                         borderRadius: BorderRadius.circular(6),
+                                       ),
+                                       alignment: Alignment.center,
+                                       child: const Text('AG', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5)),
+                                     ),
                                   ],
                                 ),
                               ),
