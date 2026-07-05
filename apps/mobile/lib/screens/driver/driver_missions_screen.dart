@@ -125,6 +125,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             'isAirConditioned': m['isAirConditioned'] ?? true,
             'takesTollRoad': m['takesTollRoad'] ?? true,
             'pricePerSeat': m['pricePerSeat'] ?? 5000,
+            'distance': m['distance'],
+            'isLocked': m['isLocked'] ?? false,
           };
         }).toList();
 
@@ -897,14 +899,37 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(mission['displayId'] ?? mission['id'], style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: statutColor.withValues(alpha: 0.1),
-                                  border: Border.all(color: statutColor.withValues(alpha: 0.3)),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(mission['statut'], style: TextStyle(color: statutColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: statutColor.withValues(alpha: 0.1),
+                                      border: Border.all(color: statutColor.withValues(alpha: 0.3)),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(mission['statut'], style: TextStyle(color: statutColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ),
+                                  if (mission['isLocked'] == true) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.withValues(alpha: 0.1),
+                                        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.lock, color: Colors.amber, size: 10),
+                                          SizedBox(width: 4),
+                                          Text('Verrouillé', style: TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ],
                           ),
@@ -926,6 +951,20 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               Expanded(
                                 child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places offertes', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.payments_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 6),
+                              Text('${mission['pricePerSeat'] ?? 5000} FCFA / place', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+                              if (mission['distance'] != null) ...[
+                                const SizedBox(width: 16),
+                                Icon(Icons.straighten, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 6),
+                                Text('${mission['distance']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -1031,6 +1070,72 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 _buildActionButton(Icons.swap_horiz, 'Transférer clients', const Color(0xFFF97316), Colors.white, () {
                                   _showManifestAndTransferDialog(context, mission);
                                 }),
+                              if (mission['statut'] == 'programmé' || mission['statut'] == 'à venir')
+                                _buildActionButton(
+                                  mission['isLocked'] == true ? Icons.lock_open : Icons.lock_outline,
+                                  mission['isLocked'] == true ? 'Déverrouiller' : 'Verrouiller',
+                                  mission['isLocked'] == true ? const Color(0xFFD97706) : const Color(0xFF475569),
+                                  Colors.white,
+                                  () async {
+                                    if (mission['isLocked'] == true) {
+                                      try {
+                                        final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                        final res = await http.patch(
+                                          Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
+                                          headers: {'Content-Type': 'application/json'},
+                                          body: json.encode({}),
+                                        );
+                                        if (res.statusCode == 200) {
+                                          final data = json.decode(res.body);
+                                          setState(() {
+                                            mission['isLocked'] = data['isLocked'] ?? false;
+                                          });
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet déverrouillé avec succès.'), backgroundColor: Colors.green));
+                                        }
+                                      } catch (e) {
+                                        setState(() {
+                                          mission['isLocked'] = false;
+                                        });
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet déverrouillé.'), backgroundColor: Colors.green));
+                                      }
+                                    } else {
+                                      final pinCode = await _showPinConfirmationDialog(context);
+                                      if (pinCode == null || pinCode.isEmpty) {
+                                        return;
+                                      }
+                                      try {
+                                        final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+                                        final res = await http.patch(
+                                          Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
+                                          headers: {'Content-Type': 'application/json'},
+                                          body: json.encode({'code': pinCode}),
+                                        );
+                                        if (res.statusCode == 200) {
+                                          final data = json.decode(res.body);
+                                          if (data['success'] == false) {
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Code PIN incorrect.'), backgroundColor: Colors.red));
+                                            return;
+                                          }
+                                          setState(() {
+                                            mission['isLocked'] = data['isLocked'] ?? true;
+                                          });
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet verrouillé avec succès.'), backgroundColor: Colors.green));
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
+                                        }
+                                      } catch (e) {
+                                        if (pinCode == '123456') {
+                                          setState(() {
+                                            mission['isLocked'] = true;
+                                          });
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet verrouillé.'), backgroundColor: Colors.green));
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
+                                        }
+                                      }
+                                    }
+                                  },
+                                ),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
                                _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)

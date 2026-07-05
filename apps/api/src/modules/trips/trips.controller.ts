@@ -119,15 +119,22 @@ export class TripsController {
       }
     }
 
+    const now = new Date();
+
     if (date) {
       const startOfDay = new Date(date);
       if (!isNaN(startOfDay.getTime())) {
         startOfDay.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date(startOfDay);
         endOfDay.setDate(endOfDay.getDate() + 1);
-        endOfDay.setUTCHours(11, 59, 59, 999);
-        whereClause.departureTime = { gte: startOfDay, lte: endOfDay };
+        endOfDay.setUTCHours(23, 59, 59, 999); // correction: end of day is 23:59:59.999
+        
+        // Exclude past trips when searching for today's date
+        const effectiveStart = startOfDay.getTime() < now.getTime() ? now : startOfDay;
+        whereClause.departureTime = { gte: effectiveStart, lte: endOfDay };
       }
+    } else {
+      whereClause.departureTime = { gte: now };
     }
 
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
