@@ -964,9 +964,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 ),
                               if (mission['statut'] == 'en cours')
                                 _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
-                              _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Colors.white, () {
+                              _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Theme.of(context).colorScheme.onSurface, () {
                                 _showMissionDetailsDialog(context, mission);
-                              }, borderColor: const Color(0xFF333333)),
+                              }, borderColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                               if (mission['statut'] == 'programmé' && _isUrgentAndNotReady(mission))
                                 _buildActionButton(Icons.access_time, 'Repousser +1h', const Color(0xFF4F46E5), Colors.white, () async {
                                   try {
@@ -1019,11 +1019,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   _showManifestAndTransferDialog(context, mission);
                                 }),
                               if (mission['statut'] == 'à venir' || mission['statut'] == 'en cours')
-                                _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: const Color(0xFF333333)),
+                               _buildActionButton(Icons.warning_amber_rounded, 'Signaler incident', Theme.of(context).cardColor, const Color(0xFFFBBF24), () {}, borderColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                               if (mission['statut'] == 'programmé' && mission['passagers'] == 0)
                                 _buildActionButton(Icons.close, 'Supprimer', Theme.of(context).cardColor, const Color(0xFFF43F5E), () {
                                   _showDeleteConfirmationDialog(context, mission);
-                                }, borderColor: const Color(0xFF333333)),
+                                }, borderColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                             ],
                           ),
                         ],
