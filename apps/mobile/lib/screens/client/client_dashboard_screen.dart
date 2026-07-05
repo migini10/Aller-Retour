@@ -25,6 +25,7 @@ class ClientDashboardScreen extends StatefulWidget {
 }
 
 class _ClientDashboardScreenState extends State<ClientDashboardScreen> with SingleTickerProviderStateMixin {
+  static const bool showWalletFeature = false;
   AnimationController? _pulseController;
   Animation<double>? _pulseAnimation;
   final ScrollController _scrollController = ScrollController();
@@ -543,7 +544,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)), // Arrondi en bas uniquement pour un style moderne pleine largeur
         child: SizedBox(
-          height: heroHeight > 550 ? heroHeight : 550, // Fallback for very small screens
+          height: showWalletFeature ? (heroHeight > 550 ? heroHeight : 550) : 380, // Fallback for very small screens or compact mode when wallet is disabled
           child: Stack(
             children: [
               // Background Image
@@ -597,8 +598,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         ),
                       ),
                       const Spacer(),
-                      _buildPremiumWalletCard(context),
-                      const SizedBox(height: 24),
+                      if (showWalletFeature) ...[
+                        _buildPremiumWalletCard(context),
+                        const SizedBox(height: 24),
+                      ],
                       _buildActionButtons(),
                     ],
                   ),
@@ -752,28 +755,30 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     return Center(
       child: Column(
         children: [
-          SizedBox(
-            width: 330,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                showRechargeModal(context);
-              },
-              icon: Icon(Icons.flash_on, color: Theme.of(context).colorScheme.onSurface),
-              label: const Text('Recharger via Wave ou OM'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrangeAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+          if (showWalletFeature) ...[
+            SizedBox(
+              width: 330,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  showRechargeModal(context);
+                },
+                icon: Icon(Icons.flash_on, color: Theme.of(context).colorScheme.onSurface),
+                label: const Text('Recharger via Wave ou OM'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrangeAccent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  elevation: 8,
+                  shadowColor: Colors.orange.withValues(alpha: 0.5),
                 ),
-                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                elevation: 8,
-                shadowColor: Colors.orange.withValues(alpha: 0.5),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           SizedBox(
             width: 330,
             child: ElevatedButton.icon(

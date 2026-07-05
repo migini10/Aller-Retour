@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 import { useAuth } from '../../../components/AuthContext';
 
+const showWalletFeature = false;
+
 const ALL_DESTINATIONS = [
   { id: 'dakar', name: 'Dakar', price: '4000 FCFA', image: '/images/destinations/dakar.jpg' },
   { id: 'touba', name: 'Touba', price: '5000 FCFA', image: '/images/destinations/touba.jpg' },
@@ -330,30 +332,34 @@ export default function ClientDashboard() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto shrink-0">
-              {/* Wallet Card - Transparent avec effet lumineux turquoise (pulsing) */}
-              <div className="relative w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10 group overflow-hidden">
-                {/* L'effet lumineux turquoise à l'intérieur de la bordure */}
-                <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(6,182,212,0.7)] animate-pulse pointer-events-none rounded-2xl mix-blend-screen"></div>
-                
-                <div className="relative z-10 px-5 py-4 flex items-center justify-between sm:justify-start gap-5">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
-                    <Wallet className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
-                    <p className="text-xl font-black text-white">{walletBalance !== null ? walletBalance.toLocaleString('fr-FR') : '---'} <span className="text-sm font-bold text-cyan-400">FCFA</span></p>
-                    <Link href="/dashboard/client/wallet" className="text-[11px] text-cyan-400 font-bold hover:text-cyan-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
-                      Voir mon compte <ArrowRight className="w-3 h-3" />
-                    </Link>
+              {showWalletFeature && (
+                /* Wallet Card - Transparent avec effet lumineux turquoise (pulsing) */
+                <div className="relative w-full sm:w-auto bg-black/5 border-2 border-white/30 hover:border-white/50 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all hover:bg-black/10 group overflow-hidden">
+                  {/* L'effet lumineux turquoise à l'intérieur de la bordure */}
+                  <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(6,182,212,0.7)] animate-pulse pointer-events-none rounded-2xl mix-blend-screen"></div>
+                  
+                  <div className="relative z-10 px-5 py-4 flex items-center justify-between sm:justify-start gap-5">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                      <Wallet className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-300 font-medium mb-0.5">Solde Wallet (XOF)</p>
+                      <p className="text-xl font-black text-white">{walletBalance !== null ? walletBalance.toLocaleString('fr-FR') : '---'} <span className="text-sm font-bold text-cyan-400">FCFA</span></p>
+                      <Link href="/dashboard/client/wallet" className="text-[11px] text-cyan-400 font-bold hover:text-cyan-300 hover:underline mt-1.5 flex items-center gap-1 w-fit transition-colors">
+                        Voir mon compte <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               
               {/* Action Buttons */}
               <div className="flex flex-col gap-2 w-full sm:w-auto">
-                <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 active:scale-95 text-sm border border-orange-500/50">
-                  <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
-                </button>
+                {showWalletFeature && (
+                  <button onClick={openRechargeWizard} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 active:scale-95 text-sm border border-orange-500/50">
+                    <Sparkles className="w-4 h-4" /> Recharger via Wave ou OM
+                  </button>
+                )}
                 <button onClick={() => openBookingWizard('allo-dakar')} className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/20 active:scale-95 text-sm">
                   <CarFront className="w-4 h-4" /> Réserver une voiture
                 </button>
