@@ -102,9 +102,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             try {
               DateTime depTime = DateTime.parse(m['departureTime']).toLocal();
               final isPast2Hours = DateTime.now().difference(depTime).inMinutes >= 120;
-              final hasNoPassengers = (m['passagers'] ?? 0) == 0;
               final hasNotStarted = mappedStatut == 'programmé' || mappedStatut == 'à venir';
-              if (isPast2Hours && hasNoPassengers && hasNotStarted) {
+              if (isPast2Hours && hasNotStarted) {
                 mappedStatut = 'expiré';
               }
             } catch (_) {}

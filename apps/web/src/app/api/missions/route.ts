@@ -51,7 +51,7 @@ export async function GET() {
           const now = new Date();
           const depTime = new Date(trip.departureTime);
           const isPast2Hours = (now.getTime() - depTime.getTime()) > (2 * 60 * 60 * 1000);
-          const isExpired = isPast2Hours && totalPassengers === 0 && trip.status === 'SCHEDULED';
+          const isExpired = isPast2Hours && trip.status === 'SCHEDULED';
           if (isExpired) return 'expiré';
           return trip.status === 'SCHEDULED' ? 'programmé' : trip.status === 'BOARDING' ? 'à venir' : trip.status === 'IN_TRANSIT' ? 'en cours' : 'terminé';
         })(),
