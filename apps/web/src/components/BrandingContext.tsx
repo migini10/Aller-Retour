@@ -14,7 +14,7 @@ export interface BrandingConfig {
 }
 
 const defaultBranding: BrandingConfig = {
-  logoUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=AR&backgroundColor=EA580C&textColor=ffffff',
+  logoUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=AG&backgroundColor=EA580C&textColor=ffffff',
   primaryColor: '#EA580C', // Orange 600
   secondaryColor: '#000000', // Noir pour bon contraste QR
   qrStyle: 'dots',
