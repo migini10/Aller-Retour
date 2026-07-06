@@ -57,8 +57,8 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
           ]}
           logoWidth={size * 0.3} // ~30% of QR size to keep it safe
           logoHeight={size * 0.3}
-          logoPaddingStyle="circle"
-          logoPadding={3} // Safety margin
+          logoPaddingStyle="square"
+          logoPadding={8} // Safety margin to clear dots around the logo
           logoImage={safeLogo}
           ecLevel="L" // Matches the low-density/larger dot styling of Flutter
           removeQrCodeBehindLogo={true}
