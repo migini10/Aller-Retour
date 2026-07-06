@@ -6,6 +6,18 @@ import Link from 'next/link';
 import QRCodeBrandEngine from '../../../../../components/QRCodeBrandEngine';
 import { useAuth } from '../../../../../components/AuthContext';
 
+const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl) return envUrl;
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `http://${hostname}:3333`;
+    }
+  }
+  return 'http://localhost:3333';
+};
+
 export default function QrCodeHistoryPage() {
   const { token, fetchWithAuth } = useAuth();
   const [tickets, setTickets] = useState<any[]>([]);
@@ -58,7 +70,7 @@ export default function QrCodeHistoryPage() {
       async (pin) => {
         if (!pin) return;
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const apiUrl = getApiUrl();
           // Verify PIN first
           const verifyRes = await fetchWithAuth(`${apiUrl}/v1/auth/verify-pin`, {
             method: 'POST',
@@ -103,7 +115,7 @@ export default function QrCodeHistoryPage() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/v1/bookings/my-tickets`, {
           cache: 'no-store',
           headers: {

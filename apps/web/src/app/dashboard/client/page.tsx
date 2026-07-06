@@ -47,6 +47,18 @@ const getPopularDestinations = (currentCity: string) => {
   return filtered;
 };
 
+const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl) return envUrl;
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `http://${hostname}:3333`;
+    }
+  }
+  return 'http://localhost:3333';
+};
+
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
   const { user, fetchWithAuth } = useAuth();
@@ -67,7 +79,7 @@ export default function ClientDashboard() {
       const token = localStorage.getItem('ar_auth_token');
       if (!token) return;
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const apiUrl = getApiUrl();
         const res = await fetchWithAuth(`${apiUrl}/v1/wallets/my-balance`);
         if (res.ok) {
           const data = await res.json();

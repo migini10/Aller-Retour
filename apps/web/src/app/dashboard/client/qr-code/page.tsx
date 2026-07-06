@@ -7,6 +7,18 @@ import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { useUser } from '../../../../hooks/useUser';
 import { useAuth } from '../../../../components/AuthContext';
 
+const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl) return envUrl;
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `http://${hostname}:3333`;
+    }
+  }
+  return 'http://localhost:3333';
+};
+
 export default function QrCodePage() {
   const { userName, userPhone } = useUser();
   const { token, fetchWithAuth } = useAuth();
@@ -64,7 +76,7 @@ export default function QrCodePage() {
       async (pin) => {
         if (!pin) return;
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const apiUrl = getApiUrl();
           // First verify the PIN
           const verifyRes = await fetchWithAuth(`${apiUrl}/v1/auth/verify-pin`, {
             method: 'POST',
@@ -107,7 +119,7 @@ export default function QrCodePage() {
       return;
     }
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/v1/bookings/my-tickets`, {
         cache: 'no-store',
         headers: {
@@ -132,7 +144,7 @@ export default function QrCodePage() {
       async (secretCode) => {
         if (!secretCode) return;
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const apiUrl = getApiUrl();
           const res = await fetchWithAuth(`${apiUrl}/v1/bookings/${ticketId}/cancel`, {
             method: 'POST',
             headers: {
