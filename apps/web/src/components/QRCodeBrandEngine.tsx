@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { QRCode } from 'react-qrcode-logo';
-import { useBranding } from './BrandingContext';
+import React, { useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 
 interface QRCodeBrandEngineProps {
   value: string;
@@ -10,59 +9,126 @@ interface QRCodeBrandEngineProps {
 }
 
 export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngineProps) {
-  const { branding } = useBranding();
-
-  // Round corners configuration (TopLeft, TopRight, BottomRight) 
-  // Wait, react-qrcode-logo expects single number or array [top-left, top-right, bottom-right] or [outer, inner] depending on version, single number is safest.
-  const eyeRadius = branding.qrEyeRadius;
-
-  const [safeLogo, setSafeLogo] = useState<string | undefined>(undefined);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (branding.logoUrl) {
-      if (branding.logoUrl.startsWith('data:')) {
-        setSafeLogo(branding.logoUrl);
-      } else {
-        fetch(branding.logoUrl)
-          .then(r => r.blob())
-          .then(blob => {
-            const reader = new FileReader();
-            reader.onloadend = () => setSafeLogo(reader.result as string);
-            reader.readAsDataURL(blob);
-          })
-          .catch(() => setSafeLogo(undefined));
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    try {
+      // Create QR matrix with Low error correction (same as Flutter) for larger modules
+      const qr = QRCode.create(value, { errorCorrectionLevel: 'L' });
+      const moduleCount = qr.modules.size;
+      const padding = size * 0.06;
+      const drawSize = size - padding * 2;
+      const moduleSize = drawSize / moduleCount;
+
+      // Reset and clear canvas
+      ctx.clearRect(0, 0, size, size);
+
+      // Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
+
+      // Helper for corner eyes
+      const isFinderPattern = (row: number, col: number) => {
+        if (row < 7 && col < 7) return true; // Top-left
+        if (row < 7 && col >= moduleCount - 7) return true; // Top-right
+        if (row >= moduleCount - 7 && col < 7) return true; // Bottom-left
+        return false;
+      };
+
+      // Helper for center logo region to clear dots
+      const isInCenterArea = (row: number, col: number) => {
+        const centerStart = Math.floor(moduleCount * 0.35);
+        const centerEnd = Math.ceil(moduleCount * 0.65);
+        return row >= centerStart && row < centerEnd && col >= centerStart && col < centerEnd;
+      };
+
+      // Draw modules
+      ctx.fillStyle = '#000000';
+      for (let row = 0; row < moduleCount; row++) {
+        for (let col = 0; col < moduleCount; col++) {
+          // If module is dark
+          if (qr.modules.get(row, col)) {
+            if (isFinderPattern(row, col)) {
+              continue; // Skip eye modules, we draw circular eyes below
+            }
+            if (isInCenterArea(row, col)) {
+              continue; // Skip central logo area
+            }
+
+            const centerX = padding + col * moduleSize + moduleSize / 2;
+            const centerY = padding + row * moduleSize + moduleSize / 2;
+
+            ctx.beginPath();
+            // 55% radius (110% diameter) to match Flutter's thicker dots
+            ctx.arc(centerX, centerY, moduleSize * 0.55, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+        }
       }
+
+      // Draw circular eyes at the three corners (matching Flutter circular eye patterns)
+      const eyeOffset = 3.5 * moduleSize;
+      const eyeCenters = [
+        { x: padding + eyeOffset, y: padding + eyeOffset }, // Top-Left
+        { x: size - padding - eyeOffset, y: padding + eyeOffset }, // Top-Right
+        { x: padding + eyeOffset, y: size - padding - eyeOffset }, // Bottom-Left
+      ];
+
+      eyeCenters.forEach(center => {
+        // Outer circular ring
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = moduleSize;
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, moduleSize * 3.0, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // Inner circular dot
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, moduleSize * 1.5, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+    } catch (err) {
+      console.error('Failed to render QR Code', err);
     }
-  }, [branding.logoUrl]);
+  }, [value, size]);
+
+  const logoSize = size * 0.22;
 
   return (
     <div 
       className="relative flex items-center justify-center bg-white rounded-3xl shadow-xl border-4 border-orange-500/10 overflow-hidden"
-      style={{ padding: branding.qrPadding, width: size + branding.qrPadding * 2, height: size + branding.qrPadding * 2 }}
+      style={{ width: size, height: size }}
     >
-      {/* Subtle background glow mimicking premium branding */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-white pointer-events-none" />
+      <canvas 
+        ref={canvasRef} 
+        width={size} 
+        height={size} 
+        style={{ width: size, height: size }}
+      />
       
-      <div className="relative z-10 bg-white">
-        <QRCode
-          value={value}
-          size={size}
-          fgColor={branding.secondaryColor} // Dark color for high contrast
-          bgColor="#ffffff"
-          qrStyle={branding.qrStyle} // squares or dots
-          eyeRadius={[
-            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
-            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
-            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
-          ]}
-          logoWidth={size * 0.18}
-          logoHeight={size * 0.18}
-          logoPaddingStyle="square"
-          logoPadding={3} // Optimal safety margin
-          logoImage={safeLogo}
-          ecLevel="M" // Lower density error correction level to make dots larger and matching Flutter
-          removeQrCodeBehindLogo={true}
-        />
+      {/* Central AG Logo (matching Flutter design) */}
+      <div 
+        className="absolute bg-orange-600 rounded-md border-2 border-white flex items-center justify-center shadow-md"
+        style={{ 
+          width: logoSize, 
+          height: logoSize,
+          borderRadius: logoSize * 0.15
+        }}
+      >
+        <span 
+          className="text-white font-extrabold select-none text-center"
+          style={{ fontSize: logoSize * 0.45, letterSpacing: '0.5px' }}
+        >
+          AG
+        </span>
       </div>
     </div>
   );
