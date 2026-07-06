@@ -15,8 +15,16 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    ctx.scale(dpr, dpr);
 
     try {
       // Create QR matrix with Low error correction (same as Flutter) for larger modules
