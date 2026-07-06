@@ -932,7 +932,7 @@ class _QrSquarePainter extends CustomPainter {
             final centerY = padding + row * moduleSize + moduleSize / 2;
             canvas.drawCircle(
               Offset(centerX, centerY),
-              moduleSize * 0.48, // even larger dots for maximum scan readability
+              moduleSize * 0.55, // 55% radius (110% diameter) for maximum scan readability
               modulePaint,
             );
           }
