@@ -15,6 +15,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/orange_money_logo.dart';
 import 'widgets/recharge_modal.dart';
+import 'qr_code_screen.dart';
 import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
 
 class ClientDashboardScreen extends StatefulWidget {
@@ -2715,42 +2716,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               ),
                               
                               // QR Code
-                              Container(
-                                padding: EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: Colors.white, width: 4),
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    QrImageView(
-                                      data: 'ALLORETOUR-$nom-$departCity-$arriveeCity',
-                                      version: QrVersions.auto,
-                                      size: 160.0,
-                                      padding: EdgeInsets.zero,
-                                      dataModuleStyle: QrDataModuleStyle(
-                                        dataModuleShape: QrDataModuleShape.circle,
-                                        color: Colors.black,
-                                      ),
-                                      eyeStyle: QrEyeStyle(
-                                        eyeShape: QrEyeShape.circle,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Container(
-                                       width: 44,
-                                       height: 44,
-                                       decoration: BoxDecoration(
-                                         color: const Color(0xFFEA580C),
-                                         borderRadius: BorderRadius.circular(6),
-                                       ),
-                                       alignment: Alignment.center,
-                                       child: const Text('AG', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5)),
-                                     ),
-                                  ],
-                                ),
+                              QRCodeBrandEngine(
+                                value: 'ALLORETOUR-$nom-$departCity-$arriveeCity',
+                                size: 160.0,
                               ),
                               
                               SizedBox(height: 16),

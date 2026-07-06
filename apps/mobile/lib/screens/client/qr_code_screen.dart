@@ -925,6 +925,9 @@ class _QrSquarePainter extends CustomPainter {
             if (isEyeModule) {
               continue; // Skip drawing module-by-module, we draw circular eyes below
             }
+            if (_isInCenterArea(row, col, moduleCount)) {
+              continue; // Skip drawing modules in the center logo area
+            }
             final centerX = padding + col * moduleSize + moduleSize / 2;
             final centerY = padding + row * moduleSize + moduleSize / 2;
             canvas.drawCircle(
@@ -960,6 +963,13 @@ class _QrSquarePainter extends CustomPainter {
     } catch (_) {
       // Fallback: draw nothing if QR generation fails
     }
+  }
+
+  /// Check if module is in the center area where the logo will be placed
+  bool _isInCenterArea(int row, int col, int moduleCount) {
+    final int centerStart = (moduleCount * 0.35).floor();
+    final int centerEnd = (moduleCount * 0.65).ceil();
+    return row >= centerStart && row < centerEnd && col >= centerStart && col < centerEnd;
   }
 
   /// Check if module is part of a finder pattern (the 3 big corner squares)
