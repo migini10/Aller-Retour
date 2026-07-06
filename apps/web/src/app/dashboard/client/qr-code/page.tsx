@@ -441,7 +441,7 @@ export default function QrCodePage() {
             
             <div className="flex flex-col items-center mt-4">
               <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-100 dark:border-none">
-                <QRCodeBrandEngine value={selectedTicket.qrCodeToken} size={150} />
+                <QRCodeBrandEngine value={selectedTicket.qrCodeToken} size={180} />
               </div>
               
               <h3 className="mt-6 text-2xl font-black text-slate-900 dark:text-white">Billet N° VOY-{selectedTicket.id.split('-')[0].toUpperCase()}</h3>
