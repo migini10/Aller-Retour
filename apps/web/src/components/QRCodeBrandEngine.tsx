@@ -55,12 +55,12 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
             { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
             { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
           ]}
-          logoWidth={size * 0.26}
-          logoHeight={size * 0.26}
+          logoWidth={size * 0.22}
+          logoHeight={size * 0.22}
           logoPaddingStyle="square"
-          logoPadding={4} // Reduced empty space around logo
+          logoPadding={3} // Optimal safety margin
           logoImage={safeLogo}
-          ecLevel="L"
+          ecLevel="Q" // Higher error correction level to allow the logo to be covered without losing readability
           removeQrCodeBehindLogo={true}
         />
       </div>
