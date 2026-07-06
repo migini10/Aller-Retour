@@ -27,8 +27,8 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
     ctx.scale(dpr, dpr);
 
     try {
-      // Create QR matrix with Low error correction (same as Flutter) for larger modules
-      const qr = QRCode.create(value, { errorCorrectionLevel: 'L' });
+      // Create QR matrix with Quarter error correction (25% recovery) to tolerate center logo space
+      const qr = QRCode.create(value, { errorCorrectionLevel: 'Q' });
       const moduleCount = qr.modules.size;
       const padding = size * 0.06;
       const drawSize = size - padding * 2;

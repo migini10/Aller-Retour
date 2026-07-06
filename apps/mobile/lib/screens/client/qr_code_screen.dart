@@ -906,7 +906,7 @@ class _QrSquarePainter extends CustomPainter {
     try {
       final qrCode = QrCode.fromData(
         data: data,
-        errorCorrectLevel: QrErrorCorrectLevel.L,
+        errorCorrectLevel: QrErrorCorrectLevel.Q,
       );
       final qrImage = QrImage(qrCode);
       final moduleCount = qrCode.moduleCount;
