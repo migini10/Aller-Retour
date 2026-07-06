@@ -50,13 +50,17 @@ export default function QRCodeBrandEngine({ value, size = 180 }: QRCodeBrandEngi
           fgColor={branding.secondaryColor} // Dark color for high contrast
           bgColor="#ffffff"
           qrStyle={branding.qrStyle} // squares or dots
-          eyeRadius={eyeRadius} // Rounded corners for finder patterns
+          eyeRadius={[
+            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
+            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
+            { outer: [100, 100, 100, 100], inner: [100, 100, 100, 100] },
+          ]}
           logoWidth={size * 0.3} // ~30% of QR size to keep it safe
           logoHeight={size * 0.3}
           logoPaddingStyle="circle"
           logoPadding={3} // Safety margin
           logoImage={safeLogo}
-          ecLevel="H" // High error correction (30%) is MANDATORY for central logo
+          ecLevel="L" // Matches the low-density/larger dot styling of Flutter
           removeQrCodeBehindLogo={true}
         />
       </div>
