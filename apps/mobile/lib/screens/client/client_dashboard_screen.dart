@@ -2595,7 +2595,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF0A0A0A) : const Color(0xFF1E293B),
+                            color: isDark ? const Color(0xFF0A0A0A) : Colors.white,
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                             border: const Border(bottom: BorderSide(color: Color(0xFFF97316), width: 3)),
                           ),
@@ -2606,16 +2606,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 children: [
                                   const Icon(Icons.directions_car, color: Color(0xFFF97316)),
                                   const SizedBox(width: 8),
-                                  Text('Aller', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                  Text('Aller', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.bold)),
                                   const Text('Retour', style: TextStyle(color: Color(0xFFF97316), fontSize: 20, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('Billet Confirmé : ${selectedTrip?['company'] ?? 'Allogoo'}', style: TextStyle(color: textMutedColor, fontSize: 12)),
+                              Text('Billet Confirmé : ${selectedTrip?['company'] ?? 'Allogoo'}', style: TextStyle(color: isDark ? textMutedColor : const Color(0xFF64748B), fontSize: 12)),
                             ],
                           ),
                         ),
-                        
                         // Body ticket
                         Padding(
                           padding: const EdgeInsets.all(24),

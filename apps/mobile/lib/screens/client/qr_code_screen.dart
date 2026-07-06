@@ -837,7 +837,7 @@ class QRCodeBrandEngine extends StatelessWidget {
               painter: _QrSquarePainter(
                 data: value,
                 moduleColor: Colors.black,
-                eyeColor: const Color(0xFFE65100),
+                eyeColor: Colors.black,
                 backgroundColor: Colors.white,
                 padding: size * 0.06,
               ),
@@ -919,22 +919,32 @@ class _QrSquarePainter extends CustomPainter {
         ..color = eyeColor
         ..style = PaintingStyle.fill;
 
-      // Draw each module as a solid rectangle
+      // Draw each module
       for (int row = 0; row < moduleCount; row++) {
         for (int col = 0; col < moduleCount; col++) {
           if (qrImage.isDark(row, col)) {
             final isEyeModule = _isFinderPattern(row, col, moduleCount);
-            final paint = isEyeModule ? eyePaint : modulePaint;
-
-            canvas.drawRect(
-              Rect.fromLTWH(
-                padding + col * moduleSize,
-                padding + row * moduleSize,
-                moduleSize + 0.5, // +0.5 to avoid sub-pixel gaps
-                moduleSize + 0.5,
-              ),
-              paint,
-            );
+            if (isEyeModule) {
+              // Draw solid rect for finder patterns to keep them 100% readable
+              canvas.drawRect(
+                Rect.fromLTWH(
+                  padding + col * moduleSize,
+                  padding + row * moduleSize,
+                  moduleSize + 0.1,
+                  moduleSize + 0.1,
+                ),
+                eyePaint,
+              );
+            } else {
+              // Draw dot (circle) for normal modules to create the dotted style
+              final centerX = padding + col * moduleSize + moduleSize / 2;
+              final centerY = padding + row * moduleSize + moduleSize / 2;
+              canvas.drawCircle(
+                Offset(centerX, centerY),
+                moduleSize * 0.40, // optimal dot size for readability and style
+                modulePaint,
+              );
+            }
           }
         }
       }
