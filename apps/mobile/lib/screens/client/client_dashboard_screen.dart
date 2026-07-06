@@ -45,6 +45,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   List<dynamic> priveRequests = [];
   Timer? _priveRequestsTimer;
   Timer? _walletTimer;
+  String? createdBookingToken;
 
   Future<void> _fetchPriveRequests() async {
     try {
@@ -2717,7 +2718,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               
                               // QR Code
                               QRCodeBrandEngine(
-                                value: 'ALLORETOUR-$nom-$departCity-$arriveeCity',
+                                value: createdBookingToken ?? 'ALLORETOUR-CONFIRMED-$nom-$departCity-$arriveeCity',
                                 size: 160.0,
                               ),
                               
@@ -3031,7 +3032,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                        }
                                        if (response.statusCode == 201 || response.statusCode == 200) {
                                          final apiData = jsonDecode(response.body);
-                                         setState(() => isQueued = false);
+                                         setState(() {
+                                           isQueued = false;
+                                           if (apiData['booking'] != null) {
+                                             createdBookingToken = apiData['booking']['qrCodeToken'];
+                                           }
+                                         });
                                         
                                         if (apiData['booking'] != null && apiData['booking']['status'] == 'PENDING_PAYMENT') {
                                           if (apiData['paymentSession'] != null && apiData['paymentSession']['paymentUrl'] != null) {
