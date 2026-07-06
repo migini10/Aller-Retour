@@ -2735,7 +2735,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         color: Colors.black,
                                       ),
                                       eyeStyle: QrEyeStyle(
-                                        eyeShape: QrEyeShape.square,
+                                        eyeShape: QrEyeShape.circle,
                                         color: Colors.black,
                                       ),
                                     ),

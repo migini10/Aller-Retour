@@ -701,21 +701,23 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F172A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.15), width: 4),
                   boxShadow: [
@@ -729,7 +731,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 child: QRCodeBrandEngine(value: ref, size: 250),
               ),
               const SizedBox(height: 24),
-              Text('Billet N° $ticketNo', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              Text('Billet N° $ticketNo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text('$from ➔ $to', style: const TextStyle(color: Colors.orangeAccent, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
@@ -743,8 +745,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white10,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
@@ -766,8 +768,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 15)),
+          Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -904,7 +906,7 @@ class _QrSquarePainter extends CustomPainter {
     try {
       final qrCode = QrCode.fromData(
         data: data,
-        errorCorrectLevel: QrErrorCorrectLevel.M,
+        errorCorrectLevel: QrErrorCorrectLevel.L,
       );
       final qrImage = QrImage(qrCode);
       final moduleCount = qrCode.moduleCount;
@@ -915,38 +917,45 @@ class _QrSquarePainter extends CustomPainter {
         ..color = moduleColor
         ..style = PaintingStyle.fill;
 
-      final eyePaint = Paint()
-        ..color = eyeColor
-        ..style = PaintingStyle.fill;
-
-      // Draw each module
+      // Draw each normal module as a circle (dotted QR code body)
       for (int row = 0; row < moduleCount; row++) {
         for (int col = 0; col < moduleCount; col++) {
           if (qrImage.isDark(row, col)) {
             final isEyeModule = _isFinderPattern(row, col, moduleCount);
             if (isEyeModule) {
-              // Draw solid rect for finder patterns to keep them 100% readable
-              canvas.drawRect(
-                Rect.fromLTWH(
-                  padding + col * moduleSize,
-                  padding + row * moduleSize,
-                  moduleSize + 0.1,
-                  moduleSize + 0.1,
-                ),
-                eyePaint,
-              );
-            } else {
-              // Draw dot (circle) for normal modules to create the dotted style
-              final centerX = padding + col * moduleSize + moduleSize / 2;
-              final centerY = padding + row * moduleSize + moduleSize / 2;
-              canvas.drawCircle(
-                Offset(centerX, centerY),
-                moduleSize * 0.40, // optimal dot size for readability and style
-                modulePaint,
-              );
+              continue; // Skip drawing module-by-module, we draw circular eyes below
             }
+            final centerX = padding + col * moduleSize + moduleSize / 2;
+            final centerY = padding + row * moduleSize + moduleSize / 2;
+            canvas.drawCircle(
+              Offset(centerX, centerY),
+              moduleSize * 0.42, // increased dot size for maximum readability
+              modulePaint,
+            );
           }
         }
+      }
+
+      // Draw high-quality circular eyes at the three corners
+      final double eyeOffset = 3.5 * moduleSize;
+      final List<Offset> eyeCenters = [
+        Offset(padding + eyeOffset, padding + eyeOffset), // Top-Left
+        Offset(size.width - padding - eyeOffset, padding + eyeOffset), // Top-Right
+        Offset(padding + eyeOffset, size.height - padding - eyeOffset), // Bottom-Left
+      ];
+
+      final outerPaint = Paint()
+        ..color = eyeColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = moduleSize;
+
+      final innerPaint = Paint()
+        ..color = eyeColor
+        ..style = PaintingStyle.fill;
+
+      for (final center in eyeCenters) {
+        canvas.drawCircle(center, moduleSize * 3.0, outerPaint);
+        canvas.drawCircle(center, moduleSize * 1.5, innerPaint);
       }
     } catch (_) {
       // Fallback: draw nothing if QR generation fails
