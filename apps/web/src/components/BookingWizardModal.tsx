@@ -1391,7 +1391,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <div className="flex justify-center mb-4 mt-2">
                 <QRCodeBrandEngine 
                   value={generatedTicket?.id || `ALLORETOUR-DEMANDE-${searchParams.depart}-${searchParams.arrivee}`} 
-                  size={160} 
+                  size={200} 
                 />
               </div>
               <p className="text-[10px] text-slate-500 font-bold text-emerald-500">Scanner au moment de l'embarquement</p>
@@ -1562,7 +1562,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               <div className="flex justify-center mb-4 mt-2">
                 <QRCodeBrandEngine 
                   value={generatedTicket?.id || 'ALLORETOUR-TICKET'} 
-                  size={160} 
+                  size={200} 
                 />
               </div>
               <p className="text-[10px] text-slate-500">Scanner au moment de l'embarquement</p>

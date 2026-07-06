@@ -434,14 +434,14 @@ export default function QrCodePage() {
       {selectedTicket && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedTicket(null)} />
-          <div className="relative w-full max-w-sm bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-[2rem] p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="relative w-full max-w-sm bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-[2rem] p-6 shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <button onClick={() => setSelectedTicket(null)} className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-[#1A1A1A] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-full transition-colors">
               <X className="w-5 h-5" />
             </button>
             
             <div className="flex flex-col items-center mt-4">
               <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-100 dark:border-none">
-                <QRCodeBrandEngine value={selectedTicket.qrCodeToken} size={180} />
+                <QRCodeBrandEngine value={selectedTicket.qrCodeToken} size={220} />
               </div>
               
               <h3 className="mt-6 text-2xl font-black text-slate-900 dark:text-white">Billet N° VOY-{selectedTicket.id.split('-')[0].toUpperCase()}</h3>
