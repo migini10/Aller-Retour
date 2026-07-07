@@ -10,7 +10,7 @@ import { ListEarningsDto } from './dto/list-earnings.dto';
 import { MarkPaidDto } from './dto/mark-paid.dto';
 
 @ApiTags('Driver Earnings')
-@Controller('v1/driver-earnings')
+@Controller('driver-earnings')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
 @ApiBearerAuth()
