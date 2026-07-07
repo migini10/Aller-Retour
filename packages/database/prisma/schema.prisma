@@ -8,27 +8,28 @@ datasource db {
 }
 
 model User {
-  id              String          @id @default(uuid())
-  email           String?         @unique
-  phone           String          @unique
-  phoneVerified   Boolean         @default(false)
-  passwordHash    String?
-  fullName        String
-  avatarUrl       String?
-  role            UserRole        @default(PASSENGER)
-  isActive        Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  failedAttempts  Int             @default(0)
-  blockedUntil    DateTime?
-  colisPoints     Int             @default(30)
-  transportPoints Int             @default(20)
-  bookings        Booking[]
-  driverEarnings  DriverEarning[]
-  driverProfile   DriverProfile?
-  reviewsWritten  Review[]        @relation("ReviewAuthor")
-  reviewsReceived Review[]        @relation("ReviewReceiver")
-  seatLocks       SeatLock[]
+  id                  String               @id @default(uuid())
+  email               String?              @unique
+  phone               String               @unique
+  phoneVerified       Boolean              @default(false)
+  passwordHash        String?
+  fullName            String
+  avatarUrl           String?
+  role                UserRole             @default(PASSENGER)
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  failedAttempts      Int                  @default(0)
+  blockedUntil        DateTime?
+  colisPoints         Int                  @default(30)
+  transportPoints     Int                  @default(20)
+  bookings            Booking[]
+  driverEarnings      DriverEarning[]
+  driverProfile       DriverProfile?
+  reviewsWritten      Review[]             @relation("ReviewAuthor")
+  reviewsReceived     Review[]             @relation("ReviewReceiver")
+  seatLocks           SeatLock[]
+  paymentTransactions PaymentTransaction[]
 
   @@index([phone])
   @@map("users")
@@ -145,24 +146,25 @@ model Trip {
 }
 
 model Booking {
-  id            String         @id @default(uuid())
-  tripId        String
-  userId        String
-  seatNumber    Int
-  qrCodeToken   String         @unique
-  status        BookingStatus  @default(PENDING_PAYMENT)
-  basePrice     Float
-  clientFee     Float
-  amountPaid    Float
-  paymentMethod PaymentMethod
-  paymentRef    String?        @unique
-  boardedAt     DateTime?
-  hiddenByUser  Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  trip          Trip           @relation(fields: [tripId], references: [id])
-  user          User           @relation(fields: [userId], references: [id])
-  driverEarning DriverEarning?
+  id                  String               @id @default(uuid())
+  tripId              String
+  userId              String
+  seatNumber          Int
+  qrCodeToken         String               @unique
+  status              BookingStatus        @default(PENDING_PAYMENT)
+  basePrice           Float
+  clientFee           Float
+  amountPaid          Float
+  paymentMethod       PaymentMethod
+  paymentRef          String?              @unique
+  boardedAt           DateTime?
+  hiddenByUser        Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  trip                Trip                 @relation(fields: [tripId], references: [id])
+  user                User                 @relation(fields: [userId], references: [id])
+  driverEarning       DriverEarning?
+  paymentTransactions PaymentTransaction[]
 
   @@index([userId])
   @@index([qrCodeToken])
@@ -181,6 +183,27 @@ model SeatLock {
 
   @@unique([tripId, seatNumber])
   @@map("seat_locks")
+}
+
+model PaymentTransaction {
+  id              String   @id @default(uuid())
+  bookingId       String
+  userId          String
+  amount          Float
+  method          String // WAVE, ORANGE_MONEY
+  status          String   @default("PENDING") // PENDING, SUCCESS, FAILED, CANCELLED
+  providerRef     String?
+  providerMessage String?
+  rawPayload      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([bookingId])
+  @@index([userId])
+  @@map("payment_transactions")
 }
 
 model Parcel {
@@ -207,19 +230,19 @@ model Parcel {
 }
 
 model DriverEarning {
-  id                 String   @id @default(uuid())
-  bookingId          String   @unique
+  id                 String    @id @default(uuid())
+  bookingId          String    @unique
   driverId           String
   basePrice          Float
   driverCut          Float
   platformCommission Float
-  status             String   @default("PENDING")
+  status             String    @default("PENDING")
   payoutRef          String?
   paidAt             DateTime?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  booking            Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  driver             User     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  booking            Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  driver             User      @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   @@index([driverId])
   @@map("driver_earnings")

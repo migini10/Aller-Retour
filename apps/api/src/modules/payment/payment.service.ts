@@ -17,6 +17,21 @@ export class PaymentService {
     this.logger.log(`Initiating WAVE payment for ${phone} - Amount: ${amount} XOF`);
     const mockTransactionId = `wav_tx_${uuidv4().replace(/-/g, '').substring(0, 16)}`;
     const mockPaymentUrl = `https://pay.wave.com/checkout/${mockTransactionId}`;
+    
+    const booking = await prisma.booking.findUnique({ where: { id: reference } });
+    if (booking) {
+      await prisma.paymentTransaction.create({
+        data: {
+          bookingId: reference,
+          userId: booking.userId,
+          amount,
+          method: 'WAVE',
+          status: 'PENDING',
+          providerRef: mockTransactionId,
+        }
+      });
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
       success: true,
@@ -38,6 +53,21 @@ export class PaymentService {
     const mockTransactionId = `om_tx_${uuidv4().replace(/-/g, '').substring(0, 16)}`;
     const mockPayToken = `mp_token_${uuidv4().substring(0, 8)}`;
     const mockPaymentUrl = `https://api.orange.com/webpayment/pay/${mockPayToken}`;
+    
+    const booking = await prisma.booking.findUnique({ where: { id: reference } });
+    if (booking) {
+      await prisma.paymentTransaction.create({
+        data: {
+          bookingId: reference,
+          userId: booking.userId,
+          amount,
+          method: 'ORANGE_MONEY',
+          status: 'PENDING',
+          providerRef: mockTransactionId,
+        }
+      });
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
       success: true,
@@ -64,7 +94,16 @@ export class PaymentService {
       return { success: false, message: 'Invalid payload' };
     }
 
-    return this.confirmBookingPayment(reference, txId);
+    // Gérer l'échec
+    if (payload.type === 'checkout.session.failed') {
+      await prisma.paymentTransaction.updateMany({
+        where: { providerRef: txId, status: 'PENDING' },
+        data: { status: 'FAILED', providerMessage: payload.data?.payment_status, rawPayload: payload }
+      });
+      return { success: true, message: 'Payment marked as failed' };
+    }
+
+    return this.confirmBookingPayment(reference, txId, payload);
   }
 
   /**
@@ -79,13 +118,21 @@ export class PaymentService {
       return { success: false, message: 'Invalid payload' };
     }
 
-    return this.confirmBookingPayment(reference, txId);
+    if (payload.status === 'FAILED') {
+      await prisma.paymentTransaction.updateMany({
+        where: { providerRef: txId, status: 'PENDING' },
+        data: { status: 'FAILED', providerMessage: payload.message, rawPayload: payload }
+      });
+      return { success: true, message: 'Payment marked as failed' };
+    }
+
+    return this.confirmBookingPayment(reference, txId, payload);
   }
 
   /**
    * Idempotent payment confirmation that marks booking as PAID/CONFIRMED and logs driver earnings
    */
-  private async confirmBookingPayment(bookingId: string, paymentRef: string) {
+  private async confirmBookingPayment(bookingId: string, paymentRef: string, rawPayload?: any) {
     // Check if booking already paid (idempotency check)
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -103,6 +150,14 @@ export class PaymentService {
 
     if (!booking) {
       return { success: false, message: 'Booking not found' };
+    }
+
+    // Idempotency: verify if already a SUCCESS transaction exists for this ref
+    const existingTx = await prisma.paymentTransaction.findFirst({
+      where: { providerRef: paymentRef, status: 'SUCCESS' }
+    });
+    if (existingTx) {
+      return { success: true, message: 'Payment already processed' };
     }
 
     if (booking.status === 'CONFIRMED' || booking.status === 'BOARDED') {
@@ -130,6 +185,16 @@ export class PaymentService {
           driverCut: pricing.driverCut,
           platformCommission: pricing.platformCommission,
           status: 'PENDING',
+        }
+      });
+
+      // Update PaymentTransaction to SUCCESS
+      await tx.paymentTransaction.updateMany({
+        where: { providerRef: paymentRef, status: 'PENDING' },
+        data: {
+          status: 'SUCCESS',
+          providerMessage: 'Paiement validé',
+          rawPayload: rawPayload || null
         }
       });
     });

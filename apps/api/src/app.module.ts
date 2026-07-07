@@ -11,6 +11,7 @@ import { QrModule } from './modules/qr/qr.module';
 import { UsersModule } from './modules/users/users.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { DriverEarningsModule } from './modules/driver-earnings/driver-earnings.module';
+import { PaymentTransactionsModule } from './modules/payment-transactions/payment-transactions.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { DriverEarningsModule } from './modules/driver-earnings/driver-earnings.
     UsersModule,
     DriversModule,
     DriverEarningsModule,
+    PaymentTransactionsModule,
   ],
   controllers: [AppController],
   providers: [],
