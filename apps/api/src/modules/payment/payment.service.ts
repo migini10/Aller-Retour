@@ -91,7 +91,12 @@ export class PaymentService {
       where: { id: bookingId },
       include: {
         trip: {
-          include: { driver: true }
+          include: { 
+            driver: true,
+            vehicle: {
+              include: { owner: true }
+            }
+          }
         }
       }
     });
@@ -120,7 +125,7 @@ export class PaymentService {
       await tx.driverEarning.create({
         data: {
           bookingId: bookingId,
-          driverId: booking.trip.driver.userId,
+          driverId: booking.trip.vehicle?.owner?.userId || booking.trip.driver.userId,
           basePrice: pricing.basePrice,
           driverCut: pricing.driverCut,
           platformCommission: pricing.platformCommission,
