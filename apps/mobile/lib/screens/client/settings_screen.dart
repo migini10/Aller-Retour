@@ -192,11 +192,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: 'Configurez l\'application selon vos besoins.',
       icon: Icons.settings,
       iconColor: Colors.grey,
-      body: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
+      body: Padding(
         padding: const EdgeInsets.all(20),
-        children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Text('Préférences', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
           const SizedBox(height: 16),
           _buildSettingsTile(Icons.notifications_outlined, 'Notifications', 'Gérez vos alertes de trajets', context),
@@ -294,6 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingsTile(Icons.help_outline, 'Aide et support', '', context, onTap: () => Navigator.pushNamed(context, '/support')),
           _buildSettingsTile(Icons.message_outlined, 'Contactez-nous', '', context, onTap: () => Navigator.pushNamed(context, '/contact')),
         ],
+        ),
       ),
     );
   }

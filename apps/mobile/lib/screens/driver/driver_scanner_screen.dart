@@ -343,8 +343,20 @@ Widget _buildValidModalOverlay() {
   final String amount = scanData?['amountPaid']?.toString() ?? '0';
   final bool isExpired = scanResult == 'expired';
 
+  final bool isDark = Theme.of(context).brightness == Brightness.dark;
+  final Color cardBg = isDark ? const Color(0xFF141414) : Colors.white;
+  final Color cardBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE2E8F0);
+  final Color gridBg = isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF8FAFC);
+  final Color primaryTextColor = isDark ? Colors.white : const Color(0xFF0F172A);
+  final Color secondaryTextColor = isDark ? Colors.white54 : const Color(0xFF64748B);
+  final Color dividerColor = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE2E8F0);
+  final Color cancelBtnBg = isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF1F5F9);
+  final Color cancelBtnText = isDark ? Colors.white : const Color(0xFF0F172A);
+  final Color cancelBtnBorder = isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0);
+  final Color payTextColor = isDark ? Colors.greenAccent : const Color(0xFF10B981);
+
   return Container(
-    color: Colors.black.withValues(alpha: 0.8),
+    color: Colors.black.withValues(alpha: 0.6),
     child: BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
       child: Center(
@@ -354,9 +366,9 @@ Widget _buildValidModalOverlay() {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFF141414),
+                color: cardBg,
                 borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: const Color(0xFF2A2A2A)),
+                border: Border.all(color: cardBorder),
                 boxShadow: [
                   BoxShadow(
                     color: isExpired ? Colors.redAccent.withValues(alpha: 0.15) : Colors.greenAccent.withValues(alpha: 0.15),
@@ -419,15 +431,15 @@ Widget _buildValidModalOverlay() {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Passager', style: TextStyle(color: Colors.white54, fontSize: 14)),
-                                  Text(scanData?['passengerName'] ?? 'Client', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: -0.5)),
+                                  Text('Passager', style: TextStyle(color: secondaryTextColor, fontSize: 14)),
+                                  Text(scanData?['passengerName'] ?? 'Client', style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: -0.5)),
                                 ],
                               ),
                             )
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Divider(color: Color(0xFF2A2A2A), height: 1),
+                        Divider(color: dividerColor, height: 1),
                         const SizedBox(height: 24),
 
                         // Grid N° Billet & Date
@@ -436,13 +448,13 @@ Widget _buildValidModalOverlay() {
                             Expanded(
                               child: Container(
                                 padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF2A2A2A))),
+                                decoration: BoxDecoration(color: gridBg, borderRadius: BorderRadius.circular(20), border: Border.all(color: cardBorder)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Row(children: [Icon(Icons.numbers, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('N° Billet', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                    Row(children: [const Icon(Icons.numbers, size: 16, color: Colors.orangeAccent), const SizedBox(width: 6), Text('N° Billet', style: TextStyle(color: secondaryTextColor, fontSize: 12))]),
                                     const SizedBox(height: 8),
-                                    FittedBox(fit: BoxFit.scaleDown, child: Text(ticketShort, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'monospace'))),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text(ticketShort, style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'monospace'))),
                                   ],
                                 ),
                               ),
@@ -451,13 +463,13 @@ Widget _buildValidModalOverlay() {
                             Expanded(
                               child: Container(
                                 padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF2A2A2A))),
+                                decoration: BoxDecoration(color: gridBg, borderRadius: BorderRadius.circular(20), border: Border.all(color: cardBorder)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Row(children: [Icon(Icons.calendar_month, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Date & Heure', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                    Row(children: [const Icon(Icons.calendar_month, size: 16, color: Colors.orangeAccent), const SizedBox(width: 6), Text('Date & Heure', style: TextStyle(color: secondaryTextColor, fontSize: 12))]),
                                     const SizedBox(height: 8),
-                                    FittedBox(fit: BoxFit.scaleDown, child: Text(dateFormatted, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14))),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text(dateFormatted, style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w700, fontSize: 14))),
                                   ],
                                 ),
                               ),
@@ -469,7 +481,7 @@ Widget _buildValidModalOverlay() {
                         // Grid Trajet / Passagers / Payé
                         Container(
                           padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(color: const Color(0xFF0A0A0A), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFF2A2A2A))),
+                          decoration: BoxDecoration(color: gridBg, borderRadius: BorderRadius.circular(24), border: Border.all(color: cardBorder)),
                           child: Column(
                             children: [
                               Row(
@@ -481,16 +493,16 @@ Widget _buildValidModalOverlay() {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('Trajet', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                                        Text('Trajet', style: TextStyle(color: secondaryTextColor, fontSize: 12)),
                                         const SizedBox(height: 2),
-                                        Text(scanData?['route'] ?? '---', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+                                        Text(scanData?['route'] ?? '---', style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w700, fontSize: 16)),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              const Divider(color: Color(0xFF2A2A2A), height: 1),
+                              Divider(color: dividerColor, height: 1),
                               const SizedBox(height: 20),
                               Row(
                                 children: [
@@ -498,9 +510,9 @@ Widget _buildValidModalOverlay() {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Row(children: [Icon(Icons.people, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Passagers', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                        Row(children: [const Icon(Icons.people, size: 16, color: Colors.orangeAccent), const SizedBox(width: 6), Text('Passagers', style: TextStyle(color: secondaryTextColor, fontSize: 12))]),
                                         const SizedBox(height: 6),
-                                        Text('${scanData?['passengersCount'] ?? 1} personne(s)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                                        Text('${scanData?['passengersCount'] ?? 1} personne(s)', style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.w700, fontSize: 15)),
                                       ],
                                     ),
                                   ),
@@ -508,9 +520,9 @@ Widget _buildValidModalOverlay() {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Row(children: [Icon(Icons.payment, size: 16, color: Colors.orangeAccent), SizedBox(width: 6), Text('Payé', style: TextStyle(color: Colors.white54, fontSize: 12))]),
+                                        Row(children: [const Icon(Icons.payment, size: 16, color: Colors.orangeAccent), const SizedBox(width: 6), Text('Payé', style: TextStyle(color: secondaryTextColor, fontSize: 12))]),
                                         const SizedBox(height: 6),
-                                        FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text('$amount FCFA', style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5))),
+                                        FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text('$amount FCFA', style: TextStyle(color: payTextColor, fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5))),
                                       ],
                                     ),
                                   ),
@@ -538,11 +550,11 @@ Widget _buildValidModalOverlay() {
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1A1A1A),
-                              foregroundColor: Colors.white,
+                              backgroundColor: cancelBtnBg,
+                              foregroundColor: cancelBtnText,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 20),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF333333))),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: cancelBtnBorder)),
                             ),
                             child: const Text('Annuler', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           ),

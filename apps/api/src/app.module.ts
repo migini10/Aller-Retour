@@ -8,6 +8,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { QrModule } from './modules/qr/qr.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { QrModule } from './modules/qr/qr.module';
     PaymentModule,
     PricingModule,
     QrModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [],
