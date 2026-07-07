@@ -8,7 +8,7 @@ import { UsersService } from './users.service';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
-@Controller('v1/users')
+@Controller('users')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
 export class UsersController {
