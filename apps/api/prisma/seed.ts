@@ -21,14 +21,15 @@ async function main() {
         create: {
           licenseNumber: 'SN-SEED-001',
           licenseExpiry: new Date('2030-01-01'),
-          type: 'FREELANCE',
+          type: 'OWNER',
         }
       }
     },
     include: { driverProfile: true }
   });
 
-  const driverProfileId = driverUser.driverProfile!.id;
+  const driverProfile = await prisma.driverProfile.findUnique({ where: { userId: driverUser.id } });
+  const driverProfileId = driverProfile!.id;
 
   // 3. Création d'un véhicule
   const vehicle = await prisma.vehicle.create({

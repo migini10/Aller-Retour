@@ -9,6 +9,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { QrModule } from './modules/qr/qr.module';
 import { UsersModule } from './modules/users/users.module';
+import { DriversModule } from './modules/drivers/drivers.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from './modules/users/users.module';
     PricingModule,
     QrModule,
     UsersModule,
+    DriversModule,
   ],
   controllers: [AppController],
   providers: [],
