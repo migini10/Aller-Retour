@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
@@ -8,6 +9,7 @@ import { UsersService } from './users.service';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
