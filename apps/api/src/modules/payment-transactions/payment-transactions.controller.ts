@@ -9,7 +9,7 @@ import { PaymentTransactionsService } from './payment-transactions.service';
 import { ListPaymentTransactionsDto } from './dto/list-payment-transactions.dto';
 
 @ApiTags('Payment Transactions')
-@Controller('v1/payment-transactions')
+@Controller('payment-transactions')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
 @ApiBearerAuth()

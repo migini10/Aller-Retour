@@ -1,12 +1,48 @@
-
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { User, UserStatus, UserPermissions } from '../../types/user.types';
 import { ShieldBan, ShieldCheck, KeyRound, Clock } from 'lucide-react';
+import { UsersService } from '../../services/users.service';
 
-export function UserActions({ user, permissions }: { user: User, permissions: UserPermissions }) {
+interface UserActionsProps {
+  user: User;
+  permissions: UserPermissions;
+  onRefresh: () => void;
+}
+
+export function UserActions({ user, permissions, onRefresh }: UserActionsProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
   const isSuspended = user.status === UserStatus.SUSPENDED || user.status === UserStatus.BANNED;
+
+  const handleStatusChange = async (action: 'ACTIVATE' | 'SUSPEND') => {
+    try {
+      setIsProcessing(true);
+      await UsersService.updateUserStatus(user.id, action);
+      onRefresh();
+    } catch (error) {
+      console.error('Failed to update status', error);
+      alert('Erreur lors de la mise à jour du statut');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleResetPin = async () => {
+    if (!window.confirm('Voulez-vous forcer la réinitialisation du PIN de cet utilisateur ?')) return;
+    
+    try {
+      setIsProcessing(true);
+      await UsersService.resetUserPin(user.id);
+      alert('Demande de réinitialisation envoyée avec succès.');
+      onRefresh();
+    } catch (error) {
+      console.error('Failed to reset pin', error);
+      alert('Erreur lors de la réinitialisation du PIN');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
@@ -16,12 +52,20 @@ export function UserActions({ user, permissions }: { user: User, permissions: Us
       <div className="p-4 flex flex-col gap-2">
         {permissions.canSuspendUser && (
           !isSuspended ? (
-            <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-rose-50 text-rose-600 dark:hover:bg-rose-500/10 transition-colors text-left w-full font-semibold text-sm">
+            <button 
+              onClick={() => handleStatusChange('SUSPEND')}
+              disabled={isProcessing}
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-rose-50 text-rose-600 dark:hover:bg-rose-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+            >
               <ShieldBan className="w-5 h-5" />
               Suspendre le compte
             </button>
           ) : (
-            <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 text-emerald-600 dark:hover:bg-emerald-500/10 transition-colors text-left w-full font-semibold text-sm">
+            <button 
+              onClick={() => handleStatusChange('ACTIVATE')}
+              disabled={isProcessing}
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 text-emerald-600 dark:hover:bg-emerald-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+            >
               <ShieldCheck className="w-5 h-5" />
               Réactiver le compte
             </button>
@@ -29,7 +73,11 @@ export function UserActions({ user, permissions }: { user: User, permissions: Us
         )}
         
         {permissions.canResetPin && (
-          <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 text-orange-600 dark:hover:bg-orange-500/10 transition-colors text-left w-full font-semibold text-sm">
+          <button 
+            onClick={handleResetPin}
+            disabled={isProcessing}
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 text-orange-600 dark:hover:bg-orange-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+          >
             <KeyRound className="w-5 h-5" />
             Forcer réinitialisation PIN
           </button>

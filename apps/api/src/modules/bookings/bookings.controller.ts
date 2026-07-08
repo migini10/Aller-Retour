@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Req, UseGuards, Param, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Body, Req, UseGuards, Param, Get, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BookingsService } from './bookings.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
@@ -7,6 +7,43 @@ import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
 import { UserRole, PaymentMethod } from '@aller-retour/database';
 import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray } from 'class-validator';
+
+export class GetBookingsFilterDto {
+  @IsOptional()
+  page?: number;
+
+  @IsOptional()
+  limit?: number;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentStatus?: string;
+
+  @IsOptional()
+  @IsString()
+  tripId?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
+  @IsString()
+  dateFrom?: string;
+
+  @IsOptional()
+  @IsString()
+  dateTo?: string;
+}
+
 export class CancelBookingDto {
   @IsString()
   @IsNotEmpty()
@@ -52,6 +89,15 @@ export class CreateBookingDto {
 @ApiBearerAuth()
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
+
+  @Get()
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @Permissions('bookings:read')
+  @ApiOperation({ summary: 'Lister et filtrer toutes les réservations (Admin)' })
+  async getAllBookings(@Query() filters: GetBookingsFilterDto) {
+    return this.bookingsService.getAllBookings(filters);
+  }
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RbacGuard)
@@ -116,5 +162,23 @@ export class BookingsController {
   @ApiOperation({ summary: 'Transférer des passagers vers un autre trajet' })
   async transfer(@Req() req: any, @Body() dto: TransferBookingsDto) {
     return this.bookingsService.transferBookings(req.user.id, dto.bookingIds, dto.targetTripId);
+  }
+
+  @Post(':id/admin-cancel')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @Permissions('bookings:update')
+  @ApiOperation({ summary: 'Annuler une réservation de force sans code (Admin)' })
+  async adminCancel(@Param('id') id: string) {
+    return this.bookingsService.adminCancelBooking(id);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @Permissions('bookings:read')
+  @ApiOperation({ summary: 'Voir le détail complet d\'une réservation (Admin)' })
+  async getById(@Param('id') id: string) {
+    return this.bookingsService.getBookingById(id);
   }
 }

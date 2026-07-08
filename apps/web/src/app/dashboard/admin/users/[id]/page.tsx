@@ -27,7 +27,7 @@ type TabId = 'profile' | 'statistics' | 'activity' | 'trips' | 'bookings' | 'rev
 export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isLoading, isError, permissions } = useUsers(params.id as string);
+  const { user, isLoading, isError, permissions, refresh } = useUsers({ id: params.id as string });
   
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
@@ -123,7 +123,7 @@ export default function UserDetailPage() {
                   {activeTab === 'bookings' && <UserBookings />}
                   {activeTab === 'reviews' && <UserReviews />}
                   {activeTab === 'documents' && <UserDocuments user={user} />}
-                  {activeTab === 'activity' && <UserActivity />}
+                  {activeTab === 'activity' && <UserActivity userId={user.id} />}
                   {activeTab === 'notes' && <UserAdminNotes user={user} />}
                 </motion.div>
               </AnimatePresence>
@@ -131,7 +131,7 @@ export default function UserDetailPage() {
           </div>
 
           <div className="w-full lg:w-80 shrink-0">
-            {permissions.canEditUser && <UserActions user={user} permissions={permissions} />}
+            {permissions.canEditUser && <UserActions user={user} permissions={permissions} onRefresh={refresh} />}
           </div>
 
         </div>

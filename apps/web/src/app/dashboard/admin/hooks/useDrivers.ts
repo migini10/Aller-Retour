@@ -1,22 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { User, UserPermissions } from '../types/user.types';
-import { UsersService } from '../services/users.service';
+import { DriverProfile, DriverPermissions } from '../types/driver.types';
+import { DriversService } from '../services/drivers.service';
 
-interface UseUsersOptions {
+interface UseDriversOptions {
   id?: string;
   page?: number;
   limit?: number;
   search?: string;
-  role?: string;
   status?: string;
+  kycStatus?: string;
 }
 
-export function useUsers(options: UseUsersOptions = {}) {
-  const { id, page = 1, limit = 10, search, role, status } = options;
-  const [users, setUsers] = useState<User[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+export function useDrivers(options: UseDriversOptions = {}) {
+  const { id, page = 1, limit = 10, search, status, kycStatus } = options;
+  const [drivers, setDrivers] = useState<DriverProfile[]>([]);
+  const [driver, setDriver] = useState<DriverProfile | null>(null);
   const [meta, setMeta] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -26,20 +26,20 @@ export function useUsers(options: UseUsersOptions = {}) {
     setIsError(false);
     try {
       if (id) {
-        const data = await UsersService.getUserById(id);
-        setUser(data);
+        const data = await DriversService.getDriverById(id);
+        setDriver(data);
       } else {
-        const response = await UsersService.getUsers({ page, limit, search, role, status });
-        setUsers(response.data);
+        const response = await DriversService.getDrivers({ page, limit, search, status, kycStatus });
+        setDrivers(response.data);
         setMeta(response.meta);
       }
     } catch (err) {
-      console.error('Failed to fetch users:', err);
+      console.error('Failed to fetch drivers:', err);
       setIsError(true);
     } finally {
       setIsLoading(false);
     }
-  }, [id, page, limit, search, role, status]);
+  }, [id, page, limit, search, status, kycStatus]);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,18 +56,15 @@ export function useUsers(options: UseUsersOptions = {}) {
   }, [fetchData]);
 
   // Frontend Permissions simulation
-  const permissions: UserPermissions = {
-    canViewUser: true,
-    canEditUser: true,
-    canSuspendUser: true,
-    canResetPin: true,
-    canViewPayments: true,
-    canViewBookings: true,
+  const permissions: DriverPermissions = {
+    canViewDriver: true,
+    canEditKyc: true,
+    canManageVehicles: true,
   };
 
   return {
-    users,
-    user,
+    drivers,
+    driver,
     meta,
     isLoading,
     isError,

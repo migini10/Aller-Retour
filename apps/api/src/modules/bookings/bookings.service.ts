@@ -363,6 +363,132 @@ export class BookingsService {
          transferredCount: bookingsToTransfer.length,
          bookings: updatedBookings,
        };
-     });
+      });
+  }
+
+  // ==========================================
+  // ADMIN ENDPOINTS
+  // ==========================================
+
+  async getAllBookings(filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    paymentStatus?: string;
+    tripId?: string;
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    const { page = 1, limit = 10, search, status, paymentStatus, tripId, userId, dateFrom, dateTo } = filters;
+    
+    const where: any = {};
+    if (status) where.status = status;
+    if (paymentStatus) where.paymentMethod = paymentStatus; // Note: There is no 'paymentStatus' column in Prisma booking except via status (PENDING_PAYMENT, CONFIRMED). If paymentStatus is meant to filter 'paymentMethod', we can map it here. Or if the user meant 'status' as 'CONFIRMED'. Wait, we will just use status and paymentMethod. We will assume paymentStatus means paymentMethod for now or just skip it.
+    if (tripId) where.tripId = tripId;
+    if (userId) where.userId = userId;
+
+    if (search) {
+      where.OR = [
+        { id: { contains: search, mode: 'insensitive' } },
+        { user: { firstName: { contains: search, mode: 'insensitive' } } },
+        { user: { lastName: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) where.createdAt.gte = new Date(dateFrom);
+      if (dateTo) where.createdAt.lte = new Date(dateTo);
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const [total, data] = await Promise.all([
+      prisma.booking.count({ where }),
+      prisma.booking.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          user: true,
+          trip: {
+            include: {
+              route: {
+                include: {
+                  originStation: true,
+                  destinationStation: true,
+                }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
+      }
+    };
+  }
+
+  async getBookingById(id: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        trip: {
+          include: {
+            driver: {
+              include: { user: true }
+            },
+            vehicle: true,
+            route: {
+              include: {
+                originStation: true,
+                destinationStation: true,
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!booking) throw new NotFoundException('Réservation introuvable.');
+
+    return booking;
+  }
+
+  async adminCancelBooking(id: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: { trip: true }
+    });
+
+    if (!booking) throw new NotFoundException('Réservation introuvable.');
+    if (booking.status === 'CANCELLED') throw new BadRequestException('Réservation déjà annulée.');
+    if (booking.status === 'BOARDED') throw new BadRequestException('Impossible d\'annuler une réservation embarquée.');
+
+    // Annuler la réservation
+    const updatedBooking = await prisma.booking.update({
+      where: { id },
+      data: { status: 'CANCELLED' },
+    });
+
+    // Cancel driver earning if recorded
+    await prisma.driverEarning.updateMany({
+      where: { bookingId: id },
+      data: { status: 'CANCELLED' }
+    });
+
+    return { success: true, message: 'Réservation annulée par l\'administrateur.', booking: updatedBooking };
   }
 }

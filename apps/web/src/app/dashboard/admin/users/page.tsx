@@ -15,8 +15,18 @@ import { UserFilters } from './components/UserFilters';
 import { UsersTable } from './components/UsersTable';
 
 export default function AdminUsersPage() {
-  const { users, isLoading, permissions } = useUsers();
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  const { users, isLoading, permissions } = useUsers({
+    search: searchQuery,
+    role: filters.role,
+    status: filters.status,
+  });
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   return (
     <AdminPageContainer>
@@ -47,7 +57,7 @@ export default function AdminUsersPage() {
             <UserSearch value={searchQuery} onChange={setSearchQuery} />
           </div>
           <div className="shrink-0">
-            <UserFilters />
+            <UserFilters filters={filters} onFilterChange={handleFilterChange} />
           </div>
         </div>
 
