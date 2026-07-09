@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { prisma, User, UserRole } from '@aller-retour/database';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserStatusDto, UserStatusAction } from './dto/update-user-status.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -152,7 +153,7 @@ export class UsersService {
 
     // Generate random 6 digit PIN
     const newPin = Math.floor(100000 + Math.random() * 900000).toString();
-    const passwordHash = newPin; // En prod: await bcrypt.hash(newPin, 10);
+    const passwordHash = await bcrypt.hash(newPin, 10);
 
     await prisma.user.update({
       where: { id },

@@ -3,6 +3,9 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { IsString, IsNotEmpty, Length } from 'class-validator';
+import { RbacGuard } from '../../core/rbac/rbac.guard';
+import { Roles } from '../../core/rbac/roles.decorator';
+import { UserRole } from '@aller-retour/database';
 
 export class VerifyPinDto {
   @IsString()
@@ -74,6 +77,9 @@ export class AuthController {
   }
 
   @Post('unblock')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Débloquer un compte utilisateur (Service Client)' })
   async unblock(@Body() dto: { phone: string }) {
     return this.authService.unblockUser(dto.phone);

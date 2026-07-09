@@ -1,6 +1,10 @@
-import { Controller, Post, Get, Body, Query, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Res, HttpStatus, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { PaymentService } from './payment.service';
+import { AuthGuard } from '@nestjs/passport';
+import { RbacGuard } from '../../core/rbac/rbac.guard';
+import { Roles } from '../../core/rbac/roles.decorator';
+import { UserRole } from '@aller-retour/database';
 
 @Controller('payment')
 export class PaymentController {
@@ -11,6 +15,8 @@ export class PaymentController {
    * Normalement appelé par le service de Réservation ou Wallet
    */
   @Post('simulate-init')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
   async simulatePaymentInit(@Body() body: { phone: string, amount: number, provider: 'WAVE' | 'ORANGE_MONEY', reference: string }) {
     if (body.provider === 'WAVE') {
       return this.paymentService.initiateWavePayment(body.phone, body.amount, body.reference);
@@ -21,6 +27,7 @@ export class PaymentController {
 
   /**
    * Webhook officiel de Wave (Sandbox & Prod)
+   * TODO: Lors de l'intégration finale, ajouter une validation de la signature ou d'un secret provider
    */
   @Post('webhook/wave')
   async waveWebhook(@Body() payload: any, @Res() res: Response) {
@@ -30,6 +37,7 @@ export class PaymentController {
 
   /**
    * Webhook officiel d'Orange Money (Sandbox & Prod)
+   * TODO: Lors de l'intégration finale, ajouter une validation de la signature ou d'un secret provider
    */
   @Post('webhook/om')
   async orangeMoneyWebhook(@Body() payload: any, @Res() res: Response) {
@@ -42,6 +50,8 @@ export class PaymentController {
    * qu'un utilisateur a tapé son code secret sur son téléphone.
    */
   @Get('webhook/wave/simulate')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
   async simulateWaveWebhookTrigger(@Query('tx_id') txId: string, @Query('ref') ref: string) {
     const mockPayload = {
       type: 'checkout.session.completed',
@@ -56,6 +66,8 @@ export class PaymentController {
   }
 
   @Get('webhook/om/simulate')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
   async simulateOmWebhookTrigger(@Query('tx_id') txId: string, @Query('ref') ref: string) {
     const mockPayload = {
       status: 'SUCCESS',

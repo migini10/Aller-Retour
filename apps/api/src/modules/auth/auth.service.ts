@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import { prisma, UserRole } from '@aller-retour/database';
 import { NotificationsService } from '../notifications/notifications.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -55,17 +56,20 @@ export class AuthService {
       this.validatePinStrength(pin);
     }
 
+    const passwordHash = pin ? await bcrypt.hash(pin, 10) : await bcrypt.hash('123456', 10);
+
     const user = await prisma.user.create({
       data: {
         phone,
         fullName,
         role: UserRole.PASSENGER,
-        passwordHash: pin ? pin : '123456', // En prod: bcrypt
+        passwordHash,
       },
     });
 
     const token = this.generateToken(user);
-    return { success: true, user, token };
+    const { passwordHash: _, ...safeUser } = user as any;
+    return { success: true, user: safeUser, token };
   }
 
   async loginWithMobile(phoneRaw: string, pin: string) {
@@ -99,8 +103,21 @@ export class AuthService {
       });
     }
 
-    // 3. Validation of PIN
-    if (user.passwordHash !== pin) {
+    // 3. Validation of PIN (with transparent migration)
+    let isPinValid = false;
+    let needsMigration = false;
+
+    if (user.passwordHash && user.passwordHash.startsWith('$2')) {
+      isPinValid = await bcrypt.compare(pin, user.passwordHash);
+    } else {
+      // Legacy plaintext PIN
+      isPinValid = user.passwordHash === pin;
+      if (isPinValid) {
+        needsMigration = true;
+      }
+    }
+
+    if (!isPinValid) {
       const newAttempts = currentFailedAttempts + 1;
       let blockedUntilDate: Date | null = null;
       let message = "";
@@ -123,19 +140,26 @@ export class AuthService {
       throw new UnauthorizedException(message);
     }
 
-    // 4. Correct login: Reset attempts & blocked status
-    if (user.failedAttempts > 0 || user.blockedUntil !== null) {
+    // 4. Correct login: Reset attempts & blocked status, and migrate PIN if needed
+    if (user.failedAttempts > 0 || user.blockedUntil !== null || needsMigration) {
+      const dataToUpdate: any = {
+        failedAttempts: 0,
+        blockedUntil: null,
+      };
+      
+      if (needsMigration) {
+        dataToUpdate.passwordHash = await bcrypt.hash(pin, 10);
+      }
+
       await prisma.user.update({
         where: { id: user.id },
-        data: {
-          failedAttempts: 0,
-          blockedUntil: null,
-        },
+        data: dataToUpdate,
       });
     }
 
     const token = this.generateToken(user);
-    return { success: true, user, token };
+    const { passwordHash: _, ...safeUser } = user as any;
+    return { success: true, user: safeUser, token };
   }
 
   async sendForgotPasswordOtp(phoneRaw: string) {
@@ -194,10 +218,12 @@ export class AuthService {
 
     this.validatePinStrength(newPin);
 
+    const hashedPin = await bcrypt.hash(newPin, 10);
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        passwordHash: newPin,
+        passwordHash: hashedPin,
         failedAttempts: 0,
         blockedUntil: null,
       },
@@ -226,9 +252,30 @@ export class AuthService {
   async verifyUserPin(userId: string, pin: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new BadRequestException("Utilisateur introuvable.");
-    if (user.passwordHash !== pin) {
+    
+    let isPinValid = false;
+    let needsMigration = false;
+
+    if (user.passwordHash && user.passwordHash.startsWith('$2')) {
+      isPinValid = await bcrypt.compare(pin, user.passwordHash);
+    } else {
+      isPinValid = user.passwordHash === pin;
+      if (isPinValid) {
+        needsMigration = true;
+      }
+    }
+
+    if (!isPinValid) {
       throw new BadRequestException("Code secret de connexion incorrect.");
     }
+
+    if (needsMigration) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash: await bcrypt.hash(pin, 10) }
+      });
+    }
+
     return { success: true, message: "Code PIN valide." };
   }
 

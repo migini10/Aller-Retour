@@ -133,7 +133,6 @@ export class PaymentService {
    * Idempotent payment confirmation that marks booking as PAID/CONFIRMED and logs driver earnings
    */
   private async confirmBookingPayment(bookingId: string, paymentRef: string, rawPayload?: any) {
-    // Check if booking already paid (idempotency check)
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
@@ -152,52 +151,58 @@ export class PaymentService {
       return { success: false, message: 'Booking not found' };
     }
 
-    // Idempotency: verify if already a SUCCESS transaction exists for this ref
-    const existingTx = await prisma.paymentTransaction.findFirst({
-      where: { providerRef: paymentRef, status: 'SUCCESS' }
-    });
-    if (existingTx) {
-      return { success: true, message: 'Payment already processed' };
-    }
-
-    if (booking.status === 'CONFIRMED' || booking.status === 'BOARDED') {
-      return { success: true, message: 'Booking already confirmed' };
-    }
-
     const pricing = await this.pricingService.calculatePricing(booking.basePrice);
 
-    await prisma.$transaction(async (tx) => {
-      // Update Booking status to CONFIRMED
-      await tx.booking.update({
-        where: { id: bookingId },
-        data: {
-          status: 'CONFIRMED',
-          paymentRef: paymentRef,
-        }
-      });
+    let updatedTxCount = 0;
 
-      // Create Driver Earning row (pending payouts)
-      await tx.driverEarning.create({
-        data: {
-          bookingId: bookingId,
-          driverId: booking.trip.vehicle?.owner?.userId || booking.trip.driver.userId,
-          basePrice: pricing.basePrice,
-          driverCut: pricing.driverCut,
-          platformCommission: pricing.platformCommission,
-          status: 'PENDING',
-        }
-      });
+    try {
+      await prisma.$transaction(async (tx) => {
+        // Atomic compare-and-swap: try to claim the PENDING transaction
+        const result = await tx.paymentTransaction.updateMany({
+          where: { providerRef: paymentRef, status: 'PENDING' },
+          data: {
+            status: 'SUCCESS',
+            providerMessage: 'Paiement validé',
+            rawPayload: rawPayload || null
+          }
+        });
 
-      // Update PaymentTransaction to SUCCESS
-      await tx.paymentTransaction.updateMany({
-        where: { providerRef: paymentRef, status: 'PENDING' },
-        data: {
-          status: 'SUCCESS',
-          providerMessage: 'Paiement validé',
-          rawPayload: rawPayload || null
+        updatedTxCount = result.count;
+
+        if (updatedTxCount === 0) {
+          // Si 0 ligne modifiée, un autre webhook a déjà gagné la course ou la tx n'est pas PENDING
+          return;
         }
+
+        // Si nous avons gagné, on met à jour la réservation
+        await tx.booking.update({
+          where: { id: bookingId },
+          data: {
+            status: 'CONFIRMED',
+            paymentRef: paymentRef,
+          }
+        });
+
+        // Et on crée le gain chauffeur
+        await tx.driverEarning.create({
+          data: {
+            bookingId: bookingId,
+            driverId: booking.trip.vehicle?.owner?.userId || booking.trip.driver.userId,
+            basePrice: pricing.basePrice,
+            driverCut: pricing.driverCut,
+            platformCommission: pricing.platformCommission,
+            status: 'PENDING',
+          }
+        });
       });
-    });
+    } catch (e) {
+      this.logger.error(`Erreur lors de la transaction webhook pour ${paymentRef}:`, e);
+      return { success: false, message: 'Erreur interne lors du traitement' };
+    }
+
+    if (updatedTxCount === 0) {
+      return { success: true, message: 'Payment already processed or not pending' };
+    }
 
     return { success: true, message: 'Booking confirmed and driver earnings registered' };
   }
