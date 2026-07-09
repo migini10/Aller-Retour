@@ -6,6 +6,7 @@ import { AdminPageHeader } from '../components/shared/AdminPageHeader';
 import { AdminBreadcrumb } from '../components/layout/AdminBreadcrumb';
 import { AdminFilters } from '../components/forms/AdminFilters';
 import { AdminTable } from '../components/tables/AdminTable';
+import { AdminPagination } from '../components/tables/AdminPagination';
 import { EmptyState } from '../components/ui/EmptyState';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { User, CheckCircle, CreditCard, Ticket, Clock, Key } from 'lucide-react';
@@ -102,11 +103,11 @@ function PayoutModal({
 }
 
 export default function DriverOperationsPage() {
-  const { data, summary, isLoading, isError, filters, updateFilters, markAsPaid } = useDriverOperations();
+  const { data, meta, summary, isLoading, isError, filters, updateFilters, markAsPaid } = useDriverOperations();
   const [selectedEarning, setSelectedEarning] = useState<DriverEarning | null>(null);
 
   const handleFilterChange = (filterId: string, value: string) => {
-    if (filterId === 'status') updateFilters({ status: value as any });
+    if (filterId === 'status') updateFilters({ status: value as any, page: 1 });
   };
 
   const columns = [
@@ -273,6 +274,20 @@ export default function DriverOperationsPage() {
           />
         )}
       </motion.div>
+
+      {!isError && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <AdminPagination 
+            currentPage={filters.page || 1} 
+            totalPages={meta?.totalPages || 1} 
+            onPageChange={(page) => updateFilters({ page })} 
+          />
+        </motion.div>
+      )}
 
       <PayoutModal 
         isOpen={!!selectedEarning}

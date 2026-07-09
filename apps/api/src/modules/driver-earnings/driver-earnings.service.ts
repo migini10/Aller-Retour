@@ -28,21 +28,37 @@ export class DriverEarningsService {
       };
     }
 
-    const earnings = await prisma.driverEarning.findMany({
-      where,
-      include: {
-        driver: {
-          select: { id: true, fullName: true, phone: true }
-        },
-        booking: {
-          select: { id: true, seatNumber: true, trip: { include: { route: true } } }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 100, // Pagination simplifiée pour l'instant
-    });
+    const page = dto.page || 1;
+    const limit = dto.limit || 10;
+    const skip = (page - 1) * limit;
 
-    return earnings;
+    const [total, earnings] = await Promise.all([
+      prisma.driverEarning.count({ where }),
+      prisma.driverEarning.findMany({
+        where,
+        include: {
+          driver: {
+            select: { id: true, fullName: true, phone: true }
+          },
+          booking: {
+            select: { id: true, seatNumber: true, trip: { include: { route: true } } }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      data: earnings,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getSummary() {

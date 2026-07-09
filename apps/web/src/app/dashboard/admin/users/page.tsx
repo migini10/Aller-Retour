@@ -13,19 +13,23 @@ import { UserStats } from './components/UserStats';
 import { UserSearch } from './components/UserSearch';
 import { UserFilters } from './components/UserFilters';
 import { UsersTable } from './components/UsersTable';
+import { AdminPagination } from '../components/tables/AdminPagination';
 
 export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { users, isLoading, permissions } = useUsers({
+  const { users, meta, isLoading, permissions } = useUsers({
     search: searchQuery,
     role: filters.role,
     status: filters.status,
+    page: currentPage,
   });
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   return (
@@ -63,7 +67,20 @@ export default function AdminUsersPage() {
 
         {/* Table Section */}
         {permissions.canViewUser && (
-          <UsersTable users={users} isLoading={isLoading} />
+          <>
+            <UsersTable users={users} isLoading={isLoading} />
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <AdminPagination 
+                currentPage={currentPage} 
+                totalPages={meta?.totalPages || 1} 
+                onPageChange={setCurrentPage} 
+              />
+            </motion.div>
+          </>
         )}
 
       </motion.div>

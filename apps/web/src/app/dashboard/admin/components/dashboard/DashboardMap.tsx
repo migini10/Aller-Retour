@@ -53,7 +53,7 @@ export function DashboardMap({ title = 'Carte des trajets', subtitle = 'Réparti
                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">Emplacement prêt pour l'intégration de Leaflet ou Mapbox.</p>
                </div>
                
-               {/* Mock Data Points */}
+               {/* Data Points */}
                {data.map((city) => (
                  <div 
                    key={city.id} 

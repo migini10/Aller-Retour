@@ -49,6 +49,8 @@ export interface GetEarningsFilters {
   status?: EarningStatus | '';
   driverId?: string;
   date?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface DriverEarningSummary {

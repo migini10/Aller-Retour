@@ -9,11 +9,14 @@ interface UseDriverOperationsOptions {
 export function useDriverOperations(options: UseDriverOperationsOptions = {}) {
   const [data, setData] = useState<DriverEarning[]>([]);
   const [summary, setSummary] = useState<DriverEarningSummary | null>(null);
+  const [meta, setMeta] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
   const [filters, setFilters] = useState<GetEarningsFilters>(options.initialFilters || {
     status: '',
+    page: 1,
+    limit: 10,
   });
 
   const fetchOperations = useCallback(async () => {
@@ -26,7 +29,8 @@ export function useDriverOperations(options: UseDriverOperationsOptions = {}) {
         DriverOperationsService.getSummary()
       ]);
       
-      setData(earningsResponse);
+      setData(earningsResponse.data);
+      setMeta(earningsResponse.meta);
       setSummary(summaryResponse);
     } catch (err) {
       console.error('Failed to fetch driver operations:', err);
@@ -49,6 +53,7 @@ export function useDriverOperations(options: UseDriverOperationsOptions = {}) {
 
   return {
     data,
+    meta,
     summary,
     isLoading,
     isError,

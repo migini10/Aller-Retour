@@ -7,7 +7,6 @@ import { AdminBreadcrumb } from '../components/layout/AdminBreadcrumb';
 import { AdminSearchBar } from '../components/forms/AdminSearchBar';
 import { AdminFilters } from '../components/forms/AdminFilters';
 import { AdminTable } from '../components/tables/AdminTable';
-import { AdminPagination } from '../components/tables/AdminPagination';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -72,18 +71,6 @@ export default function Page() {
               description="Aucun élément trouvé pour votre recherche ou les filtres actuels." 
             />
           }
-        />
-      </motion.div>
-
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
-      >
-        <AdminPagination 
-          currentPage={currentPage} 
-          totalPages={10} 
-          onPageChange={setCurrentPage} 
         />
       </motion.div>
 
