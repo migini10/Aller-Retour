@@ -1,28 +1,32 @@
-'use client';
-
 import { useState, useEffect } from 'react';
+import { DashboardService, DashboardSummary } from '../services/dashboard.service';
 
-/**
- * Hook pour gérer les données du dashboard principal de l'administration.
- * Pour l'instant, ne contient aucune donnée réelle (tout est mocké ou géré par les composants).
- * Il servira à l'avenir à centraliser les appels API SWR ou React Query.
- */
 export function useDashboard() {
+  const [data, setData] = useState<DashboardSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    // Simulation d'un délai réseau
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    const fetchDashboard = async () => {
+      try {
+        setIsLoading(true);
+        setIsError(false);
+        const summary = await DashboardService.getSummary();
+        setData(summary);
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchDashboard();
   }, []);
 
   return {
+    data,
     isLoading,
-    isError,
-    // data: null
+    isError
   };
 }

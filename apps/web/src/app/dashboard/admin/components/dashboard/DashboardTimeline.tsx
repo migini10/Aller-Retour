@@ -25,9 +25,10 @@ interface DashboardTimelineProps {
   events: TimelineEvent[];
   title?: string;
   delay?: number;
+  isEmpty?: boolean;
 }
 
-export function DashboardTimeline({ events, title = 'Activité récente', delay = 0 }: DashboardTimelineProps) {
+export function DashboardTimeline({ events, title = 'Activité récente', delay = 0, isEmpty = false }: DashboardTimelineProps) {
   
   const getEventConfig = (type: TimelineEventType) => {
     switch (type) {
@@ -59,42 +60,48 @@ export function DashboardTimeline({ events, title = 'Activité récente', delay 
         <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{title}</h3>
       </div>
       
-      <div className="p-6 flex-1 overflow-y-auto">
-        <div className="relative border-l border-slate-200 dark:border-slate-800 ml-4 space-y-6">
-          {events.map((event, index) => {
-            const config = getEventConfig(event.type);
-            const Icon = config.icon;
-            
-            return (
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: delay + (index * 0.1) }}
-                key={event.id} 
-                className="relative pl-6"
-              >
-                {/* Connector Point */}
-                <span className="absolute -left-[5px] top-1.5 flex h-2.5 w-2.5">
-                  {event.isNew && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${config.bg}`}></span>}
-                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${config.bg} border ${config.border}`}></span>
-                </span>
+      <div className="p-6 flex-1 overflow-y-auto flex flex-col">
+        {isEmpty ? (
+          <div className="flex-1 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800/80 rounded-2xl text-slate-400">
+            <span className="text-sm font-medium">Données bientôt disponibles</span>
+          </div>
+        ) : (
+          <div className="relative border-l border-slate-200 dark:border-slate-800 ml-4 space-y-6">
+            {events.map((event, index) => {
+              const config = getEventConfig(event.type);
+              const Icon = config.icon;
+              
+              return (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: delay + (index * 0.1) }}
+                  key={event.id} 
+                  className="relative pl-6"
+                >
+                  {/* Connector Point */}
+                  <span className="absolute -left-[5px] top-1.5 flex h-2.5 w-2.5">
+                    {event.isNew && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${config.bg}`}></span>}
+                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${config.bg} border ${config.border}`}></span>
+                  </span>
 
-                <div className="flex justify-between items-start mb-1">
-                  <div className="flex items-center gap-2">
-                    <Icon className={`w-4 h-4 ${config.color}`} />
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-200">{event.title}</h4>
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="flex items-center gap-2">
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-200">{event.title}</h4>
+                    </div>
+                    <time className="text-xs font-medium text-slate-400 whitespace-nowrap ml-4">{event.time}</time>
                   </div>
-                  <time className="text-xs font-medium text-slate-400 whitespace-nowrap ml-4">{event.time}</time>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{event.description}</p>
-              </motion.div>
-            );
-          })}
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{event.description}</p>
+                </motion.div>
+              );
+            })}
 
-          {events.length === 0 && (
-            <div className="text-sm text-slate-400 pl-6">Aucune activité récente.</div>
-          )}
-        </div>
+            {events.length === 0 && (
+              <div className="text-sm text-slate-400 pl-6">Aucune activité récente.</div>
+            )}
+          </div>
+        )}
       </div>
     </motion.div>
   );

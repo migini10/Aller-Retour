@@ -22,9 +22,10 @@ interface DashboardAlertsProps {
   onDismiss?: (id: string) => void;
   title?: string;
   delay?: number;
+  isEmpty?: boolean;
 }
 
-export function DashboardAlerts({ alerts, onDismiss, title = 'Alertes système', delay = 0 }: DashboardAlertsProps) {
+export function DashboardAlerts({ alerts, onDismiss, title = 'Alertes système', delay = 0, isEmpty = false }: DashboardAlertsProps) {
   
   const getAlertConfig = (type: AlertType) => {
     switch (type) {
@@ -39,7 +40,7 @@ export function DashboardAlerts({ alerts, onDismiss, title = 'Alertes système',
     }
   };
 
-  if (alerts.length === 0) return null;
+  if (alerts.length === 0 && !isEmpty) return null;
 
   return (
     <motion.div
@@ -57,50 +58,56 @@ export function DashboardAlerts({ alerts, onDismiss, title = 'Alertes système',
         </h3>
       </div>
       
-      <div className="p-4 sm:p-6 space-y-4">
-        <AnimatePresence>
-          {alerts.map((alert) => {
-            const config = getAlertConfig(alert.type);
-            const Icon = config.icon;
+      <div className="p-4 sm:p-6 space-y-4 flex flex-col h-full">
+        {isEmpty ? (
+          <div className="flex-1 flex items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800/80 rounded-2xl text-slate-400">
+            <span className="text-sm font-medium">Données bientôt disponibles</span>
+          </div>
+        ) : (
+          <AnimatePresence>
+            {alerts.map((alert) => {
+              const config = getAlertConfig(alert.type);
+              const Icon = config.icon;
 
-            return (
-              <motion.div
-                key={alert.id}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className={`flex gap-3 p-4 rounded-xl border ${config.bg} ${config.border} relative group`}
-              >
-                <div className="shrink-0 mt-0.5">
-                  <Icon className={`w-5 h-5 ${config.iconColor}`} />
-                </div>
-                <div className="flex-1">
-                  <h4 className={`text-sm font-semibold ${config.text}`}>{alert.title}</h4>
-                  {alert.message && (
-                    <p className={`text-sm mt-1 opacity-90 ${config.text}`}>{alert.message}</p>
-                  )}
-                  {alert.action && (
+              return (
+                <motion.div
+                  key={alert.id}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className={`flex gap-3 p-4 rounded-xl border ${config.bg} ${config.border} relative group`}
+                >
+                  <div className="shrink-0 mt-0.5">
+                    <Icon className={`w-5 h-5 ${config.iconColor}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`text-sm font-semibold ${config.text}`}>{alert.title}</h4>
+                    {alert.message && (
+                      <p className={`text-sm mt-1 opacity-90 ${config.text}`}>{alert.message}</p>
+                    )}
+                    {alert.action && (
+                      <button 
+                        onClick={alert.action.onClick}
+                        className={`mt-3 text-sm font-bold underline decoration-2 underline-offset-2 ${config.text} hover:opacity-80 transition-opacity`}
+                      >
+                        {alert.action.label}
+                      </button>
+                    )}
+                  </div>
+                  {onDismiss && (
                     <button 
-                      onClick={alert.action.onClick}
-                      className={`mt-3 text-sm font-bold underline decoration-2 underline-offset-2 ${config.text} hover:opacity-80 transition-opacity`}
+                      onClick={() => onDismiss(alert.id)}
+                      className={`absolute top-4 right-4 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 dark:hover:bg-white/10 ${config.text}`}
                     >
-                      {alert.action.label}
+                      <X className="w-4 h-4" />
                     </button>
                   )}
-                </div>
-                {onDismiss && (
-                  <button 
-                    onClick={() => onDismiss(alert.id)}
-                    className={`absolute top-4 right-4 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 dark:hover:bg-white/10 ${config.text}`}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
       </div>
     </motion.div>
   );

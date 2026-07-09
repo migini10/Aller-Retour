@@ -16,9 +16,10 @@ interface DashboardMapProps {
   subtitle?: string;
   data?: CityData[];
   delay?: number;
+  isEmpty?: boolean;
 }
 
-export function DashboardMap({ title = 'Carte des trajets', subtitle = 'Répartition géographique sur le Sénégal', data = [], delay = 0 }: DashboardMapProps) {
+export function DashboardMap({ title = 'Carte des trajets', subtitle = 'Répartition géographique sur le Sénégal', data = [], delay = 0, isEmpty = false }: DashboardMapProps) {
   
   // This is a completely abstract placeholder for the map of Senegal
   // In a future sprint, this container will host Leaflet or Mapbox.
@@ -35,36 +36,44 @@ export function DashboardMap({ title = 'Carte des trajets', subtitle = 'Réparti
       </div>
       
       <div className="flex-1 relative bg-slate-50 dark:bg-[#0A0A0A] flex items-center justify-center p-6 overflow-hidden">
-        {/* Placeholder decorative grid */}
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-        
-        {/* Abstract Senegal Map Outline Placeholder (SVG) */}
-        <div className="relative w-full max-w-md aspect-[4/3] flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/50 dark:bg-[#1A1A1A]/50">
-           <div className="text-center">
-             <MapPin className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Composant Carte Interactive</p>
-             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">Emplacement prêt pour l'intégration de Leaflet ou Mapbox.</p>
-           </div>
-           
-           {/* Mock Data Points */}
-           {data.map((city) => (
-             <div 
-               key={city.id} 
-               className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer"
-               style={{ left: `${city.coordinates.x}%`, top: `${city.coordinates.y}%` }}
-             >
-               <div className="relative">
-                 <div className="absolute inset-0 bg-orange-500 rounded-full animate-ping opacity-30"></div>
-                 <div className="relative w-3 h-3 bg-orange-600 rounded-full border-2 border-white dark:border-[#141414] shadow-sm"></div>
+        {isEmpty ? (
+          <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800/80 rounded-3xl text-slate-400">
+            <span className="text-sm font-medium">Données bientôt disponibles</span>
+          </div>
+        ) : (
+          <>
+            {/* Placeholder decorative grid */}
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+            
+            {/* Abstract Senegal Map Outline Placeholder (SVG) */}
+            <div className="relative w-full max-w-md aspect-[4/3] flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/50 dark:bg-[#1A1A1A]/50">
+               <div className="text-center">
+                 <MapPin className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Composant Carte Interactive</p>
+                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">Emplacement prêt pour l'intégration de Leaflet ou Mapbox.</p>
                </div>
                
-               <div className="absolute top-full mt-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">
-                 {city.name}
-                 <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium">{city.value} trajets</span>
-               </div>
-             </div>
-           ))}
-        </div>
+               {/* Mock Data Points */}
+               {data.map((city) => (
+                 <div 
+                   key={city.id} 
+                   className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer"
+                   style={{ left: `${city.coordinates.x}%`, top: `${city.coordinates.y}%` }}
+                 >
+                   <div className="relative">
+                     <div className="absolute inset-0 bg-orange-500 rounded-full animate-ping opacity-30"></div>
+                     <div className="relative w-3 h-3 bg-orange-600 rounded-full border-2 border-white dark:border-[#141414] shadow-sm"></div>
+                   </div>
+                   
+                   <div className="absolute top-full mt-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">
+                     {city.name}
+                     <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium">{city.value} trajets</span>
+                   </div>
+                 </div>
+               ))}
+            </div>
+          </>
+        )}
       </div>
     </motion.div>
   );

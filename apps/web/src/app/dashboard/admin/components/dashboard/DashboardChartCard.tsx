@@ -25,6 +25,7 @@ interface DashboardChartCardProps {
   xAxisKey: string;
   height?: number;
   delay?: number;
+  isEmpty?: boolean;
 }
 
 export function DashboardChartCard({
@@ -36,6 +37,7 @@ export function DashboardChartCard({
   xAxisKey,
   height = 300,
   delay = 0,
+  isEmpty = false,
 }: DashboardChartCardProps) {
   const renderChart = () => {
     if (type === 'area') {
@@ -129,9 +131,15 @@ export function DashboardChartCard({
         {subtitle && <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{subtitle}</p>}
       </div>
       <div style={{ height: height, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
+        {isEmpty ? (
+          <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-[#0A0A0A] rounded-xl border border-dashed border-slate-200 dark:border-slate-800/80 text-slate-400">
+            <span className="text-sm font-medium">Données bientôt disponibles</span>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            {renderChart()}
+          </ResponsiveContainer>
+        )}
       </div>
     </motion.div>
   );
