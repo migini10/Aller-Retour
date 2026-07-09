@@ -7,7 +7,7 @@ import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { UserRole } from '@aller-retour/database';
 
-@Controller('v1/reviews')
+@Controller('reviews')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
 export class ReviewsController {
