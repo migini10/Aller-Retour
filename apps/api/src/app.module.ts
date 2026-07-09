@@ -12,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { DriverEarningsModule } from './modules/driver-earnings/driver-earnings.module';
 import { PaymentTransactionsModule } from './modules/payment-transactions/payment-transactions.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PaymentTransactionsModule } from './modules/payment-transactions/paymen
     DriversModule,
     DriverEarningsModule,
     PaymentTransactionsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [],
