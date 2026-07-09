@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { adminNavigation } from '../../../../../config/adminNavigation';
 import { usePermissions, Permission } from '../../hooks/usePermissions';
+import { useAuth } from '@/components/AuthContext';
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const { hasPermission, isLoading } = usePermissions();
+  const { hasPermission, permissions, isLoading } = usePermissions();
+  const { user, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return <div className="w-64 border-r border-slate-200 dark:border-[#2A2A2A] bg-white dark:bg-[#0A0A0A] p-4 flex flex-col animate-pulse">
@@ -19,6 +21,21 @@ export function AdminSidebar() {
     </div>;
   }
 
+  const filteredItems = adminNavigation.filter(item => {
+    if (!item.requiredPermission) return true;
+    return hasPermission(item.requiredPermission as Permission);
+  });
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('--- ADMIN SIDEBAR DEBUG ---');
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user (safe):', user ? { id: user.id, role: user.role } : null);
+    console.log('user.role:', user?.role);
+    console.log('calculated permissions:', permissions);
+    console.log('adminNavigation length (before):', adminNavigation.length);
+    console.log('adminNavigation length (after):', filteredItems.length);
+  }
+
   return (
     <div className="flex flex-col h-full w-full bg-white dark:bg-[#0A0A0A] border-r border-slate-200 dark:border-[#2A2A2A]/80 overflow-y-auto scrollbar-hide">
       <div className="p-4 mb-2">
@@ -26,12 +43,7 @@ export function AdminSidebar() {
           Marketplace Admin
         </h2>
         <nav className="space-y-1">
-          {adminNavigation.map((item) => {
-            // Check permission
-            if (item.requiredPermission && !hasPermission(item.requiredPermission as Permission)) {
-              return null;
-            }
-
+          {filteredItems.map((item) => {
             const isActive = item.path === '/dashboard/admin' 
               ? pathname === '/dashboard/admin'
               : pathname.startsWith(item.path);
@@ -63,6 +75,19 @@ export function AdminSidebar() {
             );
           })}
         </nav>
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-xs overflow-hidden">
+            <h3 className="font-bold text-red-600 dark:text-red-400 mb-2">DEBUG ZONE</h3>
+            <pre className="text-[10px] text-red-800 dark:text-red-200 whitespace-pre-wrap break-words">
+{JSON.stringify({
+  role: user?.role,
+  auth: isAuthenticated,
+  loading: isLoading,
+  perms: permissions
+}, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
