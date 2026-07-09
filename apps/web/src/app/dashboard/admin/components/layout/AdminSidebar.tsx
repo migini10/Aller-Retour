@@ -75,19 +75,17 @@ export function AdminSidebar() {
             );
           })}
         </nav>
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-xs overflow-hidden">
-            <h3 className="font-bold text-red-600 dark:text-red-400 mb-2">DEBUG ZONE</h3>
-            <pre className="text-[10px] text-red-800 dark:text-red-200 whitespace-pre-wrap break-words">
+        <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-xs overflow-hidden">
+          <h3 className="font-bold text-red-600 dark:text-red-400 mb-2">DEBUG ZONE (PROD/DEV)</h3>
+          <pre className="text-[10px] text-red-800 dark:text-red-200 whitespace-pre-wrap break-words">
 {JSON.stringify({
   role: user?.role,
   auth: isAuthenticated,
   loading: isLoading,
   perms: permissions
 }, null, 2)}
-            </pre>
-          </div>
-        )}
+          </pre>
+        </div>
       </div>
     </div>
   );
