@@ -118,10 +118,10 @@ export class BookingsController {
   }
 
   @Get(':id/status')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Vérifier le statut de paiement d\'une réservation (Polling)' })
-  async getStatus(@Param('id') id: string) {
-    // Cette route peut être appelée publiquement ou nécessiter le token, mais comme c'est pour du polling web/mobile rapide:
-    return this.bookingsService.getBookingStatus(id);
+  async getStatus(@Param('id') id: string, @Req() req: any) {
+    return this.bookingsService.getBookingStatus(id, req.user);
   }
 
   @Get('my-tickets')

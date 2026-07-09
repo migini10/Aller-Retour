@@ -3066,12 +3066,19 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                             attempts++;
                                             try {
                                               if (apiData['paymentSession'] != null && apiData['paymentSession']['bookingId'] != null) {
-                                                final statusRes = await http.get(Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'));
+                                                final prefs = await SharedPreferences.getInstance();
+                                                final token = prefs.getString('auth_token');
+                                                final statusRes = await http.get(
+                                                  Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'),
+                                                  headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+                                                );
                                                 if (statusRes.statusCode == 200) {
                                                   final statusData = jsonDecode(statusRes.body);
                                                   if (statusData['status'] == 'CONFIRMED') {
                                                     isPaid = true;
                                                   }
+                                                } else if (statusRes.statusCode == 401 || statusRes.statusCode == 403) {
+                                                  break; // Stop polling on unauthorized error
                                                 }
                                               } else {
                                                 isPaid = true;

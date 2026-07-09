@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { prisma, PaymentMethod } from '@aller-retour/database';
 import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
 import { NotificationsService } from '../notifications/notifications.service';
 
 import { PaymentService } from '../payment/payment.service';
@@ -167,13 +168,17 @@ export class BookingsService {
     return { success: true, message: "Embarquement validé avec succès !", booking: updated };
   }
 
-  async getBookingStatus(id: string) {
+  async getBookingStatus(id: string, caller: any) {
     const booking = await prisma.booking.findUnique({
       where: { id },
-      select: { status: true, qrCodeToken: true }
+      select: { status: true, qrCodeToken: true, userId: true }
     });
     
     if (!booking) throw new NotFoundException("Réservation introuvable.");
+
+    if (caller.role !== 'SUPER_ADMIN' && booking.userId !== caller.id) {
+      throw new HttpException("Vous n'êtes pas autorisé à consulter cette réservation.", HttpStatus.FORBIDDEN);
+    }
     
     return { success: true, status: booking.status, qrCodeToken: booking.qrCodeToken };
   }
@@ -225,7 +230,24 @@ export class BookingsService {
     if (!secretCode) {
       throw new BadRequestException("Le code secret est requis pour annuler un billet.");
     }
-    if (user.passwordHash !== secretCode) {
+    
+    let isPinValid = false;
+
+    if (user.passwordHash && user.passwordHash.startsWith('$2')) {
+      isPinValid = await bcrypt.compare(secretCode, user.passwordHash);
+    } else if (user.passwordHash) {
+      // Migration temporaire
+      isPinValid = user.passwordHash === secretCode;
+      if (isPinValid) {
+        // Migration automatique vers bcrypt
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { passwordHash: await bcrypt.hash(secretCode, 10) }
+        });
+      }
+    }
+
+    if (!isPinValid) {
       throw new BadRequestException("Code secret incorrect.");
     }
 
