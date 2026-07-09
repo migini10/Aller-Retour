@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsInt, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class SearchTripsDto {
   @IsOptional()
@@ -12,4 +13,11 @@ export class SearchTripsDto {
   @IsOptional()
   @IsDateString()
   date?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
 }

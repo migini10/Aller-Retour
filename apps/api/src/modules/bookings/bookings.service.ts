@@ -183,9 +183,11 @@ export class BookingsService {
     return { success: true, status: booking.status, qrCodeToken: booking.qrCodeToken };
   }
 
-  async getUserBookings(userId: string) {
+  // TODO technique: Ajouter une vraie pagination compatible pour l'historique complet des réservations
+  async getUserBookings(userId: string, limit: number = 50) {
     const bookings = await prisma.booking.findMany({
       where: { userId, hiddenByUser: false },
+      take: limit,
       include: {
         trip: {
           include: {

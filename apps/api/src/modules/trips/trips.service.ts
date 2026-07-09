@@ -54,7 +54,7 @@ export class TripsService {
   }
 
   async searchTrips(dto: SearchTripsDto) {
-    const { originCity, destinationCity, date } = dto;
+    const { originCity, destinationCity, date, limit } = dto;
     const whereClause: any = {
       status: TripStatus.SCHEDULED,
       isLocked: false,
@@ -100,6 +100,7 @@ export class TripsService {
 
     const trips = await prisma.trip.findMany({
       where: whereClause,
+      take: limit ? Number(limit) : 50,
       include: {
         route: {
           include: {
@@ -412,6 +413,8 @@ export class TripsService {
         status: { in: [TripStatus.SCHEDULED, TripStatus.BOARDING] },
         departureTime: { gte: startOfDay, lte: endOfDay }
       },
+      take: 50,
+      orderBy: { departureTime: 'asc' },
       include: {
         vehicle: { select: { plateNumber: true, type: true, capacity: true } },
         driver: { select: { user: { select: { fullName: true, phone: true } } } },

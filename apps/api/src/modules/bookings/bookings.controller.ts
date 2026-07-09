@@ -6,7 +6,8 @@ import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
 import { UserRole, PaymentMethod } from '@aller-retour/database';
-import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, IsEnum, IsOptional, IsArray, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class GetBookingsFilterDto {
   @IsOptional()
@@ -43,6 +44,16 @@ export class GetBookingsFilterDto {
   @IsString()
   dateTo?: string;
 }
+
+export class GetMyTicketsDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+}
+
 
 export class CancelBookingDto {
   @IsString()
@@ -129,8 +140,8 @@ export class BookingsController {
   @Roles(UserRole.PASSENGER)
   @Permissions('bookings:read')
   @ApiOperation({ summary: 'Récupérer les billets (QR Codes) de l\'utilisateur connecté' })
-  async getMyTickets(@Req() req: any) {
-    return this.bookingsService.getUserBookings(req.user.id);
+  async getMyTickets(@Req() req: any, @Query() query: GetMyTicketsDto) {
+    return this.bookingsService.getUserBookings(req.user.id, query.limit || 50);
   }
 
   @Post('hide')
