@@ -1,11 +1,14 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma, UserRole } from '@aller-retour/database';
-import * as nodemailer from 'nodemailer';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   private forgotPasswordOtps = new Map<string, { otp: string; expiresAt: Date }>();
 
@@ -148,42 +151,31 @@ export class AuthService {
       expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
     });
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER || 'allogoosn@gmail.com',
-        pass: process.env.EMAIL_APP_PASSWORD || 'gbqm xxtp nmch iksl',
-      },
-    });
-
-    try {
-      await transporter.sendMail({
-        from: '"Allogoo Support" <allogoosn@gmail.com>',
-        to: user.email || 'allogoosn@gmail.com', // Fallback as MVP requirement
-        subject: 'Allogoo - Code de vérification pour réinitialisation du PIN',
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <h2 style="color: #ea580c; margin: 0;">Allogoo</h2>
-              <p style="font-size: 12px; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1.5px;">Sécurité</p>
-            </div>
-            <p>Bonjour <strong>${user.fullName}</strong>,</p>
-            <p>Vous avez demandé la réinitialisation de votre code PIN de connexion.</p>
-            <p>Saisissez le code de vérification suivant sur l'application :</p>
-            <div style="font-size: 28px; font-weight: bold; background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 15px; text-align: center; border-radius: 10px; letter-spacing: 8px; margin: 25px 0; color: #0f172a;">
-              ${otp}
-            </div>
-            <p style="font-size: 12px; color: #64748b;">Ce code est à usage unique et reste valide pendant 10 minutes.</p>
-            <p style="font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px;">
-              Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.
-            </p>
+            await this.notificationsService.sendNotification({
+      to: user.email || 'allogoosn@gmail.com', // Fallback as MVP requirement
+      subject: 'Allogoo - Code de vérification pour réinitialisation du PIN',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #ea580c; margin: 0;">Allogoo</h2>
+            <p style="font-size: 12px; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1.5px;">Sécurité</p>
           </div>
-        `,
-      });
-      console.log(`[Forgot Password] Sent OTP ${otp} to phone ${phone} (Email: ${user.email || 'allogoosn@gmail.com'})`);
-    } catch (err) {
-      console.error('Nodemailer error:', err);
-    }
+          <p>Bonjour <strong>${user.fullName}</strong>,</p>
+          <p>Vous avez demandé la réinitialisation de votre code PIN de connexion.</p>
+          <p>Saisissez le code de vérification suivant sur l'application :</p>
+          <div style="font-size: 28px; font-weight: bold; background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 15px; text-align: center; border-radius: 10px; letter-spacing: 8px; margin: 25px 0; color: #0f172a;">
+            ${otp}
+          </div>
+          <p style="font-size: 12px; color: #64748b;">Ce code est à usage unique et reste valide pendant 10 minutes.</p>
+          <p style="font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px;">
+            Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.
+          </p>
+        </div>
+      `,
+      safeContent: 'Un email contenant le code OTP de réinitialisation de PIN a été envoyé (le code est masqué pour des raisons de sécurité).',
+      recipientId: user.id
+    });
+    console.log(`[Forgot Password] Sent OTP ${otp} to phone ${phone} (Email: ${user.email || 'allogoosn@gmail.com'})`);
 
     return { success: true, message: "Un code de vérification a été envoyé par e-mail." };
   }

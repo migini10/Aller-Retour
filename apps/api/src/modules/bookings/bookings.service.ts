@@ -1,26 +1,21 @@
 import { Injectable, BadRequestException, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { prisma, PaymentMethod } from '@aller-retour/database';
 import * as crypto from 'crypto';
-import * as nodemailer from 'nodemailer';
+import { NotificationsService } from '../notifications/notifications.service';
 
 import { PaymentService } from '../payment/payment.service';
 import { PricingService } from '../pricing/pricing.service';
 import { QrService } from '../qr/qr.service';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'allogoosn@gmail.com',
-    pass: process.env.EMAIL_PASS || 'votre-mot-de-passe-d-application'
-  }
-});
+
 
 @Injectable()
 export class BookingsService {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly pricingService: PricingService,
-    private readonly qrService: QrService
+    private readonly qrService: QrService,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async createBooking(userId: string, tripId: string, seatNumber: number, paymentMethod: PaymentMethod, passengersCount: number = 1) {

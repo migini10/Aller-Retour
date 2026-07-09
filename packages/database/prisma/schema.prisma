@@ -30,6 +30,7 @@ model User {
   reviewsReceived     Review[]             @relation("ReviewReceiver")
   seatLocks           SeatLock[]
   paymentTransactions PaymentTransaction[]
+  notifications       Notification[]
 
   @@index([phone])
   @@map("users")
@@ -117,28 +118,29 @@ model Route {
 }
 
 model Trip {
-  id                String        @id @default(uuid())
+  id                String         @id @default(uuid())
   routeId           String
   vehicleId         String
   driverId          String
   departureTime     DateTime
   arrivalTime       DateTime?
-  status            TripStatus    @default(SCHEDULED)
+  status            TripStatus     @default(SCHEDULED)
   pricePerSeat      Float
-  isMarketplace     Boolean       @default(true)
-  isLocked          Boolean       @default(false)
-  seatsOffered      Int           @default(4)
-  initialPassengers Int           @default(0)
+  isMarketplace     Boolean        @default(true)
+  isLocked          Boolean        @default(false)
+  seatsOffered      Int            @default(4)
+  initialPassengers Int            @default(0)
   currentLat        Float?
   currentLng        Float?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
   bookings          Booking[]
   parcels           Parcel[]
   seatLocks         SeatLock[]
-  driver            DriverProfile @relation(fields: [driverId], references: [id])
-  route             Route         @relation(fields: [routeId], references: [id])
-  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
+  notifications     Notification[]
+  driver            DriverProfile  @relation(fields: [driverId], references: [id])
+  route             Route          @relation(fields: [routeId], references: [id])
+  vehicle           Vehicle        @relation(fields: [vehicleId], references: [id])
 
   @@index([routeId])
   @@index([departureTime])
@@ -166,6 +168,7 @@ model Booking {
   driverEarning       DriverEarning?
   paymentTransactions PaymentTransaction[]
   reviews             Review[]
+  notifications       Notification[]
 
   @@index([userId])
   @@index([qrCodeToken])
@@ -369,4 +372,38 @@ enum ParcelStatus {
   IN_TRANSIT
   DELIVERED
   LOST
+}
+
+enum NotificationType {
+  EMAIL
+  SYSTEM
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Notification {
+  id           String             @id @default(uuid())
+  type         NotificationType
+  status       NotificationStatus @default(PENDING)
+  title        String
+  content      String
+  errorMessage String?
+
+  recipientId String?
+  recipient   User?   @relation(fields: [recipientId], references: [id])
+
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  tripId String?
+  trip   Trip?   @relation(fields: [tripId], references: [id])
+
+  sentAt    DateTime?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
