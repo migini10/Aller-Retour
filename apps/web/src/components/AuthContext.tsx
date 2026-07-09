@@ -21,6 +21,7 @@ interface AuthContextType {
   logout: () => void;
   openAuthModal: (callback?: () => void) => void;
   fetchWithAuth: (url: string, options?: RequestInit) => Promise<Response>;
+  isHydrated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [authCallback, setAuthCallback] = useState<(() => void) | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   
   // Forms state
   const [phone, setPhone] = useState('');
@@ -56,7 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsLocked(false);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+    } finally {
+      setIsHydrated(true);
+    }
   }, []);
 
   // Inactivity Timer (10 minutes)
@@ -218,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal, fetchWithAuth }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, register, logout, openAuthModal, fetchWithAuth, isHydrated }}>
       {children}
 
       {!!token && isLocked && pathname?.startsWith('/dashboard') && (
