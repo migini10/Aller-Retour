@@ -164,7 +164,7 @@ export class PaymentService {
       return { success: true, message: 'Booking already confirmed' };
     }
 
-    const pricing = this.pricingService.calculatePricing(booking.basePrice);
+    const pricing = await this.pricingService.calculatePricing(booking.basePrice);
 
     await prisma.$transaction(async (tx) => {
       // Update Booking status to CONFIRMED

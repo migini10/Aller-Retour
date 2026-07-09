@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
+import { MaintenanceGuard } from './core/maintenance/maintenance.guard';
 import { DatabaseModule } from './core/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TripsModule } from './modules/trips/trips.module';
@@ -15,6 +17,7 @@ import { PaymentTransactionsModule } from './modules/payment-transactions/paymen
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -35,8 +38,14 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AnalyticsModule,
     ReviewsModule,
     NotificationsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: MaintenanceGuard,
+    },
+  ],
 })
 export class AppModule {}

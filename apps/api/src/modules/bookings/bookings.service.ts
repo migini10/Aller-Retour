@@ -72,7 +72,7 @@ export class BookingsService {
 
       // Calculate final pricing before payment using PricingService
       const basePrice = trip.pricePerSeat * passengersCount;
-      const pricing = this.pricingService.calculatePricing(basePrice);
+      const pricing = await this.pricingService.calculatePricing(basePrice);
 
       // Generate a signed token securely
       const qrCodeToken = this.qrService.generateQrToken(tripId, assignedSeat);

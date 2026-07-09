@@ -407,3 +407,18 @@ model Notification {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
+model SystemSetting {
+  id                   String  @id @default("default") // Clé fixe pour garantir le singleton
+  platformName         String  @default("Allogoo")
+  supportEmail         String  @default("allogoosn@gmail.com")
+  supportPhone         String  @default("+221 77 000 00 00")
+  defaultCurrency      String  @default("FCFA")
+  clientCommissionRate Float   @default(3.0) // En pourcentage
+  driverCommissionRate Float   @default(3.0) // En pourcentage
+  maintenanceMode      Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
