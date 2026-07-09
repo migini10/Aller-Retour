@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { MaintenanceGuard } from './core/maintenance/maintenance.guard';
@@ -24,6 +25,13 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        // Les variables SMTP sont optionnelles si non activées.
+        EMAIL_USER: Joi.string().optional(),
+        EMAIL_PASS: Joi.string().optional(),
+      }),
     }),
     DatabaseModule,
     AuthModule,

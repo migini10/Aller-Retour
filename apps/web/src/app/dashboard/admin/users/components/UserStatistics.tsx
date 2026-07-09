@@ -4,14 +4,11 @@
 import React from 'react';
 import { User, UserRole } from '../../types/user.types';
 import { DashboardChartCard } from '../../components/dashboard/DashboardChartCard';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { BarChart3 } from 'lucide-react';
 
 export function UserStatistics({ user }: { user: User }) {
-  // Mock Data
-  const data = Array.from({ length: 7 }).map((_, i) => ({
-    name: `J-${6-i}`,
-    gains: Math.floor(Math.random() * 20000),
-    depenses: Math.floor(Math.random() * 10000),
-  }));
+  // Les graphiques ont été masqués en attente d'une vraie API (cf. Audit)
 
   const isDriver = user.role === UserRole.DRIVER;
 
@@ -38,15 +35,13 @@ export function UserStatistics({ user }: { user: User }) {
         </div>
       </div>
 
-      <DashboardChartCard
-        title={isDriver ? 'Évolution des gains' : 'Évolution des dépenses'}
-        subtitle="Sur les 7 derniers jours"
-        type="bar"
-        data={data}
-        xAxisKey="name"
-        dataKeys={[{ key: isDriver ? 'gains' : 'depenses', name: isDriver ? 'Gains (FCFA)' : 'Dépenses (FCFA)', color: isDriver ? '#10b981' : '#3b82f6' }]}
-        height={300}
-      />
+      <div className="mt-8">
+        <EmptyState
+          icon={BarChart3}
+          title={isDriver ? 'Évolution des gains' : 'Évolution des dépenses'}
+          description="Les graphiques financiers seront bientôt disponibles avec de vraies données."
+        />
+      </div>
     </div>
   );
 }

@@ -86,7 +86,7 @@ export class PaymentService {
    * Processus d'un webhook Wave (Réel ou Simulé)
    */
   async handleWaveWebhook(payload: any) {
-    this.logger.log(`Received Wave Webhook: ${JSON.stringify(payload)}`);
+    this.logger.warn(`TODO SECURITY: Wave Webhook processing without signature validation. Transaction ID: ${payload.data?.id}`);
     const reference = payload.data?.client_reference;
     const txId = payload.data?.id;
 
@@ -110,7 +110,7 @@ export class PaymentService {
    * Processus d'un webhook Orange Money (Réel ou Simulé)
    */
   async handleOrangeMoneyWebhook(payload: any) {
-    this.logger.log(`Received Orange Money Webhook: ${JSON.stringify(payload)}`);
+    this.logger.warn(`TODO SECURITY: Orange Money Webhook processing without signature validation. Notif ID: ${payload.notif_id}`);
     const reference = payload.tx_reference;
     const txId = payload.notif_id;
 

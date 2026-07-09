@@ -22,8 +22,8 @@ export class NotificationsService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'allogoosn@gmail.com',
-        pass: process.env.EMAIL_PASS || 'votre-mot-de-passe-d-application'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
     });
   }
@@ -45,7 +45,7 @@ export class NotificationsService {
     try {
       // 2. Attempt to send
       await this.transporter.sendMail({
-        from: process.env.EMAIL_USER || 'allogoosn@gmail.com',
+        from: process.env.EMAIL_USER,
         to: params.to,
         subject: params.subject,
         html: params.html

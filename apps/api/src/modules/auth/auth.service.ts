@@ -282,7 +282,7 @@ export class AuthService {
   private generateToken(user: any) {
     const payload = { sub: user.id, phone: user.phone, role: user.role, companyId: user.companyId };
     return this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET || 'super-secret-key-panafrican-aller-retour-2026',
+      secret: process.env.JWT_SECRET,
       expiresIn: '7d',
     });
   }

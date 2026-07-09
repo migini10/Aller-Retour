@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class QrService {
-  private readonly secretKey = process.env.JWT_SECRET || 'aller-retour-qr-fallback-key-2026';
+  private readonly secretKey = process.env.JWT_SECRET as string;
 
   /**
    * Generates a secure cryptographic signed token containing booking ID and metadata.

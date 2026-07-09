@@ -19,29 +19,44 @@ export type Permission =
  * Ce hook simule un super-administrateur qui a toutes les permissions par défaut.
  * Prêt à être connecté à l'API/Backend dans un futur sprint.
  */
+import { useAuth } from '@/components/AuthContext';
+
 export function usePermissions() {
+  const { user, isAuthenticated } = useAuth();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch user permissions from backend or JWT token
-    // Simulation: un Super Admin avec toutes les permissions accordées
-    const mockSuperAdminPermissions: Permission[] = [
-      'view_users', 'manage_users',
-      'view_drivers', 'manage_drivers',
-      'view_trips', 'manage_trips',
-      'view_bookings', 'manage_bookings',
-      'view_payments', 'manage_payments',
-      'view_reviews', 'manage_reviews',
-      'view_notifications', 'manage_notifications',
-      'view_analytics',
-      'view_monitoring',
-      'manage_settings'
-    ];
+    if (!isAuthenticated || !user) {
+      setPermissions([]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (user.role === 'SUPER_ADMIN') {
+      setPermissions([
+        'view_users', 'manage_users',
+        'view_drivers', 'manage_drivers',
+        'view_trips', 'manage_trips',
+        'view_bookings', 'manage_bookings',
+        'view_payments', 'manage_payments',
+        'view_reviews', 'manage_reviews',
+        'view_notifications', 'manage_notifications',
+        'view_analytics',
+        'view_monitoring',
+        'manage_settings'
+      ]);
+    } else if (user.role === 'ADMIN') {
+      // Un ADMIN normal pourrait avoir moins de permissions.
+      setPermissions([
+        'view_users', 'view_drivers', 'view_trips', 'view_bookings', 'view_payments', 'view_reviews'
+      ]);
+    } else {
+      setPermissions([]);
+    }
     
-    setPermissions(mockSuperAdminPermissions);
     setIsLoading(false);
-  }, []);
+  }, [user, isAuthenticated]);
 
   const hasPermission = (permission: Permission) => {
     return permissions.includes(permission);
