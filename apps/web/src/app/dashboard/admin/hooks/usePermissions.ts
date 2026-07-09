@@ -33,7 +33,9 @@ export function usePermissions() {
       return;
     }
 
-    if (user.role === 'SUPER_ADMIN') {
+    const userRole = String(user.role || '').toUpperCase().trim();
+
+    if (userRole === 'SUPER_ADMIN' || userRole === 'SUPERADMIN' || userRole === 'ADMIN') {
       setPermissions([
         'view_users', 'manage_users',
         'view_drivers', 'manage_drivers',
@@ -45,11 +47,6 @@ export function usePermissions() {
         'view_analytics',
         'view_monitoring',
         'manage_settings'
-      ]);
-    } else if (user.role === 'ADMIN') {
-      // Un ADMIN normal pourrait avoir moins de permissions.
-      setPermissions([
-        'view_users', 'view_drivers', 'view_trips', 'view_bookings', 'view_payments', 'view_reviews'
       ]);
     } else {
       setPermissions([]);
