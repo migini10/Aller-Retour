@@ -9,7 +9,7 @@ export class ApiClient {
     };
   }
 
-  static async get(path: string, params?: Record<string, any>) {
+  static async get<T = any>(path: string, params?: Record<string, any>): Promise<T> {
     const url = new URL(`${API_URL}${path}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -32,7 +32,7 @@ export class ApiClient {
     return res.json();
   }
 
-  static async post(path: string, body?: any) {
+  static async post<T = any>(path: string, body?: any): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {
       method: 'POST',
       headers: this.getHeaders(),
@@ -51,7 +51,7 @@ export class ApiClient {
     }
   }
 
-  static async patch(path: string, body?: any) {
+  static async patch<T = any>(path: string, body?: any): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {
       method: 'PATCH',
       headers: this.getHeaders(),
@@ -69,7 +69,7 @@ export class ApiClient {
     }
   }
 
-  static async put(path: string, body?: any) {
+  static async put<T = any>(path: string, body?: any): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {
       method: 'PUT',
       headers: this.getHeaders(),
@@ -87,7 +87,7 @@ export class ApiClient {
     }
   }
 
-  static async delete(path: string) {
+  static async delete<T = any>(path: string): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
