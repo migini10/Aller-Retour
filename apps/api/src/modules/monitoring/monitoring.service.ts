@@ -79,17 +79,9 @@ export class MonitoringService {
     });
 
     // 2. Notifications échouées
-    const failedNotifications = await prisma.notification.findMany({
-      where: {
-        status: 'FAILED',
-        createdAt: { gte: sevenDaysAgo }
-      },
-      include: {
-        recipient: true
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    });
+    // TODO: Implémenter lorsque le modèle Notification sera ajouté dans Prisma
+    const failedNotifications: any[] = [];
+
 
     // 3. Gains chauffeurs en attente (depuis plus de 24h idéalement, mais on prend tous les PENDING ici et on trie par les plus vieux)
     const pendingEarningsCount = await prisma.driverEarning.count({
@@ -109,12 +101,8 @@ export class MonitoringService {
       }
     });
 
-    const failedNotificationsCount = await prisma.notification.count({
-      where: {
-        status: 'FAILED',
-        createdAt: { gte: sevenDaysAgo }
-      }
-    });
+    const failedNotificationsCount = 0; // TODO: prisma.notification.count
+
 
     const items: AlertItem[] = [];
 
@@ -128,7 +116,7 @@ export class MonitoringService {
       });
     });
 
-    failedNotifications.forEach(n => {
+    failedNotifications.forEach((n: any) => {
       // Masquer l'email du destinataire s'il existe
       const recipientMasked = n.recipient?.email ? this.maskEmail(n.recipient.email) : 'Inconnu';
       items.push({
