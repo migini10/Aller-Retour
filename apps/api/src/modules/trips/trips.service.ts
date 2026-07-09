@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { prisma, TripStatus, DriverType, UserRole } from '@aller-retour/database';
+import * as bcrypt from 'bcrypt';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { SearchTripsDto } from './dto/search-trips.dto';
@@ -137,7 +138,9 @@ export class TripsService {
     });
   }
 
-  async getManifest(tripId: string) {
+  async getManifest(tripId: string, userId: string, role: string) {
+    await this.checkTripOwnership(tripId, userId, role);
+
     const bookings = await prisma.booking.findMany({
       where: { tripId, status: { in: ['CONFIRMED', 'BOARDED'] } },
       include: { user: { select: { fullName: true, phone: true } } },
@@ -336,15 +339,11 @@ export class TripsService {
     }
   }
 
-  async toggleLock(tripId: string, code?: string) {
+  async toggleLock(tripId: string, userId: string, role: string, code?: string) {
+    await this.checkTripOwnership(tripId, userId, role);
+
     const existingTrip = await prisma.trip.findUnique({
-      where: { id: tripId },
-      select: { 
-        isLocked: true,
-        driver: {
-          select: { user: { select: { passwordHash: true } } }
-        }
-      }
+      where: { id: tripId }
     });
 
     if (!existingTrip) {
@@ -352,12 +351,32 @@ export class TripsService {
     }
 
     if (!existingTrip.isLocked) {
-      if (!code) {
-        throw new BadRequestException('Un code PIN de sécurité est requis pour verrouiller le trajet.');
-      }
-      const userPin = existingTrip.driver?.user?.passwordHash || '123456';
-      if (code !== userPin) {
-        throw new BadRequestException('Le code PIN saisi est incorrect.');
+      if (role !== UserRole.SUPER_ADMIN) {
+        if (!code) {
+          throw new BadRequestException('Un code PIN de sécurité est requis pour verrouiller le trajet.');
+        }
+        
+        // Fetch the caller user to check their PIN
+        const callerUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { passwordHash: true }
+        });
+
+        if (!callerUser || !callerUser.passwordHash) {
+          throw new BadRequestException('Le code PIN saisi est incorrect.');
+        }
+
+        // Compare using bcrypt or plain text fallback (for legacy)
+        let isPinValid = false;
+        if (callerUser.passwordHash.startsWith('$2')) {
+          isPinValid = await bcrypt.compare(code, callerUser.passwordHash);
+        } else {
+          isPinValid = callerUser.passwordHash === code;
+        }
+
+        if (!isPinValid) {
+          throw new BadRequestException('Le code PIN saisi est incorrect.');
+        }
       }
     }
 
@@ -369,7 +388,9 @@ export class TripsService {
     return { success: true, isLocked: updated.isLocked };
   }
 
-  async getTransferTargets(tripId: string) {
+  async getTransferTargets(tripId: string, userId: string, role: string) {
+    await this.checkTripOwnership(tripId, userId, role);
+
     const trip = await prisma.trip.findUnique({
       where: { id: tripId },
       include: { route: true, vehicle: true }

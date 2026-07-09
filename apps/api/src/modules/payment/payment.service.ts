@@ -97,13 +97,13 @@ export class PaymentService {
     // Gérer l'échec
     if (payload.type === 'checkout.session.failed') {
       await prisma.paymentTransaction.updateMany({
-        where: { providerRef: txId, status: 'PENDING' },
+        where: { method: 'WAVE', providerRef: txId, status: 'PENDING' },
         data: { status: 'FAILED', providerMessage: payload.data?.payment_status, rawPayload: payload }
       });
       return { success: true, message: 'Payment marked as failed' };
     }
 
-    return this.confirmBookingPayment(reference, txId, payload);
+    return this.confirmBookingPayment(reference, txId, 'WAVE', payload);
   }
 
   /**
@@ -120,19 +120,19 @@ export class PaymentService {
 
     if (payload.status === 'FAILED') {
       await prisma.paymentTransaction.updateMany({
-        where: { providerRef: txId, status: 'PENDING' },
+        where: { method: 'ORANGE_MONEY', providerRef: txId, status: 'PENDING' },
         data: { status: 'FAILED', providerMessage: payload.message, rawPayload: payload }
       });
       return { success: true, message: 'Payment marked as failed' };
     }
 
-    return this.confirmBookingPayment(reference, txId, payload);
+    return this.confirmBookingPayment(reference, txId, 'ORANGE_MONEY', payload);
   }
 
   /**
    * Idempotent payment confirmation that marks booking as PAID/CONFIRMED and logs driver earnings
    */
-  private async confirmBookingPayment(bookingId: string, paymentRef: string, rawPayload?: any) {
+  private async confirmBookingPayment(bookingId: string, paymentRef: string, method: string, rawPayload?: any) {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
@@ -159,7 +159,7 @@ export class PaymentService {
       await prisma.$transaction(async (tx) => {
         // Atomic compare-and-swap: try to claim the PENDING transaction
         const result = await tx.paymentTransaction.updateMany({
-          where: { providerRef: paymentRef, status: 'PENDING' },
+          where: { method, providerRef: paymentRef, status: 'PENDING' },
           data: {
             status: 'SUCCESS',
             providerMessage: 'Paiement validé',
