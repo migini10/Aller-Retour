@@ -165,6 +165,7 @@ model Booking {
   user                User                 @relation(fields: [userId], references: [id])
   driverEarning       DriverEarning?
   paymentTransactions PaymentTransaction[]
+  reviews             Review[]
 
   @@index([userId])
   @@index([qrCodeToken])
@@ -249,14 +250,17 @@ model DriverEarning {
 }
 
 model Review {
-  id         String   @id @default(uuid())
+  id         String       @id @default(uuid())
   authorId   String
   receiverId String
   rating     Int
   comment    String?
-  createdAt  DateTime @default(now())
-  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  receiver   User     @relation("ReviewReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  status     ReviewStatus @default(VISIBLE)
+  bookingId  String?
+  createdAt  DateTime     @default(now())
+  author     User         @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  receiver   User         @relation("ReviewReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  booking    Booking?     @relation(fields: [bookingId], references: [id])
 
   @@index([receiverId])
   @@map("reviews")
@@ -303,9 +307,15 @@ enum UserRole {
   PASSENGER
 }
 
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN
+}
+
 enum DriverType {
   OWNER
   ASSIGNED
+  FREELANCE
 }
 
 enum KYCStatus {

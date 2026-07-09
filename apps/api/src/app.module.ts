@@ -13,6 +13,7 @@ import { DriversModule } from './modules/drivers/drivers.module';
 import { DriverEarningsModule } from './modules/driver-earnings/driver-earnings.module';
 import { PaymentTransactionsModule } from './modules/payment-transactions/payment-transactions.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     DriverEarningsModule,
     PaymentTransactionsModule,
     AnalyticsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -22,8 +22,39 @@ import { DashboardRecentBookings } from './components/dashboard/DashboardRecentB
 
 // MOCK DATA REMOVED
 
+// Map deterministic coordinates
+const getDeterministicCoordinates = (cityName: string) => {
+  const knownCities: Record<string, { x: number, y: number }> = {
+    'Dakar': { x: 10, y: 50 },
+    'Thiès': { x: 20, y: 50 },
+    'Mbour': { x: 25, y: 60 },
+    'Saint-Louis': { x: 20, y: 20 },
+    'Touba': { x: 40, y: 45 },
+    'Ziguinchor': { x: 25, y: 85 },
+    'Tambacounda': { x: 70, y: 60 },
+    'Kolda': { x: 50, y: 80 },
+    'Kaolack': { x: 35, y: 65 }
+  };
+  
+  if (knownCities[cityName]) {
+    return knownCities[cityName];
+  }
+  
+  // Deterministic fallback for unknown cities
+  let hash = 0;
+  for (let i = 0; i < cityName.length; i++) {
+    hash = cityName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const normalizedHash = Math.abs(hash);
+  return { 
+    x: 20 + (normalizedHash % 60), 
+    y: 20 + ((normalizedHash >> 4) % 60) 
+  };
+};
+
 export default function AdminDashboardPage() {
   const { data, isLoading } = useDashboard();
+  const analytics = data?.analytics;
 
   return (
     <AdminPageContainer>
@@ -43,54 +74,50 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <DashboardStatCard 
               title="Total utilisateurs" 
-              value={data?.usersTotal || 0} 
+              value={analytics?.kpis.totalUsers || 0} 
               icon={Users} 
               delay={0.1} 
             />
             <DashboardStatCard 
               title="Chauffeurs actifs" 
-              value={data?.activeDriversTotal || 0} 
+              value={analytics?.kpis.activeDrivers || 0} 
               icon={CarFront} 
               delay={0.15} 
             />
-            {/* Trajets n'ayant pas d'endpoint "total" disponible pour l'instant */}
             <DashboardStatCard 
               title="Trajets publiés" 
-              value="-" 
+              value={analytics?.kpis.totalTrips || 0} 
               icon={Route} 
-              isEmpty={true}
               delay={0.2} 
             />
             <DashboardStatCard 
               title="Réservations (Ajd)" 
-              value={data?.todayBookingsTotal || 0} 
+              value={analytics?.kpis.bookingsToday || 0} 
               icon={TicketCheck} 
               delay={0.25} 
             />
             <DashboardStatCard 
               title="Paiements réussis" 
-              value={`${(data?.totalCollectedAmount || 0).toLocaleString('fr-FR')} FCFA`} 
+              value={`${(analytics?.kpis.totalRevenue || 0).toLocaleString('fr-FR')} FCFA`} 
               icon={Wallet} 
               delay={0.3} 
             />
             <DashboardStatCard 
               title="Commissions Allogoo" 
-              value={`${(data?.totalPlatformFees || 0).toLocaleString('fr-FR')} FCFA`} 
+              value={`${(analytics?.kpis.totalPlatformFees || 0).toLocaleString('fr-FR')} FCFA`} 
               icon={TrendingUp} 
               delay={0.35} 
             />
             <DashboardStatCard 
               title="Annulations" 
-              value={data?.cancelledBookingsTotal || 0} 
+              value={analytics?.kpis.cancelledBookings || 0} 
               icon={XCircle} 
               delay={0.4} 
             />
-            {/* Note moyenne non disponible */}
             <DashboardStatCard 
               title="Note moyenne" 
-              value="-" 
+              value={analytics?.kpis.averageRating.toFixed(1) || "-"} 
               icon={Star} 
-              isEmpty={true}
               delay={0.45} 
             />
           </div>
@@ -100,37 +127,51 @@ export default function AdminDashboardPage() {
             <DashboardChartCard 
               title="Évolution des réservations" 
               subtitle="30 derniers jours"
-              data={[]} 
+              data={analytics?.trends || []} 
               type="area"
-              xAxisKey="name"
-              dataKeys={[{ key: 'reservations', name: 'Réservations', color: '#3b82f6' }]} 
+              xAxisKey="date"
+              dataKeys={[{ key: 'bookings', name: 'Réservations', color: '#3b82f6' }]} 
               delay={0.5} 
-              isEmpty={true}
+              isEmpty={!analytics?.trends || analytics.trends.length === 0}
             />
             <DashboardChartCard 
               title="Commissions générées (FCFA)" 
               subtitle="30 derniers jours"
-              data={[]} 
+              data={analytics?.trends || []} 
               type="bar"
-              xAxisKey="name"
-              dataKeys={[{ key: 'commissions', name: 'Commissions', color: '#10b981' }]} 
+              xAxisKey="date"
+              dataKeys={[{ key: 'platformFees', name: 'Commissions', color: '#10b981' }]} 
               delay={0.55} 
-              isEmpty={true}
+              isEmpty={!analytics?.trends || analytics.trends.length === 0}
             />
           </div>
 
           {/* Ligne 3 : Carte + Leaderboard */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <DashboardMap data={[]} delay={0.6} isEmpty={true} />
+              <DashboardMap 
+                data={(analytics?.cityActivity || []).map(city => ({
+                  id: city.city,
+                  name: city.city,
+                  value: city.bookings,
+                  coordinates: getDeterministicCoordinates(city.city)
+                }))} 
+                delay={0.6} 
+                isEmpty={!analytics?.cityActivity || analytics.cityActivity.length === 0} 
+              />
             </div>
             <div className="lg:col-span-1">
               <LeaderboardCard 
                 title="Top Chauffeurs" 
                 subtitle="Basé sur les revenus générés"
-                items={[]} 
+                items={(analytics?.topDrivers || []).map(driver => ({
+                  id: driver.driverId,
+                  name: driver.name,
+                  score: driver.totalEarnings,
+                  value: `${(driver.totalEarnings || 0).toLocaleString('fr-FR')} FCFA`
+                }))} 
                 delay={0.65} 
-                isEmpty={true}
+                isEmpty={!analytics?.topDrivers || analytics.topDrivers.length === 0}
               />
             </div>
           </div>
@@ -152,14 +193,33 @@ export default function AdminDashboardPage() {
               />
             </div>
             <div className="lg:col-span-1">
-              <DashboardTimeline events={[]} delay={0.75} isEmpty={true} />
+              <DashboardTimeline 
+                events={(analytics?.timeline || []).map(t => ({
+                  id: t.id,
+                  title: t.title,
+                  description: t.description,
+                  date: t.createdAt,
+                  type: t.type
+                })) as any} 
+                delay={0.75} 
+                isEmpty={!analytics?.timeline || analytics.timeline.length === 0} 
+              />
             </div>
           </div>
 
           {/* Ligne 5 : Alertes + Actions Rapides */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <DashboardAlerts alerts={[]} delay={0.8} isEmpty={true} />
+              <DashboardAlerts 
+                alerts={(analytics?.alerts || []).map(a => ({
+                  id: a.id,
+                  type: a.type as any,
+                  title: a.title,
+                  message: a.message
+                }))} 
+                delay={0.8} 
+                isEmpty={!analytics?.alerts || analytics.alerts.length === 0} 
+              />
             </div>
             <div className="lg:col-span-2">
               <DashboardQuickActions delay={0.85} />

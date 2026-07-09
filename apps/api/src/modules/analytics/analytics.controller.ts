@@ -8,7 +8,7 @@ import { Roles } from '../../core/rbac/roles.decorator';
 import { UserRole } from '@aller-retour/database';
 
 @ApiTags('Analytics')
-@Controller('v1/analytics')
+@Controller('analytics')
 @UseGuards(AuthGuard('jwt'), RbacGuard)
 @ApiBearerAuth()
 export class AnalyticsController {
