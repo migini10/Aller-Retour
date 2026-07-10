@@ -12,6 +12,7 @@ import QRCodeBrandEngine from './QRCodeBrandEngine';
 import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 import { useAuth } from './AuthContext';
 import { useUser } from '../hooks/useUser';
+import { ApiClient } from '@/lib/api.client';
 
 interface BookingWizardModalProps {
   isOpen: boolean;
@@ -699,28 +700,26 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
         onClick={async () => {
           setIsSearching(true);
           if (isAlloPrive) {
+            if (!isAuthenticated) {
+              setGlobalError("Vous devez vous connecter pour publier une demande Allo Privé.");
+              setIsSearching(false);
+              setTimeout(() => {
+                onClose();
+                openAuthModal();
+              }, 2000);
+              return;
+            }
             try {
-              const res = await fetch('/api/allo-prive', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  clientId: userPhone || 'demo-client-id',
-                  clientName: userName || 'Client Allo Privé',
-                  clientPhone: userPhone || '+221776783412',
-                  origin: `${searchParams.depart} (${pickupLocation})`,
-                  destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
-                  departureDate: searchParams.date,
-                  price: 20000,
-                }),
+              const data = await ApiClient.post('/v1/allo-prive/requests', {
+                origin: `${searchParams.depart} (${pickupLocation})`,
+                destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                departureDate: searchParams.date,
+                price: 20000,
+                type: 'allo-prive',
               });
-              if (res.ok) {
-                const data = await res.json();
-                setAlloPriveRequestId(data.request.id);
-                setIsAlloPriveSuccess(true);
-                setStep(6); // Go to success step directly
-              } else {
-                setGlobalError("Échec de la création de la demande Allo Privé.");
-              }
+              setAlloPriveRequestId(data.id);
+              setIsAlloPriveSuccess(true);
+              setStep(6); // Go to success step directly
             } catch (e: any) {
               setGlobalError(`Erreur: ${e.message}`);
             }
@@ -786,34 +785,31 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                 <div className="flex flex-col sm:flex-row gap-3 mt-4">
                   <button
                     onClick={async () => {
+                      if (!isAuthenticated) {
+                        setGlobalError("Vous devez vous connecter pour publier une demande Allogoo ordinaire.");
+                        setTimeout(() => {
+                          onClose();
+                          openAuthModal();
+                        }, 2000);
+                        return;
+                      }
                       setIsSearching(true);
                       try {
-                        const res = await fetch('/api/allo-prive', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            clientId: userPhone || 'demo-client-id',
-                            clientName: userName || 'Client',
-                            clientPhone: userPhone || '+221776783412',
-                            origin: `${searchParams.depart} (${pickupLocation})`,
-                            destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
-                            departureDate: searchParams.date,
-                            price: 5000,
-                            type: 'ordinaire',
-                          }),
+                        const data = await ApiClient.post('/v1/allo-prive/requests', {
+                          origin: `${searchParams.depart} (${pickupLocation})`,
+                          destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                          departureDate: searchParams.date,
+                          price: 5000,
+                          type: 'ordinaire',
                         });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setAlloPriveRequestId(data.request.id);
-                          setIsAlloPriveSuccess(true);
-                          setStep(6);
-                        } else {
-                          setGlobalError("Échec de la création de la demande Allogoo ordinaire.");
-                        }
+                        setAlloPriveRequestId(data.id);
+                        setIsAlloPriveSuccess(true);
+                        setStep(6);
                       } catch (e: any) {
                         setGlobalError(`Erreur: ${e.message}`);
+                      } finally {
+                        setIsSearching(false);
                       }
-                      setIsSearching(false);
                     }}
                     className="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-xl transition-colors border border-slate-700"
                   >
@@ -821,34 +817,31 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                   </button>
                   <button
                     onClick={async () => {
+                      if (!isAuthenticated) {
+                        setGlobalError("Vous devez vous connecter pour publier une demande Allo Privé.");
+                        setTimeout(() => {
+                          onClose();
+                          openAuthModal();
+                        }, 2000);
+                        return;
+                      }
                       setIsSearching(true);
                       try {
-                        const res = await fetch('/api/allo-prive', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            clientId: userPhone || 'demo-client-id',
-                            clientName: userName || 'Client Allo Privé',
-                            clientPhone: userPhone || '+221776783412',
-                            origin: `${searchParams.depart} (${pickupLocation})`,
-                            destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
-                            departureDate: searchParams.date,
-                            price: 20000,
-                            type: 'allo-prive',
-                          }),
+                        const data = await ApiClient.post('/v1/allo-prive/requests', {
+                          origin: `${searchParams.depart} (${pickupLocation})`,
+                          destination: `${searchParams.arrivee} (${searchParams.quartierArrivee})`,
+                          departureDate: searchParams.date,
+                          price: 20000,
+                          type: 'allo-prive',
                         });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setAlloPriveRequestId(data.request.id);
-                          setIsAlloPriveSuccess(true);
-                          setStep(6);
-                        } else {
-                          setGlobalError("Échec de la création de la demande Allo Privé.");
-                        }
+                        setAlloPriveRequestId(data.id);
+                        setIsAlloPriveSuccess(true);
+                        setStep(6);
                       } catch (e: any) {
                         setGlobalError(`Erreur: ${e.message}`);
+                      } finally {
+                        setIsSearching(false);
                       }
-                      setIsSearching(false);
                     }}
                     className="flex-1 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-3 rounded-xl transition-colors shadow-lg shadow-orange-600/20"
                   >

@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { DriverEarning, DriverEarningSummary, GetEarningsFilters } from '../types/driver-earning.types';
 
 export class DriverOperationsService {

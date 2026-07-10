@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { GetNotificationsFilters, NotificationsResponse } from '../types/notification.types';
 
 export class NotificationsService {

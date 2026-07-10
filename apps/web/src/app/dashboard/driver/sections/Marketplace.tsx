@@ -1,6 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import { Store, MapPin, Search, Calendar, ChevronRight, Package, AlertTriangle, X, Info, Users } from 'lucide-react';
+import { useAuth } from '../../../../components/AuthContext';
+import { ApiClient } from '@/lib/api.client';
+import { AlloPriveRequest } from '@/types/allo-prive';
 
 const initialMissions = [
   { id: 'M-104', trajet: 'Dakar → Saint-Louis', depart: 'Demain, 07:00', distance: '260 km', passagers: 4, remuneration: '18 000 FCFA', transporteur: 'Sénégal Express', urgent: true, status: 'disponible', minScore: 80 },
@@ -11,9 +14,10 @@ const initialMissions = [
 const driverReliabilityScore = 65; // Simulation d'un chauffeur pénalisé
 
 export default function SectionMarketplace() {
+  const { user } = useAuth();
   const [missions, setMissions] = useState(initialMissions);
   const [colis, setColis] = useState<any[]>([]);
-  const [alloPriveRequests, setAlloPriveRequests] = useState<any[]>([]);
+  const [alloPriveRequests, setAlloPriveRequests] = useState<AlloPriveRequest[]>([]);
   const [hasClient, setHasClient] = useState(true);
 
   // State for the Release Modal
@@ -57,10 +61,9 @@ export default function SectionMarketplace() {
 
       // Charger les demandes Allo Privé
       try {
-        const res = await fetch('/api/allo-prive');
-        if (res.ok) {
-          const data = await res.json();
-          setAlloPriveRequests(data.requests || []);
+        const data = await ApiClient.get<AlloPriveRequest[]>('/v1/allo-prive/requests/available');
+        if (Array.isArray(data)) {
+          setAlloPriveRequests(data);
         }
       } catch (e) {}
     };
@@ -87,24 +90,14 @@ export default function SectionMarketplace() {
 
   const handleApplyAlloPrive = async (requestId: string) => {
     try {
-      const res = await fetch(`/api/allo-prive/${requestId}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          driverId: 'demo-driver-id',
-          driverName: 'Abdou Bakhe',
-          driverPhone: '+221776783412',
-          driverScore: driverReliabilityScore,
-        }),
-      });
-      if (res.ok) {
-        const resReq = await fetch('/api/allo-prive');
-        if (resReq.ok) {
-          const data = await resReq.json();
-          setAlloPriveRequests(data.requests || []);
-        }
+      await ApiClient.post(`/v1/allo-prive/requests/${requestId}/apply`);
+      const data = await ApiClient.get<AlloPriveRequest[]>('/v1/allo-prive/requests/available');
+      if (Array.isArray(data)) {
+        setAlloPriveRequests(data);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error applying to request', e);
+    }
   };
 
   const handleOpenReleaseModal = (id: string, type: 'mission' | 'colis') => {
@@ -177,7 +170,7 @@ export default function SectionMarketplace() {
           const isOrdinary = req.type === 'ordinaire';
           const minScore = isOrdinary ? 0 : 80;
           const isLocked = minScore > driverReliabilityScore;
-          const hasApplied = (req.applications || []).some((app: any) => app.driverId === 'demo-driver-id');
+          const hasApplied = (req.applications || []).some((app: any) => app.driverId === user?.id);
           
           return (
             <div key={req.id} className={`relative bg-gradient-to-br from-orange-500/5 to-transparent dark:from-orange-500/10 dark:to-transparent border rounded-3xl p-6 transition-all ${isLocked ? 'border-rose-500/20' : isOrdinary ? 'border-slate-200 dark:border-[#2A2A2A]' : 'border-orange-500/30'}`}>

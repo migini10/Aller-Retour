@@ -1,5 +1,5 @@
 import { User, UserRole, UserStatus, UserActivityEvent } from '../types/user.types';
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 
 interface GetUsersFilters {
   page?: number;

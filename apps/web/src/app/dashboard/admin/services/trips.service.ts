@@ -1,5 +1,5 @@
 import { Trip, TripManifest, TransferTarget } from '../types/trip.types';
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 
 interface GetTripsFilters {
   page?: number;

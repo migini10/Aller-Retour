@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { Booking } from '../types/booking.types';
 
 export interface DashboardKpis {

@@ -5,6 +5,8 @@ import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCi
 import Link from 'next/link';
 import { useModal } from '../../../components/ModalContext';
 import { useAuth } from '../../../components/AuthContext';
+import { ApiClient } from '@/lib/api.client';
+import { AlloPriveRequest } from '@/types/allo-prive';
 
 const showWalletFeature = false;
 
@@ -253,14 +255,12 @@ export default function ClientDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const [priveRequests, setPriveRequests] = useState<any[]>([]);
+  const [priveRequests, setPriveRequests] = useState<AlloPriveRequest[]>([]);
 
   const fetchPriveRequests = async () => {
     try {
-      const res = await fetch('/api/allo-prive');
-      if (res.ok) {
-        const data = await res.json();
-        const myRequests = data.requests.filter((r: any) => r.clientPhone === user?.phone || r.clientPhone === '+221776783412');
+      const myRequests = await ApiClient.get<AlloPriveRequest[]>('/v1/allo-prive/requests/my-requests');
+      if (Array.isArray(myRequests)) {
         setPriveRequests(myRequests);
       }
     } catch (e) {

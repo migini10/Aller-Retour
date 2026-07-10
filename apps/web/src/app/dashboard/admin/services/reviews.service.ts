@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { GetReviewsFilters, GetReviewsResponse, Review, ReviewStatus } from '../types/review.types';
 
 export class ReviewsService {

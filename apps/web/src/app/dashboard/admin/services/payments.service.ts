@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { GetPaymentsFilters, GetPaymentsResponse, PaymentTransaction, PaymentSummary } from '../types/payment.types';
 
 export class PaymentsService {

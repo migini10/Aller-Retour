@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { SystemHealth, MonitoringAlerts } from '../types/monitoring.types';
 
 export class MonitoringService {

@@ -1,5 +1,5 @@
 import { DriverProfile, Vehicle, DriverEarning, DriverReview } from '../types/driver.types';
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 
 interface GetDriversFilters {
   page?: number;

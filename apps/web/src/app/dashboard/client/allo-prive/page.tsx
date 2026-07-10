@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CarFront, Calendar, Users, Plus, CheckCircle2, ChevronRight, Loader2, Award, ShieldCheck, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../../../../components/AuthContext';
+import { ApiClient } from '@/lib/api.client';
+import { AlloPriveRequest } from '@/types/allo-prive';
 
 export default function AlloPrivePage() {
   const { user } = useAuth();
@@ -16,15 +18,13 @@ export default function AlloPrivePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [priveRequests, setPriveRequests] = useState<any[]>([]);
+  const [priveRequests, setPriveRequests] = useState<AlloPriveRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPriveRequests = async () => {
     try {
-      const res = await fetch('/api/allo-prive');
-      if (res.ok) {
-        const data = await res.json();
-        const myRequests = data.requests.filter((r: any) => r.clientPhone === user?.phone || r.clientPhone === '+221776783412');
+      const myRequests = await ApiClient.get<AlloPriveRequest[]>('/v1/allo-prive/requests/my-requests');
+      if (Array.isArray(myRequests)) {
         setPriveRequests(myRequests);
       }
     } catch (e) {
@@ -52,29 +52,18 @@ export default function AlloPrivePage() {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const res = await fetch('/api/allo-prive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientId: user?.phone || 'demo-client-id',
-          clientName: user?.fullName || 'Client Allo Privé',
-          clientPhone: user?.phone || '+221776783412',
-          origin: `${origin} (${pickup})`,
-          destination: `${destination} (${neighborhood})`,
-          departureDate: date,
-          price: Number(price),
-          type: 'allo-prive',
-        }),
+      await ApiClient.post('/v1/allo-prive/requests', {
+        origin: `${origin} (${pickup})`,
+        destination: `${destination} (${neighborhood})`,
+        departureDate: date,
+        price: Number(price),
+        type: 'allo-prive',
       });
-      if (res.ok) {
-        setSuccessMsg("Votre demande Allo Privé a été publiée avec succès ! Les chauffeurs qualifiés peuvent désormais postuler.");
-        setPickup('');
-        setNeighborhood('');
-        setDate('');
-        fetchPriveRequests();
-      } else {
-        setErrorMsg("Une erreur est survenue lors de la création de la demande.");
-      }
+      setSuccessMsg("Votre demande Allo Privé a été publiée avec succès ! Les chauffeurs qualifiés peuvent désormais postuler.");
+      setPickup('');
+      setNeighborhood('');
+      setDate('');
+      fetchPriveRequests();
     } catch (err: any) {
       setErrorMsg(`Erreur: ${err.message}`);
     } finally {
@@ -84,14 +73,8 @@ export default function AlloPrivePage() {
 
   const handleSelectDriver = async (reqId: string, appId: string) => {
     try {
-      const res = await fetch(`/api/allo-prive/${reqId}/select`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId: appId }),
-      });
-      if (res.ok) {
-        fetchPriveRequests();
-      }
+      await ApiClient.patch(`/v1/allo-prive/applications/${appId}/accept`);
+      fetchPriveRequests();
     } catch (e) {
       console.error("Error selecting driver", e);
     }

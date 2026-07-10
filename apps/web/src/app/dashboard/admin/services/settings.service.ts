@@ -1,4 +1,4 @@
-import { ApiClient } from './api.client';
+import { ApiClient } from '@/lib/api.client';
 import { SystemSettings, UpdateSettingsPayload } from '../types/settings.types';
 
 export class SettingsService {
