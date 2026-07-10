@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
+import 'dart:convert';
 import '../../widgets/shared_scaffold.dart';
 import 'qr_code_screen.dart'; // We can't easily import private _buildTicketCard, so we will reimplement or we can make it public.
 
@@ -29,11 +29,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
     final token = prefs.getString('auth_token');
     if (token != null) {
       try {
-        final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-        final response = await http.get(
-          Uri.parse('$apiUrl/v1/bookings/my-tickets'),
-          headers: {'Authorization': 'Bearer $token'},
-        );
+        final response = await ApiClient().get('/v1/bookings/my-tickets');
         if (response.statusCode == 200) {
           final allTickets = jsonDecode(response.body) as List<dynamic>;
           setState(() {
@@ -94,40 +90,21 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-      
       // Verify PIN first
-      final verifyResponse = await http.post(
-        Uri.parse('$apiUrl/v1/auth/verify-pin'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'pin': pin.trim()}),
+      final verifyResponse = await ApiClient().post(
+        '/v1/auth/verify-pin',
+        body: {'pin': pin.trim()},
       );
 
       if (verifyResponse.statusCode != 200 && verifyResponse.statusCode != 201) {
         final err = jsonDecode(verifyResponse.body);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(err['message'] ?? 'Code secret incorrect.')),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
+        throw Exception(err['message'] ?? 'Code PIN incorrect');
       }
 
       // PIN valid — hide server-side
-      final hideResponse = await http.post(
-        Uri.parse('$apiUrl/v1/bookings/hide'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'bookingIds': _selectedIds}),
+      final hideResponse = await ApiClient().post(
+        '/v1/bookings/hide',
+        body: {'bookingIds': _selectedIds},
       );
 
       if (hideResponse.statusCode == 200 || hideResponse.statusCode == 201) {
@@ -150,12 +127,17 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
         }
         setState(() => _isLoading = false);
       }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+      setState(() => _isLoading = false);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
       setState(() => _isLoading = false);
     }
   }

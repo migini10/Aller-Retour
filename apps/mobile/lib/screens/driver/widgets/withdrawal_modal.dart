@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../services/api_client.dart';
 import '../../../widgets/orange_money_logo.dart';
 import '../../client/widgets/recharge_modal.dart'; // To reuse WavePainter
 
@@ -65,21 +63,14 @@ void showWithdrawalModal(BuildContext context, int maxAmount, VoidCallback onCom
                 });
 
                 try {
-                  final token = prefs.getString('auth_token');
-                  final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-
-                  final response = await http.post(
-                    Uri.parse('$apiUrl/v1/wallets/driver-withdrawal'),
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': 'Bearer $token',
-                    },
-                    body: json.encode({
+                  final response = await ApiClient().post(
+                    '/v1/wallets/driver-withdrawal',
+                    body: {
                       'operator': operator,
                       'amount': numericAmount,
                       'phone': phoneController.text,
                       'fullName': nameController.text
-                    }),
+                    },
                   );
 
                   if (response.statusCode == 201 || response.statusCode == 200) {
@@ -88,18 +79,25 @@ void showWithdrawalModal(BuildContext context, int maxAmount, VoidCallback onCom
                       step = 3;
                     });
                     onCompleted();
-                  } else {
-                    final errorData = json.decode(response.body);
-                    setState(() {
-                      isLoading = false;
-                      errorMessage = errorData['message'] ?? 'Échec du retrait. Veuillez réessayer.';
-                    });
+                  }
+                } on ApiException catch (e) {
+                  setState(() {
+                    isLoading = false;
+                  });
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message)),
+                    );
                   }
                 } catch (e) {
                   setState(() {
                     isLoading = false;
-                    errorMessage = 'Erreur réseau. Impossible de contacter le serveur.';
                   });
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erreur: $e')),
+                    );
+                  }
                 }
               }
 

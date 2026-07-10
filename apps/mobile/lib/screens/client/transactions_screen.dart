@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../widgets/shared_scaffold.dart';
+import '../../services/api_client.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -24,18 +24,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   Future<void> _fetchTransactions() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      if (token == null) {
-        _useFallbackData();
-        return;
-      }
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-      
-      final responseTx = await http.get(
-        Uri.parse('$apiUrl/v1/wallets/my-transactions'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final responseTx = await ApiClient().get('/v1/wallets/my-transactions');
       if (responseTx.statusCode == 200) {
         final decoded = json.decode(responseTx.body) as List<dynamic>;
         if (mounted) {
@@ -47,6 +36,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       } else {
         _useFallbackData();
       }
+    } on ApiException catch (e) {
+      debugPrint('Erreur API tx: ${e.message}');
+      _useFallbackData();
     } catch (e) {
       _useFallbackData();
     }

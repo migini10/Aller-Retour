@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -37,11 +38,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-      final response = await http.post(
-        Uri.parse('$apiUrl/v1/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await ApiClient().post(
+        '/v1/auth/register',
+        requireAuth: false,
+        body: {
           'phone': (() {
             String clean = _phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
             if (!clean.startsWith('+221') && !clean.startsWith('221') && !clean.startsWith('00221')) {
@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           })(),
           'fullName': _nameController.text.trim(),
           'pin': _passwordController.text.trim()
-        }),
+        },
       );
 
       final data = jsonDecode(response.body);
@@ -82,12 +82,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
         }
       }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impossible de contacter le serveur')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible de contacter le serveur')),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import '../../services/api_client.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
@@ -3067,10 +3068,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                             try {
                                               if (apiData['paymentSession'] != null && apiData['paymentSession']['bookingId'] != null) {
                                                 final prefs = await SharedPreferences.getInstance();
-                                                final token = prefs.getString('auth_token');
-                                                final statusRes = await http.get(
-                                                  Uri.parse('$apiUrl/bookings/${apiData['paymentSession']['bookingId']}/status'),
-                                                  headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+                                                final statusRes = await ApiClient().get(
+                                                  '/v1/bookings/${apiData['paymentSession']['bookingId']}/status',
                                                 );
                                                 if (statusRes.statusCode == 200) {
                                                   final statusData = jsonDecode(statusRes.body);

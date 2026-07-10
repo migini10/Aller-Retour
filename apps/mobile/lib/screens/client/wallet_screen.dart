@@ -3,10 +3,10 @@ import 'dart:ui' as ui;
 import 'widgets/recharge_modal.dart';
 import '../../widgets/shared_scaffold.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -27,14 +27,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
   Future<void> _fetchWalletBalance() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-      final response = await http.get(
-        Uri.parse('$apiUrl/v1/wallets/my-balance'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await ApiClient().get('/v1/wallets/my-balance');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (mounted) {
@@ -43,10 +36,7 @@ class _WalletScreenState extends State<WalletScreen> {
           });
         }
       }
-      final responseTx = await http.get(
-        Uri.parse('$apiUrl/v1/wallets/my-transactions'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final responseTx = await ApiClient().get('/v1/wallets/my-transactions');
       if (responseTx.statusCode == 200) {
         final dataTx = json.decode(responseTx.body);
         if (mounted) {
@@ -55,6 +45,8 @@ class _WalletScreenState extends State<WalletScreen> {
           });
         }
       }
+    } on ApiException catch (e) {
+      debugPrint('Erreur API wallet: ${e.message}');
     } catch (e) {
       debugPrint('Erreur solde wallet: $e');
     }

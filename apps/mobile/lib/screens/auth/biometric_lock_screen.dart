@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import '../home_screen.dart';
 
 class BiometricLockScreen extends StatefulWidget {
@@ -140,43 +140,31 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
     try {
       final prefs = await SharedPreferences.getInstance();
       final phone = prefs.getString('userPhone') ?? '';
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-
-      final response = await http.post(
-        Uri.parse('$apiUrl/v1/auth/login-mobile'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await ApiClient().post(
+        '/v1/auth/login-mobile',
+        requireAuth: false,
+        body: {
           'phone': phone,
           'pin': _pin
-        }),
+        },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        if (data['token'] != null) {
-          await prefs.setString('auth_token', data['token']);
-        }
-        await prefs.setBool('isLoggedIn', true);
-        
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) Navigator.pushReplacementNamed(context, '/home');
-        });
-      } else {
-        String errorMsg = 'Code PIN incorrect';
-        try {
-          final data = jsonDecode(response.body);
-          if (data['message'] != null) {
-            errorMsg = data['message'];
-          }
-        } catch (_) {}
-
-        setState(() {
-          _error = true;
-          _message = errorMsg;
-          _pin = '';
-        });
-        _shakeController.forward(from: 0.0);
+      final data = jsonDecode(response.body);
+      if (data['token'] != null) {
+        await prefs.setString('auth_token', data['token']);
       }
+      await prefs.setBool('isLoggedIn', true);
+      
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      });
+    } on ApiException catch (e) {
+      setState(() {
+        _error = true;
+        _message = e.message;
+        _pin = '';
+      });
+      _shakeController.forward(from: 0.0);
     } catch (e) {
       setState(() {
         _error = true;

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/shared_scaffold.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import 'widgets/withdrawal_modal.dart';
 
 class DriverRevenusScreen extends StatefulWidget {
@@ -26,15 +24,7 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
 
   Future<void> _fetchDriverFinanceData() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-
-      final response = await http.get(
-        Uri.parse('$apiUrl/v1/wallets/driver-balance'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await ApiClient().get('/v1/wallets/driver-balance');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (mounted) {
@@ -45,11 +35,8 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
           });
         }
       }
-
-      final responseTx = await http.get(
-        Uri.parse('$apiUrl/v1/wallets/driver-transactions'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      
+      final responseTx = await ApiClient().get('/v1/wallets/driver-transactions');
       if (responseTx.statusCode == 200) {
         final dataTx = json.decode(responseTx.body);
         if (mounted) {
@@ -58,6 +45,8 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
           });
         }
       }
+    } on ApiException catch (e) {
+      debugPrint('Erreur API revenus: ${e.message}');
     } catch (e) {
       debugPrint('Erreur solde wallet chauffeur: $e');
     } finally {
