@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import '../../widgets/shared_scaffold.dart';
 
 class AlloPriveScreen extends StatefulWidget {
@@ -14,8 +11,6 @@ class AlloPriveScreen extends StatefulWidget {
 }
 
 class _AlloPriveScreenState extends State<AlloPriveScreen> {
-  String _userName = '';
-  String _userPhone = '';
   List<dynamic> priveRequests = [];
   Timer? _refreshTimer;
   bool _isLoading = true;
@@ -31,9 +26,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData().then((_) {
-      _fetchPriveRequests();
-    });
+    _fetchPriveRequests();
     _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) => _fetchPriveRequests());
   }
 
@@ -47,30 +40,20 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userName = prefs.getString('userName') ?? 'Utilisateur';
-      _userPhone = prefs.getString('userPhone') ?? '';
-    });
-  }
-
   Future<void> _fetchPriveRequests() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/allo-prive'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final list = data['requests'] as List<dynamic>? ?? [];
-        if (mounted) {
-          setState(() {
-            priveRequests = list.where((r) => r['clientPhone'] == _userPhone || r['clientPhone'] == '+221776783412').toList();
-            _isLoading = false;
-          });
-        }
+      final response = await ApiClient.get('/v1/allo-prive/requests/my-requests');
+      if (mounted) {
+        setState(() {
+          priveRequests = response as List<dynamic>? ?? [];
+          _isLoading = false;
+        });
       }
     } catch (e) {
       debugPrint('Error fetching private requests: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -84,23 +67,15 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
-      final response = await http.post(
-        Uri.parse('$nextApiUrl/api/allo-prive'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'clientId': _userPhone,
-          'clientName': _userName,
-          'clientPhone': _userPhone,
-          'origin': '$origin (${pickupController.text})',
-          'destination': '$destination (${neighborhoodController.text})',
-          'departureDate': dateController.text,
-          'price': int.tryParse(priceController.text) ?? 20000,
-          'type': 'allo-prive',
-        }),
-      );
+      await ApiClient.post('/v1/allo-prive/requests', body: {
+        'origin': '$origin (${pickupController.text})',
+        'destination': '$destination (${neighborhoodController.text})',
+        'departureDate': dateController.text,
+        'price': int.tryParse(priceController.text) ?? 20000,
+        'type': 'allo-prive',
+      });
 
-      if (response.statusCode == 200) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Demande Allo Privé créée avec succès !')),
         );
@@ -108,29 +83,24 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
         neighborhoodController.clear();
         dateController.clear();
         _fetchPriveRequests();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Échec de la création de la demande.')),
-        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  Future<void> _selectDriver(String requestId, String applicationId) async {
+  Future<void> _selectDriver(String applicationId) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
-      final response = await http.post(
-        Uri.parse('$nextApiUrl/api/allo-prive/$requestId/select'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'applicationId': applicationId}),
-      );
-      if (response.statusCode == 200) {
+      await ApiClient.patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
+      if (mounted) {
         _fetchPriveRequests();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Chauffeur sélectionné avec succès !')),
@@ -138,6 +108,11 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
       }
     } catch (e) {
       debugPrint('Error selecting driver: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
     }
   }
 
@@ -233,13 +208,15 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _submitRequest,
+                        onPressed: _isLoading ? null : _submitRequest,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber[700],
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        icon: const Icon(Icons.send, color: Colors.white),
+                        icon: _isLoading 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Icon(Icons.send, color: Colors.white),
                         label: const Text('Publier l\'appel d\'offres', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -251,7 +228,9 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
               Text('Mes Demandes Actives (${priveRequests.length})', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
               const SizedBox(height: 12),
 
-              if (priveRequests.isEmpty)
+              if (_isLoading && priveRequests.isEmpty)
+                const Center(child: CircularProgressIndicator())
+              else if (priveRequests.isEmpty)
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 40.0),
@@ -260,14 +239,15 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                 )
               else
                 ...priveRequests.map((req) {
-                  final List<dynamic> apps = req['applications'] as List<dynamic>? ?? [];
+                  final reqMap = req as Map<String, dynamic>;
+                  final List<dynamic> apps = reqMap['applications'] as List<dynamic>? ?? [];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1E293B) : Colors.white,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.amberAccent.withValues(alpha: 0.2)),
+                      border: Border.all(color: Colors.amberAccent.withOpacity(0.2)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,18 +257,18 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: Colors.amberAccent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
+                              decoration: BoxDecoration(color: Colors.amberAccent.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
                               child: const Text('VOITURE ENTIÈRE', style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.bold)),
                             ),
-                            Text(req['status'] == 'ACCEPTED' ? 'Chauffeur choisi' : 'Recherche...', style: TextStyle(color: req['status'] == 'ACCEPTED' ? Colors.green : Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
+                            Text(reqMap['status'] == 'ACCEPTED' ? 'Chauffeur choisi' : 'Recherche...', style: TextStyle(color: reqMap['status'] == 'ACCEPTED' ? Colors.green : Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Text('${req['origin']} → ${req['destination']}', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text('${reqMap['origin']} → ${reqMap['destination']}', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 6),
-                        Text('Date : ${req['departureDate']} • Prix proposé : ${req['price']} FCFA', style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 12)),
+                        Text('Date : ${reqMap['departureDate']} • Prix proposé : ${reqMap['price']} FCFA', style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 12)),
                         
-                        if (req['status'] == 'PENDING') ...[
+                        if (reqMap['status'] == 'PENDING') ...[
                           const Divider(height: 24),
                           Text('Offres reçues (${apps.length})', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.amber)),
                           const SizedBox(height: 8),
@@ -296,6 +276,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                             const Text('En attente de chauffeurs...', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11))
                           else
                             ...apps.map((app) {
+                              final appMap = app as Map<String, dynamic>;
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 padding: const EdgeInsets.all(12),
@@ -313,23 +294,23 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                                         children: [
                                           Row(
                                             children: [
-                                              Text(app['driverName'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                              Text(appMap['driverName'] as String? ?? 'Chauffeur', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                               const SizedBox(width: 4),
-                                              if (app['driverVerified'] == true)
+                                              if (appMap['driverVerified'] == true)
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                                  decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                                                  decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
                                                   child: const Text('Certifié', style: TextStyle(color: Colors.green, fontSize: 8, fontWeight: FontWeight.bold)),
                                                 ),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
-                                          Text('Score: ${app['driverScore']}% • Fiabilité: ${app['driverRating']}★', style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 10)),
+                                          Text('Score: ${appMap['driverScore']}% • Fiabilité: ${appMap['driverRating']}★', style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 10)),
                                         ],
                                       ),
                                     ),
                                     ElevatedButton(
-                                      onPressed: () => _selectDriver(req['id'], app['id']),
+                                      onPressed: () => _selectDriver(appMap['id']),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.amber,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -341,6 +322,10 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
                               );
                             }),
                         ],
+                        if (reqMap['status'] == 'ACCEPTED') ...[
+                          const Divider(height: 24),
+                          const Text('Course validée, en attente de réalisation.', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ]
                       ],
                     ),
                   );

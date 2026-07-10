@@ -51,7 +51,7 @@ export class ParcelsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Créer un colis' })
   async createParcel(@Req() req: any, @Body() dto: CreateParcelDto) {
-    return this.parcelsService.createParcel(req.user.id, dto);
+    return this.parcelsService.createParcel(req.user.id, req.user.role, dto);
   }
 
   @Get(':id')

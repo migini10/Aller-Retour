@@ -51,13 +51,10 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   Future<void> _fetchPriveRequests() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/allo-prive'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final list = data['requests'] as List<dynamic>? ?? [];
-        if (mounted) {
-          setState(() {
+      final response = await ApiClient.get('/v1/allo-prive/requests/my-requests');
+      final list = response as List<dynamic>? ?? [];
+      if (mounted) {
+        setState(() {
             priveRequests = list.where((r) => r['clientPhone'] == _userPhone || r['clientPhone'] == '+221776783412').toList();
           });
         }
@@ -69,13 +66,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   Future<void> _selectDriver(String requestId, String applicationId) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.post(
-        Uri.parse('$nextApiUrl/api/allo-prive/$requestId/select'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'applicationId': applicationId}),
-      );
-      if (response.statusCode == 200) {
+      await ApiClient.patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
+      if (mounted) {
         _fetchPriveRequests();
       }
     } catch (e) {
@@ -2070,22 +2062,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
                                       }
 
-                                      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                      final response = await http.post(
-                                        Uri.parse('$nextApiUrl/api/allo-prive'),
-                                        headers: {'Content-Type': 'application/json'},
-                                        body: jsonEncode({
-                                          'clientId': telephone,
-                                          'clientName': nom,
-                                          'clientPhone': telephone,
+                                      final response = await ApiClient.post(
+                                        '/v1/allo-prive/requests',
+                                        body: {
                                           'origin': '${departController.text} (${pickupController.text})',
                                           'destination': '${arriveeController.text} (${quartierController.text})',
                                           'departureDate': formattedDate,
                                           'price': 5000,
                                           'type': 'ordinaire',
-                                        }),
+                                        },
                                       );
-                                      if (response.statusCode == 200) {
+                                      if (mounted) {
                                         setState(() {
                                           isSearching = false;
                                           isAlloPriveSuccess = true;
@@ -2126,22 +2113,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
                                       }
 
-                                      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                      final response = await http.post(
-                                        Uri.parse('$nextApiUrl/api/allo-prive'),
-                                        headers: {'Content-Type': 'application/json'},
-                                        body: jsonEncode({
-                                          'clientId': telephone,
-                                          'clientName': nom,
-                                          'clientPhone': telephone,
+                                      final response = await ApiClient.post(
+                                        '/v1/allo-prive/requests',
+                                        body: {
                                           'origin': '${departController.text} (${pickupController.text})',
                                           'destination': '${arriveeController.text} (${quartierController.text})',
                                           'departureDate': formattedDate,
                                           'price': 20000,
                                           'type': 'allo-prive',
-                                        }),
+                                        },
                                       );
-                                      if (response.statusCode == 200) {
+                                      if (mounted) {
                                         setState(() {
                                           isSearching = false;
                                           isAlloPriveSuccess = true;
@@ -2914,22 +2896,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                      formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
                                    }
 
-                                   final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
                                    if (isAlloPrive) {
-                                     final response = await http.post(
-                                       Uri.parse('$nextApiUrl/api/allo-prive'),
-                                       headers: {'Content-Type': 'application/json'},
-                                       body: jsonEncode({
-                                         'clientId': telephone,
-                                         'clientName': nom,
-                                         'clientPhone': telephone,
+                                     final response = await ApiClient.post(
+                                       '/v1/allo-prive/requests',
+                                       body: {
                                          'origin': '${departController.text} (${pickupController.text})',
                                          'destination': '${arriveeController.text} (${quartierController.text})',
                                          'departureDate': formattedDate,
                                          'price': 20000,
-                                       }),
+                                         'type': 'allo-prive',
+                                       },
                                      );
-                                     if (response.statusCode == 200) {
+                                     if (mounted) {
                                        setState(() {
                                          isSearching = false;
                                          isAlloPriveSuccess = true;

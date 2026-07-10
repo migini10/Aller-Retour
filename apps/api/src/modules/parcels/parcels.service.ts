@@ -43,6 +43,8 @@ function generateDeliveryCode(): string {
 const SAFE_PARCEL_SELECT = {
   id: true,
   tripId: true,
+  senderId: true,
+  createdById: true,
   senderName: true,
   senderPhone: true,
   recipientName: true,
@@ -88,7 +90,7 @@ export class ParcelsService {
 
   // ─── CREATE ────────────────────────────────────────────────────
 
-  async createParcel(userId: string, dto: CreateParcelDto) {
+  async createParcel(userId: string, role: string, dto: CreateParcelDto) {
     // Vérifier que le Trip existe et est encore utilisable
     const trip = await prisma.trip.findUnique({
       where: { id: dto.tripId },
@@ -120,9 +122,14 @@ export class ParcelsService {
     const price = calculateParcelPrice(dto.weightKg);
     const deliveryCode = generateDeliveryCode();
 
+    const senderId = role === UserRole.PASSENGER ? userId : null;
+    const createdById = userId;
+
     const parcel = await prisma.parcel.create({
       data: {
         tripId: dto.tripId,
+        senderId,
+        createdById,
         senderName: dto.senderName,
         senderPhone: dto.senderPhone,
         recipientName: dto.recipientName,
@@ -152,16 +159,6 @@ export class ParcelsService {
   // ─── MY PARCELS ────────────────────────────────────────────────
 
   async getMyParcels(userId: string, role: string) {
-    // Récupérer le téléphone de l'utilisateur pour matcher senderPhone
-    // NOTE: senderId/createdById n'existent PAS dans le schéma Parcel actuel.
-    // L'ownership repose donc sur senderPhone. C'est une dette technique documentée.
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { phone: true },
-    });
-
-    if (!user) throw new NotFoundException('Utilisateur non trouvé.');
-
     // SUPER_ADMIN voit tout (limité à 100)
     if (role === UserRole.SUPER_ADMIN) {
       return prisma.parcel.findMany({
@@ -183,7 +180,8 @@ export class ParcelsService {
       return prisma.parcel.findMany({
         where: {
           OR: [
-            { senderPhone: user.phone },
+            { senderId: userId },
+            { createdById: userId },
             { trip: { driverId: driverProfile.id } },
           ],
         },
@@ -193,9 +191,14 @@ export class ParcelsService {
       });
     }
 
-    // PASSENGER: colis envoyés par ce téléphone
+    // PASSENGER: colis envoyés par cet utilisateur
     return prisma.parcel.findMany({
-      where: { senderPhone: user.phone },
+      where: {
+        OR: [
+          { senderId: userId },
+          { createdById: userId },
+        ],
+      },
       take: 50,
       orderBy: { createdAt: 'desc' },
       select: SAFE_PARCEL_SELECT,
@@ -227,12 +230,7 @@ export class ParcelsService {
 
     // Vérification d'accès
     if (role !== UserRole.SUPER_ADMIN) {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { phone: true },
-      });
-
-      const isSender = user && parcel.senderPhone === user.phone;
+      const isSender = parcel.senderId === userId || parcel.createdById === userId;
 
       let isDriverOnTrip = false;
       if (role === UserRole.DRIVER) {

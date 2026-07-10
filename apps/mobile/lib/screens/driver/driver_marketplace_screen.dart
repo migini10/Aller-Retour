@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/api_client.dart';
 
 class DriverMarketplaceScreen extends StatefulWidget {
   const DriverMarketplaceScreen({super.key});
@@ -16,12 +18,21 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
   List<dynamic> colis = [];
   List<dynamic> alloPriveRequests = [];
   Timer? _pollingTimer;
+  String _userId = '';
 
   @override
   void initState() {
     super.initState();
+    _loadUser();
     _loadData();
     _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadData());
+  }
+
+  Future<void> _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId') ?? '';
+    });
   }
 
   @override
@@ -32,18 +43,22 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _loadData() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
+      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
       final colisRes = await http.get(Uri.parse('$nextApiUrl/api/colis'));
       final missionsRes = await http.get(Uri.parse('$nextApiUrl/api/missions'));
-      final alloPriveRes = await http.get(Uri.parse('$nextApiUrl/api/allo-prive'));
       
+      List<dynamic> alloPriveRes = [];
+      try {
+        alloPriveRes = await ApiClient.get('/v1/allo-prive/requests/available') as List<dynamic>? ?? [];
+      } catch (e) {
+        debugPrint('Error fetching allo prive: $e');
+      }
+
       if (mounted) {
         setState(() {
           if (colisRes.statusCode == 200) colis = jsonDecode(colisRes.body);
           if (missionsRes.statusCode == 200) missions = List<Map<String, dynamic>>.from(jsonDecode(missionsRes.body));
-          if (alloPriveRes.statusCode == 200) {
-            alloPriveRequests = jsonDecode(alloPriveRes.body)['requests'] ?? [];
-          }
+          alloPriveRequests = alloPriveRes;
         });
       }
     } catch (e) {
@@ -53,22 +68,20 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _applyAlloPrive(String requestId) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final res = await http.post(
-        Uri.parse('$nextApiUrl/api/allo-prive/$requestId/apply'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'driverId': 'demo-driver-id',
-          'driverName': 'Abdou Bakhe',
-          'driverPhone': '+221776783412',
-          'driverScore': driverReliabilityScore.toInt(),
-        }),
-      );
-      if (res.statusCode == 200) {
+      await ApiClient.post('/v1/allo-prive/requests/$requestId/apply');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Candidature envoyée avec succès.')),
+        );
         _loadData();
       }
     } catch (e) {
       debugPrint('Error applying to private request: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
     }
   }
 
@@ -260,7 +273,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
                    ...alloPriveRequests.where((req) => req['status'] == 'PENDING').map((req) {
                     final reqId = req['id'];
                     final List<dynamic> applications = req['applications'] as List<dynamic>? ?? [];
-                    final hasApplied = applications.any((app) => app['driverId'] == 'demo-driver-id');
+                    final hasApplied = applications.any((app) => app['driverId'] == _userId);
                     final isOrdinary = req['type'] == 'ordinaire';
                     final isLocked = !isOrdinary && 80 > driverReliabilityScore;
                     return _buildAlloPriveCard(context, req, hasApplied, isLocked);

@@ -31,6 +31,10 @@ model User {
   seatLocks           SeatLock[]
   paymentTransactions PaymentTransaction[]
   notifications       Notification[]
+  parcelsSent         Parcel[]             @relation("ParcelSender")
+  parcelsCreated        Parcel[]               @relation("ParcelCreator")
+  alloPriveRequests     AlloPriveRequest[]     @relation("AlloPriveClient")
+  alloPriveApplications AlloPriveApplication[] @relation("AlloPriveDriver")
 
   @@index([phone])
   @@map("users")
@@ -214,6 +218,8 @@ model PaymentTransaction {
 model Parcel {
   id             String       @id @default(uuid())
   tripId         String
+  senderId       String?
+  createdById    String?
   senderName     String
   senderPhone    String
   recipientName  String
@@ -244,6 +250,8 @@ model Parcel {
   deliveryInstructions String?
 
   trip           Trip         @relation(fields: [tripId], references: [id])
+  sender         User?        @relation("ParcelSender", fields: [senderId], references: [id])
+  createdBy      User?        @relation("ParcelCreator", fields: [createdById], references: [id])
 
   @@index([trackingCode])
   @@map("parcels")
@@ -299,6 +307,7 @@ model AlloPriveRequest {
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
   applications  AlloPriveApplication[]
+  client        User                   @relation("AlloPriveClient", fields: [clientId], references: [id])
 
   @@map("allo_prive_requests")
 }
@@ -316,7 +325,9 @@ model AlloPriveApplication {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   request        AlloPriveRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  driver         User             @relation("AlloPriveDriver", fields: [driverId], references: [id])
 
+  @@unique([requestId, driverId])
   @@map("allo_prive_applications")
 }
 
