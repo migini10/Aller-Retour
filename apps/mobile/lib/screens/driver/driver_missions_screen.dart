@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../models/trip_model.dart';
+import '../../services/api_client.dart';
 import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
 
 class DriverMissionsScreen extends StatefulWidget {
-  const DriverMissionsScreen({super.key});
+  const DriverMissionsScreen({super.key};
 
   @override
   State<DriverMissionsScreen> createState() => _DriverMissionsScreenState();
@@ -16,6 +17,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   final List<String> tabs = ['Programmées', 'Toutes', 'Aujourd\'hui', 'Historique'];
 
   List<Map<String, dynamic>> missions = [];
+  List<Map<String, dynamic>> filteredMissions = [];
   bool isLoading = true;
 
   @override
@@ -26,118 +28,30 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
   Future<void> _fetchMissions() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final res = await http.get(Uri.parse('$nextApiUrl/api/missions'));
+      final res = await ApiClient().get('/v1/trips/search');
       if (res.statusCode == 200) {
         final List<dynamic> data = json.decode(res.body);
         List<Map<String, dynamic>> fetchedMissions = data.map((m) {
-          String dateStr = "Aujourd'hui";
-          String heureStr = "12:00";
-          
-          if (m['departureTime'] != null) {
-            try {
-              DateTime d = DateTime.parse(m['departureTime']).toLocal();
-              DateTime now = DateTime.now();
-              DateTime today = DateTime(now.year, now.month, now.day);
-              DateTime tomorrow = today.add(const Duration(days: 1));
-              DateTime tripDay = DateTime(d.year, d.month, d.day);
-              
-              if (tripDay == today) {
-                dateStr = "Aujourd'hui";
-              } else if (tripDay == tomorrow) {
-                dateStr = "Demain";
-              } else {
-                List<String> jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-                List<String> mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-                String dayName = jours[d.weekday - 1];
-                String dayStr = d.day == 1 ? '1er' : d.day.toString();
-                String monthName = mois[d.month - 1];
-                dateStr = '$dayName $dayStr $monthName';
-              }
-              heureStr = '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-            } catch (e) {
-              String depart = m['depart'] ?? '';
-              if (depart.contains(', ')) {
-                List<String> parts = depart.split(', ');
-                dateStr = parts[0];
-                heureStr = parts[1];
-              } else {
-                heureStr = depart;
-              }
-            }
-          } else {
-            String depart = m['depart'] ?? '';
-            if (depart.contains(', ')) {
-              List<String> parts = depart.split(', ');
-              dateStr = parts[0];
-              heureStr = parts[1];
-            } else if (depart.contains(' à ')) {
-              List<String> parts = depart.split(' à ');
-              dateStr = parts[0];
-              heureStr = parts[1];
-            } else {
-              RegExp timeRegex = RegExp(r'\d{2}:\d{2}');
-              var match = timeRegex.firstMatch(depart);
-              if (match != null) {
-                 heureStr = match.group(0)!;
-                 dateStr = depart.replaceAll(heureStr, '').trim();
-                 if (dateStr.isEmpty) dateStr = "Aujourd'hui";
-              } else {
-                 dateStr = depart;
-              }
-            }
-          }
-          final tripId = m['tripId'] ?? m['id'] ?? 'TRIP-XXX';
-          String displayId;
-          if (tripId.toString().startsWith('TRIP-')) {
-            displayId = tripId.toString();
-          } else if (tripId.toString().startsWith('M-')) {
-            final parts = tripId.toString().split('-');
-            displayId = 'TRIP-${parts.length > 1 ? parts[1].toUpperCase() : parts[0].toUpperCase()}';
-          } else {
-            displayId = 'TRIP-${tripId.toString().split('-')[0].toUpperCase()}';
-          }
-          String mappedStatut = m['status'] ?? 'programmé';
-          if (m['departureTime'] != null) {
-            try {
-              DateTime depTime = DateTime.parse(m['departureTime']).toLocal();
-              final isPast2Hours = DateTime.now().difference(depTime).inMinutes >= 120;
-              final hasNotStarted = mappedStatut == 'programmé' || mappedStatut == 'à venir';
-              if (isPast2Hours && hasNotStarted) {
-                mappedStatut = 'expiré';
-              }
-            } catch (_) {}
-          }
-
-          return {
-            'id': tripId,
-            'displayId': displayId,
-            'trajet': m['trajet'] ?? 'Inconnu',
-            'date': dateStr,
-            'rawDate': m['departureTime'] != null ? m['departureTime'].toString().split('T')[0] : null,
-            'departureTime': m['departureTime'],
-            'heure': heureStr,
-            'vehicule': m['transporteur'] ?? 'Véhicule',
-            'statut': mappedStatut,
-            'passagers': m['passagers'] ?? 0,
-            'placesLibres': m['placesLibres'] ?? 4,
-            'placesPrises': m['placesPrises'] ?? 0,
-            'isAirConditioned': m['isAirConditioned'] ?? true,
-            'takesTollRoad': m['takesTollRoad'] ?? true,
-            'pricePerSeat': m['pricePerSeat'] ?? 5000,
-            'distance': m['distance'],
-            'isLocked': m['isLocked'] ?? false,
-          };
+          final tripModel = TripModel.fromJson(m);
+          return tripModel.toLegacyMap();
         }).toList();
 
         if (mounted) {
           setState(() {
             missions = fetchedMissions;
+            filteredMissions = missions;
             isLoading = false;
-          });
+          };
         }
       } else {
         _loadFallbackData();
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur API: ${e.message}')),
+        );
+        setState(() => isLoading = false);
       }
     } catch (e) {
       _loadFallbackData();
@@ -153,7 +67,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           { 'id': 'TRIP-405', 'displayId': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'placesPrises': 0, 'isAirConditioned': true, 'takesTollRoad': false, 'pricePerSeat': 5000 },
         ];
         isLoading = false;
-      });
+      };
     }
   }
 
@@ -236,7 +150,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       String dayName = jours[d.weekday - 1];
       String dayStr = d.day == 1 ? '1er' : d.day.toString();
       String monthName = mois[d.month - 1];
-      dates.add({'value': val, 'label': '$dayName $dayStr $monthName'});
+      dates.add({'value': val, 'label': '$dayName $dayStr $monthName'};
     }
     return dates;
   }
@@ -246,27 +160,31 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   Future<void> _fetchPopularPrices(String? origin, String? dest, StateSetter setModalState) async {
     if (origin == null || dest == null) return;
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.get(
-        Uri.parse('$nextApiUrl/api/missions/popular-prices?origin=$origin&destination=$dest'),
+      final response = await ApiClient().get(
+        '/v1/trips/popular-prices?origin=$origin&destination=$dest',
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['prices'] != null && data['prices'].isNotEmpty) {
           setModalState(() {
             _dynamicRecommendedPrices = List<int>.from(data['prices']);
-          });
+          };
         } else {
           setModalState(() {
             _dynamicRecommendedPrices = [];
-          });
+          };
         }
       }
+    } on ApiException catch (e) {
+      debugPrint('Error fetching popular prices API: ${e.message}');
+      setModalState(() {
+        _dynamicRecommendedPrices = [];
+      };
     } catch (e) {
       debugPrint('Error fetching popular prices: $e');
       setModalState(() {
         _dynamicRecommendedPrices = [];
-      });
+      };
     }
   }
 
@@ -357,9 +275,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                 String dayName = jours[parsedDate.weekday - 1];
                 String dayStr = parsedDate.day == 1 ? '1er' : parsedDate.day.toString();
                 String monthName = mois[parsedDate.month - 1];
-                availableDates.insert(0, {'value': date!, 'label': '$dayName $dayStr $monthName'});
+                availableDates.insert(0, {'value': date!, 'label': '$dayName $dayStr $monthName'};
               } catch (e) {
-                availableDates.insert(0, {'value': date!, 'label': date!});
+                availableDates.insert(0, {'value': date!, 'label': date!};
               }
             }
 
@@ -398,15 +316,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 child: _buildDropdown('Départ', originCity, cities, (v) {
                                   setModalState(() => originCity = v!);
                                   _fetchPopularPrices(originCity, destinationCity, setModalState);
-                                }),
-                              ),
+                                }, ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildDropdown('Arrivée', destinationCity, cities, (v) {
                                   setModalState(() => destinationCity = v!);
                                   _fetchPopularPrices(originCity, destinationCity, setModalState);
-                                }),
-                              ),
+                                }, ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -417,15 +333,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   setModalState(() {
                                     date = v;
                                     time = null;
-                                  });
-                                }),
-                              ),
+                                  };
+                                }, ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildDropdown('Heure', time, availableHours, (v) {
-                                  setModalState(() { time = v; });
-                                }),
-                              ),
+                                  setModalState(() { time = v; };
+                                }, ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -444,9 +358,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       int places = cap - 1 - pax;
                                       placesController.text = places > 0 ? places.toString() : '0';
                                     }
-                                  });
-                                }),
-                              ),
+                                  };
+                                }, ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildTextFieldController('Places Disponibles', placesController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
@@ -476,7 +389,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                               onPressed: () {
                                                 setModalState(() {
                                                   priceController.text = price.toString();
-                                                });
+                                                };
                                               },
                                             );
                                           }).toList(),
@@ -494,8 +407,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     int places = cap - 1 - pax;
                                     placesController.text = places > 0 ? places.toString() : '0';
                                   }
-                                }),
-                              ),
+                                }, ),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -558,13 +470,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 String departureTime = "${date}T$time:00Z";
 
                                 try {
-                                  final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                  final url = missionToEdit != null ? '$nextApiUrl/api/missions/${missionToEdit['id']}' : '$nextApiUrl/api/missions';
-                                  final requestFunc = missionToEdit != null ? http.patch : http.post;
+                                  
+                                  final url = missionToEdit != null ? '/v1/trips/${missionToEdit['id']}' : '/v1/trips/create-allo-dakar';
+                                  final requestFunc = missionToEdit != null ? ApiClient().patch : ApiClient().post;
                                   final res = await requestFunc(
-                                    Uri.parse(url),
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: json.encode({
+                                    url,
+                                    
+                                    body: {
                                       'originCity': originCity,
                                       'destinationCity': destinationCity,
                                       'pricePerSeat': int.tryParse(price) ?? 0,
@@ -574,8 +486,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
                                       'passagers': int.tryParse(passagersController.text) ?? 0,
-                                    }),
-                                  );
+                                    }, );
 
                                   if (res.statusCode == 200 || res.statusCode == 201) {
                                     _fetchMissions();
@@ -598,8 +509,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'placesLibres': int.tryParse(placesLibres) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
-                                    });
-                                  });
+                                    };
+                                  };
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.orangeAccent));
                                 } finally {
@@ -1011,7 +922,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       Navigator.push(context, MaterialPageRoute(
                                         builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: mission),
                                       ));
-                                    });
+                                    };
                                   }
                                 ),
                               if (mission['statut'] == 'en cours')
@@ -1034,12 +945,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     String origin = parts.isNotEmpty ? parts[0].trim() : 'Dakar';
                                     String destination = parts.length > 1 ? parts[1].trim() : 'Touba';
 
-                                    final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                    final url = '$nextApiUrl/api/missions/${mission['id']}';
-                                    final res = await http.patch(
-                                      Uri.parse(url),
-                                      headers: {'Content-Type': 'application/json'},
-                                      body: json.encode({
+                                    
+                                    final url = '/v1/trips/${mission['id']}';
+                                    final res = await ApiClient().patch(
+                                      url,
+                                      
+                                      body: {
                                         'originCity': origin,
                                         'destinationCity': destination,
                                         'pricePerSeat': mission['pricePerSeat'] ?? 5000,
@@ -1049,8 +960,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                         'passagers': mission['passagers'] ?? 0,
                                         'isAirConditioned': mission['isAirConditioned'] ?? true,
                                         'takesTollRoad': mission['takesTollRoad'] ?? true,
-                                      }),
-                                    );
+                                      }, );
 
                                     if (res.statusCode == 200 || res.statusCode == 201) {
                                       _fetchMissions();
@@ -1079,12 +989,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                   () async {
                                     if (mission['isLocked'] == true) {
                                       try {
-                                        final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                        final res = await http.patch(
-                                          Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
-                                          headers: {'Content-Type': 'application/json'},
-                                          body: json.encode({}),
-                                        );
+                                        
+                                        final res = await ApiClient().patch(
+                                          '/v1/trips/${mission['id']}/toggle-lock',
+                                          
+                                          body: {}, );
                                         if (res.statusCode == 200) {
                                           final data = json.decode(res.body);
                                           setState(() {
@@ -1104,12 +1013,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                         return;
                                       }
                                       try {
-                                        final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                        final res = await http.patch(
-                                          Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
-                                          headers: {'Content-Type': 'application/json'},
-                                          body: json.encode({'code': pinCode}),
-                                        );
+                                        
+                                        final res = await ApiClient().patch(
+                                          '/v1/trips/${mission['id']}/toggle-lock',
+                                          
+                                          body: {'code': pinCode}, );
                                         if (res.statusCode == 200) {
                                           final data = json.decode(res.body);
                                           if (data['success'] == false) {
@@ -1244,9 +1152,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     );
 
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final res = await http.delete(
-        Uri.parse('$nextApiUrl/api/missions/$missionId'),
+      
+      final res = await ApiClient().delete(
+        '/v1/trips/$missionId',
       );
 
       if (res.statusCode == 200 || res.statusCode == 204) {
@@ -1377,12 +1285,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             return; // Annulé
                           }
                           try {
-                            final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                            final res = await http.patch(
-                              Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
-                              headers: {'Content-Type': 'application/json'},
-                              body: json.encode({'code': pinCode}),
-                            );
+                            
+                            final res = await ApiClient().patch(
+                              '/v1/trips/${mission['id']}/toggle-lock',
+                              
+                              body: {'code': pinCode}, );
                             if (res.statusCode == 200) {
                               final data = json.decode(res.body);
                               if (data['success'] == false) {
@@ -1412,12 +1319,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                         } else {
                           // Déverrouiller directement
                           try {
-                            final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                            final res = await http.patch(
-                              Uri.parse('$nextApiUrl/api/missions/${mission['id']}/toggle-lock'),
-                              headers: {'Content-Type': 'application/json'},
-                              body: json.encode({}),
-                            );
+                            
+                            final res = await ApiClient().patch(
+                              '/v1/trips/${mission['id']}/toggle-lock',
+                              
+                              body: {}, );
                             if (res.statusCode == 200) {
                               final data = json.decode(res.body);
                               setState(() {
@@ -1430,7 +1336,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             // Fallback démo
                             setState(() {
                               mission['isLocked'] = false;
-                            });
+                                          });
                             setStateDialog(() {});
                           }
                         }

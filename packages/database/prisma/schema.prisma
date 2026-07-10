@@ -228,6 +228,21 @@ model Parcel {
   acceptedAt     DateTime?
   inTransitAt    DateTime?
   deliveredAt    DateTime?
+
+  // Pickup (sender) location
+  pickupAddress       String?
+  pickupCity          String?
+  pickupLatitude      Float?
+  pickupLongitude     Float?
+  pickupInstructions  String?
+
+  // Delivery (recipient) location
+  deliveryAddress      String?
+  deliveryCity         String?
+  deliveryLatitude     Float?
+  deliveryLongitude    Float?
+  deliveryInstructions String?
+
   trip           Trip         @relation(fields: [tripId], references: [id])
 
   @@index([trackingCode])

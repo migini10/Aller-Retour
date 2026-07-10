@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/api_client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -68,18 +69,36 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
     });
 
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.post(
-        Uri.parse('$nextApiUrl/api/tickets/scan'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'qrCodeToken': code.trim(), 'action': 'info'}),
-      );
+      final response = await ApiClient().post('/v1/bookings/verify-qr/${code.trim()}', body: {});
       
-      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            scanData = data;
+            // Map new API structure to UI expectations
+            scanData!['passengerName'] = data['booking']?['user']?['fullName'];
+            scanData!['seatNumber'] = data['booking']?['seatNumber'];
+            scanData!['amountPaid'] = data['booking']?['price'];
+            scanData!['departureTime'] = data['booking']?['trip']?['departureTime'];
+            scanData!['route'] = '${data['booking']?['trip']?['route']?['originStation']?['city'] ?? ''} - ${data['booking']?['trip']?['route']?['destinationStation']?['city'] ?? ''}';
+            scanData!['passengersCount'] = 1; // single ticket
+            
+            scanResult = 'success';
+          });
+        }
+      }
+    } on ApiException catch (e) {
       if (mounted) {
         setState(() {
-          scanData = data;
-          scanResult = data['status'] ?? 'invalid';
+          scanData = {'message': e.message};
+          if (e.message.contains('déjà été scanné') || e.message.contains('BOARDED')) {
+            scanResult = 'already_used';
+          } else if (e.message.contains('invalide')) {
+            scanResult = 'invalid';
+          } else {
+            scanResult = 'invalid';
+          }
         });
       }
     } catch (e) {
@@ -90,7 +109,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
       }
     }
 
-    if (scanResult != 'valid') {
+    if (scanResult != 'success') {
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) {
           setState(() {
@@ -104,41 +123,11 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
   }
 
   Future<void> _handleBoardingApi() async {
+    // Deprecated since _handleScanApi directly boards now.
     setState(() {
-      scanResult = 'scanning';
-    });
-
-    try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.post(
-        Uri.parse('$nextApiUrl/api/tickets/scan'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'qrCodeToken': _manualCodeController.text.trim(), 'action': 'board'}),
-      );
-      
-      final data = jsonDecode(response.body);
-      if (mounted) {
-        setState(() {
-          scanData = data;
-          scanResult = data['status'] ?? 'invalid'; // will be 'success'
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          scanResult = 'invalid';
-        });
-      }
-    }
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          scanResult = 'idle';
-          isScanning = true;
-          _manualCodeController.clear();
-        });
-      }
+      scanResult = 'idle';
+      isScanning = true;
+      _manualCodeController.clear();
     });
   }
 

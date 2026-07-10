@@ -1,3 +1,5 @@
+Loaded Prisma config from prisma.config.ts.
+
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
@@ -5,7 +7,10 @@ CREATE SCHEMA IF NOT EXISTS "public";
 CREATE TYPE "UserRole" AS ENUM ('SUPER_ADMIN', 'DRIVER', 'PASSENGER');
 
 -- CreateEnum
-CREATE TYPE "DriverType" AS ENUM ('FREELANCE');
+CREATE TYPE "ReviewStatus" AS ENUM ('VISIBLE', 'HIDDEN');
+
+-- CreateEnum
+CREATE TYPE "DriverType" AS ENUM ('OWNER', 'ASSIGNED', 'FREELANCE');
 
 -- CreateEnum
 CREATE TYPE "KYCStatus" AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
@@ -27,6 +32,12 @@ CREATE TYPE "PaymentMethod" AS ENUM ('WAVE', 'ORANGE_MONEY', 'FREE_MONEY', 'MTN_
 
 -- CreateEnum
 CREATE TYPE "ParcelStatus" AS ENUM ('REGISTERED', 'ACCEPTED', 'IN_TRANSIT', 'DELIVERED', 'LOST');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('EMAIL', 'SYSTEM');
+
+-- CreateEnum
+CREATE TYPE "NotificationStatus" AS ENUM ('PENDING', 'SENT', 'FAILED');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -53,7 +64,8 @@ CREATE TABLE "users" (
 CREATE TABLE "driver_profiles" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "type" "DriverType" NOT NULL DEFAULT 'FREELANCE',
+    "type" "DriverType" NOT NULL DEFAULT 'OWNER',
+    "managerId" TEXT,
     "licenseNumber" TEXT NOT NULL,
     "licenseExpiry" TIMESTAMP(3) NOT NULL,
     "licenseFrontUrl" TEXT,
@@ -77,6 +89,7 @@ CREATE TABLE "vehicles" (
     "brand" TEXT,
     "model" TEXT,
     "year" INTEGER,
+    "ownerId" TEXT,
     "status" "VehicleStatus" NOT NULL DEFAULT 'ACTIVE',
     "insuranceExpiry" TIMESTAMP(3) NOT NULL,
     "inspectionExpiry" TIMESTAMP(3) NOT NULL,
@@ -173,6 +186,23 @@ CREATE TABLE "seat_locks" (
 );
 
 -- CreateTable
+CREATE TABLE "payment_transactions" (
+    "id" TEXT NOT NULL,
+    "bookingId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "method" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "providerRef" TEXT,
+    "providerMessage" TEXT,
+    "rawPayload" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "payment_transactions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "parcels" (
     "id" TEXT NOT NULL,
     "tripId" TEXT NOT NULL,
@@ -190,6 +220,16 @@ CREATE TABLE "parcels" (
     "acceptedAt" TIMESTAMP(3),
     "inTransitAt" TIMESTAMP(3),
     "deliveredAt" TIMESTAMP(3),
+    "pickupAddress" TEXT,
+    "pickupCity" TEXT,
+    "pickupLatitude" DOUBLE PRECISION,
+    "pickupLongitude" DOUBLE PRECISION,
+    "pickupInstructions" TEXT,
+    "deliveryAddress" TEXT,
+    "deliveryCity" TEXT,
+    "deliveryLatitude" DOUBLE PRECISION,
+    "deliveryLongitude" DOUBLE PRECISION,
+    "deliveryInstructions" TEXT,
 
     CONSTRAINT "parcels_pkey" PRIMARY KEY ("id")
 );
@@ -203,6 +243,8 @@ CREATE TABLE "driver_earnings" (
     "driverCut" DOUBLE PRECISION NOT NULL,
     "platformCommission" DOUBLE PRECISION NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "payoutRef" TEXT,
+    "paidAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -216,6 +258,8 @@ CREATE TABLE "reviews" (
     "receiverId" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
     "comment" TEXT,
+    "status" "ReviewStatus" NOT NULL DEFAULT 'VISIBLE',
+    "bookingId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "reviews_pkey" PRIMARY KEY ("id")
@@ -254,6 +298,40 @@ CREATE TABLE "allo_prive_applications" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "allo_prive_applications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL,
+    "status" "NotificationStatus" NOT NULL DEFAULT 'PENDING',
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "errorMessage" TEXT,
+    "recipientId" TEXT,
+    "bookingId" TEXT,
+    "tripId" TEXT,
+    "sentAt" TIMESTAMP(3),
+    "readAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "system_settings" (
+    "id" TEXT NOT NULL DEFAULT 'default',
+    "platformName" TEXT NOT NULL DEFAULT 'Allogoo',
+    "supportEmail" TEXT NOT NULL DEFAULT 'allogoosn@gmail.com',
+    "supportPhone" TEXT NOT NULL DEFAULT '+221 77 000 00 00',
+    "defaultCurrency" TEXT NOT NULL DEFAULT 'FCFA',
+    "clientCommissionRate" DOUBLE PRECISION NOT NULL DEFAULT 3.0,
+    "driverCommissionRate" DOUBLE PRECISION NOT NULL DEFAULT 3.0,
+    "maintenanceMode" BOOLEAN NOT NULL DEFAULT false,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "system_settings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -305,6 +383,15 @@ CREATE INDEX "bookings_qrCodeToken_idx" ON "bookings"("qrCodeToken");
 CREATE UNIQUE INDEX "seat_locks_tripId_seatNumber_key" ON "seat_locks"("tripId", "seatNumber");
 
 -- CreateIndex
+CREATE INDEX "payment_transactions_bookingId_idx" ON "payment_transactions"("bookingId");
+
+-- CreateIndex
+CREATE INDEX "payment_transactions_userId_idx" ON "payment_transactions"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payment_transactions_method_providerRef_key" ON "payment_transactions"("method", "providerRef");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "parcels_trackingCode_key" ON "parcels"("trackingCode");
 
 -- CreateIndex
@@ -320,7 +407,13 @@ CREATE INDEX "driver_earnings_driverId_idx" ON "driver_earnings"("driverId");
 CREATE INDEX "reviews_receiverId_idx" ON "reviews"("receiverId");
 
 -- AddForeignKey
+ALTER TABLE "driver_profiles" ADD CONSTRAINT "driver_profiles_managerId_fkey" FOREIGN KEY ("managerId") REFERENCES "driver_profiles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "driver_profiles" ADD CONSTRAINT "driver_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "driver_profiles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "routes" ADD CONSTRAINT "routes_destinationStationId_fkey" FOREIGN KEY ("destinationStationId") REFERENCES "stations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -350,6 +443,12 @@ ALTER TABLE "seat_locks" ADD CONSTRAINT "seat_locks_tripId_fkey" FOREIGN KEY ("t
 ALTER TABLE "seat_locks" ADD CONSTRAINT "seat_locks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "payment_transactions" ADD CONSTRAINT "payment_transactions_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "bookings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "payment_transactions" ADD CONSTRAINT "payment_transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "parcels" ADD CONSTRAINT "parcels_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "trips"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -365,5 +464,17 @@ ALTER TABLE "reviews" ADD CONSTRAINT "reviews_authorId_fkey" FOREIGN KEY ("autho
 ALTER TABLE "reviews" ADD CONSTRAINT "reviews_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "bookings"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "allo_prive_applications" ADD CONSTRAINT "allo_prive_applications_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "allo_prive_requests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_recipientId_fkey" FOREIGN KEY ("recipientId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "bookings"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "trips"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
