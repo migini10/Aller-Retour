@@ -20,6 +20,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { ParcelsModule } from './modules/parcels/parcels.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
     NotificationsModule,
     SettingsModule,
     MonitoringModule,
+    ParcelsModule,
   ],
   controllers: [AppController],
   providers: [
