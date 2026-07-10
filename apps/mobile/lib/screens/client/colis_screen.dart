@@ -8,6 +8,7 @@ import '../../widgets/shared_scaffold.dart';
 import 'widgets/colis_modal.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/api_client.dart';
 
 class ColisScreen extends StatefulWidget {
   const ColisScreen({super.key});
@@ -317,13 +318,12 @@ class _ColisScreenState extends State<ColisScreen> {
 
   Future<void> _loadColis({bool silent = false}) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      final response = await ApiClient().get('/v1/parcels/my-parcels');
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             final List<dynamic> data = jsonDecode(response.body);
-            localColis = data.where((p) => p['senderPhone'] == _userPhone || p['tel'] == _userPhone).toList();
+            localColis = data;
             if (!silent) _isLoading = false;
           });
         }

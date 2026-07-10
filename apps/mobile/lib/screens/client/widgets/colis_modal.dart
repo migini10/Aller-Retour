@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'dart:math';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../widgets/orange_money_logo.dart';
+import '../../../services/api_client.dart';
+import 'package:intl/intl.dart';
 
-void showColisModal(BuildContext context) {
+void showColisModal(BuildContext context, {String? initialTripId}) {
   int step = 1;
   bool isLoading = false;
   
@@ -23,6 +23,15 @@ void showColisModal(BuildContext context) {
   String? generatedTicket;
   bool usePoints = false;
   int colisPoints = 30;
+
+  double? pickupLat;
+  double? pickupLng;
+  double? deliveryLat;
+  double? deliveryLng;
+
+  String? selectedTripId = initialTripId;
+  List<dynamic> availableTrips = [];
+  bool isSearchingTrips = false;
 
   StateSetter? modalSetState;
 
@@ -58,6 +67,13 @@ void showColisModal(BuildContext context) {
           StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               modalSetState = setState;
+              
+              int totalSteps = initialTripId == null ? 4 : 3;
+              int displayStep = step;
+              if (initialTripId != null && step > 1) {
+                displayStep = step - 1; 
+              }
+
               return Dialog(
                 backgroundColor: Colors.transparent,
                 insetPadding: const EdgeInsets.all(16),
@@ -91,13 +107,13 @@ void showColisModal(BuildContext context) {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  step == 4 ? 'Reçu de Colis' : 'Envoi de Colis',
+                                  step == 5 ? 'Reçu de Colis' : 'Envoi de Colis',
                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.w900),
                                 ),
-                                if (step < 4)
+                                if (step < 5)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 4),
-                                    child: Text('Étape $step sur 3', style: const TextStyle(color: Colors.orangeAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    child: Text('Étape $displayStep sur $totalSteps', style: const TextStyle(color: Colors.orangeAccent, fontSize: 13, fontWeight: FontWeight.bold)),
                                   ),
                               ],
                             ),
@@ -131,6 +147,10 @@ void showColisModal(BuildContext context) {
                                     if (permission == LocationPermission.denied) return;
                                   }
                                   Position position = await Geolocator.getCurrentPosition();
+                                  setState(() {
+                                    pickupLat = position.latitude;
+                                    pickupLng = position.longitude;
+                                  });
                                   const apiKey = 'AIzaSyBEcIPoabk6yTJNGU06FjC5251syM9FGqA';
                                   final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey';
                                   try {
@@ -156,15 +176,26 @@ void showColisModal(BuildContext context) {
                                       }
                                     }
                                   } catch (e) {}
+                                }, (lat, lng) {
+                                  setState(() {
+                                    deliveryLat = lat;
+                                    deliveryLng = lng;
+                                  });
                                 })
-                              : step == 2 ? _buildStep2(context, destNomController, destTelController, taille, (t) { taille = t; onInputChanged(); }) :
-                                step == 3 ? _buildStep3Payment(context, modePaiement, (m) { modePaiement = m; onInputChanged(); }, usePoints, colisPoints, (v) { usePoints = v; onInputChanged(); }) :
-                                _buildStep4Ticket(context, departController.text, arriveeController.text, destNomController.text, destTelController.text, taille, generatedTicket),
+                              : step == 2
+                                  ? _buildStep2TripSelection(context, isSearchingTrips, availableTrips, selectedTripId, (id) {
+                                      setState(() => selectedTripId = id);
+                                    })
+                                  : step == 3
+                                      ? _buildStep3(context, destNomController, destTelController, taille, (t) { taille = t; onInputChanged(); })
+                                      : step == 4
+                                          ? _buildStep4Payment(context, modePaiement, (m) { modePaiement = m; onInputChanged(); }, usePoints, colisPoints, (v) { usePoints = v; onInputChanged(); })
+                                          : _buildStep5Ticket(context, departController.text, arriveeController.text, destNomController.text, destTelController.text, taille, generatedTicket),
                         ),
                       ),
 
                       // Footer Actions
-                      if (step < 4)
+                      if (step < 5)
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(color: Theme.of(context).cardColor,
@@ -177,7 +208,15 @@ void showColisModal(BuildContext context) {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 16),
                                   child: TextButton(
-                                    onPressed: () => setState(() => step = step - 1),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (step == 3 && initialTripId != null) {
+                                          step = 1; // Skip step 2 if tripId is provided
+                                        } else {
+                                          step = step - 1;
+                                        }
+                                      });
+                                    },
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -196,48 +235,85 @@ void showColisModal(BuildContext context) {
                                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez renseigner les adresses de départ et d\'arrivée.')));
                                               return;
                                             }
-                                            setState(() => step = 2);
+                                            if (initialTripId != null) {
+                                              setState(() => step = 3);
+                                            } else {
+                                              setState(() {
+                                                step = 2;
+                                                isSearchingTrips = true;
+                                              });
+                                              // Fetch trips
+                                              try {
+                                                String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+                                                final res = await ApiClient().get('/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$formattedDate');
+                                                if (res.statusCode == 200) {
+                                                  setState(() {
+                                                    availableTrips = jsonDecode(res.body);
+                                                    isSearchingTrips = false;
+                                                  });
+                                                } else {
+                                                  setState(() => isSearchingTrips = false);
+                                                }
+                                              } catch (e) {
+                                                setState(() => isSearchingTrips = false);
+                                              }
+                                            }
                                           } else if (step == 2) {
-                                            if (destNomController.text.isEmpty || destTelController.text.isEmpty) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir les informations du destinataire.')));
+                                            if (selectedTripId == null) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner un trajet.')));
                                               return;
                                             }
                                             setState(() => step = 3);
                                           } else if (step == 3) {
+                                            if (destNomController.text.isEmpty || destTelController.text.isEmpty) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir les informations du destinataire.')));
+                                              return;
+                                            }
+                                            setState(() => step = 4);
+                                          } else if (step == 4) {
                                             setState(() => isLoading = true);
                                             try {
                                               final prefs = await SharedPreferences.getInstance();
-                                              final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-                                              final response = await http.post(
-                                                Uri.parse('$nextApiUrl/api/colis'),
-                                                headers: {'Content-Type': 'application/json'},
-                                                body: jsonEncode({
-                                                  'senderName': prefs.getString('userName') ?? 'Expéditeur Anonyme',
-                                                  'senderPhone': prefs.getString('userPhone') ?? '+221770000000',
-                                                  'email': 'allogoosn@gmail.com',
-                                                  'usePoints': usePoints,
-                                                  'destinataire': destNomController.text,
-                                                  'tel': destTelController.text,
-                                                  'taille': taille ?? 'Moyen (5-15kg)',
-                                                }),
-                                              );
-                                              if (response.statusCode == 200) {
+                                              
+                                              double weight = 5.0;
+                                              if (taille == 'Enveloppe') weight = 0.5;
+                                              if (taille == 'Petit') weight = 2.0;
+                                              if (taille == 'Moyen') weight = 10.0;
+                                              if (taille == 'Grand') weight = 25.0;
+
+                                              final body = {
+                                                'tripId': selectedTripId,
+                                                'senderName': prefs.getString('userName') ?? 'Expéditeur Anonyme',
+                                                'senderPhone': prefs.getString('userPhone') ?? '',
+                                                'recipientName': destNomController.text,
+                                                'recipientPhone': destTelController.text,
+                                                'weightKg': weight,
+                                                'pickupAddress': departController.text,
+                                                'pickupCity': quartierDepartController.text,
+                                                'pickupLatitude': pickupLat,
+                                                'pickupLongitude': pickupLng,
+                                                'deliveryAddress': arriveeController.text,
+                                                'deliveryCity': quartierArriveeController.text,
+                                                'deliveryLatitude': deliveryLat,
+                                                'deliveryLongitude': deliveryLng,
+                                              };
+
+                                              final response = await ApiClient().post('/v1/parcels', body: body);
+                                              if (response.statusCode == 201 || response.statusCode == 200) {
                                                 final data = jsonDecode(response.body);
-                                                if (data['newColisPoints'] != null) {
-                                                  await prefs.setInt('colisPoints', data['newColisPoints']);
-                                                  colisPoints = data['newColisPoints'];
-                                                }
                                                 setState(() {
                                                   isLoading = false;
                                                   generatedTicket = data['parcel']['trackingCode'];
-                                                  step = 4;
+                                                  step = 5;
                                                 });
                                               } else {
                                                 setState(() => isLoading = false);
+                                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur lors de la création du colis.')));
                                               }
                                             } catch (e) {
                                               debugPrint('Error: $e');
                                               setState(() => isLoading = false);
+                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur réseau: $e')));
                                             }
                                           }
                                         },
@@ -254,9 +330,9 @@ void showColisModal(BuildContext context) {
                                       : Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Flexible(child: Text(step == 3 ? 'Valider et créer le reçu' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
+                                            Flexible(child: Text(step == 4 ? 'Valider et créer le reçu' : 'Continuer', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis)),
                                             const SizedBox(width: 8),
-                                            Icon(step == 3 ? Icons.check_circle : Icons.arrow_forward),
+                                            Icon(step == 4 ? Icons.check_circle : Icons.arrow_forward),
                                           ],
                                         ),
                                 ),
@@ -276,7 +352,7 @@ void showColisModal(BuildContext context) {
   );
 }
 
-Widget _buildStep1(BuildContext context, TextEditingController depart, TextEditingController qDepart, TextEditingController arrivee, TextEditingController qArrivee, VoidCallback onLocateMe) {
+Widget _buildStep1(BuildContext context, TextEditingController depart, TextEditingController qDepart, TextEditingController arrivee, TextEditingController qArrivee, VoidCallback onLocateMe, Function(double, double) onDeliveryCoordinates) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -288,16 +364,87 @@ Widget _buildStep1(BuildContext context, TextEditingController depart, TextEditi
         tooltip: 'Me localiser',
       )),
       const SizedBox(height: 12),
-      _buildPlacesAutocomplete(context, const ValueKey('qDepart'), 'Sous-quartier de retrait exact', qDepart, icon: Icons.home, iconColor: Colors.white54),
+      _buildPlacesAutocomplete(context, const ValueKey('qDepart'), 'Ville / Quartier de retrait exact', qDepart, icon: Icons.home, iconColor: Colors.white54),
       const SizedBox(height: 16),
-      _buildPlacesAutocomplete(context, const ValueKey('arrivee'), 'Adresse de livraison (Destinataire)', arrivee, icon: Icons.location_on, iconColor: Colors.orangeAccent),
+      _buildPlacesAutocomplete(context, const ValueKey('arrivee'), 'Adresse de livraison (Destinataire)', arrivee, icon: Icons.location_on, iconColor: Colors.orangeAccent, onSelectedCoordinates: onDeliveryCoordinates),
       const SizedBox(height: 12),
-      _buildPlacesAutocomplete(context, const ValueKey('qArrivee'), 'Sous-quartier de livraison exact', qArrivee, icon: Icons.home, iconColor: Colors.orangeAccent),
+      _buildPlacesAutocomplete(context, const ValueKey('qArrivee'), 'Ville / Quartier de livraison exact', qArrivee, icon: Icons.home, iconColor: Colors.orangeAccent),
     ],
   );
 }
 
-Widget _buildStep2(BuildContext context, TextEditingController nom, TextEditingController tel, String? taille, Function(String) onTailleSelect) {
+Widget _buildStep2TripSelection(BuildContext context, bool isSearching, List<dynamic> trips, String? selectedTripId, Function(String) onSelect) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('Choix du Trajet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+      const SizedBox(height: 8),
+      Text('Sélectionnez un trajet pour transporter votre colis.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+      const SizedBox(height: 20),
+      if (isSearching)
+        const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
+      else if (trips.isEmpty)
+        Center(
+          child: Column(
+            children: [
+              Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(height: 16),
+              Text('Aucun trajet trouvé pour cet itinéraire aujourd\'hui.', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ],
+          ),
+        )
+      else
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: trips.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final trip = trips[index];
+            final isSelected = selectedTripId == trip['id'];
+            final depTime = DateTime.parse(trip['departureTime']).toLocal();
+            final timeStr = DateFormat('HH:mm').format(depTime);
+            
+            return InkWell(
+              onTap: () => onSelect(trip['id']),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.orangeAccent.withValues(alpha: 0.15) : Theme.of(context).cardColor,
+                  border: Border.all(color: isSelected ? Colors.orangeAccent : Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.orangeAccent.withValues(alpha: 0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.directions_car, color: Colors.orangeAccent),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${trip['originCity']} → ${trip['destinationCity']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+                          const SizedBox(height: 4),
+                          Text('Départ à $timeStr', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                    if (isSelected) const Icon(Icons.check_circle, color: Colors.orangeAccent),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+    ],
+  );
+}
+
+Widget _buildStep3(BuildContext context, TextEditingController nom, TextEditingController tel, String? taille, Function(String) onTailleSelect) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -353,8 +500,8 @@ Widget _buildTailleOption(BuildContext context, String title, IconData icon, Str
   );
 }
 
-Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(String) onModeSelected, bool usePoints, int colisPoints, Function(bool) onUsePointsToggled) {
-  final int basePrice = 3000;
+Widget _buildStep4Payment(BuildContext context, String modePaiement, Function(String) onModeSelected, bool usePoints, int colisPoints, Function(bool) onUsePointsToggled) {
+  final int basePrice = 3000; // NOTE: Backend overrides this with its own logic, UI shows approximate for now
   final int clientFee = (basePrice * 0.03).round();
   final int total = basePrice + clientFee;
   final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -381,15 +528,15 @@ Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(St
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Expédition Colis', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
-                Text('$basePrice FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+                Text('~ $basePrice FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Frais de service (3%)', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
-                Text('$clientFee FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+                Text('Frais de service', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                Text('~ $clientFee FCFA', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
               ],
             ),
             Padding(
@@ -399,8 +546,8 @@ Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(St
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total à payer', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
-                Text('$total FCFA', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('Total estimé', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('~ $total FCFA', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
           ],
@@ -413,36 +560,6 @@ Widget _buildStep3Payment(BuildContext context, String modePaiement, Function(St
       _buildPaymentOption(context, 'Orange Money', 'Payer via Orange Money', Icons.phone_android, modePaiement, onModeSelected, customIcon: const OrangeMoneyLogo(size: 20)),
       const SizedBox(height: 12),
       _buildPaymentOption(context, 'Wallet', 'Paiement instantané via votre portefeuille', Icons.account_balance_wallet, modePaiement, onModeSelected),
-      const SizedBox(height: 16),
-      
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.orangeAccent.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Utiliser mes points de colis', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 4),
-                  Text('Solde : $colisPoints pts. Économisez 1000 FCFA avec 50 pts.', style: TextStyle(color: Colors.orangeAccent.withValues(alpha: 0.8), fontSize: 12)),
-                ],
-              ),
-            ),
-            Switch(
-              value: usePoints,
-              onChanged: onUsePointsToggled,
-              activeColor: Colors.orangeAccent,
-            ),
-          ],
-        ),
-      ),
     ],
   );
 }
@@ -486,7 +603,7 @@ Widget _buildPaymentOption(BuildContext context, String id, String desc, IconDat
   );
 }
 
-Widget _buildStep4Ticket(BuildContext context, String depart, String arrivee, String nom, String tel, String? taille, String? ticket) {
+Widget _buildStep5Ticket(BuildContext context, String depart, String arrivee, String nom, String tel, String? taille, String? ticket) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 20),
     child: Column(
@@ -529,7 +646,7 @@ Widget _buildStep4Ticket(BuildContext context, String depart, String arrivee, St
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Trajet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
+                    Text('Adresses', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
                     const SizedBox(height: 4),
                     Text('$depart → $arrivee', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                   ],
@@ -565,7 +682,7 @@ Widget _buildStep4Ticket(BuildContext context, String depart, String arrivee, St
                           Text('TAILLE', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 9)),
                           const SizedBox(height: 4),
                           Text(taille ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
-                          const SizedBox(height: 18), // Pour aligner avec l'autre colonne
+                          const SizedBox(height: 18),
                         ],
                       ),
                     ),
@@ -582,13 +699,16 @@ Widget _buildStep4Ticket(BuildContext context, String depart, String arrivee, St
                 ),
               ),
               const SizedBox(height: 16),
-              Center(child: Text('À présenter au chauffeur lors du dépôt.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+              Center(child: Text('Le tracking est disponible dans l\'application.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
             ],
           ),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context);
+            // On peut déclencher un rafraichissement de la page parente ici si besoin
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 50),
@@ -626,15 +746,10 @@ Widget _buildWizardInput(BuildContext context, String hint, IconData icon, Strin
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
     ),
-    onChanged: (val) {
-      if (controller != null) {
-        // Trigger a fake rebuild if needed, though stateful builder won't rebuild this automatically unless setState is passed
-      }
-    },
   );
 }
 
-Widget _buildPlacesAutocomplete(BuildContext context, Key key, String hint, TextEditingController mainController, {IconData? icon, Color iconColor = Colors.white54, Widget? suffixIcon, Function(String, String?)? onSelectedAddress}) {
+Widget _buildPlacesAutocomplete(BuildContext context, Key key, String hint, TextEditingController mainController, {IconData? icon, Color iconColor = Colors.white54, Widget? suffixIcon, Function(String, String?)? onSelectedAddress, Function(double, double)? onSelectedCoordinates}) {
   return Autocomplete<Map<String, dynamic>>(
     key: key,
     displayStringForOption: (option) => option['description'] as String,
@@ -649,6 +764,7 @@ Widget _buildPlacesAutocomplete(BuildContext context, Key key, String hint, Text
           if (data['status'] == 'OK') {
             return (data['predictions'] as List).map<Map<String, dynamic>>((p) => {
               'description': p['description'] as String,
+              'place_id': p['place_id'] as String,
               'main_text': p['structured_formatting']['main_text'] as String
             }).toList();
           }
@@ -656,10 +772,24 @@ Widget _buildPlacesAutocomplete(BuildContext context, Key key, String hint, Text
       } catch (e) {}
       return const Iterable<Map<String, dynamic>>.empty();
     },
-    onSelected: (Map<String, dynamic> selection) {
+    onSelected: (Map<String, dynamic> selection) async {
       mainController.text = selection['description'] as String;
       if (onSelectedAddress != null) {
         onSelectedAddress(selection['description'] as String, selection['main_text'] as String?);
+      }
+      if (onSelectedCoordinates != null && selection['place_id'] != null) {
+        const apiKey = 'AIzaSyBEcIPoabk6yTJNGU06FjC5251syM9FGqA';
+        final detailsUrl = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=${selection['place_id']}&fields=geometry&key=$apiKey';
+        try {
+          final response = await http.get(Uri.parse(detailsUrl));
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            if (data['status'] == 'OK') {
+              final loc = data['result']['geometry']['location'];
+              onSelectedCoordinates(loc['lat'].toDouble(), loc['lng'].toDouble());
+            }
+          }
+        } catch (e) {}
       }
     },
     fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {

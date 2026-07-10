@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
+import '../../../services/api_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverColisScreen extends StatefulWidget {
   const DriverColisScreen({super.key});
@@ -34,8 +36,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
   Future<void> _loadColis({bool silent = false}) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      final response = await ApiClient().get('/v1/parcels/my-parcels');
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -54,29 +55,25 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
     }
   }
 
-  Future<void> _updateStatut(String id, String nextStatut, {String? pin}) async {
+  Future<void> _updateStatut(String id, String nextStatut, {String? pin, String? deliveryCode}) async {
     try {
-      final body = {'statut': nextStatut};
+      final body = {'status': nextStatut};
       if (pin != null) body['pin'] = pin;
+      if (deliveryCode != null) body['deliveryCode'] = deliveryCode;
 
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.patch(
-        Uri.parse('$nextApiUrl/api/colis/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
+      final response = await ApiClient().patch('/v1/parcels/$id/status', body: body);
+      
       if (response.statusCode == 200) {
         await _loadColis();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut mis à jour avec succès!'), backgroundColor: Colors.green));
         }
       } else {
-        debugPrint('Error status code: ${response.statusCode} - ${response.body}');
         if (mounted) {
           String errMsg = 'Erreur serveur: ${response.statusCode}';
           try {
             final data = jsonDecode(response.body);
-            if (data['error'] != null) errMsg = data['error'];
+            if (data['message'] != null) errMsg = data['message'].toString();
           } catch (_) {}
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errMsg), backgroundColor: Colors.red));
         }
@@ -124,7 +121,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          nextStatut == 'Accepté' ? 'Contrat de Responsabilité' : 'Code de sécurité',
+                          nextStatut == 'ACCEPTED' ? 'Contrat de Responsabilité' : (nextStatut == 'DELIVERED' ? 'Code de Livraison' : 'Code PIN Chauffeur'),
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -133,7 +130,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                         ),
                         const SizedBox(height: 16),
                         
-                        if (nextStatut == 'Accepté')
+                        if (nextStatut == 'ACCEPTED')
                           Container(
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.only(bottom: 24),
@@ -159,7 +156,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
-                            children: nextStatut == 'Livré'
+                            children: nextStatut == 'DELIVERED'
                                 ? [
                                     const TextSpan(text: 'Demandez au destinataire de vous fournir son '),
                                     TextSpan(text: 'Code Secret de Livraison', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
@@ -232,7 +229,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                 ),
                                 child: Text(
-                                  nextStatut == 'Accepté' ? 'Refuser' : 'Annuler',
+                                  nextStatut == 'ACCEPTED' ? 'Refuser' : 'Annuler',
                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                               ),
@@ -241,35 +238,36 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  if (nextStatut == 'Livré') {
+                                  if (nextStatut == 'DELIVERED') {
                                     if (pinController.text.trim().length == 4) {
+                                      Navigator.pop(context);
+                                      _updateStatut(colisId, nextStatut, deliveryCode: pinController.text.trim());
+                                    } else {
+                                      setStateModal(() {
+                                        errorMsg = 'Le code de livraison doit contenir 4 chiffres.';
+                                      });
+                                    }
+                                  } else {
+                                    // ACCEPTED or IN_TRANSIT requires driver PIN
+                                    if (pinController.text.trim().isNotEmpty) {
                                       Navigator.pop(context);
                                       _updateStatut(colisId, nextStatut, pin: pinController.text.trim());
                                     } else {
                                       setStateModal(() {
-                                        errorMsg = 'Le code doit contenir 4 chiffres.';
-                                      });
-                                    }
-                                  } else {
-                                    if (pinController.text.trim() == '1234') {
-                                      Navigator.pop(context);
-                                      _updateStatut(colisId, nextStatut);
-                                    } else {
-                                      setStateModal(() {
-                                        errorMsg = 'Code de sécurité incorrect. (Saisi: "${pinController.text}")';
+                                        errorMsg = 'Veuillez saisir votre code PIN.';
                                       });
                                     }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: nextStatut == 'Accepté' ? Colors.redAccent : Colors.orange.shade700,
+                                  backgroundColor: nextStatut == 'ACCEPTED' ? Colors.redAccent : Colors.orange.shade700,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   elevation: 0,
                                 ),
                                 child: Text(
-                                  nextStatut == 'Accepté' ? 'Signer et Valider' : 'Valider',
+                                  nextStatut == 'ACCEPTED' ? 'Signer et Valider' : 'Valider',
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
@@ -370,8 +368,8 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                             ),
                           )
                         else
-                          SizedBox(
-                            maxHeight: 180,
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 180),
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemCount: targets.length,
@@ -518,14 +516,14 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
   }
 
   Widget _buildActionButton(Map<String, dynamic> c) {
-    final statut = c['statut'];
+    final statut = c['status'];
     final id = c['id'];
 
-    if (statut == 'En attente de prise en charge') {
+    if (statut == 'REGISTERED') {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: () => _showPinModal(id, 'Accepté'),
+          onPressed: () => _showPinModal(id, 'ACCEPTED'),
           icon: const Icon(Icons.check_circle_outline, size: 18),
           label: const Text('Accepter la course'),
           style: ElevatedButton.styleFrom(
@@ -536,11 +534,11 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
           ),
         ),
       );
-    } else if (statut == 'Accepté') {
+    } else if (statut == 'ACCEPTED') {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: () => _showPinModal(id, 'En transit'),
+          onPressed: () => _showPinModal(id, 'IN_TRANSIT'),
           icon: const Icon(Icons.inventory_2, size: 18),
           label: const Text('Colis récupéré'),
           style: ElevatedButton.styleFrom(
@@ -551,20 +549,36 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
           ),
         ),
       );
-    } else if (statut == 'En transit') {
-      String trajet = colis['trajet'] ?? '';
-      String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
-      List<String> parts = trajet.split(separator);
-      String destinationCity = parts.length > 1 ? parts[1].trim() : 'Destination';
-
+    } else if (statut == 'IN_TRANSIT') {
+      String destinationCity = c['deliveryCity'] ?? 'Destination';
+      
       return Column(
         children: [
+          if (c['deliveryLatitude'] != null && c['deliveryLongitude'] != null)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${c['deliveryLatitude']},${c['deliveryLongitude']}');
+                  if (await canLaunchUrl(url)) await launchUrl(url, mode: LaunchMode.externalApplication);
+                },
+                icon: const Icon(Icons.map, size: 18),
+                label: Text('Itinéraire Livraison (Maps)'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: colis),
+                  builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: c),
                 ));
               },
               icon: const Icon(Icons.map, size: 18),
@@ -581,7 +595,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => _showPinModal(id, 'Livré'),
+              onPressed: () => _showPinModal(id, 'DELIVERED'),
               icon: const Icon(Icons.check_circle, size: 18),
               label: const Text('Livrer au destinataire'),
               style: ElevatedButton.styleFrom(
@@ -594,7 +608,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
           ),
         ],
       );
-    } else if (statut == 'Livré') {
+    } else if (statut == 'DELIVERED') {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -618,16 +632,16 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
   Color _getBadgeColor(String statut) {
     switch (statut) {
-      case 'En attente de prise en charge':
+      case 'REGISTERED':
         return Colors.orangeAccent;
-      case 'Accepté':
+      case 'ACCEPTED':
         return Colors.blueAccent;
-      case 'En transit':
+      case 'IN_TRANSIT':
         return Colors.indigoAccent;
-      case 'Livré':
+      case 'DELIVERED':
         return Colors.greenAccent;
-      case 'Expiré':
-        return Colors.roseAccent;
+      case 'LOST':
+        return Colors.pinkAccent;
       default:
         return Colors.white54;
     }
@@ -648,7 +662,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
-          : colis.where((c) => c['statut'] != 'Livré').isEmpty
+          : colis.where((c) => c['status'] != 'DELIVERED').isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -668,11 +682,11 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                     top: 16,
                     bottom: MediaQuery.of(context).padding.bottom + 80,
                   ),
-                  itemCount: colis.where((c) => c['statut'] != 'Livré').length,
+                  itemCount: colis.where((c) => c['status'] != 'DELIVERED').length,
                   itemBuilder: (context, index) {
-                    final displayColis = colis.where((c) => c['statut'] != 'Livré').toList();
+                    final displayColis = colis.where((c) => c['status'] != 'DELIVERED').toList();
                     final c = displayColis[index];
-                    final badgeColor = _getBadgeColor(c['statut'] ?? '');
+                    final badgeColor = _getBadgeColor(c['status'] ?? '');
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
@@ -731,7 +745,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                           border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
                                         ),
                                         child: Text(
-                                          (c['statut'] ?? '').toUpperCase(),
+                                          (c['status'] ?? '').toUpperCase(),
                                           style: TextStyle(
                                             color: badgeColor,
                                             fontSize: 10,
@@ -744,7 +758,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   ),
                                   const SizedBox(height: 20),
                                   Text(
-                                    c['trajet'] ?? 'Trajet Inconnu',
+                                    '${c['pickupCity'] ?? ''} → ${c['deliveryCity'] ?? ''}',
                                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w900,
@@ -753,7 +767,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${c['id'] ?? 'INCONNU'} • ${c['taille'] ?? ''}\n${c['date'] ?? ''}${c['time'] != null ? ' à ${c['time']}' : ''}',
+                                    '${c['id'] ?? 'INCONNU'} • ${c['weightKg'] ?? ''} Kg\n${c['createdAt'] != null ? DateTime.parse(c['createdAt']).toLocal().toString().substring(0,10) : ''}',
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                       fontSize: 13,
@@ -780,8 +794,8 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                             children: [
                                               Text('DESTINATAIRE', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.30), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                                               const SizedBox(height: 4),
-                                              Text(c['destinataire'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                              Text(c['tel'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
+                                              Text(c['recipientName'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                              Text(c['recipientPhone'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, fontFamily: 'monospace')),
                                             ],
                                           ),
                                         ),
@@ -790,7 +804,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   _buildActionButton(c),
-                                  if (c['statut'] != 'Livré') ...[
+                                  if (c['status'] != 'DELIVERED') ...[
                                     const SizedBox(height: 8),
                                     SizedBox(
                                       width: double.infinity,

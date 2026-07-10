@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../../services/api_client.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -22,13 +23,12 @@ class _ColisActifsScreenState extends State<ColisActifsScreen> {
 
   Future<void> _fetchColis() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      final response = await ApiClient().get('/v1/parcels/my-parcels');
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             final data = jsonDecode(response.body) as List;
-            colis = data.where((c) => c['statut'] != 'Livré').toList();
+            colis = data.where((c) => c['status'] != 'DELIVERED').toList();
             isLoading = false;
           });
         }
@@ -65,7 +65,7 @@ class _ColisActifsScreenState extends State<ColisActifsScreen> {
               itemCount: colis.length,
               itemBuilder: (context, index) {
                 final c = colis[index];
-                final statut = c['statut'] ?? 'Inconnu';
+                final statut = c['status'] ?? 'Inconnu';
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(16),
@@ -85,15 +85,15 @@ class _ColisActifsScreenState extends State<ColisActifsScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(c['trajet'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(c['deliveryCity'] ?? 'Destination', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text('À ${c['destinataire']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
+                      Text('À ${c['recipientName']}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                       const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(c['taille'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                          Text(c['date'] ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                          Text('${c['weightKg']} Kg', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                          Text(c['createdAt'] != null ? DateTime.parse(c['createdAt']).toLocal().toString().substring(0, 10) : '', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                         ],
                       )
                     ],

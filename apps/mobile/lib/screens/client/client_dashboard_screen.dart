@@ -42,6 +42,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   String? _currentAddress;
   List<Map<String, String>> _destinations = [];
   List<dynamic> activeParcels = [];
+  bool isLoadingParcels = false;
   List<dynamic> recentHistory = [];
   List<dynamic> priveRequests = [];
   Timer? _priveRequestsTimer;
@@ -167,28 +168,21 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   Future<void> _fetchParcels() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final phone = prefs.getString('userPhone') ?? '';
-      if (phone.isEmpty) return;
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
-      final response = await http.get(Uri.parse('$nextApiUrl/api/colis'));
+      final response = await ApiClient().get('/v1/parcels/my-parcels');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final allMyParcels = data.where((p) => 
-          p['senderPhone'] == phone || p['tel'] == phone
-        ).toList();
-
+        final allMyParcels = data;
         final myParcels = allMyParcels.where((p) => 
-          p['statut'] != 'Livré' && p['statut'] != 'En attente de prise en charge'
+          p['status'] != 'DELIVERED' && p['status'] != 'REGISTERED'
         ).toList();
-        final active = myParcels.where((p) => p['statut'] != 'Livré').toList();
+        final active = myParcels.where((p) => p['status'] != 'DELIVERED').toList();
         
         if (mounted) {
           setState(() {
             if (active.isNotEmpty) {
               activeParcels = active;
             } else {
-              final delivered = myParcels.where((p) => p['statut'] == 'Livré').toList();
+              final delivered = myParcels.where((p) => p['status'] == 'DELIVERED').toList();
               if (delivered.isNotEmpty) {
                 final lastDelivered = delivered.last;
                 if (lastDelivered['updatedAt'] != null) {
@@ -214,17 +208,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               Color color = Colors.orangeAccent;
               DateTime timeVal = p['updatedAt'] != null ? DateTime.parse(p['updatedAt']).toLocal() : DateTime.now();
               
-              if (p['statut'] == 'Livré') {
+              if (p['status'] == 'DELIVERED') {
                 title = 'Colis livré';
                 icon = Icons.check_circle;
                 color = Colors.greenAccent;
                 if (p['deliveredAt'] != null) timeVal = DateTime.parse(p['deliveredAt']).toLocal();
-              } else if (p['statut'] == 'En transit') {
+              } else if (p['status'] == 'IN_TRANSIT') {
                 title = 'Colis en transit';
                 icon = Icons.local_shipping;
                 color = Colors.indigoAccent;
                 if (p['inTransitAt'] != null) timeVal = DateTime.parse(p['inTransitAt']).toLocal();
-              } else if (p['statut'] == 'Accepté') {
+              } else if (p['status'] == 'ACCEPTED') {
                 title = 'Colis pris en charge';
                 icon = Icons.check;
                 color = Colors.blueAccent;
@@ -241,7 +235,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
               return {
                 'title': title,
-                'subtitle': (p['trajet'] ?? '').split('→').last.trim(),
+                'subtitle': p['deliveryCity'] ?? 'Destination',
                 'time': timeStr,
                 'icon': icon,
                 'color': color,
@@ -1102,7 +1096,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (activeParcels.isNotEmpty && activeParcels[0]['statut'] == 'Livré') ? 'Dernier colis livré' : 'Colis en transit',
+                    (activeParcels.isNotEmpty && activeParcels[0]['status'] == 'DELIVERED') ? 'Dernier colis livré' : 'Colis en transit',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
