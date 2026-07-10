@@ -552,12 +552,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                if (apiData.paymentSession.paymentUrl) {
                  window.open(apiData.paymentSession.paymentUrl, '_blank');
                }
-               
-               // Simulation en arrière-plan pour le test
-               setTimeout(() => {
-                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-                 fetch(`${apiUrl}${apiData.paymentSession.webhook_simulation_url}`).catch(() => {});
-               }, 8000);
              }
           }
 
@@ -1283,7 +1277,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               onClick={async () => {
                 setIsVerifyingPayment(true);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-                await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
                 
                 try {
                   const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);
@@ -1449,7 +1442,6 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               onClick={async () => {
                 setIsVerifyingPayment(true);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-                await fetch(`${apiUrl}${paymentData.webhook_simulation_url}`);
                 
                 try {
                   const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);

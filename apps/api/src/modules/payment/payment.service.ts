@@ -40,8 +40,7 @@ export class PaymentService {
       message: 'Push USSD envoyé au client sur son compte Wave.',
       provider: 'WAVE',
       paymentUrl: mockPaymentUrl,
-      bookingId: reference,
-      webhook_simulation_url: `/api/payment/webhook/wave/simulate?tx_id=${mockTransactionId}&ref=${reference}`
+      bookingId: reference
     };
   }
 
@@ -77,8 +76,7 @@ export class PaymentService {
       message: 'Push USSD envoyé au client via Orange Money.',
       provider: 'ORANGE_MONEY',
       paymentUrl: mockPaymentUrl,
-      bookingId: reference,
-      webhook_simulation_url: `/api/payment/webhook/om/simulate?tx_id=${mockTransactionId}&ref=${reference}`
+      bookingId: reference
     };
   }
 
@@ -86,6 +84,11 @@ export class PaymentService {
    * Processus d'un webhook Wave (Réel ou Simulé)
    */
   async handleWaveWebhook(payload: any) {
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.error(`SECURITY ALERT: Real Wave Webhook called in production without signature validation. Request rejected. Payload ID: ${payload.data?.id}`);
+      return { success: false, message: 'Webhooks are disabled in production until signature validation is implemented' };
+    }
+    
     this.logger.warn(`TODO SECURITY: Wave Webhook processing without signature validation. Transaction ID: ${payload.data?.id}`);
     const reference = payload.data?.client_reference;
     const txId = payload.data?.id;
@@ -96,11 +99,17 @@ export class PaymentService {
 
     // Gérer l'échec
     if (payload.type === 'checkout.session.failed') {
-      await prisma.paymentTransaction.updateMany({
+      const txResult = await prisma.paymentTransaction.updateMany({
         where: { method: 'WAVE', providerRef: txId, status: 'PENDING' },
         data: { status: 'FAILED', providerMessage: payload.data?.payment_status, rawPayload: payload }
       });
-      return { success: true, message: 'Payment marked as failed' };
+      if (txResult.count > 0) {
+        await prisma.booking.update({
+          where: { id: reference },
+          data: { status: 'CANCELLED' }
+        });
+      }
+      return { success: true, message: 'Payment marked as failed and booking cancelled' };
     }
 
     return this.confirmBookingPayment(reference, txId, 'WAVE', payload);
@@ -110,6 +119,11 @@ export class PaymentService {
    * Processus d'un webhook Orange Money (Réel ou Simulé)
    */
   async handleOrangeMoneyWebhook(payload: any) {
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.error(`SECURITY ALERT: Real Orange Money Webhook called in production without signature validation. Request rejected. Notif ID: ${payload.notif_id}`);
+      return { success: false, message: 'Webhooks are disabled in production until signature validation is implemented' };
+    }
+
     this.logger.warn(`TODO SECURITY: Orange Money Webhook processing without signature validation. Notif ID: ${payload.notif_id}`);
     const reference = payload.tx_reference;
     const txId = payload.notif_id;
@@ -119,11 +133,17 @@ export class PaymentService {
     }
 
     if (payload.status === 'FAILED') {
-      await prisma.paymentTransaction.updateMany({
+      const txResult = await prisma.paymentTransaction.updateMany({
         where: { method: 'ORANGE_MONEY', providerRef: txId, status: 'PENDING' },
         data: { status: 'FAILED', providerMessage: payload.message, rawPayload: payload }
       });
-      return { success: true, message: 'Payment marked as failed' };
+      if (txResult.count > 0) {
+        await prisma.booking.update({
+          where: { id: reference },
+          data: { status: 'CANCELLED' }
+        });
+      }
+      return { success: true, message: 'Payment marked as failed and booking cancelled' };
     }
 
     return this.confirmBookingPayment(reference, txId, 'ORANGE_MONEY', payload);
@@ -183,11 +203,17 @@ export class PaymentService {
           }
         });
 
-        // Et on crée le gain chauffeur
+        // Verify vehicle owner before assigning earning
+        const ownerId = booking.trip.vehicle?.owner?.userId;
+        if (!ownerId) {
+          throw new Error(`CRITICAL ANOMALY: Vehicle Owner not found for trip ${booking.tripId}. DriverEarnings cannot be silently assigned to the driver.`);
+        }
+
+        // Et on crée le gain chauffeur attribué au propriétaire
         await tx.driverEarning.create({
           data: {
             bookingId: bookingId,
-            driverId: booking.trip.vehicle?.owner?.userId || booking.trip.driver.userId,
+            driverId: ownerId,
             basePrice: pricing.basePrice,
             driverCut: pricing.driverCut,
             platformCommission: pricing.platformCommission,

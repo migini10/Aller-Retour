@@ -18,6 +18,9 @@ export class PaymentController {
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
   async simulatePaymentInit(@Body() body: { phone: string, amount: number, provider: 'WAVE' | 'ORANGE_MONEY', reference: string }) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Simulation endpoints are disabled in production');
+    }
     if (body.provider === 'WAVE') {
       return this.paymentService.initiateWavePayment(body.phone, body.amount, body.reference);
     } else {
@@ -53,6 +56,9 @@ export class PaymentController {
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
   async simulateWaveWebhookTrigger(@Query('tx_id') txId: string, @Query('ref') ref: string) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Simulation endpoints are disabled in production');
+    }
     const mockPayload = {
       type: 'checkout.session.completed',
       data: {
@@ -69,6 +75,9 @@ export class PaymentController {
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
   async simulateOmWebhookTrigger(@Query('tx_id') txId: string, @Query('ref') ref: string) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Simulation endpoints are disabled in production');
+    }
     const mockPayload = {
       status: 'SUCCESS',
       notif_id: txId,

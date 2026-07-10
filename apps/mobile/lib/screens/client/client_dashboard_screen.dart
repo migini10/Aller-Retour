@@ -3027,12 +3027,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                           // Polling de la vérification de paiement
                                           bool isPaid = false;
                                           int attempts = 0;
-                                          
-                                          if (apiData['paymentSession'] != null && apiData['paymentSession']['webhook_simulation_url'] != null) {
-                                            Future.delayed(const Duration(seconds: 8), () {
-                                              http.get(Uri.parse('$apiUrl${apiData['paymentSession']['webhook_simulation_url']}')); // Async sans await
-                                            });
-                                          }
+                                          // Pas de simulation côté client, la sécurité l'interdit.
 
                                           while (attempts < 20 && !isPaid) {
                                             await Future.delayed(const Duration(seconds: 3));
@@ -3047,6 +3042,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                                   final statusData = jsonDecode(statusRes.body);
                                                   if (statusData['status'] == 'CONFIRMED') {
                                                     isPaid = true;
+                                                  } else if (statusData['status'] == 'FAILED' || statusData['status'] == 'CANCELLED') {
+                                                    setState(() { isSearching = false; errorMessage = 'Le paiement a échoué ou a été annulé.'; });
+                                                    return; // Stop tout et affiche l'erreur
                                                   }
                                                 } else if (statusRes.statusCode == 401 || statusRes.statusCode == 403) {
                                                   break; // Stop polling on unauthorized error
