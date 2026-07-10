@@ -4,9 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../models/trip_model.dart';
 import '../../services/api_client.dart';
 import 'package:aller_retour_mobile/screens/driver/driver_live_tracking_screen.dart' as driver_live_tracking_screen;
+import 'package:aller_retour_mobile/screens/driver/driver_colis_screen.dart';
 
 class DriverMissionsScreen extends StatefulWidget {
-  const DriverMissionsScreen({super.key};
+  const DriverMissionsScreen({super.key});
 
   @override
   State<DriverMissionsScreen> createState() => _DriverMissionsScreenState();
@@ -1356,6 +1357,26 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                     label: const Text('Transférer des Clients', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF97316),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => DriverColisScreen(tripId: mission['id']),
+                      ));
+                    },
+                    icon: const Icon(Icons.inventory_2, size: 18),
+                    label: const Text('Gérer les Colis', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 12),

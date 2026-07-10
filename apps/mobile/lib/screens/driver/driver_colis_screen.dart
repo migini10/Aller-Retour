@@ -8,7 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DriverColisScreen extends StatefulWidget {
-  const DriverColisScreen({super.key});
+  final String tripId;
+  const DriverColisScreen({super.key, required this.tripId});
 
   @override
   State<DriverColisScreen> createState() => _DriverColisScreenState();
@@ -36,7 +37,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
 
   Future<void> _loadColis({bool silent = false}) async {
     try {
-      final response = await ApiClient().get('/v1/parcels/my-parcels');
+      final response = await ApiClient().get('/v1/parcels/driver/trip/${widget.tripId}');
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
