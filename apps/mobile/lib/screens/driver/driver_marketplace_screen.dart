@@ -49,9 +49,10 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
       List<dynamic> alloPriveRes = [];
 
       try {
-        final res = await ApiClient.get('/v1/parcels/my-parcels');
-        if (res != null && res is List) {
-          loadedColis = res.map((c) => {
+        final res = await ApiClient().get('/v1/parcels/my-parcels');
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body) as List<dynamic>;
+          loadedColis = data.map((c) => {
             ...c,
             'statut': c['status'] == 'REGISTERED' ? 'En attente de prise en charge' : c['status'] == 'ACCEPTED' ? 'Accepté' : c['status'] == 'IN_TRANSIT' ? 'En transit' : c['status'] == 'DELIVERED' ? 'Livré' : c['status']
           }).toList();
@@ -61,14 +62,20 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
       }
 
       try {
-        final res = await ApiClient.get('/v1/trips/search');
-        if (res != null && res is List) loadedMissions = res;
+        final res = await ApiClient().get('/v1/trips/search');
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body) as List<dynamic>;
+          loadedMissions = data;
+        }
       } catch (e) {
         debugPrint('Error fetching missions: $e');
       }
       
       try {
-        alloPriveRes = await ApiClient.get('/v1/allo-prive/requests/available') as List<dynamic>? ?? [];
+        final res = await ApiClient().get('/v1/allo-prive/requests/available');
+        if (res.statusCode == 200) {
+          alloPriveRes = jsonDecode(res.body) as List<dynamic>? ?? [];
+        }
       } catch (e) {
         debugPrint('Error fetching allo prive: $e');
       }
@@ -87,7 +94,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _applyAlloPrive(String requestId) async {
     try {
-      await ApiClient.post('/v1/allo-prive/requests/$requestId/apply');
+      await ApiClient().post('/v1/allo-prive/requests/$requestId/apply');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Candidature envoyée avec succès.')),
@@ -110,7 +117,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
       if (status == 'Accepté') nextStatus = 'ACCEPTED';
       if (status == 'En attente de prise en charge') nextStatus = 'REGISTERED';
       
-      await ApiClient.patch('/v1/parcels/$id/status', {'status': nextStatus});
+      await ApiClient().patch('/v1/parcels/$id/status', body: {'status': nextStatus});
       _loadData();
     } catch (e) {
       debugPrint('Error updating colis: $e');

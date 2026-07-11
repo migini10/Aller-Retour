@@ -42,7 +42,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
 
   Future<void> _fetchPriveRequests() async {
     try {
-      final response = await ApiClient.get('/v1/allo-prive/requests/my-requests');
+      final response = await ApiClient().get('/v1/allo-prive/requests/my-requests');
       if (mounted) {
         setState(() {
           priveRequests = response as List<dynamic>? ?? [];
@@ -67,7 +67,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ApiClient.post('/v1/allo-prive/requests', body: {
+      await ApiClient().post('/v1/allo-prive/requests', body: {
         'origin': '$origin (${pickupController.text})',
         'destination': '$destination (${neighborhoodController.text})',
         'departureDate': dateController.text,
@@ -99,7 +99,7 @@ class _AlloPriveScreenState extends State<AlloPriveScreen> {
 
   Future<void> _selectDriver(String applicationId) async {
     try {
-      await ApiClient.patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
+      await ApiClient().patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
       if (mounted) {
         _fetchPriveRequests();
         ScaffoldMessenger.of(context).showSnackBar(

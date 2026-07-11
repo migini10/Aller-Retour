@@ -1,6 +1,6 @@
-import 'package:aller_retour_mobile/core/config/env_config.dart';
-import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
+import '../../core/config/env_config.dart';
+import '../../core/constants/storage_keys.dart';
 import '../../widgets/app_drawer.dart';
 import 'dart:ui'; // for ImageFilter
 import 'dart:ui' as ui;
@@ -53,10 +53,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   Future<void> _fetchPriveRequests() async {
     try {
-      final response = await ApiClient.get('/v1/allo-prive/requests/my-requests');
-      final list = response as List<dynamic>? ?? [];
-      if (mounted) {
-        setState(() {
+      final response = await ApiClient().get('/v1/allo-prive/requests/my-requests');
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        final list = body as List<dynamic>? ?? [];
+        if (mounted) {
+          setState(() {
             priveRequests = list.where((r) => r['clientPhone'] == _userPhone || r['clientPhone'] == '+221776783412').toList();
           });
         }
@@ -68,7 +70,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
 
   Future<void> _selectDriver(String requestId, String applicationId) async {
     try {
-      await ApiClient.patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
+      await ApiClient().patch('/v1/allo-prive/applications/$applicationId/accept', body: {});
       if (mounted) {
         _fetchPriveRequests();
       }
@@ -2064,7 +2066,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
                                       }
 
-                                      final response = await ApiClient.post(
+                                      final response = await ApiClient().post(
                                         '/v1/allo-prive/requests',
                                         body: {
                                           'origin': '${departController.text} (${pickupController.text})',
@@ -2115,7 +2117,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                         formattedDate = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
                                       }
 
-                                      final response = await ApiClient.post(
+                                      final response = await ApiClient().post(
                                         '/v1/allo-prive/requests',
                                         body: {
                                           'origin': '${departController.text} (${pickupController.text})',
@@ -2899,7 +2901,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                    }
 
                                    if (isAlloPrive) {
-                                     final response = await ApiClient.post(
+                                     final response = await ApiClient().post(
                                        '/v1/allo-prive/requests',
                                        body: {
                                          'origin': '${departController.text} (${pickupController.text})',

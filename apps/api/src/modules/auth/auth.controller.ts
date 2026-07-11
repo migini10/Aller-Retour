@@ -2,7 +2,7 @@ import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { IsString, IsNotEmpty, Length } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsIn } from 'class-validator';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { UserRole } from '@aller-retour/database';
@@ -35,6 +35,11 @@ export class RegisterDto {
   @IsString()
   @Length(6, 6)
   pin!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['PASSENGER', 'DRIVER'])
+  accountType!: 'PASSENGER' | 'DRIVER';
 }
 
 export class ForgotPasswordDto {
@@ -65,9 +70,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Enregistrer un nouveau voyageur via Mobile' })
+  @ApiOperation({ summary: 'Enregistrer un nouveau compte via Mobile' })
   async register(@Body() dto: RegisterDto) {
-    return this.authService.registerPassenger(dto.phone, dto.fullName, dto.pin);
+    return this.authService.registerUser(dto.phone, dto.fullName, dto.accountType, dto.pin);
   }
 
   @Post('login-mobile')

@@ -288,6 +288,42 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
     );
   }
 
+  Future<void> _showTransferColisDialog(Map<String, dynamic> c) async {
+    final String colisId = c['id'];
+    List<dynamic> targets = [];
+    bool loadingTargets = true;
+    String? selectedTargetId;
+    final TextEditingController pinController = TextEditingController();
+    String transferError = '';
+
+    // Fetch target trips
+    try {
+      final res = await ApiClient().get('/v1/parcels/$colisId/transfer-targets');
+      if (res.statusCode == 200) {
+        targets = jsonDecode(res.body);
+      }
+    } catch (e) {
+      debugPrint('Error fetching target trips: $e');
+    } finally {
+      loadingTargets = false;
+    }
+
+    if (!mounted) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (context, setStateModal) {
+            return Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
@@ -428,12 +464,12 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                           loadingTargets = true;
                                         });
                                         try {
-                                          final response = await ApiClient.post(
+                                          final response = await ApiClient().post(
                                             '/v1/parcels/$colisId/transfer',
                                             body: {'targetTripId': selectedTargetId},
                                           );
                                           
-                                          if (response != null) {
+                                          if (response.statusCode >= 200 && response.statusCode < 300) {
                                             Navigator.pop(context);
                                             await _loadColis();
                                             if (mounted) {
@@ -761,7 +797,23 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   _buildActionButton(c),
-
+                                  if (c['status'] != 'DELIVERED') ...[
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: OutlinedButton.icon(
+                                        onPressed: () => _showTransferColisDialog(c),
+                                        icon: const Icon(Icons.swap_horiz, size: 18),
+                                        label: const Text('Transférer Colis'),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

@@ -48,8 +48,8 @@ model DriverProfile {
   manager         DriverProfile?  @relation("DriverManager", fields: [managerId], references: [id])
   employees       DriverProfile[] @relation("DriverManager")
   vehicles        Vehicle[]
-  licenseNumber   String          @unique
-  licenseExpiry   DateTime
+  licenseNumber   String?         @unique
+  licenseExpiry   DateTime?
   licenseFrontUrl String?
   licenseBackUrl  String?
   kycStatus       KYCStatus       @default(PENDING)

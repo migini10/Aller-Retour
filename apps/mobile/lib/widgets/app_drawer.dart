@@ -168,31 +168,23 @@ class _AppDrawerState extends State<AppDrawer> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
                       onTap: () async {
-                        final newMode = !widget.isDriverMode;
-                        HomeScreen.isDriverMode = newMode;
                         final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('isDriverMode', newMode);
-
-                        if (widget.onModeChanged != null) {
-                          widget.onModeChanged!(newMode);
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        } else {
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                          }
-                        }
+                        
+                        // Strict isolation enforcement for space switching
+                        Navigator.pop(context);
+                        await prefs.setBool('isLoggedIn', false);
+                        await prefs.remove(StorageKeys.userPhone);
+                        await prefs.remove(StorageKeys.authToken);
+                        await prefs.remove(StorageKeys.userName);
+                        await prefs.remove(StorageKeys.userRole);
+                        await prefs.setString('session_error', widget.isDriverMode 
+                            ? 'Déconnexion : Veuillez vous connecter avec un compte Passager' 
+                            : 'Déconnexion : Veuillez vous connecter avec un compte Chauffeur');
                         
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(widget.isDriverMode 
-                              ? 'Basculement vers l\'Espace Voyageur...' 
-                              : 'Basculement vers l\'Espace Chauffeur...'
-                            ),
-                            backgroundColor: widget.isDriverMode ? Colors.cyan : Colors.green,
-                          ));
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         }
+                        // Le snackbar est géré sur l'écran de login via session_error
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(

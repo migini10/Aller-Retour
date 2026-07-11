@@ -1,3 +1,4 @@
+import '../../services/api_client.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -39,9 +40,9 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
   Future<void> _loadPassengers() async {
     try {
       // 1. Fetch missions
-      final missionsResponse = await ApiClient.get('/v1/trips/search') as List<dynamic>?;
-      if (missionsResponse != null) {
-        final missions = missionsResponse;
+      final missionsResponse = await ApiClient().get('/v1/trips/search');
+      if (missionsResponse.statusCode == 200) {
+        final missions = jsonDecode(missionsResponse.body) as List<dynamic>;
         final todayStr = DateTime.now().toIso8601String().split('T')[0];
         final activeMission = missions.firstWhere(
           (m) {
@@ -53,9 +54,9 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
         );
         if (activeMission != null) {
           final tripId = activeMission['id'];
-          final manifestResponse = await ApiClient.get('/v1/trips/$tripId/manifest');
-          if (manifestResponse != null) {
-            final manifest = manifestResponse;
+          final manifestResponse = await ApiClient().get('/v1/trips/$tripId/manifest');
+          if (manifestResponse.statusCode == 200) {
+            final manifest = jsonDecode(manifestResponse.body);
             final List<dynamic> tickets = manifest['tickets'] ?? [];
             final neighborhoods = ['Mermoz', 'Plateau', 'Almadies', 'Ouakam', 'Yoff', 'Pikine', 'Fann', 'Hann'];
             final List<Map<String, dynamic>> mapped = [];

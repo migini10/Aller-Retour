@@ -39,10 +39,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
         if (mounted) {
           setState(() {
-            missions = fetchedMissions;
+      missions = fetchedMissions;
             filteredMissions = missions;
             isLoading = false;
-          };
+    });
         }
       } else {
         _loadFallbackData();
@@ -62,13 +62,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   void _loadFallbackData() {
     if (mounted) {
       setState(() {
-        missions = [
+      missions = [
           { 'id': 'TRIP-402', 'displayId': 'TRIP-402', 'trajet': 'Dakar → Touba', 'date': 'Aujourd\'hui', 'heure': '14:30', 'vehicule': 'Bus 50 Places', 'statut': 'à venir', 'passagers': 45, 'placesLibres': 5, 'placesPrises': 45, 'isAirConditioned': true, 'takesTollRoad': true, 'pricePerSeat': 5000 },
           { 'id': 'TRIP-398', 'displayId': 'TRIP-398', 'trajet': 'Thiès → Dakar', 'date': 'Aujourd\'hui', 'heure': '08:00', 'vehicule': 'Bus 50 Places', 'statut': 'terminé', 'passagers': 48, 'placesLibres': 2, 'placesPrises': 48, 'isAirConditioned': true, 'takesTollRoad': true, 'pricePerSeat': 5000 },
           { 'id': 'TRIP-405', 'displayId': 'TRIP-405', 'trajet': 'Dakar → Saint-Louis', 'date': 'Demain', 'heure': '07:00', 'vehicule': 'Bus 50 Places', 'statut': 'programmé', 'passagers': 0, 'placesLibres': 50, 'placesPrises': 0, 'isAirConditioned': true, 'takesTollRoad': false, 'pricePerSeat': 5000 },
         ];
         isLoading = false;
-      };
+    });
     }
   }
 
@@ -151,7 +151,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       String dayName = jours[d.weekday - 1];
       String dayStr = d.day == 1 ? '1er' : d.day.toString();
       String monthName = mois[d.month - 1];
-      dates.add({'value': val, 'label': '$dayName $dayStr $monthName'};
+      dates.add({'value': val, 'label': '$dayName $dayStr $monthName'});
     }
     return dates;
   }
@@ -168,24 +168,24 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         final data = jsonDecode(response.body);
         if (data['prices'] != null && data['prices'].isNotEmpty) {
           setModalState(() {
-            _dynamicRecommendedPrices = List<int>.from(data['prices']);
-          };
+      _dynamicRecommendedPrices = List<int>.from(data['prices']);
+    });
         } else {
           setModalState(() {
-            _dynamicRecommendedPrices = [];
-          };
+      _dynamicRecommendedPrices = [];
+    });
         }
       }
     } on ApiException catch (e) {
       debugPrint('Error fetching popular prices API: ${e.message}');
       setModalState(() {
-        _dynamicRecommendedPrices = [];
-      };
+      _dynamicRecommendedPrices = [];
+    });
     } catch (e) {
       debugPrint('Error fetching popular prices: $e');
       setModalState(() {
-        _dynamicRecommendedPrices = [];
-      };
+      _dynamicRecommendedPrices = [];
+    });
     }
   }
 
@@ -276,9 +276,9 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                 String dayName = jours[parsedDate.weekday - 1];
                 String dayStr = parsedDate.day == 1 ? '1er' : parsedDate.day.toString();
                 String monthName = mois[parsedDate.month - 1];
-                availableDates.insert(0, {'value': date!, 'label': '$dayName $dayStr $monthName'};
+                availableDates.insert(0, {'value': date!, 'label': '$dayName $dayStr $monthName'});
               } catch (e) {
-                availableDates.insert(0, {'value': date!, 'label': date!};
+                availableDates.insert(0, {'value': date!, 'label': date!});
               }
             }
 
@@ -317,13 +317,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 child: _buildDropdown('Départ', originCity, cities, (v) {
                                   setModalState(() => originCity = v!);
                                   _fetchPopularPrices(originCity, destinationCity, setModalState);
-                                }, ),
+                                }), ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildDropdown('Arrivée', destinationCity, cities, (v) {
                                   setModalState(() => destinationCity = v!);
                                   _fetchPopularPrices(originCity, destinationCity, setModalState);
-                                }, ),
+                                }), ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -332,15 +332,15 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               Expanded(
                                 child: _buildDropdownObj('Date', date, availableDates, (v) {
                                   setModalState(() {
-                                    date = v;
+      date = v;
                                     time = null;
-                                  };
-                                }, ),
+                                  });
+                                }), ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildDropdown('Heure', time, availableHours, (v) {
-                                  setModalState(() { time = v; };
-                                }, ),
+                                  setModalState(() { time = v; });
+                                }), ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -359,8 +359,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       int places = cap - 1 - pax;
                                       placesController.text = places > 0 ? places.toString() : '0';
                                     }
-                                  };
-                                }, ),
+    });
+                                }), ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildTextFieldController('Places Disponibles', placesController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
@@ -389,8 +389,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                                               onPressed: () {
                                                 setModalState(() {
-                                                  priceController.text = price.toString();
-                                                };
+      priceController.text = price.toString();
+    });
                                               },
                                             );
                                           }).toList(),
@@ -408,7 +408,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     int places = cap - 1 - pax;
                                     placesController.text = places > 0 ? places.toString() : '0';
                                   }
-                                }, ),
+                                }), ),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -499,7 +499,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 } catch(e) {
                                   // Fallback si serveur éteint
                                   setState(() {
-                                    missions.insert(0, {
+      missions.insert(0, {
                                       'id': 'TRIP-NEW',
                                       'trajet': '$originCity → $destinationCity',
                                       'date': date,
@@ -510,8 +510,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'placesLibres': int.tryParse(placesLibres) ?? 0,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
-                                    };
-                                  };
+                                    });
+                                  });
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.orangeAccent));
                                 } finally {
@@ -923,7 +923,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       Navigator.push(context, MaterialPageRoute(
                                         builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: mission),
                                       ));
-                                    };
+    });
                                   }
                                 ),
                               if (mission['statut'] == 'en cours')

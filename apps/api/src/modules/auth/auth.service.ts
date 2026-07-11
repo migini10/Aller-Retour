@@ -45,7 +45,7 @@ export class AuthService {
     return clean;
   }
 
-  async registerPassenger(phoneRaw: string, fullName: string, pin?: string) {
+  async registerUser(phoneRaw: string, fullName: string, accountType: 'PASSENGER' | 'DRIVER', pin?: string) {
     const phone = this.formatPhone(phoneRaw);
     const existing = await prisma.user.findUnique({ where: { phone } });
     if (existing) {
@@ -57,14 +57,28 @@ export class AuthService {
     }
 
     const passwordHash = pin ? await bcrypt.hash(pin, 10) : await bcrypt.hash('123456', 10);
+    const role = accountType === 'DRIVER' ? UserRole.DRIVER : UserRole.PASSENGER;
 
-    const user = await prisma.user.create({
-      data: {
-        phone,
-        fullName,
-        role: UserRole.PASSENGER,
-        passwordHash,
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          phone,
+          fullName,
+          role,
+          passwordHash,
+        },
+      });
+
+      if (role === UserRole.DRIVER) {
+        await tx.driverProfile.create({
+          data: {
+            userId: newUser.id,
+            type: 'OWNER',
+          }
+        });
+      }
+
+      return newUser;
     });
 
     const token = this.generateToken(user);

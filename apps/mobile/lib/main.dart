@@ -38,6 +38,9 @@ import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/utils/jwt_utils.dart';
+
+const String buildFlavor = String.fromEnvironment('APP_FLAVOR', defaultValue: 'UNIFIED');
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -80,9 +83,25 @@ void main() async {
   }
   
   final prefs = await SharedPreferences.getInstance();
-  final hasToken = prefs.getString(StorageKeys.authToken) != null;
-  final isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
+  final String? token = prefs.getString(StorageKeys.authToken);
+  final hasToken = token != null;
+  bool isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
   final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
+
+  if (isLoggedIn) {
+    final role = JwtUtils.decodeRole(token!);
+    bool roleValid = true;
+    if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') roleValid = false;
+    if (buildFlavor == 'DRIVER' && role != 'DRIVER') roleValid = false;
+
+    if (!roleValid) {
+      isLoggedIn = false;
+      await prefs.remove('isLoggedIn');
+      await prefs.remove(StorageKeys.authToken);
+      await prefs.remove(StorageKeys.userRole);
+      await prefs.setString('session_error', 'Accès refusé : L\'application ne correspond pas à votre profil.');
+    }
+  }
 
   runApp(
     ChangeNotifierProvider(

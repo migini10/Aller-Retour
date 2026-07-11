@@ -2,9 +2,10 @@ import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../services/api_client.dart';
 import 'login_screen.dart';
+import '../../core/utils/jwt_utils.dart';
+import '../../main.dart'; // Pour buildFlavor
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String _accountType = buildFlavor == 'DRIVER' ? 'DRIVER' : 'PASSENGER';
 
   Future<void> _handleRegister() async {
     if (_nameController.text.isEmpty || _phoneController.text.isEmpty || _passwordController.text.isEmpty) {
@@ -54,22 +56,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
             return clean;
           })(),
           'fullName': _nameController.text.trim(),
-          'pin': _passwordController.text.trim()
+          'pin': _passwordController.text.trim(),
+          'accountType': _accountType,
         },
       );
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final token = data['token'];
+        if (token == null) {
+          throw ApiException(500, 'Token manquant dans la réponse');
+        }
+
+        final role = JwtUtils.decodeRole(token);
+        
+        // Isolation post-inscription
+        if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') {
+          throw ApiException(403, 'Inscription réussie, mais accès refusé sur cette application (Réservé Passagers).');
+        }
+        if (buildFlavor == 'DRIVER' && role != 'DRIVER') {
+          throw ApiException(403, 'Inscription réussie, mais accès refusé sur cette application (Réservé Chauffeurs).');
+        }
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+        await prefs.setString(StorageKeys.authToken, token);
         await prefs.setString(StorageKeys.userName, _nameController.text);
         await prefs.setString(StorageKeys.userPhone, _phoneController.text);
         if (data['user'] != null && data['user']['role'] != null) {
           await prefs.setString(StorageKeys.userRole, data['user']['role']);
-        }
-        if (data['token'] != null) {
-          await prefs.setString(StorageKeys.authToken, data['token']);
         }
 
         if (mounted) {
@@ -85,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
       );
     } catch (e) {
       if (!mounted) return;
@@ -108,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black87),
-          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+          onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
         ),
       ),
       body: SafeArea(
@@ -124,10 +140,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Rejoignez Allogoo pour réserver vos trajets facilement',
+                'Rejoignez Allogoo pour vos trajets',
                 style: TextStyle(fontSize: 16, color: isDark ? Colors.white54 : Colors.black54),
               ),
               const SizedBox(height: 40),
+
+              if (buildFlavor == 'UNIFIED') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _accountType = 'PASSENGER'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _accountType == 'PASSENGER' ? Colors.orange : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Je suis passager',
+                            style: TextStyle(
+                              color: _accountType == 'PASSENGER' ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _accountType = 'DRIVER'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _accountType == 'DRIVER' ? Colors.orange : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Je suis chauffeur',
+                            style: TextStyle(
+                              color: _accountType == 'DRIVER' ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // Name Field
               TextField(
@@ -202,7 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Text('Vous avez déjà un compte ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
                   TextButton(
-                    onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                    onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                     child: const Text('Se connecter', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
                   ),
                 ],

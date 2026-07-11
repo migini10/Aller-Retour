@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'register_screen.dart';
 import '../../services/api_client.dart';
+import '../../core/utils/jwt_utils.dart';
+import '../../main.dart'; // Pour buildFlavor
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +22,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredData();
+  }
+
+  Future<void> _loadStoredData() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Check for session errors (e.g., from main.dart buildFlavor isolation)
+    final sessionError = prefs.getString('session_error');
+    if (sessionError != null && sessionError.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(sessionError), backgroundColor: Colors.red),
+        );
+      });
+      await prefs.remove('session_error');
+    }
+
+    // Load remember me
+    setState(() {
+      _rememberMe = prefs.getBool(StorageKeys.rememberMe) ?? false;
+      if (_rememberMe) {
+        _phoneController.text = prefs.getString(StorageKeys.lastLoginIdentifier) ?? '';
+      }
+    });
+  }
 
   Future<void> _handleLogin() async {
     if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
@@ -52,17 +86,40 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final token = data['token'];
+        if (token == null) {
+          throw ApiException(500, 'Token manquant dans la réponse');
+        }
+
+        final role = JwtUtils.decodeRole(token);
+        
+        // Isolation par Application
+        if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') {
+          throw ApiException(403, 'Accès refusé : Cette application est réservée aux passagers.');
+        }
+        if (buildFlavor == 'DRIVER' && role != 'DRIVER') {
+          throw ApiException(403, 'Accès refusé : Cette application est réservée aux chauffeurs.');
+        }
+
+        // Finish autofill successfully
+        TextInput.finishAutofillContext();
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString(StorageKeys.userPhone, _phoneController.text);
+        await prefs.setString(StorageKeys.authToken, token);
+
+        if (_rememberMe) {
+          await prefs.setBool(StorageKeys.rememberMe, true);
+          await prefs.setString(StorageKeys.lastLoginIdentifier, _phoneController.text);
+        } else {
+          await prefs.remove(StorageKeys.rememberMe);
+          await prefs.remove(StorageKeys.lastLoginIdentifier);
+        }
+
         if (data['user'] != null) {
           if (data['user']['fullName'] != null) await prefs.setString(StorageKeys.userName, data['user']['fullName']);
           if (data['user']['role'] != null) await prefs.setString(StorageKeys.userRole, data['user']['role']);
-          if (data['user']['colisPoints'] != null) await prefs.setInt('colisPoints', data['user']['colisPoints']);
-          if (data['user']['transportPoints'] != null) await prefs.setInt('transportPoints', data['user']['transportPoints']);
-        }
-        if (data['token'] != null) {
-          await prefs.setString(StorageKeys.authToken, data['token']);
+          if (data['user']['phone'] != null) await prefs.setString(StorageKeys.userPhone, data['user']['phone']);
         }
 
         if (mounted) {
@@ -78,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
       );
     } catch (e) {
       if (!mounted) return;
@@ -90,143 +147,201 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showTestAccounts() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const ListTile(title: Text('Comptes de test', style: TextStyle(fontWeight: FontWeight.bold))),
+              ListTile(
+                title: const Text('Passager'),
+                onTap: () {
+                  _phoneController.text = dotenv.env['TEST_PASSENGER_PHONE'] ?? '';
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Chauffeur Owner'),
+                onTap: () {
+                  _phoneController.text = dotenv.env['TEST_DRIVER_OWNER_PHONE'] ?? '';
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0B0F19) : Colors.white,
+      appBar: (buildFlavor == 'UNIFIED' || kDebugMode) ? AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bug_report, color: Colors.orange),
+            onPressed: _showTestAccounts,
+          )
+        ],
+      ) : null,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 60),
-              Center(
-                child: Container(
-                  width: 120,
-                  height: 80,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+        child: AutofillGroup(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (buildFlavor == 'UNIFIED' || kDebugMode) const SizedBox(height: 10) else const SizedBox(height: 60),
+                Center(
+                  child: Container(
+                    width: 120,
+                    height: 80,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/images/logo_allogoo.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 28, 
+                      fontWeight: FontWeight.bold, 
+                      color: isDark ? Colors.white : Colors.black87
+                    ),
+                    children: [
+                      const TextSpan(text: 'Bienvenue sur '),
+                      TextSpan(
+                        text: 'Allogoo', 
+                        style: TextStyle(color: Colors.orange.shade600, fontWeight: FontWeight.w900)
                       ),
                     ],
                   ),
-                  child: Image.asset(
-                    'assets/images/logo_allogoo.png',
-                    fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Connectez-vous pour accéder à votre espace sécurisé',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14, 
+                    color: isDark ? Colors.white54 : Colors.black54
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 28, 
-                    fontWeight: FontWeight.bold, 
-                    color: isDark ? Colors.white : Colors.black87
+                const SizedBox(height: 36),
+  
+                // Phone Field
+                TextField(
+                  controller: _phoneController,
+                  autofillHints: const [AutofillHints.telephoneNumber],
+                  keyboardType: TextInputType.phone,
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  decoration: InputDecoration(
+                    labelText: 'Numéro de téléphone',
+                    hintText: '+221 77 000 00 00',
+                    hintStyle: TextStyle(color: isDark ? Colors.white24 : Colors.grey[400]),
+                    prefixIcon: const Icon(Icons.phone_android, color: Colors.orange),
+                    filled: true,
+                    fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                   ),
+                ),
+                const SizedBox(height: 16),
+  
+                // Password Field
+                TextField(
+                  controller: _passwordController,
+                  autofillHints: const [AutofillHints.password],
+                  obscureText: _obscurePassword,
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  decoration: InputDecoration(
+                    labelText: 'Mot de passe',
+                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.orange),
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    filled: true,
+                    fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                ),
+                
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const TextSpan(text: 'Bienvenue sur '),
-                    TextSpan(
-                      text: 'Allogoo', 
-                      style: TextStyle(color: Colors.orange.shade600, fontWeight: FontWeight.w900)
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (val) {
+                            setState(() => _rememberMe = val ?? false);
+                          },
+                          activeColor: Colors.orange,
+                        ),
+                        Text('Mémoriser identifiant', style: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 13)),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {}, // TODO: Forgot password
+                      child: const Text('Mot de passe oublié ?', style: TextStyle(color: Colors.orange, fontSize: 13)),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Connectez-vous pour accéder à votre espace sécurisé',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14, 
-                  color: isDark ? Colors.white54 : Colors.black54
-                ),
-              ),
-              const SizedBox(height: 36),
-
-              // Phone Field
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                decoration: InputDecoration(
-                  labelText: 'Numéro de téléphone',
-                  hintText: '+221 77 000 00 00',
-                  hintStyle: TextStyle(color: isDark ? Colors.white24 : Colors.grey[400]),
-                  prefixIcon: const Icon(Icons.phone_android, color: Colors.orange),
-                  filled: true,
-                  fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Password Field
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                decoration: InputDecoration(
-                  labelText: 'Mot de passe',
-                  prefixIcon: const Icon(Icons.lock_outline, color: Colors.orange),
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                const SizedBox(height: 24),
+  
+                // Login Button
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
                   ),
-                  filled: true,
-                  fillColor: isDark ? Colors.grey[900] : Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  child: _isLoading 
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Se connecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-              ),
-              
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {}, // TODO: Forgot password
-                  child: const Text('Mot de passe oublié ?', style: TextStyle(color: Colors.orange)),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Login Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange.shade600,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                child: _isLoading 
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Se connecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ),
-
-              const SizedBox(height: 24),
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text('Nouveau sur Allogoo ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
-                  TextButton(
-                    onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                    child: const Text('Créer un compte', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              )
-            ],
+  
+                const SizedBox(height: 24),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text('Nouveau sur Allogoo ?', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                    TextButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
+                      child: const Text('Créer un compte', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
