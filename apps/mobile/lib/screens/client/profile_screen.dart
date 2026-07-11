@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/shared_scaffold.dart';
@@ -27,9 +28,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = prefs.getString('userName') ?? 'Utilisateur';
-      _userPhone = prefs.getString('userPhone') ?? '';
-      _userRole = prefs.getString('userRole') ?? 'PASSENGER';
+      _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
+      _userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
+      _userRole = prefs.getString(StorageKeys.userRole) ?? 'PASSENGER';
       _nameController.text = _userName;
       _phoneController.text = _userPhone;
       _updateInitials();
@@ -48,8 +49,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _saveUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userName', _nameController.text);
-    await prefs.setString('userPhone', _phoneController.text);
+    await prefs.setString(StorageKeys.userName, _nameController.text);
+    await prefs.setString(StorageKeys.userPhone, _phoneController.text);
     setState(() {
       _userName = _nameController.text;
       _userPhone = _phoneController.text;
@@ -120,8 +121,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 40),
             _buildEditableTile(context, Icons.person_outline, 'Nom complet', _nameController),
-            _buildEditableTile(context, Icons.phone_outlined, 'Téléphone', _phoneController, isPhone: true, readOnly: _userRole != 'SUPER_ADMIN' && _userRole != 'TENANT_ADMIN'),
-            if (_userRole != 'SUPER_ADMIN' && _userRole != 'TENANT_ADMIN')
+            _buildEditableTile(context, Icons.phone_outlined, 'Téléphone', _phoneController, isPhone: true, readOnly: _userRole != 'SUPER_ADMIN'),
+            if (_userRole != 'SUPER_ADMIN')
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Text('Seul un administrateur peut modifier le numéro de téléphone.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),

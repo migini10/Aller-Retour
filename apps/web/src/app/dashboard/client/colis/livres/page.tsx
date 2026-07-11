@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, ArrowLeft, Search, MapPin, Package, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { ApiClient } from '@/lib/api.client';
 
 export default function ColisLivresPage() {
   const [colis, setColis] = useState<any[]>([]);
@@ -11,12 +12,20 @@ export default function ColisLivresPage() {
   useEffect(() => {
     const fetchColis = async () => {
       try {
-        const res = await fetch('/api/colis');
-        if (res.ok) {
-          const data = await res.json();
-          // Filter delivered and expired (LOST) parcels
-          const historyItems = data.filter((c: any) => c.statut === 'Livré' || c.statut === 'Expiré');
-          setColis(historyItems);
+        const data = await ApiClient.get('/v1/parcels/my-parcels');
+        if (data) {
+          const mapped = data.map((c: any) => ({
+            ...c,
+            id: c.trackingCode || c.id,
+            statut: c.status,
+            trajet: `${c.pickupCity || '...'} → ${c.deliveryCity || '...'}`,
+            date: new Date(c.createdAt).toLocaleDateString('fr-FR'),
+            taille: c.size,
+            destinataire: c.recipientName,
+            tel: c.recipientPhone
+          }));
+          const livres = mapped.filter((c: any) => c.status === 'DELIVERED');
+          setColis(livres);
         }
       } catch (err) {
         console.error(err);

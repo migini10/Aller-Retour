@@ -1,3 +1,5 @@
+import 'package:aller_retour_mobile/core/config/env_config.dart';
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/app_drawer.dart';
 import 'dart:ui'; // for ImageFilter
@@ -120,17 +122,17 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = prefs.getString('userName') ?? 'Utilisateur';
-      _userPhone = prefs.getString('userPhone') ?? '';
+      _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
+      _userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
     });
   }
 
   Future<void> _fetchWalletBalance() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = prefs.getString(StorageKeys.authToken);
       if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      final apiUrl = EnvConfig.apiUrl;
       final response = await http.get(
         Uri.parse('$apiUrl/v1/wallets/my-balance'),
         headers: {'Authorization': 'Bearer $token'},
@@ -145,9 +147,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
       } else if (response.statusCode == 401) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', false);
-        await prefs.remove('userPhone');
-        await prefs.remove('auth_token');
-        await prefs.remove('userName');
+        await prefs.remove(StorageKeys.userPhone);
+        await prefs.remove(StorageKeys.authToken);
+        await prefs.remove(StorageKeys.userName);
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
         }
@@ -319,7 +321,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
     });
 
     // Fetch dynamic prices
-    final String apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+    final String apiUrl = EnvConfig.apiUrl;
     List<Map<String, String>> updatedDests = List.from(_destinations);
     
     for (int i = 0; i < updatedDests.length; i++) {
@@ -2920,7 +2922,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                        });
                                      }
                                    } else {
-                                     final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                     final apiUrl = EnvConfig.apiUrl;
                                      final uri = Uri.parse('$apiUrl/v1/trips/search?originCity=${Uri.encodeComponent(departController.text)}&destinationCity=${Uri.encodeComponent(arriveeController.text)}&date=$formattedDate');
                                      final response = await http.get(uri);
                                      if (response.statusCode == 200) {
@@ -2975,8 +2977,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     if (!isQueued) setState(() => isSearching = true);
                                     try {
                                       final prefs = await SharedPreferences.getInstance();
-                                      final token = prefs.getString('auth_token');
-                                      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                                      final token = prefs.getString(StorageKeys.authToken);
+                                      final apiUrl = EnvConfig.apiUrl;
                                       
                                       final response = await http.post(
                                         Uri.parse('$apiUrl/v1/bookings'),
@@ -2995,9 +2997,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                          setState(() => isSearching = false);
                                          final prefs = await SharedPreferences.getInstance();
                                          await prefs.setBool('isLoggedIn', false);
-                                         await prefs.remove('userPhone');
-                                         await prefs.remove('auth_token');
-                                         await prefs.remove('userName');
+                                         await prefs.remove(StorageKeys.userPhone);
+                                         await prefs.remove(StorageKeys.authToken);
+                                         await prefs.remove(StorageKeys.userName);
                                          if (context.mounted) {
                                            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                                          }

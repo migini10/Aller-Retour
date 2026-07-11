@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { CarFront, Lock, ShieldCheck, Fingerprint } from 'lucide-react';
 
@@ -14,7 +15,7 @@ export default function PinLockScreen({ onUnlock }: PinLockScreenProps) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
+  const API_URL = `${getApiUrl()}/v1`;
 
   const handleBiometricAuth = async () => {
     try {

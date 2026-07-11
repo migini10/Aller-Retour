@@ -1,7 +1,9 @@
+import 'package:aller_retour_mobile/core/config/env_config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../core/constants/storage_keys.dart';
 
 class UnauthorizedException implements Exception {
   final String message;
@@ -31,7 +33,7 @@ class ApiClient {
 
   String get baseUrl {
     // Priority to API_URL (NestJS). Fallback to emulator localhost if missing.
-    return dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+    return EnvConfig.apiUrl;
   }
 
   Future<Map<String, String>> _getHeaders({bool requireAuth = true}) async {
@@ -41,7 +43,7 @@ class ApiClient {
 
     if (requireAuth) {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+      final token = prefs.getString(StorageKeys.authToken);
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
@@ -57,8 +59,8 @@ class ApiClient {
 
     if (response.statusCode == 401 || response.statusCode == 403) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('token');
-      await prefs.remove('userRole');
+      await prefs.remove(StorageKeys.authToken);
+      await prefs.remove(StorageKeys.userRole);
       throw UnauthorizedException('Session expired or unauthorized');
     }
 

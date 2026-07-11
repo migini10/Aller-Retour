@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, ChevronRight, Phone, User, ShieldAlert, CreditCard } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
@@ -87,7 +88,7 @@ export default function WithdrawalWizardModal({ isOpen, onClose, maxAmount }: Wi
     setLoading(true);
     try {
       const activeToken = localStorage.getItem('ar_auth_token');
-      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+      const base = getApiUrl();
       const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
 
       const response = await fetch(`${apiUrl}/wallets/driver-withdrawal`, {

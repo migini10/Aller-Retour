@@ -1,10 +1,12 @@
+import 'package:aller_retour_mobile/core/config/env_config.dart';
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import '../../widgets/shared_scaffold.dart';
 
 class QrCodeScreen extends StatefulWidget {
@@ -37,17 +39,13 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = prefs.getString('userName') ?? 'Utilisateur';
+      _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
     });
     
-    final token = prefs.getString('auth_token');
+    final token = prefs.getString(StorageKeys.authToken);
     if (token != null) {
       try {
-        final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-        final response = await http.get(
-          Uri.parse('$apiUrl/v1/bookings/my-tickets'),
-          headers: {'Authorization': 'Bearer $token'},
-        );
+        final response = await ApiClient().get('/v1/bookings/my-tickets');
         if (response.statusCode == 200) {
           setState(() {
             _tickets = jsonDecode(response.body);
@@ -107,18 +105,14 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     setState(() => _isLoading = true);
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = prefs.getString(StorageKeys.authToken);
       if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
+      final apiUrl = EnvConfig.apiUrl;
       
       // First verify PIN
-      final verifyResponse = await http.post(
-        Uri.parse('$apiUrl/v1/auth/verify-pin'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'pin': pin.trim()}),
+      final verifyResponse = await ApiClient().post(
+        '/v1/auth/verify-pin',
+        body: {'pin': pin.trim()},
       );
 
       if (verifyResponse.statusCode != 200 && verifyResponse.statusCode != 201) {
@@ -133,13 +127,9 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
       }
 
       // PIN valid — hide tickets server-side
-      final hideResponse = await http.post(
-        Uri.parse('$apiUrl/v1/bookings/hide'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'bookingIds': _selectedIds}),
+      final hideResponse = await ApiClient().post(
+        '/v1/bookings/hide',
+        body: {'bookingIds': _selectedIds},
       );
 
       if (hideResponse.statusCode == 200 || hideResponse.statusCode == 201) {
@@ -236,16 +226,11 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     setState(() => _isLoading = true);
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = prefs.getString(StorageKeys.authToken);
       if (token == null) return;
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-      final response = await http.post(
-        Uri.parse('$apiUrl/v1/bookings/$ticketId/cancel'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'secretCode': secretCode.trim()}),
+      final response = await ApiClient().post(
+        '/v1/bookings/$ticketId/cancel',
+        body: {'secretCode': secretCode.trim()},
       );
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

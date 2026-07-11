@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'colis/colis_total_screen.dart';
 import 'colis/colis_franchise_screen.dart';
 import '../../widgets/shared_scaffold.dart';

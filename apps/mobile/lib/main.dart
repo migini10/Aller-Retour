@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ void main() async {
   }
   
   final prefs = await SharedPreferences.getInstance();
-  final hasToken = prefs.getString('auth_token') != null;
+  final hasToken = prefs.getString(StorageKeys.authToken) != null;
   final isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
   final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
 

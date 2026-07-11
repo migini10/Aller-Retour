@@ -80,7 +80,7 @@ Le modèle de base de données repose sur une base unique avec une colonne discr
 ### 2. Contrôle d'Accès par Rôles (RBAC)
 Le système gère 5 rôles avec des périmètres stricts documentés dans [MATRICE_RBAC_PERMISSIONS.md](./MATRICE_RBAC_PERMISSIONS.md) :
 * `SUPER_ADMIN` (Équipe globale)
-* `TENANT_ADMIN` (Gestionnaire GIE)
+
 * `DISPATCHER` (Guichetier / Chef de gare)
 * `DRIVER` (Chauffeur affilié ou libre)
 * `PASSENGER` (Voyageur / Expéditeur)

@@ -1,12 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront, Lock, Unlock, ArrowLeftRight } from 'lucide-react';
-
-const initialMissions = [
-  { id: 'TRIP-402', displayId: 'TRIP-402', trajet: 'Dakar → Touba', date: 'Aujourd\'hui', heure: '14:30', vehicule: 'Bus 50 Places', statut: 'à venir', passagers: 45, placesLibres: 5, placesPrises: 45, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
-  { id: 'TRIP-398', displayId: 'TRIP-398', trajet: 'Thiès → Dakar', date: 'Aujourd\'hui', heure: '08:00', vehicule: 'Bus 50 Places', statut: 'terminé', passagers: 48, placesLibres: 2, placesPrises: 48, isAirConditioned: true, takesTollRoad: true, pricePerSeat: 5000 },
-  { id: 'TRIP-405', displayId: 'TRIP-405', trajet: 'Dakar → Saint-Louis', date: 'Demain', heure: '07:00', vehicule: 'Bus 50 Places', statut: 'programmé', passagers: 22, placesLibres: 28, placesPrises: 22, isAirConditioned: true, takesTollRoad: false, pricePerSeat: 5000 },
-];
+import { ApiClient } from '@/lib/api.client';
 
 const tabs = ['Programmées', 'Toutes', 'Aujourd\'hui', 'Historique'];
 
@@ -21,7 +16,7 @@ export default function SectionMissions() {
   const [isMounted, setIsMounted] = React.useState(false);
   const [cancelAlertMessage, setCancelAlertMessage] = useState('');
   const [tab, setTab] = useState('Programmées');
-  const [localMissions, setLocalMissions] = useState(initialMissions);
+  const [localMissions, setLocalMissions] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMissionId, setEditMissionId] = useState<string | null>(null);
   const [selectedDetailMission, setSelectedDetailMission] = useState<any | null>(null);
@@ -44,21 +39,10 @@ export default function SectionMissions() {
 
     // Si le trajet est déjà verrouillé, on le déverrouille directement sans code PIN
     try {
-      const res = await fetch(`/api/missions/${m.id}/toggle-lock`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setLocalMissions(prev => prev.map(item => 
-          item.id === m.id ? { ...item, isLocked: data.isLocked } : item
-        ));
-      } else {
-        setLocalMissions(prev => prev.map(item => 
-          item.id === m.id ? { ...item, isLocked: false } : item
-        ));
-      }
+      const res = await ApiClient.patch(`/v1/trips/${m.id}/toggle-lock`, {});
+      setLocalMissions(prev => prev.map(item => 
+        item.id === m.id ? { ...item, isLocked: res.isLocked } : item
+      ));
     } catch (e) {
       setLocalMissions(prev => prev.map(item => 
         item.id === m.id ? { ...item, isLocked: false } : item
@@ -74,14 +58,8 @@ export default function SectionMissions() {
     }
 
     try {
-      const res = await fetch(`/api/missions/${lockingMission.id}/toggle-lock`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: securityCode })
-      });
-      
-      const data = await res.json();
-      if (res.ok && data.success !== false) {
+      const data = await ApiClient.patch(`/v1/trips/${lockingMission.id}/toggle-lock`, { code: securityCode });
+      if (data.success !== false) {
         setLocalMissions(prev => prev.map(item => 
           item.id === lockingMission.id ? { ...item, isLocked: true } : item
         ));
@@ -220,12 +198,9 @@ export default function SectionMissions() {
     // Fetch real missions from DB
     const fetchApiMissions = async () => {
       try {
-        const res = await fetch('/api/missions', { cache: 'no-store' });
-        if (res.ok) {
-          const apiData = await res.json();
-          const mappedMissions = apiData.map(mapApiMissionToLocal);
-          setLocalMissions(mappedMissions);
-        }
+        const res = await ApiClient.get('/v1/trips/search');
+        const mappedMissions = res.map(mapApiMissionToLocal);
+        setLocalMissions(mappedMissions);
       } catch(e) {
         console.error("Erreur lors de la récupération des missions API:", e);
       }
@@ -267,13 +242,8 @@ export default function SectionMissions() {
     const fetchPrices = async () => {
       if (formData.originCity && formData.destinationCity) {
         try {
-          const res = await fetch(`/api/missions/popular-prices?origin=${encodeURIComponent(formData.originCity)}&destination=${encodeURIComponent(formData.destinationCity)}`);
-          if (res.ok) {
-            const data = await res.json();
-            setRecommendedPrices(data.prices || []);
-          } else {
-            setRecommendedPrices([]);
-          }
+          const data = await ApiClient.get(`/v1/trips/popular-prices?origin=${encodeURIComponent(formData.originCity)}&destination=${encodeURIComponent(formData.destinationCity)}`);
+          setRecommendedPrices(data.prices || []);
         } catch (e) {
           setRecommendedPrices([]);
         }
@@ -388,43 +358,33 @@ export default function SectionMissions() {
         throw new Error("Date ou heure de départ invalide.");
       }
 
-      const url = editMissionId ? `/api/missions/${editMissionId}` : `/api/missions`;
-      const method = editMissionId ? 'PATCH' : 'POST';
+      const payload = {
+        originCity: formData.originCity,
+        destinationCity: formData.destinationCity,
+        pricePerSeat: formData.pricePerSeat,
+        departureTime: departureTime,
+        placesLibres: formData.placesLibres,
+        vehicleCapacity: formData.vehicleCapacity,
+        passagers: formData.passagers,
+        isAirConditioned: formData.isAirConditioned,
+        takesTollRoad: formData.takesTollRoad
+      };
 
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          originCity: formData.originCity,
-          destinationCity: formData.destinationCity,
-          pricePerSeat: formData.pricePerSeat,
-          departureTime: departureTime,
-          placesLibres: formData.placesLibres,
-          vehicleCapacity: formData.vehicleCapacity,
-          passagers: formData.passagers,
-          isAirConditioned: formData.isAirConditioned,
-          takesTollRoad: formData.takesTollRoad
+      if (editMissionId) {
+        await ApiClient.patch(`/v1/trips/${editMissionId}`, payload);
+      } else {
+        await ApiClient.post(`/v1/trips/create-allo-dakar`, payload);
+      }
+
+      setSubmitSuccess("Trajet enregistré dans la base de données !");
+
+      // Refresh list of missions in background
+      ApiClient.get('/v1/trips/search')
+        .then(apiData => {
+          const mappedMissions = apiData.map(mapApiMissionToLocal);
+          setLocalMissions(mappedMissions);
         })
-      });
-
-      if (res.ok) {
-        setSubmitSuccess("Trajet enregistré dans la base de données !");
-
-        // Refresh list of missions in background
-        fetch('/api/missions', { cache: 'no-store' })
-          .then(fetchRes => {
-            if (fetchRes.ok) {
-              return fetchRes.json();
-            }
-            throw new Error("API error");
-          })
-          .then(apiData => {
-            const mappedMissions = apiData.map(mapApiMissionToLocal);
-            setLocalMissions(mappedMissions);
-          })
-          .catch(e => console.error("Error refreshing missions list in background:", e));
+        .catch(e => console.error("Error refreshing missions list in background:", e));
 
         setTimeout(() => {
           setIsModalOpen(false);
@@ -443,10 +403,6 @@ export default function SectionMissions() {
             takesTollRoad: true
           });
         }, 800);
-      } else {
-        const errorText = await res.text();
-        throw new Error(`${errorText}`);
-      }
     } catch (err: any) {
       console.error("Erreur de connexion au backend:", err);
       let errMsg = err.message;
@@ -485,35 +441,22 @@ export default function SectionMissions() {
       const originCity = parts[0] || '';
       const destinationCity = parts[1] || '';
 
-      const res = await fetch(`/api/missions/${m.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          originCity,
-          destinationCity,
-          pricePerSeat: m.pricePerSeat || 5000,
-          departureTime: newDep,
-          placesLibres: m.placesLibres || 0,
-          vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,
-          passagers: m.passagers || 0,
-          isAirConditioned: m.isAirConditioned ?? true,
-          takesTollRoad: m.takesTollRoad ?? true
-        })
+      await ApiClient.patch(`/v1/trips/${m.id}`, {
+        originCity,
+        destinationCity,
+        pricePerSeat: m.pricePerSeat || 5000,
+        departureTime: newDep,
+        placesLibres: m.placesLibres || 0,
+        vehicleCapacity: (m.placesLibres || 0) + (m.placesPrises || 0) + 1,
+        passagers: m.passagers || 0,
+        isAirConditioned: m.isAirConditioned ?? true,
+        takesTollRoad: m.takesTollRoad ?? true
       });
 
-      if (!res.ok) {
-        throw new Error("Erreur de sauvegarde de l'heure sur le serveur.");
-      }
-
       // Refresh list to sync with DB
-      const freshRes = await fetch('/api/missions', { cache: 'no-store' });
-      if (freshRes.ok) {
-        const apiData = await freshRes.ok && await freshRes.json();
-        if (apiData) {
-          setLocalMissions(apiData.map(mapApiMissionToLocal));
-        }
+      const apiData = await ApiClient.get('/v1/trips/search');
+      if (apiData) {
+        setLocalMissions(apiData.map(mapApiMissionToLocal));
       }
     } catch (err: any) {
       console.error(err);
@@ -775,34 +718,22 @@ export default function SectionMissions() {
                     onClick={async () => {
                       if (confirm("Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.")) {
                         try {
-                          const res = await fetch(`/api/missions/${m.id}`, {
-                            method: 'DELETE'
-                          });
+                          await ApiClient.delete(`/v1/trips/${m.id}`);
 
-                          if (res.ok) {
-                            const updatedMissions = localMissions.filter(m2 => m2.id !== m.id);
-                            setLocalMissions(updatedMissions);
-                            
-                            // Si c'est un trajet demo, on le supprime du localStorage
-                            const stored = localStorage.getItem('demo_trips');
-                            if (stored) {
-                              try {
-                                const parsed = JSON.parse(stored);
-                                const updatedStorage = parsed.filter((p: any) => p.id !== m.id);
-                                localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
-                              } catch(e) {}
-                            }
-                          } else {
-                            const errText = await res.text();
-                            let errMsg = "Erreur lors de la suppression";
+                          const updatedMissions = localMissions.filter(m2 => m2.id !== m.id);
+                          setLocalMissions(updatedMissions);
+                          
+                          // Si c'est un trajet demo, on le supprime du localStorage
+                          const stored = localStorage.getItem('demo_trips');
+                          if (stored) {
                             try {
-                              const parsedErr = JSON.parse(errText);
-                              errMsg = parsedErr.details || parsedErr.error || errMsg;
-                            } catch (e) {}
-                            alert(`Impossible de supprimer le trajet : ${errMsg}`);
+                              const parsed = JSON.parse(stored);
+                              const updatedStorage = parsed.filter((p: any) => p.id !== m.id);
+                              localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
+                            } catch(e) {}
                           }
                         } catch (err: any) {
-                          alert(`Erreur de connexion au serveur : ${err.message}`);
+                          alert(`Impossible de supprimer le trajet : ${err.message || 'Erreur inconnue'}`);
                         }
                       }
                     }}

@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
@@ -139,7 +140,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final phone = prefs.getString('userPhone') ?? '';
+      final phone = prefs.getString(StorageKeys.userPhone) ?? '';
       final response = await ApiClient().post(
         '/v1/auth/login-mobile',
         requireAuth: false,
@@ -151,7 +152,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen> with SingleTi
 
       final data = jsonDecode(response.body);
       if (data['token'] != null) {
-        await prefs.setString('auth_token', data['token']);
+        await prefs.setString(StorageKeys.authToken, data['token']);
       }
       await prefs.setBool('isLoggedIn', true);
       

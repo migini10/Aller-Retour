@@ -7,6 +7,7 @@ import {
   MapPin, Phone, CreditCard, User, Clock, Calendar, ArrowUpRight, Building2, Bus, Eye, Download, Share2, MessageCircle, Mail, Bluetooth,
   List, LayoutGrid, FilterX, Hash, Users
 } from 'lucide-react';
+import { ApiClient } from '@/lib/api.client';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
 
 type BilletState = 'idle' | 'generating' | 'success';
@@ -57,12 +58,7 @@ export default function DispatcherDashboard() {
     setScanState('scanning');
     
     try {
-      const res = await fetch('/api/tickets/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'info' }),
-      });
-      const data = await res.json();
+      const data = await ApiClient.get(`/v1/bookings/verify-qr/${scanCode.trim()}`);
       setScanData(data);
       setScanState(data.status as ScanState);
       
@@ -85,14 +81,18 @@ export default function DispatcherDashboard() {
     if (!scanCode.trim()) return;
     setScanState('scanning');
     try {
-      const res = await fetch('/api/tickets/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'board' }),
-      });
-      const data = await res.json();
-      setScanData(data);
-      setScanState(data.status as ScanState);
+      const data = await ApiClient.post(`/v1/bookings/verify-qr/${scanCode.trim()}/board`);
+      
+      const adaptedData = {
+        status: data.success ? 'success' : 'invalid',
+        message: data.message,
+        passengerName: data.booking?.user?.fullName || '',
+        seatNumber: data.booking?.seatNumber || 0,
+        route: ''
+      };
+      
+      setScanData(adaptedData);
+      setScanState(adaptedData.status as ScanState);
       setTimeout(() => {
         setScanState('idle');
         setScanCode('');

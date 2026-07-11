@@ -119,12 +119,21 @@ export class BookingsController {
     return this.bookingsService.createBooking(req.user.id, dto.tripId, dto.seatNumber, dto.paymentMethod, dto.passengersCount || 1);
   }
 
-  @Post('verify-qr/:token')
+  @Get('verify-qr/:token')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
+  @Permissions('bookings:scan')
+  @ApiOperation({ summary: 'Obtenir les informations d\'un billet QR Code sans embarquer' })
+  async verifyQrInfo(@Param('token') token: string) {
+    return this.bookingsService.getQrInfoAtBoarding(token);
+  }
+
+  @Post('verify-qr/:token/board')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @Permissions('bookings:scan')
   @ApiOperation({ summary: 'Scanner et valider un billet QR Code en gare' })
-  async verifyQr(@Param('token') token: string) {
+  async verifyQrBoard(@Param('token') token: string) {
     return this.bookingsService.verifyQrAtBoarding(token);
   }
 

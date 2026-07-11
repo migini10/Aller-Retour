@@ -38,11 +38,10 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
 
   Future<void> _loadPassengers() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
       // 1. Fetch missions
-      final missionsResponse = await http.get(Uri.parse('$nextApiUrl/api/missions'));
-      if (missionsResponse.statusCode == 200) {
-        final missions = jsonDecode(missionsResponse.body) as List<dynamic>;
+      final missionsResponse = await ApiClient.get('/v1/trips/search') as List<dynamic>?;
+      if (missionsResponse != null) {
+        final missions = missionsResponse;
         final todayStr = DateTime.now().toIso8601String().split('T')[0];
         final activeMission = missions.firstWhere(
           (m) {
@@ -53,10 +52,10 @@ class _DriverLocalisationScreenState extends State<DriverLocalisationScreen> {
           orElse: () => null,
         );
         if (activeMission != null) {
-          final tripId = activeMission['tripId'];
-          final manifestResponse = await http.get(Uri.parse('$nextApiUrl/api/trips/$tripId/manifest'));
-          if (manifestResponse.statusCode == 200) {
-            final manifest = jsonDecode(manifestResponse.body);
+          final tripId = activeMission['id'];
+          final manifestResponse = await ApiClient.get('/v1/trips/$tripId/manifest');
+          if (manifestResponse != null) {
+            final manifest = manifestResponse;
             final List<dynamic> tickets = manifest['tickets'] ?? [];
             final neighborhoods = ['Mermoz', 'Plateau', 'Almadies', 'Ouakam', 'Yoff', 'Pikine', 'Fann', 'Hann'];
             final List<Map<String, dynamic>> mapped = [];

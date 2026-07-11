@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -53,15 +54,15 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('userPhone', _phoneController.text);
+        await prefs.setString(StorageKeys.userPhone, _phoneController.text);
         if (data['user'] != null) {
-          if (data['user']['fullName'] != null) await prefs.setString('userName', data['user']['fullName']);
-          if (data['user']['role'] != null) await prefs.setString('userRole', data['user']['role']);
+          if (data['user']['fullName'] != null) await prefs.setString(StorageKeys.userName, data['user']['fullName']);
+          if (data['user']['role'] != null) await prefs.setString(StorageKeys.userRole, data['user']['role']);
           if (data['user']['colisPoints'] != null) await prefs.setInt('colisPoints', data['user']['colisPoints']);
           if (data['user']['transportPoints'] != null) await prefs.setInt('transportPoints', data['user']['transportPoints']);
         }
         if (data['token'] != null) {
-          await prefs.setString('auth_token', data['token']);
+          await prefs.setString(StorageKeys.authToken, data['token']);
         }
 
         if (mounted) {

@@ -1,10 +1,11 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../theme/theme_provider.dart';
+import '../../services/api_client.dart';
 import '../../widgets/shared_scaffold.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -90,16 +91,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     
                     try {
                       final prefs = await SharedPreferences.getInstance();
-                      final phone = prefs.getString('userPhone') ?? '';
-                      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
-                      
-                      final response = await http.post(
-                        Uri.parse('$apiUrl/v1/auth/login-mobile'),
-                        headers: {'Content-Type': 'application/json'},
-                        body: jsonEncode({
+                      final phone = prefs.getString(StorageKeys.userPhone) ?? '';
+                      final response = await ApiClient().post(
+                        '/v1/auth/login-mobile',
+                        body: {
                           'phone': phone,
                           'pin': pinController.text.trim()
-                        }),
+                        },
+                        requireAuth: false, // Login endpoint doesn't need auth token
                       );
                       
                       if (response.statusCode == 200 || response.statusCode == 201) {

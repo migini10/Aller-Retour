@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, ArrowLeft, Search, MapPin, Package } from 'lucide-react';
 import Link from 'next/link';
+import { ApiClient } from '@/lib/api.client';
 
 export default function ColisActifsPage() {
   const [colis, setColis] = useState<any[]>([]);
@@ -11,11 +12,20 @@ export default function ColisActifsPage() {
   useEffect(() => {
     const fetchColis = async () => {
       try {
-        const res = await fetch('/api/colis');
-        if (res.ok) {
-          const data = await res.json();
+        const data = await ApiClient.get('/v1/parcels/my-parcels');
+        if (data) {
+          const mapped = data.map((c: any) => ({
+            ...c,
+            id: c.trackingCode || c.id,
+            statut: c.status,
+            trajet: `${c.pickupCity || '...'} → ${c.deliveryCity || '...'}`,
+            date: new Date(c.createdAt).toLocaleDateString('fr-FR'),
+            taille: c.size,
+            destinataire: c.recipientName,
+            tel: c.recipientPhone
+          }));
           // Filter only active (non-delivered, non-expired) parcels
-          const actifs = data.filter((c: any) => c.statut !== 'Livré' && c.statut !== 'Expiré');
+          const actifs = mapped.filter((c: any) => c.status !== 'DELIVERED' && c.status !== 'EXPIRED');
           setColis(actifs);
         }
       } catch (err) {

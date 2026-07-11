@@ -1,6 +1,6 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../services/api_client.dart';
@@ -63,13 +63,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('userName', _nameController.text);
-        await prefs.setString('userPhone', _phoneController.text);
+        await prefs.setString(StorageKeys.userName, _nameController.text);
+        await prefs.setString(StorageKeys.userPhone, _phoneController.text);
         if (data['user'] != null && data['user']['role'] != null) {
-          await prefs.setString('userRole', data['user']['role']);
+          await prefs.setString(StorageKeys.userRole, data['user']['role']);
         }
         if (data['token'] != null) {
-          await prefs.setString('auth_token', data['token']);
+          await prefs.setString(StorageKeys.authToken, data['token']);
         }
 
         if (mounted) {

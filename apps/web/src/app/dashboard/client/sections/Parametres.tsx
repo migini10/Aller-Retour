@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { Settings, User, Lock, Globe, CreditCard, Trash2, Save, Eye, EyeOff, Sun, Moon, ShieldCheck } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -55,7 +56,7 @@ export default function SectionParametres() {
     
     try {
       const phone = localStorage.getItem('userPhone') || '';
-      const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
+      const API_URL = `${getApiUrl()}/v1`;
       
       const res = await fetch(`${API_URL}/auth/login-mobile`, {
         method: 'POST',

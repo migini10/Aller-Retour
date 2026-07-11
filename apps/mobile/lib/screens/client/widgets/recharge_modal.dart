@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
@@ -12,8 +13,8 @@ void showRechargeModal(BuildContext context) async {
   final amountController = TextEditingController();
 
   final prefs = await SharedPreferences.getInstance();
-  final userName = prefs.getString('userName') ?? '';
-  final userPhone = prefs.getString('userPhone') ?? '';
+  final userName = prefs.getString(StorageKeys.userName) ?? '';
+  final userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
   
   nameController.text = userName;
   phoneController.text = userPhone;

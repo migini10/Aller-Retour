@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { 
@@ -115,7 +116,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
     if (paymentData && paymentData.bookingId) {
       interval = setInterval(async () => {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+          const apiUrl = getApiUrl();
           const token = localStorage.getItem('token');
           const res = await fetch(`${apiUrl}/bookings/${paymentData.bookingId}/status`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
@@ -484,7 +485,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
           let apiData: any = {};
           
           if (token && selectedTrip?.id) {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/v1/bookings`, {
               method: 'POST',
               headers: { 
@@ -719,7 +720,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
             }
           } else {
             try {
-              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+              const apiUrl = getApiUrl();
               const res = await fetch(`${apiUrl}/v1/trips/search?originCity=${searchParams.depart}&destinationCity=${searchParams.arrivee}&date=${searchParams.date}`);
               const data = await res.json();
               if (Array.isArray(data)) {
@@ -1276,7 +1277,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               disabled={isVerifyingPayment}
               onClick={async () => {
                 setIsVerifyingPayment(true);
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+                const apiUrl = getApiUrl();
                 
                 try {
                   const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);
@@ -1441,7 +1442,7 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
               disabled={isVerifyingPayment}
               onClick={async () => {
                 setIsVerifyingPayment(true);
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+                const apiUrl = getApiUrl();
                 
                 try {
                   const res = await fetch(`${apiUrl}/v1/bookings/${paymentData.bookingId}/status`);

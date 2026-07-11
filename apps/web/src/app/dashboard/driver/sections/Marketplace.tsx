@@ -5,17 +5,11 @@ import { useAuth } from '../../../../components/AuthContext';
 import { ApiClient } from '@/lib/api.client';
 import { AlloPriveRequest } from '@/types/allo-prive';
 
-const initialMissions = [
-  { id: 'M-104', trajet: 'Dakar → Saint-Louis', depart: 'Demain, 07:00', distance: '260 km', passagers: 4, remuneration: '18 000 FCFA', transporteur: 'Sénégal Express', urgent: true, status: 'disponible', minScore: 80 },
-  { id: 'M-105', trajet: 'Thiès → Dakar', depart: 'Aujourd\'hui, 16:00', distance: '70 km', passagers: 3, remuneration: '7 500 FCFA', transporteur: 'Indépendant', urgent: false, status: 'disponible', minScore: 50 },
-  { id: 'M-106', trajet: 'Dakar → Mbour', depart: 'Samedi, 09:00', distance: '85 km', passagers: 7, remuneration: '12 000 FCFA', transporteur: 'Allo Voyage', urgent: false, status: 'disponible', minScore: 60 },
-];
 
-const driverReliabilityScore = 65; // Simulation d'un chauffeur pénalisé
 
 export default function SectionMarketplace() {
   const { user } = useAuth();
-  const [missions, setMissions] = useState(initialMissions);
+  const [missions, setMissions] = useState<any[]>([]);
   const [colis, setColis] = useState<any[]>([]);
   const [alloPriveRequests, setAlloPriveRequests] = useState<AlloPriveRequest[]>([]);
   const [hasClient, setHasClient] = useState(true);
@@ -42,18 +36,22 @@ export default function SectionMarketplace() {
       }
       setHasClient(driverHasClient);
 
-      // Charger les colis depuis l'API !
+      // Charger les colis depuis l'API
       try {
-        const res = await fetch('/api/colis');
-        if (res.ok) {
-          const data = await res.json();
-          // Filter out delivered or already accepted by others if needed, 
-          // For now we show all but only "En attente..." are disponible
-          const availableColis = data.map((c: any) => ({
+        const data = await ApiClient.get('/v1/parcels/my-parcels');
+        if (data && Array.isArray(data)) {
+          const mappedColis = data.map((c: any) => ({
             ...c,
-            status: c.statut === 'En attente de prise en charge' ? 'disponible' : 'accepte'
+            id: c.trackingCode || c.id,
+            statut: c.status,
+            trajet: `${c.pickupCity || '...'} → ${c.deliveryCity || '...'}`,
+            date: new Date(c.createdAt).toLocaleDateString('fr-FR'),
+            taille: c.size,
+            destinataire: c.recipientName,
+            tel: c.recipientPhone,
+            status: c.status === 'REGISTERED' ? 'disponible' : 'accepte'
           }));
-          setColis(availableColis);
+          setColis(mappedColis);
         }
       } catch (e) {
         console.error('Failed to fetch colis', e);
@@ -72,22 +70,16 @@ export default function SectionMarketplace() {
     const interval = setInterval(loadData, 5000); // Polling every 5s
     return () => clearInterval(interval);
   }, []);
-
   const handleAccept = async (id: string, type: 'mission' | 'colis') => {
     if (type === 'mission') {
       setMissions(missions.map(m => m.id === id ? { ...m, status: 'accepte' } : m));
     } else {
       try {
-        await fetch(`/api/colis/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ statut: 'Accepté' })
-        });
+        await ApiClient.patch(`/v1/parcels/${id}/status`, { status: 'ACCEPTED' });
         setColis(colis.map(c => c.id === id ? { ...c, status: 'accepte' } : c));
       } catch (e) {}
     }
   };
-
   const handleApplyAlloPrive = async (requestId: string) => {
     try {
       await ApiClient.post(`/v1/allo-prive/requests/${requestId}/apply`);
@@ -115,11 +107,7 @@ export default function SectionMarketplace() {
       setMissions(missions.map(m => m.id === releaseItemId ? { ...m, status: 'disponible' } : m));
     } else {
       try {
-        await fetch(`/api/colis/${releaseItemId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ statut: 'En attente de prise en charge' })
-        });
+        await ApiClient.patch(`/v1/parcels/${releaseItemId}/status`, { status: 'REGISTERED' });
         setColis(colis.map(c => c.id === releaseItemId ? { ...c, status: 'disponible' } : c));
       } catch (e) {}
     }
@@ -148,23 +136,6 @@ export default function SectionMarketplace() {
       </div>
 
       <div className="space-y-4">
-        {/* Encart Score de Fiabilité */}
-        <div className={`border rounded-2xl p-4 flex items-start gap-4 ${driverReliabilityScore < 70 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-emerald-500/10 border-emerald-500/30'}`}>
-          <div className={`p-2 rounded-xl shrink-0 ${driverReliabilityScore < 70 ? 'bg-rose-500/20 text-rose-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-          <div>
-            <p className={`text-sm font-bold ${driverReliabilityScore < 70 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-              Score de Fiabilité : {driverReliabilityScore}%
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {driverReliabilityScore < 70 
-                ? "Votre score est faible (annulations ou refus). L'accès à certaines missions premium est restreint."
-                : "Bon travail ! Vous avez accès à toutes les missions."}
-            </p>
-          </div>
-        </div>
-
         {/* Appels d'offres Allo Privé (Voiture entière) */}
         {alloPriveRequests.filter(req => req.status === 'PENDING').map((req) => {
           const isOrdinary = req.type === 'ordinaire';

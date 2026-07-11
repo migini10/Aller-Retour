@@ -1,8 +1,9 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/api_client.dart';
 import '../../widgets/shared_scaffold.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -25,16 +26,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _fetchHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = prefs.getString(StorageKeys.authToken);
       if (token == null) {
         _useFallbackData();
         return;
       }
-      final apiUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3333';
-      final response = await http.get(
-        Uri.parse('$apiUrl/v1/bookings/my-tickets'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await ApiClient().get('/v1/bookings/my-tickets');
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         

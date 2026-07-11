@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Package, ArrowLeft, Search, Clock, CheckCircle2, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { ApiClient } from '@/lib/api.client';
 
 export default function ColisTotalPage() {
   const [colis, setColis] = useState<any[]>([]);
@@ -11,10 +12,19 @@ export default function ColisTotalPage() {
   useEffect(() => {
     const fetchColis = async () => {
       try {
-        const res = await fetch('/api/colis');
-        if (res.ok) {
-          const data = await res.json();
-          setColis(data);
+        const data = await ApiClient.get('/v1/parcels/my-parcels');
+        if (data) {
+          const mapped = data.map((c: any) => ({
+            ...c,
+            id: c.trackingCode || c.id,
+            statut: c.status,
+            trajet: `${c.pickupCity || '...'} → ${c.deliveryCity || '...'}`,
+            date: new Date(c.createdAt).toLocaleDateString('fr-FR'),
+            taille: c.size,
+            destinataire: c.recipientName,
+            tel: c.recipientPhone
+          }));
+          setColis(mapped);
         }
       } catch (err) {
         console.error(err);

@@ -145,11 +145,11 @@ export default function SettingsPage() {
                           type="tel" 
                           value={editPhone} 
                           onChange={e => setEditPhone(e.target.value)} 
-                          disabled={!((user as any)?.role === 'SUPER_ADMIN' || (user as any)?.role === 'TENANT_ADMIN')}
+                          disabled={!((user as any)?.role === 'SUPER_ADMIN')}
                           className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all outline-none disabled:opacity-60 disabled:cursor-not-allowed" 
                         />
                       </div>
-                      {!((user as any)?.role === 'SUPER_ADMIN' || (user as any)?.role === 'TENANT_ADMIN') && (
+                      {!((user as any)?.role === 'SUPER_ADMIN') && (
                         <p className="text-xs text-slate-500 mt-1">Seul un administrateur peut modifier le numéro de téléphone.</p>
                       )}
                     </div>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { QrCode, Camera, CheckCircle2, XCircle, User, Calendar, MapPin, Hash, Users, CreditCard } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
+import { ApiClient } from '@/lib/api.client';
 
 export default function SectionScanner() {
   const [scanResult, setScanResult] = useState<'idle' | 'valid' | 'invalid' | 'already_used' | 'success' | 'scanning'>('idle');
@@ -54,12 +55,7 @@ export default function SectionScanner() {
   const handleScanApi = async (code: string) => {
     if (!code.trim()) return;
     try {
-      const res = await fetch('/api/tickets/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: code.trim(), action: 'info' }),
-      });
-      const data = await res.json();
+      const data = await ApiClient.get(`/v1/bookings/verify-qr/${code.trim()}`);
       setScanData(data);
       setScanResult(data.status as any);
       if (data.status !== 'valid') {
@@ -79,14 +75,19 @@ export default function SectionScanner() {
     if (!scanCode.trim()) return;
     setScanResult('scanning');
     try {
-      const res = await fetch('/api/tickets/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qrCodeToken: scanCode.trim(), action: 'board' }),
-      });
-      const data = await res.json();
-      setScanData(data);
-      setScanResult(data.status as any); // Should be 'success'
+      const data = await ApiClient.post(`/v1/bookings/verify-qr/${scanCode.trim()}/board`);
+      
+      // Adapt NestJS response to NextJS expected format
+      const adaptedData = {
+        status: data.success ? 'success' : 'invalid',
+        message: data.message,
+        passengerName: data.booking?.user?.fullName || '',
+        seatNumber: data.booking?.seatNumber || 0,
+        route: ''
+      };
+      
+      setScanData(adaptedData);
+      setScanResult(adaptedData.status as any); // Should be 'success'
       setTimeout(() => {
         setScanResult('idle');
         setScanCode('');

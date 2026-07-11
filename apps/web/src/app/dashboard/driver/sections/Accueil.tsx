@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { Bus, Route, MapPin, Navigation, Wallet, ArrowUpRight, TrendingUp, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAuth } from '../../../../components/AuthContext';
@@ -14,7 +15,7 @@ export default function SectionAccueil() {
       const activeToken = token || (typeof window !== 'undefined' ? localStorage.getItem('ar_auth_token') : null);
       if (!activeToken) return;
       try {
-        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const base = getApiUrl();
         const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
         
         // Fetch driver wallet balance

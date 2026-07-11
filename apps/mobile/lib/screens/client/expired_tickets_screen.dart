@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,7 +27,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
 
   Future<void> _loadExpiredTickets() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final token = prefs.getString(StorageKeys.authToken);
     if (token != null) {
       try {
         final response = await ApiClient().get('/v1/bookings/my-tickets');

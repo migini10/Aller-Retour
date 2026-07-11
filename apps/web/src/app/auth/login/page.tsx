@@ -1,12 +1,13 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CarFront, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../../components/AuthContext';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
+const API_URL = `${getApiUrl()}/v1`;
 
 export default function LoginPage() {
   const router = useRouter();

@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { Wallet, ArrowUpRight, TrendingUp, Calendar, CreditCard, ChevronRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../../../../components/AuthContext';
@@ -26,7 +27,7 @@ export default function SectionRevenus() {
         return;
       }
       try {
-        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const base = getApiUrl();
         const apiUrl = base.endsWith('/v1') ? base : `${base}/v1`;
         
         // Fetch driver wallet balance

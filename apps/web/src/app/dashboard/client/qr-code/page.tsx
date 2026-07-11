@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, X, List, LayoutGrid, CheckCircle2, Calendar, Clock, ArrowUpRight, Building2, Bus, Eye, Download, Share2, QrCode, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -7,21 +8,6 @@ import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 import { useUser } from '../../../../hooks/useUser';
 import { useAuth } from '../../../../components/AuthContext';
 
-const getApiUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) return envUrl;
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    const isLocalIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
-    if (isLocalIp) {
-      return `http://${hostname}:3333`;
-    }
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:3333';
-    }
-  }
-  return 'https://aller-retour.onrender.com';
-};
 
 export default function QrCodePage() {
   const { userName, userPhone } = useUser();

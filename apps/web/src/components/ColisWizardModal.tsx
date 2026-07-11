@@ -10,6 +10,7 @@ import html2canvas from 'html2canvas';
 import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 import { useAuth } from './AuthContext';
 import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
+import { ApiClient } from '@/lib/api.client';
 
 interface ColisWizardModalProps {
   isOpen: boolean;
@@ -220,21 +221,16 @@ export default function ColisWizardModal({ isOpen, onClose }: ColisWizardModalPr
 
     if (step === 3) {
       try {
-        const res = await fetch('/api/colis', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            destinataire: colisParams.destinataireNom,
-            tel: formatPhoneForSubmit(colisParams.destinataireTel),
-            taille: colisParams.taille,
-            senderName: user?.fullName || 'Expéditeur Anonyme',
-            senderPhone: formatPhoneForSubmit(user?.phone || '+221770000000'),
-            email: (user as any)?.email || 'allogoosn@gmail.com',
-            usePoints: colisParams.usePoints
-          })
+        const parcel = await ApiClient.post('/v1/parcels', {
+          destinataire: colisParams.destinataireNom,
+          tel: formatPhoneForSubmit(colisParams.destinataireTel),
+          taille: colisParams.taille,
+          senderName: user?.fullName || 'Expéditeur Anonyme',
+          senderPhone: formatPhoneForSubmit(user?.phone || '+221770000000'),
+          email: (user as any)?.email || 'allogoosn@gmail.com',
+          usePoints: colisParams.usePoints
         });
-        if (res.ok) {
-          const { parcel } = await res.json();
+        if (parcel) {
           const newTicket = {
             id: parcel.trackingCode,
             qrCodeToken: 'TOKEN-COLIS',

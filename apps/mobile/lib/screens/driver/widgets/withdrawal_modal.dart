@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
@@ -15,8 +16,8 @@ void showWithdrawalModal(BuildContext context, int maxAmount, VoidCallback onCom
   final amountController = TextEditingController();
 
   final prefs = await SharedPreferences.getInstance();
-  final userName = prefs.getString('userName') ?? 'Chauffeur';
-  final userPhone = prefs.getString('userPhone') ?? '';
+  final userName = prefs.getString(StorageKeys.userName) ?? 'Chauffeur';
+  final userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
   
   nameController.text = userName;
   phoneController.text = userPhone;

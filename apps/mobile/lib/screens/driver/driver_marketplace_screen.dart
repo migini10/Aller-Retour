@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,7 +32,7 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userId = prefs.getString('userId') ?? '';
+      _userId = prefs.getString(StorageKeys.userId) ?? '';
     });
   }
 
@@ -43,11 +44,29 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _loadData() async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://10.0.2.2:3000';
-      final colisRes = await http.get(Uri.parse('$nextApiUrl/api/colis'));
-      final missionsRes = await http.get(Uri.parse('$nextApiUrl/api/missions'));
-      
+      List<dynamic> loadedColis = [];
+      List<dynamic> loadedMissions = [];
       List<dynamic> alloPriveRes = [];
+
+      try {
+        final res = await ApiClient.get('/v1/parcels/my-parcels');
+        if (res != null && res is List) {
+          loadedColis = res.map((c) => {
+            ...c,
+            'statut': c['status'] == 'REGISTERED' ? 'En attente de prise en charge' : c['status'] == 'ACCEPTED' ? 'Accepté' : c['status'] == 'IN_TRANSIT' ? 'En transit' : c['status'] == 'DELIVERED' ? 'Livré' : c['status']
+          }).toList();
+        }
+      } catch (e) {
+        debugPrint('Error fetching parcels: $e');
+      }
+
+      try {
+        final res = await ApiClient.get('/v1/trips/search');
+        if (res != null && res is List) loadedMissions = res;
+      } catch (e) {
+        debugPrint('Error fetching missions: $e');
+      }
+      
       try {
         alloPriveRes = await ApiClient.get('/v1/allo-prive/requests/available') as List<dynamic>? ?? [];
       } catch (e) {
@@ -56,8 +75,8 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
       if (mounted) {
         setState(() {
-          if (colisRes.statusCode == 200) colis = jsonDecode(colisRes.body);
-          if (missionsRes.statusCode == 200) missions = List<Map<String, dynamic>>.from(jsonDecode(missionsRes.body));
+          colis = loadedColis;
+          missions = List<Map<String, dynamic>>.from(loadedMissions);
           alloPriveRequests = alloPriveRes;
         });
       }
@@ -87,12 +106,11 @@ class _DriverMarketplaceScreenState extends State<DriverMarketplaceScreen> {
 
   Future<void> _updateColisStatus(String id, String status) async {
     try {
-      final nextApiUrl = dotenv.env['NEXT_API_URL'] ?? 'http://localhost:3000';
-      await http.patch(
-        Uri.parse('$nextApiUrl/api/colis/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'statut': status}),
-      );
+      String nextStatus = status;
+      if (status == 'Accepté') nextStatus = 'ACCEPTED';
+      if (status == 'En attente de prise en charge') nextStatus = 'REGISTERED';
+      
+      await ApiClient.patch('/v1/parcels/$id/status', {'status': nextStatus});
       _loadData();
     } catch (e) {
       debugPrint('Error updating colis: $e');

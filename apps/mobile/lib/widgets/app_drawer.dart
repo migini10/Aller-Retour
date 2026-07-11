@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,8 +32,8 @@ class _AppDrawerState extends State<AppDrawer> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = prefs.getString('userName') ?? 'Utilisateur';
-      _userPhone = prefs.getString('userPhone') ?? '';
+      _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
+      _userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
       _userInitials = _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
       if (_userName.contains(' ')) {
         final parts = _userName.split(' ');
@@ -144,9 +145,9 @@ class _AppDrawerState extends State<AppDrawer> {
                               onTap: () async {
                                 final prefs = await SharedPreferences.getInstance();
                                 await prefs.setBool('isLoggedIn', false);
-                                await prefs.remove('userPhone');
-                                await prefs.remove('auth_token');
-                                await prefs.remove('userName');
+                                await prefs.remove(StorageKeys.userPhone);
+                                await prefs.remove(StorageKeys.authToken);
+                                await prefs.remove(StorageKeys.userName);
                                 if (context.mounted) {
                                   Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                                 }
@@ -242,9 +243,9 @@ class _AppDrawerState extends State<AppDrawer> {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Déconnexion en cours...')));
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setBool('isLoggedIn', false);
-                        await prefs.remove('userPhone');
-                        await prefs.remove('auth_token');
-                        await prefs.remove('userName');
+                        await prefs.remove(StorageKeys.userPhone);
+                        await prefs.remove(StorageKeys.authToken);
+                        await prefs.remove(StorageKeys.userName);
                         if (context.mounted) {
                           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         }

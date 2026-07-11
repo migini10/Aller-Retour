@@ -1,3 +1,5 @@
+import 'package:aller_retour_mobile/core/config/env_config.dart';
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,8 +92,8 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                     
                     try {
                       final prefs = await SharedPreferences.getInstance();
-                      final phone = prefs.getString('userPhone') ?? '';
-                      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+                      final phone = prefs.getString(StorageKeys.userPhone) ?? '';
+                      final apiUrl = EnvConfig.apiUrl;
                       
                       final response = await http.post(
                         Uri.parse('$apiUrl/v1/auth/login-mobile'),

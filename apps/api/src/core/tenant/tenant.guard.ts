@@ -23,7 +23,7 @@ export class TenantContextGuard implements CanActivate {
     const headerTenantId = request.headers['x-tenant-id'] as string;
     const userCompanyId = request.user?.companyId;
 
-    // Si l'utilisateur est un TENANT_ADMIN ou DISPATCHER, on s'assure qu'il accède bien à son GIE
+    // Si l'utilisateur est un DISPATCHER, on s'assure qu'il accède bien à son GIE
     if (userCompanyId) {
       if (headerTenantId && headerTenantId !== userCompanyId && request.user?.role !== 'SUPER_ADMIN') {
         throw new UnauthorizedException("Accès non autorisé à ce transporteur (Tenant non correspondant).");

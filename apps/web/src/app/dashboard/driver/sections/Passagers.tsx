@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Users, CheckCircle2, Phone, MessageSquare, AlertCircle, ArrowLeftRight, Check, Loader2, Clock } from 'lucide-react';
+import { ApiClient } from '@/lib/api.client';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
 
 // Mock de passagers initiaux pour le trajet TRIP-402
@@ -51,27 +52,29 @@ export default function SectionPassagers() {
       try {
         setLoading(true);
         // 1. Fetch manifest
-        const resManifest = await fetch(`/api/trips/${storedTripId}/manifest`);
-        if (resManifest.ok) {
-          const manifest = await resManifest.json();
-          setPassagers(manifest.tickets || []);
-          setVehicleCapacity(manifest.vehicleCapacity || 7);
-          setTripInfo({
-            displayId: manifest.displayId || storedTripId,
-            trajet: manifest.trajet || 'Dakar ➔ Touba'
-          });
-        } else {
+        try {
+          const manifest = await ApiClient.get(`/v1/trips/${storedTripId}/manifest`);
+          if (manifest) {
+            setPassagers(manifest.tickets || []);
+            setVehicleCapacity(manifest.vehicleCapacity || 7);
+            setTripInfo({
+              displayId: manifest.displayId || storedTripId,
+              trajet: manifest.trajet || 'Dakar ➔ Touba'
+            });
+          }
+        } catch (e) {
           // Fallback to mock
           setPassagers(initialPassagers);
           setVehicleCapacity(7);
         }
 
         // 2. Fetch target trips
-        const resTargets = await fetch(`/api/trips/${storedTripId}/transfer-targets`);
-        if (resTargets.ok) {
-          const targets = await resTargets.json();
-          setTargetTrips(targets || []);
-        } else {
+        try {
+          const targets = await ApiClient.get(`/v1/trips/${storedTripId}/transfer-targets`);
+          if (targets) {
+            setTargetTrips(targets || []);
+          }
+        } catch (e) {
           setTargetTrips(mockTargetTrips);
         }
       } catch (err) {
@@ -101,16 +104,12 @@ export default function SectionPassagers() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch('/api/bookings/transfer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bookingIds: selectedIds,
-          targetTripId: selectedTargetTripId
-        })
+      const data = await ApiClient.post('/v1/bookings/transfer', {
+        bookingIds: selectedIds,
+        targetTripId: selectedTargetTripId
       });
 
-      if (res.ok) {
+      if (data && data.success) {
         setIsSubmitting(false);
         setTransferSuccess(true);
         
@@ -131,13 +130,12 @@ export default function SectionPassagers() {
           setSelectedTargetTripId(null);
         }, 2000);
       } else {
-        const errorData = await res.json();
-        alert(errorData.error || 'Une erreur est survenue lors du transfert.');
+        alert(data?.error || 'Une erreur est survenue lors du transfert.');
         setIsSubmitting(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Transfer API error:', error);
-      alert('Erreur réseau lors du transfert.');
+      alert(error.message || 'Erreur réseau lors du transfert.');
       setIsSubmitting(false);
     }
   };

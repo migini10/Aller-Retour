@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useRef, useEffect, useState } from 'react';
 import { QrCode, Wallet, Award, Package, ArrowRight, Sparkles, CarFront, CheckCircle2, Gift, Map, Building2, MapPin } from 'lucide-react';
 import Link from 'next/link';
@@ -49,21 +50,6 @@ const getPopularDestinations = (currentCity: string) => {
   return filtered;
 };
 
-const getApiUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) return envUrl;
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    const isLocalIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
-    if (isLocalIp) {
-      return `http://${hostname}:3333`;
-    }
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:3333';
-    }
-  }
-  return 'https://aller-retour.onrender.com';
-};
 
 export default function ClientDashboard() {
   const { openModal, openBookingWizard, openRechargeWizard } = useModal();
@@ -114,12 +100,9 @@ export default function ClientDashboard() {
     const fetchParcels = async () => {
       if (!user?.phone) return;
       try {
-        const res = await fetch('/api/colis');
-        if (res.ok) {
-          const data = await res.json();
-          const allMyParcels = data.filter((p: any) => 
-            (p.senderPhone === user.phone || p.tel === user.phone)
-          );
+        const data = await ApiClient.get('/v1/parcels/my-parcels');
+        if (data && Array.isArray(data)) {
+          const allMyParcels = data;
           
           const myParcels = allMyParcels.filter((p: any) => p.statut !== 'En attente de prise en charge');
           
@@ -216,12 +199,9 @@ export default function ClientDashboard() {
                 const destsWithPrices = [...popularDests];
                 for (let i = 0; i < destsWithPrices.length; i++) {
                   try {
-                    const res = await fetch(`/api/missions/popular-prices?origin=${encodeURIComponent(city)}&destination=${encodeURIComponent(destsWithPrices[i].name)}`);
-                    if (res.ok) {
-                      const data = await res.json();
-                      if (data.prices && data.prices.length > 0) {
-                        destsWithPrices[i].price = `${data.prices[0]} FCFA`;
-                      }
+                    const data = await ApiClient.get(`/v1/trips/popular-prices?origin=${encodeURIComponent(city)}&destination=${encodeURIComponent(destsWithPrices[i].name)}`);
+                    if (data && data.prices && data.prices.length > 0) {
+                      destsWithPrices[i].price = `${data.prices[0]} FCFA`;
                     }
                   } catch (e) {}
                 }

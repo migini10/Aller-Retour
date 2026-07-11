@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { X, Smartphone, User, Lock, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
@@ -91,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [token, isLocked]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : 'http://localhost:3333/v1';
+  const API_URL = `${getApiUrl()}/v1`;
 
   const saveAuth = (tokenData: string, userData: any) => {
     localStorage.setItem('ar_auth_token', tokenData);

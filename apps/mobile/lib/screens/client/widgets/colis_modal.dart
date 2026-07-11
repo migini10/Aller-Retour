@@ -1,3 +1,4 @@
+import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:convert';
@@ -283,8 +284,8 @@ void showColisModal(BuildContext context, {String? initialTripId}) {
 
                                               final body = {
                                                 'tripId': selectedTripId,
-                                                'senderName': prefs.getString('userName') ?? 'Expéditeur Anonyme',
-                                                'senderPhone': prefs.getString('userPhone') ?? '',
+                                                'senderName': prefs.getString(StorageKeys.userName) ?? 'Expéditeur Anonyme',
+                                                'senderPhone': prefs.getString(StorageKeys.userPhone) ?? '',
                                                 'recipientName': destNomController.text,
                                                 'recipientPhone': destTelController.text,
                                                 'weightKg': weight,

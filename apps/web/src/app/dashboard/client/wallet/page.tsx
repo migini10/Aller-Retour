@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiUrl } from '@/lib/config';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Plus, Sparkles, CreditCard, Clock, Activity, Download } from 'lucide-react';
 import Link from 'next/link';
@@ -15,7 +16,7 @@ export default function WalletPage() {
       const token = localStorage.getItem('ar_auth_token');
       if (!token) return;
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+        const apiUrl = getApiUrl();
         
         const res = await fetch(`${apiUrl}/v1/wallets/my-balance`, {
           headers: { 'Authorization': `Bearer ${token}` }

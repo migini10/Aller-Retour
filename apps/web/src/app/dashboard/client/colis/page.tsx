@@ -5,6 +5,7 @@ import { ArrowLeft, Package, Plus, Search, CheckCircle2, Box, Truck, Clock, Arro
 import Link from 'next/link';
 import { useModal } from '@/components/ModalContext';
 import { useAuth } from '@/components/AuthContext';
+import { ApiClient } from '@/lib/api.client';
 
 export default function ColisPage() {
   const { openColisWizard } = useModal();
@@ -27,11 +28,19 @@ export default function ColisPage() {
   const loadColis = async () => {
     try {
       if (!user?.phone) return;
-      const res = await fetch(`/api/colis?t=${Date.now()}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        const myParcels = data.filter((p: any) => p.senderPhone === user.phone || p.tel === user.phone);
-        setLocalColis(myParcels);
+      const myParcels = await ApiClient.get('/v1/parcels/my-parcels');
+      if (myParcels) {
+        const mapped = myParcels.map((c: any) => ({
+          ...c,
+          id: c.trackingCode || c.id,
+          statut: c.status,
+          trajet: `${c.pickupCity || '...'} → ${c.deliveryCity || '...'}`,
+          date: new Date(c.createdAt).toLocaleDateString('fr-FR'),
+          taille: c.size,
+          destinataire: c.recipientName,
+          tel: c.recipientPhone
+        }));
+        setLocalColis(mapped);
       }
     } catch (e) {
       console.error(e);

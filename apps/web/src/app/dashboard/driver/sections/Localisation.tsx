@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigation, MapPin, Phone, MessageSquare, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ApiClient } from '@/lib/api.client';
 
 export default function SectionLocalisation() {
   const router = useRouter();
@@ -21,21 +22,19 @@ export default function SectionLocalisation() {
       try {
         setLoading(true);
         // 1. Fetch missions to find the driver's active trip
-        const resMissions = await fetch('/api/missions', { cache: 'no-store' });
-        if (resMissions.ok) {
-          const missions = await resMissions.json();
+        const missions = await ApiClient.get('/v1/trips/search');
+        if (missions && Array.isArray(missions)) {
           // Find first active/scheduled mission (status not 'terminé' and scheduled for today)
           const todayStr = new Date().toISOString().split('T')[0];
           const activeMission = missions.find((m: any) => {
             const isToday = m.departureTime && m.departureTime.split('T')[0] === todayStr;
-            return m.status !== 'terminé' && isToday;
+            return m.status !== 'terminé' && m.status !== 'COMPLETED' && isToday;
           });
           
           if (activeMission) {
             // 2. Fetch manifest for this mission
-            const resManifest = await fetch(`/api/trips/${activeMission.tripId}/manifest`);
-            if (resManifest.ok) {
-              const manifest = await resManifest.json();
+            const manifest = await ApiClient.get(`/v1/trips/${activeMission.id}/manifest`);
+            if (manifest) {
               
               // Neighborhood list to assign randomly for visual realism
               const neighborhoods = ['Mermoz', 'Plateau', 'Almadies', 'Ouakam', 'Yoff', 'Pikine', 'Fann', 'Hann'];
