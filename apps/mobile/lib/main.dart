@@ -100,6 +100,11 @@ void main() async {
       await prefs.remove(StorageKeys.authToken);
       await prefs.remove(StorageKeys.userRole);
       await prefs.setString('session_error', 'Accès refusé : L\'application ne correspond pas à votre profil.');
+    } else {
+      // SECURITY/BUGFIX P0: Toujours restaurer l'environnement par défaut selon le rôle réel (JWT) au démarrage
+      final bool realIsDriver = (role == 'DRIVER');
+      await prefs.setBool('isDriverMode', realIsDriver);
+      HomeScreen.isDriverMode = realIsDriver;
     }
   }
 

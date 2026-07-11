@@ -9,6 +9,7 @@ import 'register_screen.dart';
 import '../../services/api_client.dart';
 import '../../core/utils/jwt_utils.dart';
 import '../../main.dart'; // Pour buildFlavor
+import '../home_screen.dart'; // Pour réinitialiser isDriverMode
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -124,7 +125,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (data['user'] != null) {
           if (data['user']['fullName'] != null) await prefs.setString(StorageKeys.userName, data['user']['fullName']);
-          if (data['user']['role'] != null) await prefs.setString(StorageKeys.userRole, data['user']['role']);
+          if (data['user']['role'] != null) {
+            final userRole = data['user']['role'];
+            await prefs.setString(StorageKeys.userRole, userRole);
+            
+            // SECURITY/BUGFIX P0: Toujours écraser l'ancien isDriverMode par le rôle API RÉEL.
+            final bool realIsDriver = (userRole == 'DRIVER');
+            await prefs.setBool('isDriverMode', realIsDriver);
+            HomeScreen.isDriverMode = realIsDriver;
+          }
           if (data['user']['phone'] != null) await prefs.setString(StorageKeys.userPhone, data['user']['phone']);
         }
 

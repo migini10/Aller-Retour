@@ -177,6 +177,9 @@ class _AppDrawerState extends State<AppDrawer> {
                         await prefs.remove(StorageKeys.authToken);
                         await prefs.remove(StorageKeys.userName);
                         await prefs.remove(StorageKeys.userRole);
+                        await prefs.remove('isDriverMode');
+                        // Reset HomeScreen static state
+                        HomeScreen.isDriverMode = false;
                         await prefs.setString('session_error', widget.isDriverMode 
                             ? 'Déconnexion : Veuillez vous connecter avec un compte Passager' 
                             : 'Déconnexion : Veuillez vous connecter avec un compte Chauffeur');
@@ -238,6 +241,9 @@ class _AppDrawerState extends State<AppDrawer> {
                         await prefs.remove(StorageKeys.userPhone);
                         await prefs.remove(StorageKeys.authToken);
                         await prefs.remove(StorageKeys.userName);
+                        await prefs.remove(StorageKeys.userRole);
+                        await prefs.remove('isDriverMode');
+                        HomeScreen.isDriverMode = false;
                         if (context.mounted) {
                           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         }
