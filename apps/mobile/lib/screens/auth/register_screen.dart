@@ -145,8 +145,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 40),
 
-              Row(
-                children: [
+              if (buildFlavor == 'UNIFIED') ...[
+                Row(
+                  children: [
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => _accountType = 'PASSENGER'),
@@ -190,7 +191,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
+              ],
 
               // Name Field
               TextField(
