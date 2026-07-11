@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _rememberMe = false;
+  String _expectedRole = 'PASSENGER';
 
   @override
   void initState() {
@@ -93,11 +94,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
         final role = JwtUtils.decodeRole(token);
         
+        String effectiveFlavor = buildFlavor;
+        if (buildFlavor == 'UNIFIED') {
+          effectiveFlavor = _expectedRole;
+        }
+
         // Isolation par Application
-        if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') {
+        if (effectiveFlavor == 'PASSENGER' && role != 'PASSENGER') {
           throw ApiException(403, 'Accès refusé : Cette application est réservée aux passagers.');
         }
-        if (buildFlavor == 'DRIVER' && role != 'DRIVER') {
+        if (effectiveFlavor == 'DRIVER' && role != 'DRIVER') {
           throw ApiException(403, 'Accès refusé : Cette application est réservée aux chauffeurs.');
         }
 
@@ -252,6 +258,55 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 36),
   
+                if (buildFlavor == 'UNIFIED') ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _expectedRole = 'PASSENGER'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _expectedRole == 'PASSENGER' ? Colors.orange : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Connexion Passager',
+                              style: TextStyle(
+                                color: _expectedRole == 'PASSENGER' ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _expectedRole = 'DRIVER'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _expectedRole == 'DRIVER' ? Colors.orange : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Connexion Chauffeur',
+                              style: TextStyle(
+                                color: _expectedRole == 'DRIVER' ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
                 // Phone Field
                 TextField(
                   controller: _phoneController,
