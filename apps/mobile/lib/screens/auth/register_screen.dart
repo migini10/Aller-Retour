@@ -5,7 +5,8 @@ import 'dart:convert';
 import '../../services/api_client.dart';
 import 'login_screen.dart';
 import '../../core/utils/jwt_utils.dart';
-import '../../main.dart'; // Pour buildFlavor
+import '../../main.dart'; // Pour appFlavor
+import '../home_screen.dart'; // Pour synchroniser isDriverMode
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -85,7 +86,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await prefs.setString(StorageKeys.userName, _nameController.text);
         await prefs.setString(StorageKeys.userPhone, _phoneController.text);
         if (data['user'] != null && data['user']['role'] != null) {
-          await prefs.setString(StorageKeys.userRole, data['user']['role']);
+          final userRole = data['user']['role'];
+          await prefs.setString(StorageKeys.userRole, userRole);
+          
+          // SECURITY/BUGFIX P0: Synchroniser l'environnement immédiatement après l'inscription
+          final bool realIsDriver = (userRole == 'DRIVER');
+          await prefs.setBool('isDriverMode', realIsDriver);
+          HomeScreen.isDriverMode = realIsDriver;
         }
 
         if (mounted) {
