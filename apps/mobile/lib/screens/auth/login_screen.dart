@@ -354,9 +354,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
                     Row(
                       children: [
                         Checkbox(
@@ -367,15 +364,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           activeColor: Colors.orange,
                         ),
                         Text('Mémoriser identifiant', style: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontSize: 13)),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/forgot-password');
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.padded,
+                          ),
+                          child: const Text('Mot de passe oublié ?', style: TextStyle(color: Colors.orange, fontSize: 13, fontWeight: FontWeight.bold)),
+                        ),
                       ],
                     ),
-                    TextButton(
-                      onPressed: () {}, // TODO: Forgot password
-                      child: const Text('Mot de passe oublié ?', style: TextStyle(color: Colors.orange, fontSize: 13)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: 24),
   
                 // Login Button
                 ElevatedButton(

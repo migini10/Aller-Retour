@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/auth/biometric_lock_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/auth/forgot_password_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/client/wallet_screen.dart';
 import 'screens/client/colis_screen.dart';
@@ -150,6 +151,7 @@ class AllerRetourApp extends StatelessWidget {
             : const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/lock': (context) => const BiometricLockScreen(),
         '/home': (context) => const HomeScreen(),
         '/wallet': (context) => const WalletScreen(),
