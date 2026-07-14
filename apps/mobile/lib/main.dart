@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/auth/biometric_lock_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/auth/verify_account_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/client/wallet_screen.dart';
@@ -88,6 +89,8 @@ void main() async {
   final hasToken = token != null;
   bool isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
   final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
+  final isVerified = prefs.getBool('isVerified') ?? false;
+  final userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
 
   if (isLoggedIn) {
     final role = JwtUtils.decodeRole(token!);
@@ -112,7 +115,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
-      child: AllerRetourApp(isLoggedIn: isLoggedIn, appLockEnabled: appLockEnabled),
+      child: AllerRetourApp(isLoggedIn: isLoggedIn, appLockEnabled: appLockEnabled, isVerified: isVerified, userPhone: userPhone),
     ),
   );
 }
@@ -120,8 +123,16 @@ void main() async {
 class AllerRetourApp extends StatelessWidget {
   final bool isLoggedIn;
   final bool appLockEnabled;
+  final bool isVerified;
+  final String userPhone;
   
-  const AllerRetourApp({super.key, required this.isLoggedIn, required this.appLockEnabled});
+  const AllerRetourApp({
+    super.key, 
+    required this.isLoggedIn, 
+    required this.appLockEnabled,
+    required this.isVerified,
+    required this.userPhone,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +158,9 @@ class AllerRetourApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => isLoggedIn 
-            ? (appLockEnabled ? const BiometricLockScreen() : const HomeScreen())
+            ? (isVerified 
+                ? (appLockEnabled ? const BiometricLockScreen() : const HomeScreen())
+                : VerifyAccountScreen(phone: userPhone))
             : const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),

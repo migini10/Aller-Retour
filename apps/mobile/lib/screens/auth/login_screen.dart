@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'verify_account_screen.dart';
 import 'register_screen.dart';
 import '../../services/api_client.dart';
 import '../../core/utils/jwt_utils.dart';
@@ -135,10 +136,26 @@ class _LoginScreenState extends State<LoginScreen> {
             HomeScreen.isDriverMode = realIsDriver;
           }
           if (data['user']['phone'] != null) await prefs.setString(StorageKeys.userPhone, data['user']['phone']);
-        }
 
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          final isVerified = data['user']['verifiedAt'] != null;
+          await prefs.setBool('isVerified', isVerified);
+
+          if (mounted) {
+            if (isVerified) {
+              Navigator.pushReplacementNamed(context, '/home');
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VerifyAccountScreen(phone: _phoneController.text),
+                ),
+              );
+            }
+          }
+        } else {
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
         }
       } else {
         if (mounted) {

@@ -13,6 +13,14 @@ class UnauthorizedException implements Exception {
   String toString() => 'UnauthorizedException: $message';
 }
 
+class AccountNotVerifiedException implements Exception {
+  final String message;
+  AccountNotVerifiedException([this.message = 'Account not verified']);
+
+  @override
+  String toString() => 'AccountNotVerifiedException: $message';
+}
+
 class ApiException implements Exception {
   final int statusCode;
   final String message;
@@ -57,13 +65,6 @@ class ApiClient {
       return; // Success
     }
 
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(StorageKeys.authToken);
-      await prefs.remove(StorageKeys.userRole);
-      throw UnauthorizedException('Session expired or unauthorized');
-    }
-
     String errorMessage = 'Erreur réseau inconnue';
     dynamic responseData;
     
@@ -75,6 +76,16 @@ class ApiClient {
     } catch (e) {
       // Not JSON, fallback to status reason phrase
       errorMessage = response.reasonPhrase ?? 'Erreur du serveur';
+    }
+
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      if (response.statusCode == 403 && errorMessage == 'ACCOUNT_NOT_VERIFIED') {
+        throw AccountNotVerifiedException(errorMessage);
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(StorageKeys.authToken);
+      await prefs.remove(StorageKeys.userRole);
+      throw UnauthorizedException('Session expired or unauthorized');
     }
 
     throw ApiException(response.statusCode, errorMessage, data: responseData);
