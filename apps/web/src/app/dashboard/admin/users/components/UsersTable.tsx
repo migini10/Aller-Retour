@@ -24,7 +24,7 @@ export function UsersTable({ users, isLoading }: UsersTableProps) {
       cell: (user) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-400">
-            {user.firstName[0]}{user.lastName[0]}
+            {user.firstName?.[0]}{user.lastName?.[0]}
           </div>
           <div>
             <div className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">

@@ -10,7 +10,7 @@ export function UserSummaryCard({ user }: { user: User }) {
   return (
     <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-6">
       <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-3xl font-bold text-slate-600 dark:text-slate-400 shrink-0 border-4 border-white dark:border-[#141414] shadow-md">
-        {user.firstName[0]}{user.lastName[0]}
+        {user.firstName?.[0]}{user.lastName?.[0]}
       </div>
       <div className="flex-1 text-center sm:text-left">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">

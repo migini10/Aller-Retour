@@ -12,8 +12,16 @@ interface GetUsersFilters {
 export class UsersService {
   // Helper method to map missing fields with default values
   private static mapUser(apiUser: any): User {
+    const fullName = apiUser.fullName || 'Utilisateur';
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
     return {
       ...apiUser,
+      firstName,
+      lastName,
+      fullName,
       badges: apiUser.badges || [],
       hasPinConfigured: apiUser.hasPinConfigured || false,
       pinLastModified: apiUser.pinLastModified,
