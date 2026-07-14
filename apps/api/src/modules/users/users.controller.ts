@@ -45,4 +45,9 @@ export class UsersController {
   async verifyTestAccount(@Param('id') id: string, @Req() req: any) {
     return this.usersService.verifyTestAccount(id, req.user.id);
   }
+
+  @Patch(':id/mark-test-account')
+  async markTestAccount(@Param('id') id: string, @Req() req: any) {
+    return this.usersService.markTestAccount(id, req.user.id);
+  }
 }

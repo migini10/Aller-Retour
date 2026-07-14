@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { User, UserStatus, UserPermissions } from '../../types/user.types';
-import { ShieldBan, ShieldCheck, KeyRound, Clock } from 'lucide-react';
+import { ShieldBan, ShieldCheck, KeyRound, Clock, Bug } from 'lucide-react';
 import { UsersService } from '../../services/users.service';
 
 interface UserActionsProps {
@@ -60,6 +60,22 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
     }
   };
 
+  const handleMarkTestAccount = async () => {
+    if (!window.confirm('Voulez-vous marquer cet utilisateur comme compte de test ?')) return;
+    
+    try {
+      setIsProcessing(true);
+      await UsersService.markTestAccount(user.id);
+      alert('Compte marqué comme compte de test avec succès');
+      onRefresh();
+    } catch (error: any) {
+      console.error('Failed to mark test account', error);
+      alert(error?.response?.data?.message || error?.message || 'Erreur lors du marquage du compte de test');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-slate-100 dark:border-slate-800/50">
@@ -96,6 +112,17 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
           >
             <ShieldCheck className="w-5 h-5" />
             Valider le compte de test
+          </button>
+        )}
+
+        {!user.isTestAccount && permissions.canEditUser && (
+          <button 
+            onClick={handleMarkTestAccount}
+            disabled={isProcessing}
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 text-purple-600 dark:hover:bg-purple-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+          >
+            <Bug className="w-5 h-5" />
+            Marquer comme compte de test
           </button>
         )}
         

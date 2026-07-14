@@ -235,6 +235,29 @@ export class UsersService {
     return { success: true, message: "Le compte de test a été validé avec succès." };
   }
 
+  async markTestAccount(targetUserId: string, adminId: string) {
+    const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!user) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+
+    if (user.isTestAccount) {
+      return { success: true, message: "Ce compte est déjà un compte de test." };
+    }
+
+    const now = new Date();
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        isTestAccount: true,
+      },
+    });
+
+    this.logger.log(`[AUDIT] adminId: ${adminId}, targetUserId: ${targetUserId}, action: MARK_TEST_ACCOUNT, timestamp: ${now.toISOString()}`);
+
+    return { success: true, message: "Compte marqué comme compte de test avec succès" };
+  }
+
   private mapUserStatus(user: Partial<User>) {
     let status = 'ACTIVE';
     const now = new Date();

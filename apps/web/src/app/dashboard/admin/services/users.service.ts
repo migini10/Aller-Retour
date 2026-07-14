@@ -70,4 +70,9 @@ export class UsersService {
     await ApiClient.patch(`/v1/users/${id}/verify-test-account`);
     return true;
   }
+
+  static async markTestAccount(id: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/users/${id}/mark-test-account`);
+    return true;
+  }
 }
