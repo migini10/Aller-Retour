@@ -24,7 +24,10 @@ export class NotificationsService {
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-      }
+      },
+      connectionTimeout: 3000,
+      greetingTimeout: 3000,
+      socketTimeout: 3000
     });
   }
 
@@ -70,6 +73,7 @@ export class NotificationsService {
           errorMessage: error.message || 'Erreur inconnue lors de l\'envoi'
         }
       });
+      throw error;
     }
   }
 

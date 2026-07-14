@@ -330,6 +330,7 @@ export class AuthService {
         });
       } catch (e) {
         console.error('Erreur envoi email de vérification', e);
+        throw new BadRequestException("Le service d'envoi d'e-mails est temporairement indisponible. Veuillez réessayer plus tard.");
       }
     }
 
