@@ -189,33 +189,34 @@ export class AuthService {
       expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
     });
 
-            await this.notificationsService.sendNotification({
-      to: user.email || 'allogoosn@gmail.com', // Fallback as MVP requirement
-      subject: 'Allogoo - Code de vérification pour réinitialisation du PIN',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #ea580c; margin: 0;">Allogoo</h2>
-            <p style="font-size: 12px; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1.5px;">Sécurité</p>
-          </div>
-          <p>Bonjour <strong>${user.fullName}</strong>,</p>
-          <p>Vous avez demandé la réinitialisation de votre code PIN de connexion.</p>
-          <p>Saisissez le code de vérification suivant sur l'application :</p>
-          <div style="font-size: 28px; font-weight: bold; background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 15px; text-align: center; border-radius: 10px; letter-spacing: 8px; margin: 25px 0; color: #0f172a;">
-            ${otp}
-          </div>
-          <p style="font-size: 12px; color: #64748b;">Ce code est à usage unique et reste valide pendant 10 minutes.</p>
-          <p style="font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px;">
-            Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.
-          </p>
-        </div>
-      `,
-      safeContent: 'Un email contenant le code OTP de réinitialisation de PIN a été envoyé (le code est masqué pour des raisons de sécurité).',
-      recipientId: user.id
-    });
-    console.log(`[Forgot Password] Sent OTP ${otp} to phone ${phone} (Email: ${user.email || 'allogoosn@gmail.com'})`);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const hasSmsProvider = !!process.env.SMS_PROVIDER_API_KEY;
 
-    return { success: true, message: "Un code de vérification a été envoyé par e-mail." };
+    if (isProduction && !hasSmsProvider) {
+      // Bloquer le flow en production si aucun vrai provider SMS n'est configuré
+      throw new BadRequestException("L'envoi de SMS n'est pas encore disponible en production.");
+    }
+
+    // Mode dev/staging ou si un provider SMS est disponible
+    if (!isProduction && !hasSmsProvider) {
+      console.log(`[DEV MODE - Forgot Password] OTP ${otp} pour ${phone}`);
+      // On peut toujours utiliser l'email comme fallback en dev pour tester
+      try {
+        await this.notificationsService.sendNotification({
+          to: user.email || 'allogoosn@gmail.com',
+          subject: 'Allogoo - Code de vérification',
+          html: `<p>Code OTP: <strong>${otp}</strong></p>`,
+          safeContent: 'OTP envoyé (mode dev)',
+          recipientId: user.id
+        });
+      } catch (e) {
+        console.error('Erreur envoi email fallback en dev', e);
+      }
+      return { success: true, message: "Mode test : Le code a été généré (voir logs)." };
+    }
+
+    // TODO: Implémenter le vrai provider SMS ici quand il sera disponible
+    throw new BadRequestException("L'envoi de SMS n'est pas encore disponible.");
   }
 
   async resetPasswordWithOtp(phoneRaw: string, code: string, newPin: string) {
