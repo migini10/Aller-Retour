@@ -24,6 +24,7 @@ export class ApiClient {
     const res = await fetch(url.toString(), {
       method: 'GET',
       headers: this.getHeaders(),
+      cache: 'no-store',
     });
 
     if (!res.ok) {
