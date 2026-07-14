@@ -1,6 +1,7 @@
 import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifiedGuard } from '../../core/auth/verified.guard';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { UserRole } from '@aller-retour/database';
@@ -11,7 +12,7 @@ import { MarkPaidDto } from './dto/mark-paid.dto';
 
 @ApiTags('Driver Earnings')
 @Controller('driver-earnings')
-@UseGuards(AuthGuard('jwt'), RbacGuard)
+@UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
 @Roles(UserRole.SUPER_ADMIN)
 @ApiBearerAuth()
 export class DriverEarningsController {

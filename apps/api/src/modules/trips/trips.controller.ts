@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Param, Post, Body, Patch, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifiedGuard } from '../../core/auth/verified.guard';
 
 import { TripsService } from './trips.service';
 import { SearchTripsDto } from './dto/search-trips.dto';
@@ -31,7 +32,7 @@ export class TripsController {
   }
 
   @Get(':id/manifest')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Télécharger le manifeste des passagers (Offline Cache pour Chauffeur)' })
@@ -40,7 +41,7 @@ export class TripsController {
   }
 
   @Post('create-allo-dakar')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Créer un trajet Allo Dakar par un chauffeur' })
@@ -49,7 +50,7 @@ export class TripsController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Modifier un trajet' })
@@ -58,7 +59,7 @@ export class TripsController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Supprimer un trajet' })
@@ -67,7 +68,7 @@ export class TripsController {
   }
 
   @Patch(':id/toggle-lock')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verrouiller ou déverrouiller un trajet' })
@@ -76,7 +77,7 @@ export class TripsController {
   }
 
   @Get(':id/transfer-targets')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Trouver des trajets alternatifs éligibles pour un transfert de passagers' })

@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, Param, Patch, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifiedGuard } from '../../core/auth/verified.guard';
 import { AlloPriveService } from './allo-prive.service';
 import { CreateAlloPriveRequestDto } from './dto/create-allo-prive-request.dto';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
@@ -7,7 +8,7 @@ import { UserRole } from '@aller-retour/database';
 import { Roles } from '../../core/rbac/roles.decorator';
 
 @Controller('v1/allo-prive')
-@UseGuards(AuthGuard('jwt'), RbacGuard)
+@UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
 export class AlloPriveController {
   constructor(private readonly alloPriveService: AlloPriveService) {}
 

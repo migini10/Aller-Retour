@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { prisma, UserRole } from '@aller-retour/database';
 import { NotificationsService } from '../notifications/notifications.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -292,6 +293,120 @@ export class AuthService {
     }
 
     return { success: true, message: "Code PIN valide." };
+  }
+
+  async requestVerification(userId: string, channel: 'EMAIL' | 'WHATSAPP') {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException("Utilisateur non trouvé.");
+    if (user.verifiedAt) throw new BadRequestException("Compte déjà vérifié.");
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (channel === 'WHATSAPP' && isProduction) {
+      throw new BadRequestException("WhatsApp n'est pas encore disponible en production.");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const linkToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = await bcrypt.hash(linkToken, 10);
+    const otpHash = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
+    await prisma.verificationToken.createMany({
+      data: [
+        { userId, type: 'OTP', channel, tokenHash: otpHash, expiresAt },
+        { userId, type: 'LINK', channel, tokenHash, expiresAt }
+      ]
+    });
+
+    // Envoyer
+    if (channel === 'EMAIL' || (!isProduction && channel === 'WHATSAPP')) {
+      try {
+        await this.notificationsService.sendNotification({
+          to: user.email || 'allogoosn@gmail.com',
+          subject: 'Allogoo - Vérification de votre compte',
+          html: `<p>Votre code OTP est <strong>${otp}</strong>.</p><p>Ou cliquez sur ce lien : <a href="https://aller-retour.onrender.com/v1/auth/verify-link/${linkToken}">Vérifier mon compte</a></p>`,
+          safeContent: 'Un email contenant le code OTP et le lien a été envoyé.',
+          recipientId: user.id
+        });
+      } catch (e) {
+        console.error('Erreur envoi email de vérification', e);
+      }
+    }
+
+    return { success: true, message: `Vérification envoyée via ${channel}.` };
+  }
+
+  async verifyOtp(userId: string, otp: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException("Utilisateur non trouvé.");
+    if (user.verifiedAt) return { success: true, message: "Compte déjà vérifié." };
+
+    const tokens = await prisma.verificationToken.findMany({
+      where: { userId, type: 'OTP', usedAt: null, expiresAt: { gt: new Date() } }
+    });
+
+    let isValid = false;
+    let matchedTokenId: string | undefined = undefined;
+    let channel = '';
+    for (const t of tokens) {
+      if (t.attempts >= 5) continue;
+      if (await bcrypt.compare(otp, t.tokenHash)) {
+        isValid = true;
+        matchedTokenId = t.id;
+        channel = t.channel;
+        break;
+      } else {
+        await prisma.verificationToken.update({ where: { id: t.id }, data: { attempts: { increment: 1 } } });
+      }
+    }
+
+    if (!isValid) throw new BadRequestException("Code OTP invalide ou expiré.");
+
+    const now = new Date();
+    await prisma.$transaction([
+      prisma.verificationToken.update({ where: { id: matchedTokenId }, data: { usedAt: now } }),
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          verifiedAt: now,
+          verificationMethod: channel,
+          ...(channel === 'EMAIL' ? { emailVerifiedAt: now } : { phoneVerifiedAt: now })
+        }
+      })
+    ]);
+
+    return { success: true, message: "Compte vérifié avec succès via OTP." };
+  }
+
+  async verifyLink(token: string) {
+    const tokens = await prisma.verificationToken.findMany({
+      where: { type: 'LINK', usedAt: null, expiresAt: { gt: new Date() } }
+    });
+
+    let matchedToken = null;
+    for (const t of tokens) {
+      if (await bcrypt.compare(token, t.tokenHash)) {
+        matchedToken = t;
+        break;
+      }
+    }
+
+    if (!matchedToken) throw new BadRequestException("Lien invalide ou expiré.");
+
+    const now = new Date();
+    await prisma.$transaction([
+      prisma.verificationToken.update({ where: { id: matchedToken.id }, data: { usedAt: now } }),
+      prisma.user.update({
+        where: { id: matchedToken.userId },
+        data: {
+          verifiedAt: now,
+          verificationMethod: matchedToken.channel,
+          ...(matchedToken.channel === 'EMAIL' ? { emailVerifiedAt: now } : { phoneVerifiedAt: now })
+        }
+      })
+    ]);
+
+    return { success: true, message: "Compte vérifié avec succès via le lien sécurisé." };
   }
 
   private generateToken(user: any) {

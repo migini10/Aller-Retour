@@ -2,6 +2,7 @@ import { Controller, Post, Body, Req, UseGuards, Param, Get, Query } from '@nest
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { BookingsService } from './bookings.service';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifiedGuard } from '../../core/auth/verified.guard';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { Permissions } from '../../core/rbac/permissions.decorator';
@@ -111,7 +112,7 @@ export class BookingsController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.PASSENGER)
   @Permissions('bookings:create')
   @ApiOperation({ summary: 'Réserver un siège sur un trajet' })
@@ -129,7 +130,7 @@ export class BookingsController {
   }
 
   @Post('verify-qr/:token/board')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @Permissions('bookings:scan')
   @ApiOperation({ summary: 'Scanner et valider un billet QR Code en gare' })
@@ -163,7 +164,7 @@ export class BookingsController {
   }
 
   @Post(':id/cancel')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.PASSENGER)
   @Permissions('bookings:update')
   @ApiOperation({ summary: 'Annuler une réservation et obtenir un remboursement dans le Wallet' })
@@ -176,7 +177,7 @@ export class BookingsController {
   }
 
   @Post('transfer')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @Permissions('bookings:update')
   @ApiOperation({ summary: 'Transférer des passagers vers un autre trajet' })

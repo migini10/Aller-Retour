@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { prisma, User, UserRole } from '@aller-retour/database';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserStatusDto, UserStatusAction } from './dto/update-user-status.dto';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   async findAll(filters: ListUsersDto) {
     const { page = 1, limit = 10, search, role, status, verified } = filters;
     const skip = (page - 1) * limit;
@@ -191,6 +192,39 @@ export class UsersService {
         createdAt: user.updatedAt,
       }
     ];
+  }
+
+  async verifyTestAccount(targetUserId: string, adminId: string) {
+    if (process.env.ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION !== 'true') {
+      throw new ForbiddenException("La validation admin des comptes de test n'est pas activée.");
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!user) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+
+    if (!user.isTestAccount) {
+      throw new ForbiddenException("Seuls les comptes de test peuvent être validés manuellement.");
+    }
+
+    if (user.verifiedAt) {
+      return { success: true, message: "Ce compte est déjà vérifié." };
+    }
+
+    const now = new Date();
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        verifiedAt: now,
+        verifiedById: adminId,
+        verificationMethod: 'ADMIN_TEST',
+      },
+    });
+
+    this.logger.log(`[AUDIT] adminId: ${adminId}, targetUserId: ${targetUserId}, action: VERIFY_TEST_ACCOUNT, timestamp: ${now.toISOString()}, oldVerifiedAt: null, newVerifiedAt: ${now.toISOString()}`);
+
+    return { success: true, message: "Le compte de test a été validé avec succès." };
   }
 
   private mapUserStatus(user: Partial<User>) {

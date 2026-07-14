@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
@@ -39,5 +39,10 @@ export class UsersController {
   @Get(':id/activity')
   async getUserActivity(@Param('id') id: string) {
     return this.usersService.getUserActivity(id);
+  }
+
+  @Patch(':id/verify-test-account')
+  async verifyTestAccount(@Param('id') id: string, @Req() req: any) {
+    return this.usersService.verifyTestAccount(id, req.user.id);
   }
 }

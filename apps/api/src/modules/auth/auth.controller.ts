@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -64,6 +64,20 @@ export class ResetPasswordDto {
   newPin!: string;
 }
 
+export class RequestVerificationDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['EMAIL', 'WHATSAPP'])
+  channel!: 'EMAIL' | 'WHATSAPP';
+}
+
+export class VerifyOtpDto {
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 6)
+  otp!: string;
+}
+
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
@@ -108,5 +122,27 @@ export class AuthController {
   @ApiOperation({ summary: 'Vérifier le code PIN de l\'utilisateur connecté' })
   async verifyPin(@Req() req: any, @Body() dto: VerifyPinDto) {
     return this.authService.verifyUserPin(req.user.id, dto.pin);
+  }
+
+  @Post('request-verification')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Demander un code OTP et un lien de vérification' })
+  async requestVerification(@Req() req: any, @Body() dto: RequestVerificationDto) {
+    return this.authService.requestVerification(req.user.id, dto.channel);
+  }
+
+  @Post('verify-otp')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Vérifier le compte via code OTP' })
+  async verifyOtp(@Req() req: any, @Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(req.user.id, dto.otp);
+  }
+
+  @Get('verify-link/:token')
+  @ApiOperation({ summary: 'Vérifier le compte via un lien sécurisé cliquable' })
+  async verifyLink(@Param('token') token: string) {
+    return this.authService.verifyLink(token);
   }
 }

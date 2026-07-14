@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifiedGuard } from '../../core/auth/verified.guard';
 
 import { ParcelsService } from './parcels.service';
 import { CreateParcelDto } from './dto/create-parcel.dto';
@@ -46,7 +47,7 @@ export class ParcelsController {
   // ─── Routes paramétrées ────────────────────────────────────────
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.PASSENGER, UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Créer un colis' })
@@ -64,7 +65,7 @@ export class ParcelsController {
   }
 
   @Patch(':id/status')
-  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.DRIVER, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Changer le statut d\'un colis (machine d\'état stricte)' })

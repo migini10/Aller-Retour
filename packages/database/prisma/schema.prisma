@@ -8,33 +8,40 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(uuid())
-  email               String?              @unique
-  phone               String               @unique
-  phoneVerified       Boolean              @default(false)
-  passwordHash        String?
-  fullName            String
-  avatarUrl           String?
-  role                UserRole             @default(PASSENGER)
-  isActive            Boolean              @default(true)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  failedAttempts      Int                  @default(0)
-  blockedUntil        DateTime?
-  colisPoints         Int                  @default(30)
-  transportPoints     Int                  @default(20)
-  bookings            Booking[]
-  driverEarnings      DriverEarning[]
-  driverProfile       DriverProfile?
-  reviewsWritten      Review[]             @relation("ReviewAuthor")
-  reviewsReceived     Review[]             @relation("ReviewReceiver")
-  seatLocks           SeatLock[]
-  paymentTransactions PaymentTransaction[]
-  notifications       Notification[]
-  parcelsSent         Parcel[]             @relation("ParcelSender")
+  id                    String                 @id @default(uuid())
+  email                 String?                @unique
+  phone                 String                 @unique
+  phoneVerified         Boolean                @default(false)
+  emailVerifiedAt       DateTime?
+  phoneVerifiedAt       DateTime?
+  verifiedAt            DateTime?
+  isTestAccount         Boolean                @default(false)
+  verificationMethod    String?
+  verifiedById          String?
+  passwordHash          String?
+  fullName              String
+  avatarUrl             String?
+  role                  UserRole               @default(PASSENGER)
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  failedAttempts        Int                    @default(0)
+  blockedUntil          DateTime?
+  colisPoints           Int                    @default(30)
+  transportPoints       Int                    @default(20)
+  bookings              Booking[]
+  driverEarnings        DriverEarning[]
+  driverProfile         DriverProfile?
+  reviewsWritten        Review[]               @relation("ReviewAuthor")
+  reviewsReceived       Review[]               @relation("ReviewReceiver")
+  seatLocks             SeatLock[]
+  paymentTransactions   PaymentTransaction[]
+  notifications         Notification[]
+  parcelsSent           Parcel[]               @relation("ParcelSender")
   parcelsCreated        Parcel[]               @relation("ParcelCreator")
   alloPriveRequests     AlloPriveRequest[]     @relation("AlloPriveClient")
   alloPriveApplications AlloPriveApplication[] @relation("AlloPriveDriver")
+  verificationTokens    VerificationToken[]
 
   @@index([phone])
   @@map("users")
@@ -236,11 +243,11 @@ model Parcel {
   deliveredAt    DateTime?
 
   // Pickup (sender) location
-  pickupAddress       String?
-  pickupCity          String?
-  pickupLatitude      Float?
-  pickupLongitude     Float?
-  pickupInstructions  String?
+  pickupAddress      String?
+  pickupCity         String?
+  pickupLatitude     Float?
+  pickupLongitude    Float?
+  pickupInstructions String?
 
   // Delivery (recipient) location
   deliveryAddress      String?
@@ -249,9 +256,9 @@ model Parcel {
   deliveryLongitude    Float?
   deliveryInstructions String?
 
-  trip           Trip         @relation(fields: [tripId], references: [id])
-  sender         User?        @relation("ParcelSender", fields: [senderId], references: [id])
-  createdBy      User?        @relation("ParcelCreator", fields: [createdById], references: [id])
+  trip      Trip  @relation(fields: [tripId], references: [id])
+  sender    User? @relation("ParcelSender", fields: [senderId], references: [id])
+  createdBy User? @relation("ParcelCreator", fields: [createdById], references: [id])
 
   @@index([trackingCode])
   @@map("parcels")
@@ -419,20 +426,32 @@ model Notification {
   title        String
   content      String
   errorMessage String?
+  sentAt       DateTime?
+  readAt       DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  recipientId  String?
+  bookingId    String?
+  tripId       String?
+  booking      Booking?           @relation(fields: [bookingId], references: [id])
+  recipient    User?              @relation(fields: [recipientId], references: [id])
+  trip         Trip?              @relation(fields: [tripId], references: [id])
+}
 
-  recipientId String?
-  recipient   User?   @relation(fields: [recipientId], references: [id])
-
-  bookingId String?
-  booking   Booking? @relation(fields: [bookingId], references: [id])
-
-  tripId String?
-  trip   Trip?   @relation(fields: [tripId], references: [id])
-
-  sentAt    DateTime?
-  readAt    DateTime?
+model VerificationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // "OTP" ou "LINK"
+  channel   String // "EMAIL" ou "WHATSAPP"
+  tokenHash String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  usedAt    DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("verification_tokens")
 }
 
 model SystemSetting {
