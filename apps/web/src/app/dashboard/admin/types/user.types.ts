@@ -59,6 +59,10 @@ export interface User {
   status: UserStatus;
   badges: UserBadge[];
   avatarUrl?: string;
+  isTestAccount?: boolean;
+  verifiedAt?: string | null;
+  verificationMethod?: string | null;
+  verifiedById?: string | null;
   hasPinConfigured: boolean;
   pinLastModified?: string;
   createdAt: string;

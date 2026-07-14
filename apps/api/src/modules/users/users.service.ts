@@ -63,6 +63,10 @@ export class UsersService {
           failedAttempts: true,
           colisPoints: true,
           transportPoints: true,
+          isTestAccount: true,
+          verifiedAt: true,
+          verificationMethod: true,
+          verifiedById: true,
         },
       }),
     ]);
@@ -97,6 +101,10 @@ export class UsersService {
         colisPoints: true,
         transportPoints: true,
         passwordHash: true, // Only to check if pin is configured
+        isTestAccount: true,
+        verifiedAt: true,
+        verificationMethod: true,
+        verifiedById: true,
       },
     });
 

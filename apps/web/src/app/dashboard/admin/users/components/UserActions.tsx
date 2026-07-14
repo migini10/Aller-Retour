@@ -44,6 +44,22 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
     }
   };
 
+  const handleVerifyTestAccount = async () => {
+    if (!window.confirm('Voulez-vous valider ce compte de test manuellement ?')) return;
+    
+    try {
+      setIsProcessing(true);
+      await UsersService.verifyTestAccount(user.id);
+      alert('Compte de test validé avec succès');
+      onRefresh();
+    } catch (error: any) {
+      console.error('Failed to verify test account', error);
+      alert(error?.response?.data?.message || error?.message || 'Erreur lors de la validation du compte de test');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-slate-100 dark:border-slate-800/50">
@@ -70,6 +86,17 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
               Réactiver le compte
             </button>
           )
+        )}
+        
+        {user.isTestAccount && !user.verifiedAt && (
+          <button 
+            onClick={handleVerifyTestAccount}
+            disabled={isProcessing}
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 text-blue-600 dark:hover:bg-blue-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+          >
+            <ShieldCheck className="w-5 h-5" />
+            Valider le compte de test
+          </button>
         )}
         
         {permissions.canResetPin && (

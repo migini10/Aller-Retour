@@ -57,4 +57,9 @@ export class UsersService {
     const json = await ApiClient.get(`/v1/users/${id}/activity`);
     return json || [];
   }
+
+  static async verifyTestAccount(id: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/users/${id}/verify-test-account`);
+    return true;
+  }
 }
