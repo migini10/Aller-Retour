@@ -265,6 +265,29 @@ export class AuthService {
     return { success: true, message: "Le compte a été débloqué avec succès." };
   }
 
+  async getProfile(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        phone: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        role: true,
+        isActive: true,
+        verifiedAt: true,
+        colisPoints: true,
+        transportPoints: true,
+        createdAt: true
+      }
+    });
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+    return { success: true, user };
+  }
+
   async verifyUserPin(userId: string, pin: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new BadRequestException("Utilisateur introuvable.");

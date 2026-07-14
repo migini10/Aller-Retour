@@ -1,7 +1,7 @@
 import 'package:aller_retour_mobile/core/constants/storage_keys.dart';
 import 'dart:ui';
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,6 +41,7 @@ import 'theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/utils/jwt_utils.dart';
+import 'services/api_client.dart';
 
 const String buildFlavor = String.fromEnvironment('APP_FLAVOR', defaultValue: 'UNIFIED');
 
@@ -89,26 +90,47 @@ void main() async {
   final hasToken = token != null;
   bool isLoggedIn = (prefs.getBool('isLoggedIn') ?? false) && hasToken;
   final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
-  final isVerified = prefs.getBool('isVerified') ?? false;
+  bool isVerified = prefs.getBool('isVerified') ?? false;
   final userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
 
   if (isLoggedIn) {
-    final role = JwtUtils.decodeRole(token!);
-    bool roleValid = true;
-    if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') roleValid = false;
-    if (buildFlavor == 'DRIVER' && role != 'DRIVER') roleValid = false;
+    try {
+      final response = await ApiClient().get('/v1/auth/me', requireAuth: true);
+      final data = jsonDecode(response.body);
+      if (data['user'] != null) {
+        final user = data['user'];
+        isVerified = user['verifiedAt'] != null;
+        await prefs.setBool('isVerified', isVerified);
+        
+        final role = user['role'];
+        if (role != null) {
+          await prefs.setString(StorageKeys.userRole, role);
+        }
+      }
+    } catch (e) {
+      // Ignorer l'erreur réseau au démarrage, on garde le cache existant.
+      // Si c'est une erreur 401/403, ApiClient s'occupe déjà de vider la session.
+      isLoggedIn = prefs.getString(StorageKeys.authToken) != null;
+    }
 
-    if (!roleValid) {
-      isLoggedIn = false;
-      await prefs.remove('isLoggedIn');
-      await prefs.remove(StorageKeys.authToken);
-      await prefs.remove(StorageKeys.userRole);
-      await prefs.setString('session_error', 'Accès refusé : L\'application ne correspond pas à votre profil.');
-    } else {
-      // SECURITY/BUGFIX P0: Toujours restaurer l'environnement par défaut selon le rôle réel (JWT) au démarrage
-      final bool realIsDriver = (role == 'DRIVER');
-      await prefs.setBool('isDriverMode', realIsDriver);
-      HomeScreen.isDriverMode = realIsDriver;
+    if (isLoggedIn) {
+      final role = prefs.getString(StorageKeys.userRole) ?? JwtUtils.decodeRole(token!);
+      bool roleValid = true;
+      if (buildFlavor == 'PASSENGER' && role != 'PASSENGER') roleValid = false;
+      if (buildFlavor == 'DRIVER' && role != 'DRIVER') roleValid = false;
+
+      if (!roleValid) {
+        isLoggedIn = false;
+        await prefs.remove('isLoggedIn');
+        await prefs.remove(StorageKeys.authToken);
+        await prefs.remove(StorageKeys.userRole);
+        await prefs.setString('session_error', 'Accès refusé : L\'application ne correspond pas à votre profil.');
+      } else {
+        // SECURITY/BUGFIX P0: Toujours restaurer l'environnement par défaut selon le rôle réel (JWT) au démarrage
+        final bool realIsDriver = (role == 'DRIVER');
+        await prefs.setBool('isDriverMode', realIsDriver);
+        HomeScreen.isDriverMode = realIsDriver;
+      }
     }
   }
 

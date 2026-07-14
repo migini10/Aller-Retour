@@ -145,4 +145,12 @@ export class AuthController {
   async verifyLink(@Param('token') token: string) {
     return this.authService.verifyLink(token);
   }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Récupérer le profil utilisateur courant (vérification session)' })
+  async getProfile(@Req() req: any) {
+    return this.authService.getProfile(req.user.id);
+  }
 }
