@@ -203,8 +203,9 @@ export class UsersService {
   }
 
   async verifyTestAccount(targetUserId: string, adminId: string) {
-    if (process.env.ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION !== 'true') {
-      throw new ForbiddenException("La validation admin des comptes de test n'est pas activée.");
+    const allowAdminVerify = process.env.ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION?.trim().replace(/['"]/g, '').toLowerCase() === 'true';
+    if (!allowAdminVerify) {
+      throw new ForbiddenException("La validation admin des comptes de test n'est pas activée (ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION).");
     }
 
     const user = await prisma.user.findUnique({ where: { id: targetUserId } });
