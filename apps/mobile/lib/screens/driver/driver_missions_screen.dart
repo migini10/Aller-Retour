@@ -29,7 +29,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
   Future<void> _fetchMissions() async {
     try {
-      final res = await ApiClient().get('/v1/trips/search');
+      final res = await ApiClient().get('/v1/trips/driver/me');
       if (res.statusCode == 200) {
         final List<dynamic> data = json.decode(res.body);
         List<Map<String, dynamic>> fetchedMissions = data.map((m) {

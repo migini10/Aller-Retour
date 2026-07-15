@@ -22,6 +22,15 @@ export class TripsController {
     return this.tripsService.searchTrips(dto);
   }
 
+  @Get('driver/me')
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
+  @Roles(UserRole.DRIVER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lister les trajets du chauffeur connecté' })
+  async findMyTrips(@Req() req: any, @Query() query: any) {
+    return this.tripsService.findDriverTrips(req.user.id, query);
+  }
+
   @Get()
   @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)

@@ -206,6 +206,39 @@ export class TripsService {
     };
   }
 
+  async findDriverTrips(userId: string, query: any) {
+    const driverProfile = await prisma.driverProfile.findUnique({
+      where: { userId }
+    });
+
+    if (!driverProfile) {
+      throw new ForbiddenException("Vous n'avez pas de profil chauffeur.");
+    }
+
+    const trips = await prisma.trip.findMany({
+      where: { driverId: driverProfile.id },
+      include: {
+        route: { include: { originStation: true, destinationStation: true } },
+        vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+        bookings: { select: { id: true, status: true, amountPaid: true } }
+      },
+      orderBy: { departureTime: 'desc' }
+    });
+
+    return trips.map((trip) => {
+      const bookedSeats = trip.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'BOARDED').length;
+      const totalPassengers = trip.initialPassengers + bookedSeats;
+      return {
+        ...trip,
+        availableSeats: Math.max(0, trip.seatsOffered - totalPassengers),
+        passagers: totalPassengers,
+        placesPrises: totalPassengers,
+        seatsOffered: trip.seatsOffered,
+        initialPassengers: trip.initialPassengers,
+      };
+    });
+  }
+
   async getManifest(tripId: string, userId: string, role: string) {
     await this.checkTripOwnership(tripId, userId, role);
 
