@@ -17,11 +17,24 @@ export class PaymentsService {
     const queryString = params.toString();
     const url = `/v1/payment-transactions${queryString ? `?${queryString}` : ''}`;
     
-    return ApiClient.get<GetPaymentsResponse>(url);
+    const response = await ApiClient.get<any>(url);
+    if (Array.isArray(response)) {
+      return {
+        data: response,
+        meta: { total: response.length, page: filters.page || 1, limit: filters.limit || 10, totalPages: 1 }
+      };
+    }
+    return response || { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 1 } };
   }
 
   static async getSummary(): Promise<PaymentSummary> {
-    return ApiClient.get<PaymentSummary>('/v1/payment-transactions/summary');
+    const res = await ApiClient.get<any>('/v1/payment-transactions/summary');
+    return {
+      totalAmount: res?.totalCollectedAmount || 0,
+      successCount: res?.totalSuccess || 0,
+      failedCount: res?.totalFailed || 0,
+      pendingCount: res?.totalPending || 0,
+    };
   }
 
   static async getTransactionById(id: string): Promise<PaymentTransaction> {

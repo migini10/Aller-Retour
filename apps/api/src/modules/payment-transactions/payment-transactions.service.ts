@@ -24,21 +24,37 @@ export class PaymentTransactionsService {
       };
     }
 
-    const transactions = await prisma.paymentTransaction.findMany({
-      where,
-      include: {
-        user: {
-          select: { id: true, fullName: true, phone: true }
-        },
-        booking: {
-          select: { id: true, seatNumber: true, tripId: true }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 100, // Simplification pagination
-    });
+    const page = dto.page || 1;
+    const limit = dto.limit || 10;
+    const skip = (page - 1) * limit;
 
-    return transactions;
+    const [total, transactions] = await Promise.all([
+      prisma.paymentTransaction.count({ where }),
+      prisma.paymentTransaction.findMany({
+        where,
+        include: {
+          user: {
+            select: { id: true, fullName: true, phone: true }
+          },
+          booking: {
+            select: { id: true, seatNumber: true, tripId: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      })
+    ]);
+
+    return {
+      data: transactions,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
   }
 
   async getSummary() {
