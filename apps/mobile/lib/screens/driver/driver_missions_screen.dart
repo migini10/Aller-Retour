@@ -497,23 +497,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     throw Exception('API error');
                                   }
                                 } catch(e) {
-                                  // Fallback si serveur éteint
-                                  setState(() {
-      missions.insert(0, {
-                                      'id': 'TRIP-NEW',
-                                      'trajet': '$originCity → $destinationCity',
-                                      'date': date,
-                                      'heure': time,
-                                      'vehicule': 'Voiture $vehicleCapacity Places',
-                                      'statut': 'programmé',
-                                      'passagers': int.tryParse(passagersController.text) ?? 0,
-                                      'placesLibres': int.tryParse(placesLibres) ?? 0,
-                                      'isAirConditioned': isAirConditioned,
-                                      'takesTollRoad': takesTollRoad,
-                                    });
-                                  });
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mode Hors Ligne : Trajet ajouté localement', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.orangeAccent));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: Impossible de créer le trajet. Veuillez réessayer.', style: TextStyle(color: Theme.of(context).colorScheme.onError)), backgroundColor: Theme.of(context).colorScheme.error));
                                 } finally {
                                   if (context.mounted) {
                                     setModalState(() => isLoading = false);

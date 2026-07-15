@@ -45,4 +45,10 @@ export class CreateTripDto {
   @IsNumber()
   @Min(1)
   vehicleCapacity?: number = 5;
+
+  @IsOptional()
+  isAirConditioned?: boolean;
+
+  @IsOptional()
+  takesTollRoad?: boolean;
 }
