@@ -87,9 +87,9 @@ export default function UserDetailPage() {
       >
         <UserSummaryCard user={user} />
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
           
-          <div className="flex-1 flex flex-col gap-6">
+          <div className="flex-1 flex flex-col gap-6 min-w-0">
             {/* Tabs Navigation */}
             <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-800/80 rounded-xl p-1.5 flex overflow-x-auto hide-scrollbar">
               {tabs.map((tab) => (
