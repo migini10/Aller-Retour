@@ -11,9 +11,27 @@ interface GetTripsFilters {
 
 export class TripsService {
   static async searchTrips(filters: GetTripsFilters = {}): Promise<{ data: Trip[], meta: any }> {
-    const json = await ApiClient.get('/v1/trips/search', filters);
+    const json = await ApiClient.get('/v1/trips', filters);
+    const data = (json.data || []).map((t: any) => ({
+      id: t.id,
+      departureCity: t.route?.originStation?.city || '',
+      arrivalCity: t.route?.destinationStation?.city || '',
+      departureTime: t.departureTime,
+      price: t.pricePerSeat,
+      availableSeats: t.availableSeats,
+      totalSeats: t.seatsOffered,
+      status: t.status,
+      isLocked: t.isLocked,
+      driverId: t.driverId,
+      vehicleId: t.vehicleId,
+      createdAt: t.createdAt,
+      driver: t.driver?.user ? {
+        firstName: t.driver.user.fullName?.split(' ')[0] || '',
+        lastName: t.driver.user.fullName?.split(' ').slice(1).join(' ') || ''
+      } : undefined
+    }));
     return {
-      data: json.data || [],
+      data,
       meta: json.meta || {},
     };
   }

@@ -139,6 +139,73 @@ export class TripsService {
     });
   }
 
+  async findAllAdmin(query: any) {
+    const { page = 1, limit = 50, search, status, date } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const where: any = {};
+    if (status) where.status = status;
+    if (date) {
+      const startOfDay = new Date(date);
+      if (!isNaN(startOfDay.getTime())) {
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        where.departureTime = { gte: startOfDay, lte: endOfDay };
+      }
+    }
+    
+    if (search) {
+      where.OR = [
+        { route: { originStation: { city: { contains: search, mode: 'insensitive' } } } },
+        { route: { destinationStation: { city: { contains: search, mode: 'insensitive' } } } },
+        { driver: { user: { fullName: { contains: search, mode: 'insensitive' } } } },
+        { vehicle: { plateNumber: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+
+    const [total, trips] = await Promise.all([
+      prisma.trip.count({ where }),
+      prisma.trip.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        include: {
+          route: { include: { originStation: true, destinationStation: true } },
+          vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+          driver: { select: { user: { select: { phone: true, fullName: true } } } },
+          bookings: { select: { id: true } }
+        },
+        orderBy: { departureTime: 'desc' }
+      })
+    ]);
+
+    const formattedTrips = trips.map((trip) => {
+      const bookedSeats = trip.bookings.length;
+      const totalPassengers = trip.initialPassengers + bookedSeats;
+      return {
+        ...trip,
+        availableSeats: Math.max(0, trip.seatsOffered - totalPassengers),
+        passagers: totalPassengers,
+        placesPrises: totalPassengers,
+        seatsOffered: trip.seatsOffered,
+        initialPassengers: trip.initialPassengers,
+        driverName: trip.driver?.user?.fullName || null,
+        driverPhone: trip.driver?.user?.phone || null,
+      };
+    });
+
+    return {
+      data: formattedTrips,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    };
+  }
+
   async getManifest(tripId: string, userId: string, role: string) {
     await this.checkTripOwnership(tripId, userId, role);
 

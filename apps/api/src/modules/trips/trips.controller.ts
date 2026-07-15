@@ -22,6 +22,15 @@ export class TripsController {
     return this.tripsService.searchTrips(dto);
   }
 
+  @Get()
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lister tous les trajets (Admin)' })
+  async findAllAdmin(@Query() query: any) {
+    return this.tripsService.findAllAdmin(query);
+  }
+
   @Get('popular-prices')
   @ApiOperation({ summary: 'Obtenir les prix les plus populaires pour un trajet donné' })
   async getPopularPrices(
