@@ -29,7 +29,13 @@ export class ApiClient {
 
     if (!res.ok) {
       if (res.status === 404) return null;
-      throw new Error(`GET ${path} failed with status ${res.status}`);
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {}
+      const error: any = new Error(errorData?.message || `GET ${path} failed with status ${res.status}`);
+      error.response = { data: errorData };
+      throw error;
     }
 
     return res.json();
@@ -43,7 +49,13 @@ export class ApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`POST ${path} failed with status ${res.status}`);
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {}
+      const error: any = new Error(errorData?.message || `POST ${path} failed with status ${res.status}`);
+      error.response = { data: errorData };
+      throw error;
     }
 
     // Attempt to parse JSON, if it's empty return true
@@ -62,7 +74,13 @@ export class ApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`PATCH ${path} failed with status ${res.status}`);
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {}
+      const error: any = new Error(errorData?.message || `PATCH ${path} failed with status ${res.status}`);
+      error.response = { data: errorData };
+      throw error;
     }
 
     try {
@@ -80,7 +98,13 @@ export class ApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`PUT ${path} failed with status ${res.status}`);
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {}
+      const error: any = new Error(errorData?.message || `PUT ${path} failed with status ${res.status}`);
+      error.response = { data: errorData };
+      throw error;
     }
 
     try {
@@ -97,7 +121,13 @@ export class ApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`DELETE ${path} failed with status ${res.status}`);
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {}
+      const error: any = new Error(errorData?.message || `DELETE ${path} failed with status ${res.status}`);
+      error.response = { data: errorData };
+      throw error;
     }
 
     try {

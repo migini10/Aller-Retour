@@ -202,25 +202,14 @@ export class UsersService {
     ];
   }
 
-  async verifyTestAccount(targetUserId: string, adminId: string, reqUser: any = null) {
-    const allowAdminVerify = process.env.ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION?.trim().replace(/['"]/g, '').toLowerCase() === 'true';
-    
-    // DEBUG LOG AS REQUESTED
-    this.logger.log(`[DEBUG VERIFY] req.user.id=${reqUser?.id} req.user.role=${reqUser?.role} targetUserId=${targetUserId} allowAdminVerify=${allowAdminVerify}`);
-
-    if (!allowAdminVerify) {
-      throw new ForbiddenException(`DEBUG_REASON: La validation admin des comptes de test n'est pas activée (ALLOW_TEST_ACCOUNT_ADMIN_VERIFICATION).`);
-    }
-
+  async verifyTestAccount(targetUserId: string, adminId: string) {
     const user = await prisma.user.findUnique({ where: { id: targetUserId } });
     if (!user) {
       throw new NotFoundException('Utilisateur introuvable');
     }
 
-    this.logger.log(`[DEBUG VERIFY] targetUser.isTestAccount=${user.isTestAccount}`);
-
     if (!user.isTestAccount) {
-      throw new ForbiddenException(`DEBUG_REASON: Seuls les comptes de test peuvent être validés manuellement (isTestAccount = false).`);
+      throw new ForbiddenException(`Seuls les comptes de test peuvent être validés manuellement (isTestAccount = false).`);
     }
 
     if (user.verifiedAt) {
