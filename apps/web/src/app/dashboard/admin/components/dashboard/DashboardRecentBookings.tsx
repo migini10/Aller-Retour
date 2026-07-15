@@ -19,9 +19,10 @@ interface RecentBooking {
 interface DashboardRecentBookingsProps {
   bookings: RecentBooking[];
   delay?: number;
+  onViewDetails?: (id: string) => void;
 }
 
-export function DashboardRecentBookings({ bookings, delay = 0 }: DashboardRecentBookingsProps) {
+export function DashboardRecentBookings({ bookings, delay = 0, onViewDetails }: DashboardRecentBookingsProps) {
   
   const columns: ColumnDef<RecentBooking>[] = [
     {
@@ -64,7 +65,10 @@ export function DashboardRecentBookings({ bookings, delay = 0 }: DashboardRecent
     {
       header: 'Action',
       cell: (item) => (
-        <button className="text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 text-sm font-semibold transition-colors">
+        <button 
+          onClick={() => onViewDetails && onViewDetails(item.id)}
+          className="text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 text-sm font-semibold transition-colors"
+        >
           Détails
         </button>
       ),

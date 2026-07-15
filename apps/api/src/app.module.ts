@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { MaintenanceGuard } from './core/maintenance/maintenance.guard';
 import { DatabaseModule } from './core/database/database.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
@@ -34,6 +35,7 @@ import { ParcelsModule } from './modules/parcels/parcels.module';
         EMAIL_PASS: Joi.string().optional(),
       }),
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     TripsModule,

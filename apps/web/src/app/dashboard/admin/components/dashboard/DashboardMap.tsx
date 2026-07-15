@@ -49,8 +49,8 @@ export function DashboardMap({ title = 'Carte des trajets', subtitle = 'Réparti
             <div className="relative w-full max-w-md aspect-[4/3] flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/50 dark:bg-[#1A1A1A]/50">
                <div className="text-center">
                  <MapPin className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Composant Carte Interactive</p>
-                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">Emplacement prêt pour l'intégration de Leaflet ou Mapbox.</p>
+                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Carte Interactive Bientôt Disponible</p>
+                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">Cette fonctionnalité sera ajoutée lors d'une prochaine mise à jour.</p>
                </div>
                
                {/* Data Points */}

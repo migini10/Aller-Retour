@@ -52,9 +52,12 @@ const getDeterministicCoordinates = (cityName: string) => {
   };
 };
 
+import { useRouter } from 'next/navigation';
+
 export default function AdminDashboardPage() {
   const { data, isLoading } = useDashboard();
   const analytics = data?.analytics;
+  const router = useRouter();
 
   return (
     <AdminPageContainer>
@@ -97,13 +100,13 @@ export default function AdminDashboardPage() {
               delay={0.25} 
             />
             <DashboardStatCard 
-              title="Paiements réussis" 
+              title="Revenu Total" 
               value={`${(analytics?.kpis.totalRevenue || 0).toLocaleString('fr-FR')} FCFA`} 
               icon={Wallet} 
               delay={0.3} 
             />
             <DashboardStatCard 
-              title="Commissions Allogoo" 
+              title="Total Commissions" 
               value={`${(analytics?.kpis.totalPlatformFees || 0).toLocaleString('fr-FR')} FCFA`} 
               icon={TrendingUp} 
               delay={0.35} 
@@ -172,6 +175,7 @@ export default function AdminDashboardPage() {
                 }))} 
                 delay={0.65} 
                 isEmpty={!analytics?.topDrivers || analytics.topDrivers.length === 0}
+                onViewAll={() => router.push('/dashboard/admin/drivers')}
               />
             </div>
           </div>
@@ -190,6 +194,7 @@ export default function AdminDashboardPage() {
                   date: new Date(b.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                 }))} 
                 delay={0.7} 
+                onViewDetails={(id) => router.push(`/dashboard/admin/bookings/${id}`)}
               />
             </div>
             <div className="lg:col-span-1">
@@ -211,12 +216,22 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <DashboardAlerts 
-                alerts={(analytics?.alerts || []).map(a => ({
-                  id: a.id,
-                  type: a.type as any,
-                  title: a.title,
-                  message: a.message
-                }))} 
+                alerts={(analytics?.alerts || []).map(a => {
+                  let action;
+                  if (a.id === 'alert_pending_earnings') {
+                    action = { label: 'Gérer les paiements', onClick: () => router.push('/dashboard/admin/driver-operations') };
+                  } else if (a.id === 'alert_pending_kyc') {
+                    action = { label: 'Vérifier les profils', onClick: () => router.push('/dashboard/admin/drivers') };
+                  }
+                  
+                  return {
+                    id: a.id,
+                    type: a.type as any,
+                    title: a.title,
+                    message: a.message,
+                    action
+                  };
+                })} 
                 delay={0.8} 
                 isEmpty={!analytics?.alerts || analytics.alerts.length === 0} 
               />

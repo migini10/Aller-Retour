@@ -20,9 +20,10 @@ interface LeaderboardCardProps {
   items: LeaderboardItem[];
   delay?: number;
   isEmpty?: boolean;
+  onViewAll?: () => void;
 }
 
-export function LeaderboardCard({ title, subtitle, items, delay = 0, isEmpty = false }: LeaderboardCardProps) {
+export function LeaderboardCard({ title, subtitle, items, delay = 0, isEmpty = false, onViewAll }: LeaderboardCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -38,7 +39,10 @@ export function LeaderboardCard({ title, subtitle, items, delay = 0, isEmpty = f
           </h3>
           {subtitle && <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{subtitle}</p>}
         </div>
-        <button className="text-sm font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 transition-colors flex items-center">
+        <button 
+          onClick={onViewAll}
+          className="text-sm font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 transition-colors flex items-center"
+        >
           Voir tout
           <ChevronRight className="w-4 h-4 ml-1" />
         </button>

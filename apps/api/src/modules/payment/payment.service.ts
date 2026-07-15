@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
 
 import { PricingService } from '../pricing/pricing.service';
@@ -231,5 +232,65 @@ export class PaymentService {
     }
 
     return { success: true, message: 'Booking confirmed and driver earnings registered' };
+  }
+
+  /**
+   * Cron exécuté chaque minute pour expirer les transactions PENDING de plus de 2 minutes
+   * Cette méthode est conçue pour être résistante aux courses avec les webhooks (idempotence).
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handlePendingTransactionsTimeout() {
+    const PAYMENT_PENDING_TIMEOUT_MINUTES = 2;
+    const cutoffDate = new Date(Date.now() - PAYMENT_PENDING_TIMEOUT_MINUTES * 60 * 1000);
+
+    // Trouver les transactions candidates
+    const expiredTxs = await prisma.paymentTransaction.findMany({
+      where: { 
+        status: 'PENDING', 
+        createdAt: { lt: cutoffDate } 
+      },
+      select: { id: true, bookingId: true }
+    });
+
+    if (expiredTxs.length === 0) return;
+
+    this.logger.log(`Found ${expiredTxs.length} pending transactions older than ${PAYMENT_PENDING_TIMEOUT_MINUTES} minutes. Expiring them...`);
+
+    for (const tx of expiredTxs) {
+      try {
+        // Tentative d'annulation atomique
+        const result = await prisma.paymentTransaction.updateMany({
+          where: { 
+            id: tx.id, 
+            status: 'PENDING' // Sécurité: ne modifie que si c'est TOUJOURS en pending
+          },
+          data: { 
+            status: 'CANCELLED',
+            providerMessage: 'Timeout expiration automatique'
+          }
+        });
+
+        // Si 0 ligne modifiée, le webhook a probablement confirmé le paiement juste avant
+        if (result.count === 1 && tx.bookingId) {
+          // Annulation sûre du Booking uniquement si lui-même est encore en PENDING_PAYMENT
+          // On ne veut jamais annuler un booking déjà confirmé
+          const bookingResult = await prisma.booking.updateMany({
+            where: { 
+              id: tx.bookingId, 
+              status: 'PENDING_PAYMENT' 
+            },
+            data: { 
+              status: 'CANCELLED' 
+            }
+          });
+          
+          if (bookingResult.count === 1) {
+             this.logger.log(`Booking ${tx.bookingId} cancelled due to payment timeout. Seats are now released.`);
+          }
+        }
+      } catch (err) {
+        this.logger.error(`Failed to process timeout for transaction ${tx.id}`, err);
+      }
+    }
   }
 }
