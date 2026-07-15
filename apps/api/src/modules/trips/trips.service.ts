@@ -284,12 +284,14 @@ export class TripsService {
     }
 
     let vehicleId = dto.vehicleId;
-    if (!vehicleId && driverProfile.vehicles.length > 0) {
-      vehicleId = driverProfile.vehicles[0].id;
-    }
-
     if (!vehicleId) {
-      throw new BadRequestException("Aucun véhicule associé à ce chauffeur.");
+      if (driverProfile.vehicles.length === 1) {
+        vehicleId = driverProfile.vehicles[0].id;
+      } else if (driverProfile.vehicles.length > 1) {
+        throw new BadRequestException("Vous possédez plusieurs véhicules. Veuillez en sélectionner un explicitement.");
+      } else {
+        throw new BadRequestException("Aucun véhicule associé à ce chauffeur.");
+      }
     }
 
     const vehicle = await prisma.vehicle.findUnique({
