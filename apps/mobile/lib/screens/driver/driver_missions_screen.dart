@@ -494,10 +494,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Trajet créé avec succès via API !', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.green));
                                   } else {
-                                    throw Exception('API error');
+                                    final errorBody = res.body;
+                                    throw Exception('API error: ${res.statusCode} - $errorBody');
                                   }
                                 } catch(e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: Impossible de créer le trajet. Veuillez réessayer.', style: TextStyle(color: Theme.of(context).colorScheme.onError)), backgroundColor: Theme.of(context).colorScheme.error));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e', style: TextStyle(color: Theme.of(context).colorScheme.onError)), backgroundColor: Theme.of(context).colorScheme.error, duration: const Duration(seconds: 5)));
                                 } finally {
                                   if (context.mounted) {
                                     setModalState(() => isLoading = false);
