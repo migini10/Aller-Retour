@@ -48,7 +48,8 @@ export class RbacGuard implements CanActivate {
     if (requiredRoles && requiredRoles.length > 0) {
       const hasRole = requiredRoles.includes(userRole) || userRole === 'SUPER_ADMIN';
       if (!hasRole) {
-        throw new ForbiddenException(`Accès refusé. Rôle requis: ${requiredRoles.join(', ')}.`);
+        console.log(`[DEBUG RBAC] Forbidden role. UserRole=${userRole}, RequiredRoles=${requiredRoles.join(', ')}`);
+        throw new ForbiddenException(`DEBUG_REASON: Accès refusé. Rôle requis: ${requiredRoles.join(', ')}.`);
       }
     }
 
@@ -60,7 +61,8 @@ export class RbacGuard implements CanActivate {
       const hasPermission = requiredPermissions.every(perm => userPerms.includes(perm));
 
       if (!hasPermission) {
-        throw new ForbiddenException(`Accès refusé. Permission requise: ${requiredPermissions.join(', ')}.`);
+        console.log(`[DEBUG RBAC] Forbidden permission. UserRole=${userRole}, RequiredPermissions=${requiredPermissions.join(', ')}`);
+        throw new ForbiddenException(`DEBUG_REASON: Accès refusé. Permission requise: ${requiredPermissions.join(', ')}.`);
       }
     }
 
