@@ -20,9 +20,10 @@ interface DashboardRecentBookingsProps {
   bookings: RecentBooking[];
   delay?: number;
   onViewDetails?: (id: string) => void;
+  onViewAll?: () => void;
 }
 
-export function DashboardRecentBookings({ bookings, delay = 0, onViewDetails }: DashboardRecentBookingsProps) {
+export function DashboardRecentBookings({ bookings, delay = 0, onViewDetails, onViewAll }: DashboardRecentBookingsProps) {
   
   const columns: ColumnDef<RecentBooking>[] = [
     {
@@ -84,7 +85,10 @@ export function DashboardRecentBookings({ bookings, delay = 0, onViewDetails }: 
     >
       <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-white dark:bg-[#141414]">
         <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Dernières réservations</h3>
-        <button className="text-sm font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 transition-colors flex items-center">
+        <button 
+          onClick={onViewAll}
+          className="text-sm font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 transition-colors flex items-center"
+        >
           Voir tout
           <ChevronRight className="w-4 h-4 ml-1" />
         </button>

@@ -195,6 +195,7 @@ export default function AdminDashboardPage() {
                 }))} 
                 delay={0.7} 
                 onViewDetails={(id) => router.push(`/dashboard/admin/bookings/${id}`)}
+                onViewAll={() => router.push('/dashboard/admin/bookings')}
               />
             </div>
             <div className="lg:col-span-1">
