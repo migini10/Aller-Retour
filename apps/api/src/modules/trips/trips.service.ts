@@ -235,6 +235,9 @@ export class TripsService {
         placesPrises: totalPassengers,
         seatsOffered: trip.seatsOffered,
         initialPassengers: trip.initialPassengers,
+        originCity: trip.route?.originStation?.city || '',
+        destinationCity: trip.route?.destinationStation?.city || '',
+        vehiclePlateNumber: trip.vehicle?.plateNumber || null,
       };
     });
   }
@@ -268,7 +271,8 @@ export class TripsService {
     }
 
     const driverProfile = await prisma.driverProfile.findUnique({
-      where: { userId }
+      where: { userId },
+      include: { vehicles: true }
     });
 
     if (!driverProfile) {
@@ -279,8 +283,17 @@ export class TripsService {
       throw new ForbiddenException("Les chauffeurs assignés ne peuvent pas créer de trajets.");
     }
 
+    let vehicleId = dto.vehicleId;
+    if (!vehicleId && driverProfile.vehicles.length > 0) {
+      vehicleId = driverProfile.vehicles[0].id;
+    }
+
+    if (!vehicleId) {
+      throw new BadRequestException("Aucun véhicule associé à ce chauffeur.");
+    }
+
     const vehicle = await prisma.vehicle.findUnique({
-      where: { id: dto.vehicleId }
+      where: { id: vehicleId }
     });
 
     if (!vehicle || vehicle.ownerId !== driverProfile.id) {
@@ -310,7 +323,7 @@ export class TripsService {
     const trip = await prisma.trip.create({
       data: {
         routeId,
-        vehicleId: dto.vehicleId,
+        vehicleId: vehicleId,
         driverId: finalDriverId,
         departureTime: dto.departureTime ? new Date(dto.departureTime) : new Date(),
         pricePerSeat: dto.pricePerSeat || 5000,

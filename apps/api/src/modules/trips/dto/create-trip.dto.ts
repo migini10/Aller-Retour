@@ -14,9 +14,9 @@ export class CreateTripDto {
   @IsDateString()
   departureTime?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  vehicleId!: string;
+  vehicleId?: string;
 
   @IsOptional()
   @IsString()
