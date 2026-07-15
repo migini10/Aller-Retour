@@ -73,8 +73,8 @@ export class DashboardService {
   static async getSummary(): Promise<DashboardSummary> {
     // Appels en parallèle via ApiClient
     const [analyticsRes, recentBookingsRes] = await Promise.all([
-      ApiClient.fetch<DashboardAnalyticsDto>('/analytics/dashboard'),
-      ApiClient.fetch<any>('/bookings?limit=5')
+      ApiClient.get<DashboardAnalyticsDto>('/analytics/dashboard'),
+      ApiClient.get<any>('/bookings?limit=5')
     ]);
 
     return {

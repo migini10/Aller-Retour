@@ -17,14 +17,14 @@ export class PaymentsService {
     const queryString = params.toString();
     const url = `/payment-transactions${queryString ? `?${queryString}` : ''}`;
     
-    return ApiClient.fetch<GetPaymentsResponse>(url);
+    return ApiClient.get<GetPaymentsResponse>(url);
   }
 
   static async getSummary(): Promise<PaymentSummary> {
-    return ApiClient.fetch<PaymentSummary>('/payment-transactions/summary');
+    return ApiClient.get<PaymentSummary>('/payment-transactions/summary');
   }
 
   static async getTransactionById(id: string): Promise<PaymentTransaction> {
-    return ApiClient.fetch<PaymentTransaction>(`/payment-transactions/${id}`);
+    return ApiClient.get<PaymentTransaction>(`/payment-transactions/${id}`);
   }
 }

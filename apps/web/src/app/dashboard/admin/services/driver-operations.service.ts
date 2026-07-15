@@ -14,21 +14,18 @@ export class DriverOperationsService {
     const queryString = params.toString();
     const url = `/driver-earnings${queryString ? `?${queryString}` : ''}`;
     
-    return ApiClient.fetch<{ data: DriverEarning[], meta: any }>(url);
+    return ApiClient.get<{ data: DriverEarning[], meta: any }>(url);
   }
 
   static async getSummary(): Promise<DriverEarningSummary> {
-    return ApiClient.fetch<DriverEarningSummary>('/driver-earnings/summary');
+    return ApiClient.get<DriverEarningSummary>('/driver-earnings/summary');
   }
 
   static async getEarningsByDriverId(driverId: string): Promise<DriverEarning[]> {
-    return ApiClient.fetch<DriverEarning[]>(`/driver-earnings/${driverId}`);
+    return ApiClient.get<DriverEarning[]>(`/driver-earnings/${driverId}`);
   }
 
   static async markAsPaid(id: string, payoutRef: string): Promise<DriverEarning> {
-    return ApiClient.fetch<DriverEarning>(`/driver-earnings/${id}/mark-paid`, {
-      method: 'PATCH',
-      body: JSON.stringify({ payoutRef })
-    });
+    return ApiClient.patch<DriverEarning>(`/driver-earnings/${id}/mark-paid`, { payoutRef });
   }
 }

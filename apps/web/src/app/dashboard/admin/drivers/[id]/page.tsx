@@ -78,7 +78,7 @@ export default function DriverDetailPage() {
         <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xl font-bold text-slate-600 dark:text-slate-400">
-              {driver.firstName[0]}{driver.lastName[0]}
+              {driver.firstName?.[0]}{driver.lastName?.[0]}
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-white">

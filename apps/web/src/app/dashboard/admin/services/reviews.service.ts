@@ -19,17 +19,14 @@ export class ReviewsService {
     const queryString = params.toString();
     const url = `/reviews${queryString ? `?${queryString}` : ''}`;
     
-    return ApiClient.fetch<GetReviewsResponse>(url);
+    return ApiClient.get<GetReviewsResponse>(url);
   }
 
   static async getReviewById(id: string): Promise<Review> {
-    return ApiClient.fetch<Review>(`/reviews/${id}`);
+    return ApiClient.get<Review>(`/reviews/${id}`);
   }
 
   static async updateReviewStatus(id: string, status: ReviewStatus): Promise<Review> {
-    return ApiClient.fetch<Review>(`/reviews/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status }),
-    });
+    return ApiClient.patch<Review>(`/reviews/${id}/status`, { status });
   }
 }
