@@ -12,20 +12,20 @@ export class DriverOperationsService {
     if (filters.limit) params.append('limit', filters.limit.toString());
 
     const queryString = params.toString();
-    const url = `/driver-earnings${queryString ? `?${queryString}` : ''}`;
+    const url = `/v1/driver-earnings${queryString ? `?${queryString}` : ''}`;
     
     return ApiClient.get<{ data: DriverEarning[], meta: any }>(url);
   }
 
   static async getSummary(): Promise<DriverEarningSummary> {
-    return ApiClient.get<DriverEarningSummary>('/driver-earnings/summary');
+    return ApiClient.get<DriverEarningSummary>('/v1/driver-earnings/summary');
   }
 
   static async getEarningsByDriverId(driverId: string): Promise<DriverEarning[]> {
-    return ApiClient.get<DriverEarning[]>(`/driver-earnings/${driverId}`);
+    return ApiClient.get<DriverEarning[]>(`/v1/driver-earnings/${driverId}`);
   }
 
   static async markAsPaid(id: string, payoutRef: string): Promise<DriverEarning> {
-    return ApiClient.patch<DriverEarning>(`/driver-earnings/${id}/mark-paid`, { payoutRef });
+    return ApiClient.patch<DriverEarning>(`/v1/driver-earnings/${id}/mark-paid`, { payoutRef });
   }
 }

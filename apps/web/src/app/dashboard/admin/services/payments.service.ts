@@ -15,16 +15,16 @@ export class PaymentsService {
     if (filters.bookingId) params.append('bookingId', filters.bookingId);
 
     const queryString = params.toString();
-    const url = `/payment-transactions${queryString ? `?${queryString}` : ''}`;
+    const url = `/v1/payment-transactions${queryString ? `?${queryString}` : ''}`;
     
     return ApiClient.get<GetPaymentsResponse>(url);
   }
 
   static async getSummary(): Promise<PaymentSummary> {
-    return ApiClient.get<PaymentSummary>('/payment-transactions/summary');
+    return ApiClient.get<PaymentSummary>('/v1/payment-transactions/summary');
   }
 
   static async getTransactionById(id: string): Promise<PaymentTransaction> {
-    return ApiClient.get<PaymentTransaction>(`/payment-transactions/${id}`);
+    return ApiClient.get<PaymentTransaction>(`/v1/payment-transactions/${id}`);
   }
 }

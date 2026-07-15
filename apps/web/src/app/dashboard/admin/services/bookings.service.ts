@@ -16,28 +16,28 @@ export class BookingsService {
     if (filters.dateTo) params.append('dateTo', filters.dateTo);
 
     const queryString = params.toString();
-    const url = `/bookings${queryString ? `?${queryString}` : ''}`;
+    const url = `/v1/bookings${queryString ? `?${queryString}` : ''}`;
     
     return ApiClient.get<GetBookingsResponse>(url);
   }
 
   static async getBookingById(id: string): Promise<Booking> {
-    return ApiClient.post<Booking>(`/bookings/${id}`);
+    return ApiClient.get<Booking>(`/v1/bookings/${id}`);
   }
 
   static async getBookingStatus(id: string): Promise<BookingStatusResponse> {
-    return ApiClient.get<BookingStatusResponse>(`/bookings/${id}/status`);
+    return ApiClient.get<BookingStatusResponse>(`/v1/bookings/${id}/status`);
   }
 
   static async adminCancelBooking(id: string): Promise<{ success: boolean; message: string; booking: Booking }> {
-    return ApiClient.post<{ success: boolean; message: string; booking: Booking }>(`/bookings/${id}/admin-cancel`);
+    return ApiClient.post<{ success: boolean; message: string; booking: Booking }>(`/v1/bookings/${id}/admin-cancel`);
   }
 
   static async transferBooking(bookingIds: string[], targetTripId: string): Promise<{ success: boolean; message: string; transferredCount: number }> {
-    return ApiClient.post<{ success: boolean; message: string; transferredCount: number }>('/bookings/transfer', { bookingIds, targetTripId });
+    return ApiClient.post<{ success: boolean; message: string; transferredCount: number }>('/v1/bookings/transfer', { bookingIds, targetTripId });
   }
 
   static async verifyQr(token: string): Promise<{ success: boolean; message: string; booking: Booking }> {
-    return ApiClient.post<{ success: boolean; message: string; booking: Booking }>(`/bookings/verify-qr/${token}`);
+    return ApiClient.post<{ success: boolean; message: string; booking: Booking }>(`/v1/bookings/verify-qr/${token}`);
   }
 }

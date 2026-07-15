@@ -17,16 +17,16 @@ export class ReviewsService {
     if (filters.dateTo) params.append('dateTo', filters.dateTo);
 
     const queryString = params.toString();
-    const url = `/reviews${queryString ? `?${queryString}` : ''}`;
+    const url = `/v1/reviews${queryString ? `?${queryString}` : ''}`;
     
     return ApiClient.get<GetReviewsResponse>(url);
   }
 
   static async getReviewById(id: string): Promise<Review> {
-    return ApiClient.get<Review>(`/reviews/${id}`);
+    return ApiClient.get<Review>(`/v1/reviews/${id}`);
   }
 
   static async updateReviewStatus(id: string, status: ReviewStatus): Promise<Review> {
-    return ApiClient.patch<Review>(`/reviews/${id}/status`, { status });
+    return ApiClient.patch<Review>(`/v1/reviews/${id}/status`, { status });
   }
 }
