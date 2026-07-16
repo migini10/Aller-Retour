@@ -366,6 +366,7 @@ enum VehicleType {
   MINIBUS_30
   MINIBUS_15
   TAXI_7_PLACES
+  TAXI_5_PLACES
 }
 
 enum VehicleStatus {

@@ -40,7 +40,7 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
 
   void _showAddVehicleDialog() {
     final plateController = TextEditingController();
-    String type = 'TAXI_7_PLACES';
+    String type = 'TAXI_5_PLACES';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -52,10 +52,8 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
             DropdownButtonFormField<String>(
               value: type,
               items: const [
+                DropdownMenuItem(value: 'TAXI_5_PLACES', child: Text('Taxi 5 Places')),
                 DropdownMenuItem(value: 'TAXI_7_PLACES', child: Text('Taxi 7 Places')),
-                DropdownMenuItem(value: 'MINIBUS_15', child: Text('Minibus 15 Places')),
-                DropdownMenuItem(value: 'MINIBUS_30', child: Text('Minibus 30 Places')),
-                DropdownMenuItem(value: 'BUS_50', child: Text('Bus 50 Places')),
               ],
               onChanged: (val) { if (val != null) type = val; },
               decoration: const InputDecoration(labelText: 'Type de véhicule'),
@@ -71,7 +69,7 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                 await ApiClient().post('/v1/drivers/me/vehicles', body: {
                   'plateNumber': plateController.text.trim(),
                   'type': type,
-                  'capacity': type == 'TAXI_7_PLACES' ? 7 : (type == 'MINIBUS_15' ? 15 : (type == 'MINIBUS_30' ? 30 : 50)),
+                  'capacity': type == 'TAXI_5_PLACES' ? 5 : 7,
                 });
                 _fetchData();
               } catch (e) {

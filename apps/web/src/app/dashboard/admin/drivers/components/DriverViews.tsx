@@ -10,7 +10,7 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [newVehicle, setNewVehicle] = useState({ plateNumber: '', type: 'TAXI_7_PLACES', capacity: 7, brand: '', model: '', year: new Date().getFullYear() });
+  const [newVehicle, setNewVehicle] = useState({ plateNumber: '', type: 'TAXI_5_PLACES', capacity: 5, brand: '', model: '', year: new Date().getFullYear() });
 
   const fetchVehicles = async () => {
     setIsLoading(true);
@@ -74,11 +74,9 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Type</label>
-              <select value={newVehicle.type} onChange={e => setNewVehicle({...newVehicle, type: e.target.value, capacity: e.target.value === 'TAXI_7_PLACES' ? 7 : 15})} className="w-full p-2 border rounded-md dark:bg-slate-900">
+              <select value={newVehicle.type} onChange={e => setNewVehicle({...newVehicle, type: e.target.value, capacity: e.target.value === 'TAXI_7_PLACES' ? 7 : 5})} className="w-full p-2 border rounded-md dark:bg-slate-900">
+                <option value="TAXI_5_PLACES">Taxi 5 Places</option>
                 <option value="TAXI_7_PLACES">Taxi 7 Places</option>
-                <option value="MINIBUS_15">Minibus 15 Places</option>
-                <option value="MINIBUS_30">Minibus 30 Places</option>
-                <option value="BUS_50">Bus 50 Places</option>
               </select>
             </div>
             <div>

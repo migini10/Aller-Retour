@@ -148,9 +148,14 @@ export class DriversService {
     const existingVehicle = await prisma.vehicle.findUnique({ where: { plateNumber: dto.plateNumber } });
     if (existingVehicle) throw new BadRequestException('Un véhicule avec cette plaque existe déjà');
 
+    let enforcedCapacity = dto.capacity;
+    if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
+    if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
+
     return prisma.vehicle.create({
       data: {
         ...dto,
+        capacity: enforcedCapacity,
         ownerId: driverId,
         status: dto.status || 'APPROVED', // Admin created vehicles are approved by default
         insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
@@ -167,9 +172,18 @@ export class DriversService {
     const existingVehicle = await prisma.vehicle.findUnique({ where: { plateNumber: dto.plateNumber } });
     if (existingVehicle) throw new BadRequestException('Un véhicule avec cette plaque existe déjà');
 
+    if (dto.type !== 'TAXI_5_PLACES' && dto.type !== 'TAXI_7_PLACES') {
+      throw new BadRequestException('Seuls les taxis (5 ou 7 places) sont acceptés pour le moment');
+    }
+
+    let enforcedCapacity = dto.capacity;
+    if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
+    if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
+
     return prisma.vehicle.create({
       data: {
         ...dto,
+        capacity: enforcedCapacity,
         ownerId: driver.id,
         status: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
         insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),

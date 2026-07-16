@@ -288,12 +288,16 @@ export class TripsService {
       const approvedVehicles = driverProfile.vehicles.filter(v => v.status === 'APPROVED' || v.status === 'ACTIVE');
       const pendingVehicles = driverProfile.vehicles.filter(v => v.status === 'PENDING_REVIEW');
       
+      const rejectedVehicles = driverProfile.vehicles.filter(v => v.status === 'REJECTED');
+      
       if (approvedVehicles.length === 1) {
         vehicleId = approvedVehicles[0].id;
       } else if (approvedVehicles.length > 1) {
         throw new BadRequestException("Vous possédez plusieurs véhicules approuvés. Veuillez en sélectionner un explicitement.");
       } else if (pendingVehicles.length > 0) {
         throw new BadRequestException("Votre véhicule est en attente de validation.");
+      } else if (rejectedVehicles.length > 0) {
+        throw new BadRequestException("Votre véhicule a été rejeté.");
       } else {
         throw new BadRequestException("Aucun véhicule approuvé n'est associé à ce chauffeur.");
       }
@@ -307,11 +311,18 @@ export class TripsService {
       if (vehicle?.status === 'PENDING_REVIEW') {
         throw new BadRequestException("Votre véhicule est en attente de validation.");
       }
+      if (vehicle?.status === 'REJECTED') {
+        throw new BadRequestException("Votre véhicule a été rejeté.");
+      }
       throw new BadRequestException("Ce véhicule n'est pas approuvé pour effectuer des trajets.");
     }
 
     if (vehicle.ownerId !== driverProfile.id) {
       throw new ForbiddenException("Ce véhicule ne vous appartient pas.");
+    }
+
+    if ((dto.placesLibres || 4) > vehicle.capacity - 1) {
+      throw new BadRequestException("Le nombre de places passagers dépasse la capacité autorisée du véhicule.");
     }
 
     let finalDriverId = driverProfile.id;
