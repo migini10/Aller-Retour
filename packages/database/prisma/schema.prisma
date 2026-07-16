@@ -373,6 +373,9 @@ enum VehicleStatus {
   IN_MAINTENANCE
   INSPECTION_EXPIRED
   INACTIVE
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
 }
 
 enum TripStatus {

@@ -34,8 +34,23 @@ export class DriversService {
     return json.data || [];
   }
 
-  static async updateVehicleStatus(driverId: string, vehicleId: string, status: 'ACTIVE' | 'SUSPENDED' | 'PENDING'): Promise<boolean> {
+  static async updateVehicleStatus(driverId: string, vehicleId: string, status: string): Promise<boolean> {
     await ApiClient.patch(`/v1/drivers/${driverId}/vehicles/${vehicleId}`, { status });
+    return true;
+  }
+
+  static async createDriverVehicle(driverId: string, data: any): Promise<Vehicle> {
+    const json = await ApiClient.post(`/v1/drivers/${driverId}/vehicles`, data);
+    return json;
+  }
+
+  static async approveVehicle(driverId: string, vehicleId: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/${driverId}/vehicles/${vehicleId}/approve`, {});
+    return true;
+  }
+
+  static async rejectVehicle(driverId: string, vehicleId: string, reason?: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/${driverId}/vehicles/${vehicleId}/reject`, { reason });
     return true;
   }
 

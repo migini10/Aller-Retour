@@ -279,7 +279,10 @@ export class AuthService {
         verifiedAt: true,
         colisPoints: true,
         transportPoints: true,
-        createdAt: true
+        createdAt: true,
+        driverProfile: {
+          select: { type: true }
+        }
       }
     });
     if (!user) {

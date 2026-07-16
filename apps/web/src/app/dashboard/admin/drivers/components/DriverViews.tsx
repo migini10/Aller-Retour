@@ -9,6 +9,8 @@ import { AdminTable } from '../../components/tables/AdminTable';
 export function DriverVehiclesView({ driverId }: { driverId: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newVehicle, setNewVehicle] = useState({ plateNumber: '', type: 'TAXI_7_PLACES', capacity: 7, brand: '', model: '', year: new Date().getFullYear() });
 
   const fetchVehicles = async () => {
     setIsLoading(true);
@@ -26,12 +28,29 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
     fetchVehicles();
   }, [driverId]);
 
-  const handleStatusChange = async (vehicleId: string, status: 'ACTIVE' | 'SUSPENDED') => {
+  const handleStatusChange = async (vehicleId: string, status: 'ACTIVE' | 'SUSPENDED' | 'APPROVED' | 'REJECTED') => {
     try {
-      await DriversService.updateVehicleStatus(driverId, vehicleId, status);
+      if (status === 'APPROVED') {
+        await DriversService.approveVehicle(driverId, vehicleId);
+      } else if (status === 'REJECTED') {
+        await DriversService.rejectVehicle(driverId, vehicleId);
+      } else {
+        await DriversService.updateVehicleStatus(driverId, vehicleId, status);
+      }
       fetchVehicles();
     } catch (e) {
       alert('Erreur lors de la mise à jour');
+    }
+  };
+
+  const handleAddVehicle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await DriversService.createDriverVehicle(driverId, newVehicle);
+      setIsAdding(false);
+      fetchVehicles();
+    } catch (e) {
+      alert("Erreur lors de l'ajout du véhicule");
     }
   };
 
@@ -39,19 +58,54 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
 
   return (
     <div className="bg-white dark:bg-[#141414] rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-      <h3 className="font-bold text-lg mb-4">Véhicules</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-lg">Véhicules</h3>
+        <button onClick={() => setIsAdding(!isAdding)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold">
+          {isAdding ? 'Annuler' : 'Ajouter un véhicule'}
+        </button>
+      </div>
+
+      {isAdding && (
+        <form onSubmit={handleAddVehicle} className="mb-6 p-4 border border-slate-200 dark:border-slate-800 rounded-lg flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Plaque d'immatriculation</label>
+              <input required value={newVehicle.plateNumber} onChange={e => setNewVehicle({...newVehicle, plateNumber: e.target.value})} className="w-full p-2 border rounded-md dark:bg-slate-900" placeholder="AA-123-BB" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Type</label>
+              <select value={newVehicle.type} onChange={e => setNewVehicle({...newVehicle, type: e.target.value, capacity: e.target.value === 'TAXI_7_PLACES' ? 7 : 15})} className="w-full p-2 border rounded-md dark:bg-slate-900">
+                <option value="TAXI_7_PLACES">Taxi 7 Places</option>
+                <option value="MINIBUS_15">Minibus 15 Places</option>
+                <option value="MINIBUS_30">Minibus 30 Places</option>
+                <option value="BUS_50">Bus 50 Places</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Marque</label>
+              <input value={newVehicle.brand} onChange={e => setNewVehicle({...newVehicle, brand: e.target.value})} className="w-full p-2 border rounded-md dark:bg-slate-900" placeholder="Peugeot" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Modèle</label>
+              <input value={newVehicle.model} onChange={e => setNewVehicle({...newVehicle, model: e.target.value})} className="w-full p-2 border rounded-md dark:bg-slate-900" placeholder="504" />
+            </div>
+          </div>
+          <button type="submit" className="self-end px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold">Enregistrer le véhicule</button>
+        </form>
+      )}
+
       <AdminTable
         data={vehicles}
         columns={[
-          { header: 'Marque/Modèle', accessorKey: 'make', cell: (v) => `${v.make} ${v.model} (${v.year})` },
-          { header: 'Plaque', accessorKey: 'licensePlate' },
+          { header: 'Marque/Modèle', accessorKey: 'make', cell: (v) => `${v.brand || ''} ${v.model || ''} (${v.year || ''})` },
+          { header: 'Plaque', accessorKey: 'plateNumber' },
           { 
             header: 'Statut', 
             accessorKey: 'status', 
             cell: (v) => (
               <StatusBadge 
                 label={v.status} 
-                variant={v.status === 'ACTIVE' ? 'success' : v.status === 'SUSPENDED' ? 'error' : 'warning'} 
+                variant={v.status === 'APPROVED' || v.status === 'ACTIVE' ? 'success' : v.status === 'REJECTED' || v.status === 'SUSPENDED' ? 'error' : 'warning'} 
               />
             )
           },
@@ -60,11 +114,17 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
             accessorKey: 'actions',
             cell: (v) => (
               <div className="flex gap-2 text-sm">
-                {v.status !== 'ACTIVE' && (
-                  <button onClick={() => handleStatusChange(v.id, 'ACTIVE')} className="text-emerald-600 hover:underline">Activer</button>
+                {v.status === 'PENDING_REVIEW' && (
+                  <>
+                    <button onClick={() => handleStatusChange(v.id, 'APPROVED')} className="text-emerald-600 hover:underline">Approuver</button>
+                    <button onClick={() => handleStatusChange(v.id, 'REJECTED')} className="text-rose-600 hover:underline">Rejeter</button>
+                  </>
                 )}
-                {v.status !== 'SUSPENDED' && (
-                  <button onClick={() => handleStatusChange(v.id, 'SUSPENDED')} className="text-rose-600 hover:underline">Suspendre</button>
+                {(v.status === 'APPROVED' || v.status === 'REJECTED') && (
+                  <button onClick={() => handleStatusChange(v.id, 'SUSPENDED')} className="text-slate-600 hover:underline">Suspendre</button>
+                )}
+                {v.status === 'SUSPENDED' && (
+                  <button onClick={() => handleStatusChange(v.id, 'ACTIVE')} className="text-emerald-600 hover:underline">Activer</button>
                 )}
               </div>
             )

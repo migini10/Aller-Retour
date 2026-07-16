@@ -3,6 +3,8 @@ import { prisma, KYCStatus } from '@aller-retour/database';
 import { ListDriversDto } from './dto/list-drivers.dto';
 import { UpdateKycDto } from './dto/update-kyc.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class DriversService {
@@ -137,6 +139,73 @@ export class DriversService {
       where: { ownerId: id },
     });
     return vehicles;
+  }
+
+  async createVehicleForAdmin(driverId: string, dto: CreateVehicleDto) {
+    const driver = await prisma.driverProfile.findUnique({ where: { id: driverId } });
+    if (!driver) throw new NotFoundException('Chauffeur introuvable');
+
+    const existingVehicle = await prisma.vehicle.findUnique({ where: { plateNumber: dto.plateNumber } });
+    if (existingVehicle) throw new BadRequestException('Un véhicule avec cette plaque existe déjà');
+
+    return prisma.vehicle.create({
+      data: {
+        ...dto,
+        ownerId: driverId,
+        status: dto.status || 'APPROVED', // Admin created vehicles are approved by default
+        insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      },
+    });
+  }
+
+  async createVehicleForDriver(userId: string, dto: CreateVehicleDto) {
+    const driver = await prisma.driverProfile.findUnique({ where: { userId } });
+    if (!driver) throw new NotFoundException('Profil chauffeur introuvable');
+    if (driver.type !== 'OWNER') throw new BadRequestException('Seul un chauffeur propriétaire peut ajouter un véhicule');
+
+    const existingVehicle = await prisma.vehicle.findUnique({ where: { plateNumber: dto.plateNumber } });
+    if (existingVehicle) throw new BadRequestException('Un véhicule avec cette plaque existe déjà');
+
+    return prisma.vehicle.create({
+      data: {
+        ...dto,
+        ownerId: driver.id,
+        status: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
+        insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      },
+    });
+  }
+
+  async getMyVehicles(userId: string) {
+    const driver = await prisma.driverProfile.findUnique({ where: { userId } });
+    if (!driver) throw new NotFoundException('Profil chauffeur introuvable');
+
+    return prisma.vehicle.findMany({
+      where: { ownerId: driver.id },
+    });
+  }
+
+  async approveVehicle(driverId: string, vehicleId: string) {
+    return this.updateVehicleStatus(driverId, vehicleId, 'APPROVED');
+  }
+
+  async rejectVehicle(driverId: string, vehicleId: string, reason?: string) {
+    // Note: reason could be added to the schema if needed, but for now we just change status
+    return this.updateVehicleStatus(driverId, vehicleId, 'REJECTED');
+  }
+
+  private async updateVehicleStatus(driverId: string, vehicleId: string, status: any) {
+    const vehicle = await prisma.vehicle.findFirst({
+      where: { id: vehicleId, ownerId: driverId },
+    });
+    if (!vehicle) throw new NotFoundException("Véhicule introuvable ou n'appartient pas à ce chauffeur");
+
+    return prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: { status },
+    });
   }
 
   async updateVehicle(id: string, vehicleId: string, dto: UpdateVehicleDto) {
