@@ -66,25 +66,45 @@ export class DriversController {
     return this.driversService.createVehicleForAdmin(id, dto);
   }
 
-  @Patch(':id/vehicles/:vehicleId/approve')
+  @Patch('admin/vehicles/:vehicleId/approve')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
   async approveVehicle(
-    @Param('id') id: string,
+    @Request() req: any,
     @Param('vehicleId') vehicleId: string,
   ) {
-    return this.driversService.approveVehicle(id, vehicleId);
+    return this.driversService.approveVehicleAdmin(req.user.id, vehicleId);
   }
 
-  @Patch(':id/vehicles/:vehicleId/reject')
+  @Patch('admin/vehicles/:vehicleId/reject')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
   async rejectVehicle(
-    @Param('id') id: string,
+    @Request() req: any,
     @Param('vehicleId') vehicleId: string,
     @Body() dto: { reason?: string },
   ) {
-    return this.driversService.rejectVehicle(id, vehicleId, dto.reason);
+    return this.driversService.rejectVehicleAdmin(req.user.id, vehicleId, dto.reason);
+  }
+
+  @Patch('admin/vehicles/:vehicleId/certify')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  async certifyVehicle(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+  ) {
+    return this.driversService.certifyVehicleAdmin(req.user.id, vehicleId);
+  }
+
+  @Patch('admin/vehicles/:vehicleId/revoke-certification')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  async revokeCertification(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+  ) {
+    return this.driversService.revokeCertificationAdmin(req.user.id, vehicleId);
   }
 
   @Patch(':id/vehicles/:vehicleId')

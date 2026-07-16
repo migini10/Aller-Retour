@@ -108,7 +108,7 @@ export class TripsService {
             destinationStation: true,
           },
         },
-        vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+        vehicle: { select: { plateNumber: true, type: true, capacity: true, approvalStatus: true, certificationStatus: true } },
         driver: { select: { user: { select: { phone: true, fullName: true } } } },
         bookings: { 
           select: { id: true },
@@ -120,7 +120,10 @@ export class TripsService {
           }
         },
       },
-      orderBy: { departureTime: 'asc' },
+      orderBy: [
+        { vehicle: { certificationStatus: 'asc' } },
+        { departureTime: 'asc' }
+      ],
     });
 
     return trips.map((trip) => {
@@ -135,6 +138,7 @@ export class TripsService {
         initialPassengers: trip.initialPassengers,
         driverName: trip.driver?.user?.fullName || null,
         driverPhone: trip.driver?.user?.phone || null,
+        isCertified: trip.vehicle?.certificationStatus === 'CERTIFIED',
       };
     });
   }
@@ -285,10 +289,10 @@ export class TripsService {
 
     let vehicleId = dto.vehicleId;
     if (!vehicleId) {
-      const approvedVehicles = driverProfile.vehicles.filter(v => v.status === 'APPROVED' || v.status === 'ACTIVE');
-      const pendingVehicles = driverProfile.vehicles.filter(v => v.status === 'PENDING_REVIEW');
+      const approvedVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'APPROVED' || v.approvalStatus === 'ACTIVE');
+      const pendingVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'PENDING_REVIEW');
       
-      const rejectedVehicles = driverProfile.vehicles.filter(v => v.status === 'REJECTED');
+      const rejectedVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'REJECTED');
       
       if (approvedVehicles.length === 1) {
         vehicleId = approvedVehicles[0].id;
@@ -307,11 +311,11 @@ export class TripsService {
       where: { id: vehicleId }
     });
 
-    if (!vehicle || (vehicle.status !== 'APPROVED' && vehicle.status !== 'ACTIVE')) {
-      if (vehicle?.status === 'PENDING_REVIEW') {
+    if (!vehicle || (vehicle.approvalStatus !== 'APPROVED' && vehicle.approvalStatus !== 'ACTIVE')) {
+      if (vehicle?.approvalStatus === 'PENDING_REVIEW') {
         throw new BadRequestException("Votre véhicule est en attente de validation.");
       }
-      if (vehicle?.status === 'REJECTED') {
+      if (vehicle?.approvalStatus === 'REJECTED') {
         throw new BadRequestException("Votre véhicule a été rejeté.");
       }
       throw new BadRequestException("Ce véhicule n'est pas approuvé pour effectuer des trajets.");

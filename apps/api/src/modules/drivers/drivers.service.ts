@@ -157,7 +157,7 @@ export class DriversService {
         ...dto,
         capacity: enforcedCapacity,
         ownerId: driverId,
-        status: dto.status || 'APPROVED', // Admin created vehicles are approved by default
+        approvalStatus: dto.status || 'APPROVED', // Admin created vehicles are approved by default
         insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
         inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       },
@@ -185,7 +185,7 @@ export class DriversService {
         ...dto,
         capacity: enforcedCapacity,
         ownerId: driver.id,
-        status: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
+        approvalStatus: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
         insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
         inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       },
@@ -201,24 +201,61 @@ export class DriversService {
     });
   }
 
-  async approveVehicle(driverId: string, vehicleId: string) {
-    return this.updateVehicleStatus(driverId, vehicleId, 'APPROVED');
-  }
-
-  async rejectVehicle(driverId: string, vehicleId: string, reason?: string) {
-    // Note: reason could be added to the schema if needed, but for now we just change status
-    return this.updateVehicleStatus(driverId, vehicleId, 'REJECTED');
-  }
-
-  private async updateVehicleStatus(driverId: string, vehicleId: string, status: any) {
-    const vehicle = await prisma.vehicle.findFirst({
-      where: { id: vehicleId, ownerId: driverId },
-    });
-    if (!vehicle) throw new NotFoundException("Véhicule introuvable ou n'appartient pas à ce chauffeur");
+  async approveVehicleAdmin(adminId: string, vehicleId: string) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle) throw new NotFoundException("Véhicule introuvable");
 
     return prisma.vehicle.update({
       where: { id: vehicleId },
-      data: { status },
+      data: {
+        approvalStatus: 'APPROVED',
+        approvedAt: new Date(),
+        approvedById: adminId,
+      },
+    });
+  }
+
+  async rejectVehicleAdmin(adminId: string, vehicleId: string, reason?: string) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle) throw new NotFoundException("Véhicule introuvable");
+
+    return prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: {
+        approvalStatus: 'REJECTED',
+        rejectedAt: new Date(),
+        rejectionReason: reason,
+      },
+    });
+  }
+
+  async certifyVehicleAdmin(adminId: string, vehicleId: string) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle) throw new NotFoundException("Véhicule introuvable");
+
+    if (vehicle.approvalStatus !== 'APPROVED') {
+      throw new BadRequestException("Un véhicule doit être approuvé avant d'être certifié");
+    }
+
+    return prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: {
+        certificationStatus: 'CERTIFIED',
+        certifiedAt: new Date(),
+        certifiedById: adminId,
+      },
+    });
+  }
+
+  async revokeCertificationAdmin(adminId: string, vehicleId: string) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle) throw new NotFoundException("Véhicule introuvable");
+
+    return prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: {
+        certificationStatus: 'REVOKED',
+      },
     });
   }
 
@@ -233,7 +270,7 @@ export class DriversService {
     }
 
     const data: any = {};
-    if (dto.status) data.status = dto.status;
+    if (dto.status) data.approvalStatus = dto.status;
     if (dto.insuranceExpiry) data.insuranceExpiry = new Date(dto.insuranceExpiry);
     if (dto.inspectionExpiry) data.inspectionExpiry = new Date(dto.inspectionExpiry);
 

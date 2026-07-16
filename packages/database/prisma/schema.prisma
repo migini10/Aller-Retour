@@ -81,7 +81,17 @@ model Vehicle {
   year             Int?
   ownerId          String?
   owner            DriverProfile? @relation(fields: [ownerId], references: [id])
-  status           VehicleStatus  @default(ACTIVE)
+  approvalStatus         VehicleStatus              @default(ACTIVE) @map("status")
+  certificationStatus    VehicleCertificationStatus @default(NOT_CERTIFIED)
+  
+  approvedAt             DateTime?
+  approvedById           String?
+  rejectedAt             DateTime?
+  rejectionReason        String?
+  certifiedAt            DateTime?
+  certifiedById          String?
+  certificationExpiresAt DateTime?
+
   insuranceExpiry  DateTime
   inspectionExpiry DateTime
   photoUrl         String?
@@ -377,6 +387,12 @@ enum VehicleStatus {
   PENDING_REVIEW
   APPROVED
   REJECTED
+}
+
+enum VehicleCertificationStatus {
+  NOT_CERTIFIED
+  CERTIFIED
+  REVOKED
 }
 
 enum TripStatus {

@@ -126,19 +126,34 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                 itemCount: _vehicles.length,
                 itemBuilder: (context, index) {
                   final v = _vehicles[index];
+                  String appStatus = v['approvalStatus'] ?? v['status'] ?? '';
+                  String certStatus = v['certificationStatus'] ?? 'NOT_CERTIFIED';
                   String statusText = '';
                   Color statusColor = Colors.grey;
-                  if (v['status'] == 'PENDING_REVIEW') {
-                    statusText = "Véhicule en attente de validation par l'administration.";
+                  
+                  if (appStatus == 'PENDING_REVIEW') {
+                    statusText = "Approbation: En attente";
                     statusColor = Colors.orange;
-                  } else if (v['status'] == 'REJECTED') {
-                    statusText = "Véhicule rejeté";
+                  } else if (appStatus == 'REJECTED') {
+                    statusText = "Approbation: Rejeté";
                     statusColor = Colors.red;
-                  } else if (v['status'] == 'APPROVED' || v['status'] == 'ACTIVE') {
-                    statusText = "Approuvé";
+                  } else if (appStatus == 'APPROVED' || appStatus == 'ACTIVE') {
+                    statusText = "Approbation: Approuvé";
                     statusColor = Colors.green;
                   } else {
-                    statusText = v['status'] ?? 'Inconnu';
+                    statusText = appStatus;
+                  }
+
+                  String certText = '';
+                  Color certColor = Colors.grey;
+                  if (certStatus == 'CERTIFIED') {
+                    certText = 'Véhicule Certifié';
+                    certColor = Colors.blue;
+                  } else if (certStatus == 'REVOKED') {
+                    certText = 'Certification Révoquée';
+                    certColor = Colors.red;
+                  } else {
+                    certText = 'Non certifié';
                   }
 
                   return Card(
@@ -152,10 +167,21 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                             children: [
                               Text(v['plateNumber'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                               Expanded(
-                                child: Text(
-                                  statusText, 
-                                  style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.right,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      statusText, 
+                                      style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      certText,
+                                      style: TextStyle(color: certColor, fontSize: 12, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

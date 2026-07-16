@@ -18,6 +18,7 @@ class TripModel {
   final String driverPhone;
   final int availableSeats;
   final int passagers; // Total passagers (initial + booked)
+  final bool isCertified;
 
   TripModel({
     required this.id,
@@ -37,6 +38,7 @@ class TripModel {
     required this.driverPhone,
     required this.availableSeats,
     required this.passagers,
+    this.isCertified = false,
   });
 
   factory TripModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,7 @@ class TripModel {
       driverPhone: json['driverPhone'] ?? json['driver']?['user']?['phone'] ?? '',
       availableSeats: json['availableSeats'] ?? 0,
       passagers: json['passagers'] ?? 0,
+      isCertified: json['isCertified'] ?? false,
     );
   }
 
@@ -127,6 +130,9 @@ class TripModel {
       'pricePerSeat': pricePerSeat,
       'isAirConditioned': true,
       'takesTollRoad': true,
+      'driverName': driverName,
+      'driverPhone': driverPhone,
+      'isCertified': isCertified,
       'isLocked': isLocked,
     };
   }

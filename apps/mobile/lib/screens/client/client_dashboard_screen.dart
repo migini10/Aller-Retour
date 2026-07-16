@@ -1907,9 +1907,20 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             ),
                             const SizedBox(height: 6),
                             
-                            // Row 3: Tags (Climatisé, Autoroute)
+                            // Row 3: Tags (Climatisé, Autoroute, Certifié)
                             Row(
                               children: [
+                                if (t['isCertified'] == true)
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.1),
+                                      border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Text('✅ VÉHICULE CERTIFIÉ', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ),
                                 if (t['options'] == 'Climatisé')
                                   Container(
                                     margin: const EdgeInsets.only(right: 8),
@@ -2957,6 +2968,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                             "seatsOffered": e['seatsOffered'] ?? 5,
                                             "isTooSoon": isTooSoon,
                                             "driverPhone": e['driverPhone'] ?? '+221 77 000 00 00',
+                                            "isCertified": e['isCertified'] ?? false,
                                            };
                                          }).toList();
                                          isSearching = false;

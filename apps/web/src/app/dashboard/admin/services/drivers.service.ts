@@ -44,13 +44,23 @@ export class DriversService {
     return json;
   }
 
-  static async approveVehicle(driverId: string, vehicleId: string): Promise<boolean> {
-    await ApiClient.patch(`/v1/drivers/${driverId}/vehicles/${vehicleId}/approve`, {});
+  static async approveVehicle(vehicleId: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicles/${vehicleId}/approve`, {});
     return true;
   }
 
-  static async rejectVehicle(driverId: string, vehicleId: string, reason?: string): Promise<boolean> {
-    await ApiClient.patch(`/v1/drivers/${driverId}/vehicles/${vehicleId}/reject`, { reason });
+  static async rejectVehicle(vehicleId: string, reason?: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicles/${vehicleId}/reject`, { reason });
+    return true;
+  }
+
+  static async certifyVehicle(vehicleId: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicles/${vehicleId}/certify`, {});
+    return true;
+  }
+
+  static async revokeCertification(vehicleId: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicles/${vehicleId}/revoke-certification`, {});
     return true;
   }
 
