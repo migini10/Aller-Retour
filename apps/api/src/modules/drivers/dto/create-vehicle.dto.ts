@@ -32,13 +32,5 @@ export class CreateVehicleDto {
 
   @IsOptional()
   @IsString()
-  frontPhotoData?: string;
-
-  @IsOptional()
-  @IsString()
-  rearPhotoData?: string;
-
-  @IsOptional()
-  @IsString()
-  sidePhotoData?: string;
+  inspectionExpiry?: string;
 }

@@ -23,9 +23,13 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
   final _yearController = TextEditingController();
   String _type = 'TAXI_5_PLACES';
 
-  String? _frontPhotoBase64;
-  String? _rearPhotoBase64;
-  String? _sidePhotoBase64;
+  File? _frontPhotoFile;
+  File? _rearPhotoFile;
+  File? _sidePhotoFile;
+
+  String? _frontPhotoUrl;
+  String? _rearPhotoUrl;
+  String? _sidePhotoUrl;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -39,9 +43,9 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       _modelController.text = v['model'] ?? '';
       _yearController.text = v['year']?.toString() ?? '';
       _type = v['type'] ?? 'TAXI_5_PLACES';
-      _frontPhotoBase64 = v['frontPhotoData'];
-      _rearPhotoBase64 = v['rearPhotoData'];
-      _sidePhotoBase64 = v['sidePhotoData'];
+      _frontPhotoUrl = v['frontPhotoUrl'];
+      _rearPhotoUrl = v['rearPhotoUrl'];
+      _sidePhotoUrl = v['sidePhotoUrl'];
     }
   }
 
@@ -52,12 +56,20 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       maxWidth: 800,
     );
     if (image != null) {
-      final bytes = await File(image.path).readAsBytes();
-      final base64String = "data:image/jpeg;base64," + base64Encode(bytes);
       setState(() {
-        if (side == 'front') _frontPhotoBase64 = base64String;
-        if (side == 'rear') _rearPhotoBase64 = base64String;
-        if (side == 'side') _sidePhotoBase64 = base64String;
+        final file = File(image.path);
+        if (side == 'front') {
+          _frontPhotoFile = file;
+          _frontPhotoUrl = null;
+        }
+        if (side == 'rear') {
+          _rearPhotoFile = file;
+          _rearPhotoUrl = null;
+        }
+        if (side == 'side') {
+          _sidePhotoFile = file;
+          _sidePhotoUrl = null;
+        }
       });
     }
   }
@@ -65,7 +77,11 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
-    if (_frontPhotoBase64 == null || _rearPhotoBase64 == null || _sidePhotoBase64 == null) {
+    final hasFront = _frontPhotoFile != null || _frontPhotoUrl != null;
+    final hasRear = _rearPhotoFile != null || _rearPhotoUrl != null;
+    final hasSide = _sidePhotoFile != null || _sidePhotoUrl != null;
+
+    if (!hasFront || !hasRear || !hasSide) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Les 3 photos sont obligatoires')));
       return;
     }
@@ -73,22 +89,34 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final body = {
+      final fields = {
         'plateNumber': _plateController.text.trim(),
         'brand': _brandController.text.trim(),
         'model': _modelController.text.trim(),
-        'year': int.tryParse(_yearController.text.trim()),
+        'year': _yearController.text.trim(),
         'type': _type,
-        'frontPhotoData': _frontPhotoBase64,
-        'rearPhotoData': _rearPhotoBase64,
-        'sidePhotoData': _sidePhotoBase64,
       };
+
+      final Map<String, File> files = {};
+      if (_frontPhotoFile != null) files['frontPhoto'] = _frontPhotoFile!;
+      if (_rearPhotoFile != null) files['rearPhoto'] = _rearPhotoFile!;
+      if (_sidePhotoFile != null) files['sidePhoto'] = _sidePhotoFile!;
 
       if (widget.existingVehicle != null) {
         final id = widget.existingVehicle!['id'];
-        await ApiClient().patch('/v1/drivers/me/vehicles/$id', body: body);
+        await ApiClient().multipartRequest(
+          'PATCH', 
+          '/v1/drivers/me/vehicles/$id', 
+          fields: fields,
+          files: files,
+        );
       } else {
-        await ApiClient().post('/v1/drivers/me/vehicles', body: body);
+        await ApiClient().multipartRequest(
+          'POST', 
+          '/v1/drivers/me/vehicles', 
+          fields: fields,
+          files: files,
+        );
       }
 
       if (mounted) {
@@ -101,7 +129,7 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
     }
   }
 
-  Widget _buildPhotoPicker(String label, String side, String? currentBase64) {
+  Widget _buildPhotoPicker(String label, String side, File? file, String? url) {
     return GestureDetector(
       onTap: () => _pickImage(side),
       child: Container(
@@ -111,23 +139,24 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey[400]!),
         ),
-        child: currentBase64 != null
+        child: file != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.memory(
-                  base64Decode(currentBase64.split(',').last),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
+                child: Image.file(file, fit: BoxFit.cover, width: double.infinity),
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.camera_alt, size: 40, color: Colors.grey),
-                  const SizedBox(height: 8),
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                ],
-              ),
+            : url != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(url, fit: BoxFit.cover, width: double.infinity),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.camera_alt, size: 40, color: Colors.grey),
+                      const SizedBox(height: 8),
+                      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                    ],
+                  ),
       ),
     );
   }
@@ -161,11 +190,11 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: _buildPhotoPicker('Avant', 'front', _frontPhotoBase64)),
+                        Expanded(child: _buildPhotoPicker('Avant', 'front', _frontPhotoFile, _frontPhotoUrl)),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildPhotoPicker('Arrière', 'rear', _rearPhotoBase64)),
+                        Expanded(child: _buildPhotoPicker('Arrière', 'rear', _rearPhotoFile, _rearPhotoUrl)),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildPhotoPicker('Latérale', 'side', _sidePhotoBase64)),
+                        Expanded(child: _buildPhotoPicker('Latérale', 'side', _sidePhotoFile, _sidePhotoUrl)),
                       ],
                     ),
                     const SizedBox(height: 24),

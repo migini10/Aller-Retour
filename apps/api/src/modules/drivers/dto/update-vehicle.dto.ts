@@ -32,16 +32,4 @@ export class UpdateVehicleDto {
 
   @IsOptional()
   year?: number;
-
-  @IsOptional()
-  @IsString()
-  frontPhotoData?: string;
-
-  @IsOptional()
-  @IsString()
-  rearPhotoData?: string;
-
-  @IsOptional()
-  @IsString()
-  sidePhotoData?: string;
 }

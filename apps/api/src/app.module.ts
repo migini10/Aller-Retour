@@ -22,6 +22,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { SettingsModule } from './modules/settings/settings.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
 import { ParcelsModule } from './modules/parcels/parcels.module';
+import { SupabaseModule } from './core/supabase/supabase.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ParcelsModule } from './modules/parcels/parcels.module';
     }),
     ScheduleModule.forRoot(),
     DatabaseModule,
+    SupabaseModule,
     AuthModule,
     TripsModule,
     BookingsModule,

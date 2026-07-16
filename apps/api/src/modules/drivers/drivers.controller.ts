@@ -1,4 +1,5 @@
-import { Controller, Get, Patch, Post, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Param, Body, Query, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
@@ -24,19 +25,34 @@ export class DriversController {
   @Post('me/vehicles')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.DRIVER)
-  async createMyVehicle(@Request() req: any, @Body() dto: CreateVehicleDto) {
-    return this.driversService.createVehicleForDriver(req.user.id, dto);
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'frontPhoto', maxCount: 1 },
+    { name: 'rearPhoto', maxCount: 1 },
+    { name: 'sidePhoto', maxCount: 1 },
+  ]))
+  async createMyVehicle(
+    @Request() req: any, 
+    @Body() dto: CreateVehicleDto,
+    @UploadedFiles() files: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] },
+  ) {
+    return this.driversService.createVehicleForDriver(req.user.id, dto, files);
   }
 
   @Patch('me/vehicles/:vehicleId')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.DRIVER)
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'frontPhoto', maxCount: 1 },
+    { name: 'rearPhoto', maxCount: 1 },
+    { name: 'sidePhoto', maxCount: 1 },
+  ]))
   async updateMyVehicle(
     @Request() req: any,
     @Param('vehicleId') vehicleId: string,
     @Body() dto: UpdateVehicleDto,
+    @UploadedFiles() files?: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] },
   ) {
-    return this.driversService.updateVehicleForDriver(req.user.id, vehicleId, dto);
+    return this.driversService.updateVehicleForDriver(req.user.id, vehicleId, dto, files);
   }
 
   @Get()

@@ -95,10 +95,10 @@ model Vehicle {
   insuranceExpiry  DateTime
   inspectionExpiry DateTime
   
-  // TODO: Migrer vers Supabase Storage à long terme. Fallback temporaire Base64.
-  frontPhotoData   String?        @db.Text
-  rearPhotoData    String?        @db.Text
-  sidePhotoData    String?        @db.Text
+  // Clés Supabase Storage pour le bucket "vehicles"
+  frontPhotoKey    String?
+  rearPhotoKey     String?
+  sidePhotoKey     String?
 
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt

@@ -1,5 +1,6 @@
 import 'package:aller_retour_mobile/core/config/env_config.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -137,5 +138,43 @@ class ApiClient {
 
     _handleErrors(response);
     return response;
+  }
+
+  Future<http.Response> multipartRequest(
+    String method,
+    String path, {
+    Map<String, String>? fields,
+    Map<String, File>? files,
+  }) async {
+    try {
+      final uri = Uri.parse('$baseUrl$path');
+      final request = http.MultipartRequest(method, uri);
+
+      final headers = await _getHeaders(requireAuth: true);
+      headers.remove('Content-Type'); // Let multipart set its own boundary
+      request.headers.addAll(headers);
+
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+
+      if (files != null) {
+        for (var entry in files.entries) {
+          final file = entry.value;
+          request.files.add(await http.MultipartFile.fromPath(
+            entry.key,
+            file.path,
+          ));
+        }
+      }
+
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 30));
+      final response = await http.Response.fromStream(streamedResponse);
+      _handleErrors(response);
+      return response;
+    } catch (e) {
+      if (e is ApiException || e is UnauthorizedException || e is AccountNotVerifiedException) rethrow;
+      throw ApiException(500, 'Network error: $e');
+    }
   }
 }

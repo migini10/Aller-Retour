@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { prisma, KYCStatus } from '@aller-retour/database';
 import { ListDriversDto } from './dto/list-drivers.dto';
 import { UpdateKycDto } from './dto/update-kyc.dto';
+import { SupabaseService } from '../../core/supabase/supabase.service';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class DriversService {
+  constructor(private readonly supabase: SupabaseService) {}
   async findAll(filters: ListDriversDto) {
     const { page = 1, limit = 10, search, kycStatus, hasVehicle, isActive } = filters;
     const skip = (page - 1) * limit;
@@ -138,7 +140,14 @@ export class DriversService {
     const vehicles = await prisma.vehicle.findMany({
       where: { ownerId: id },
     });
-    return vehicles;
+    return Promise.all(vehicles.map(async (v) => {
+      return {
+        ...v,
+        frontPhotoUrl: v.frontPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey) : null,
+        rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
+        sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
+      };
+    }));
   }
 
   async createVehicleForAdmin(driverId: string, dto: CreateVehicleDto) {
@@ -164,7 +173,11 @@ export class DriversService {
     });
   }
 
-  async createVehicleForDriver(userId: string, dto: CreateVehicleDto) {
+  async createVehicleForDriver(
+    userId: string, 
+    dto: CreateVehicleDto, 
+    files?: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] }
+  ) {
     const driver = await prisma.driverProfile.findUnique({ where: { userId } });
     if (!driver) throw new NotFoundException('Profil chauffeur introuvable');
     if (driver.type !== 'OWNER') throw new BadRequestException('Seul un chauffeur propriétaire peut ajouter un véhicule');
@@ -176,11 +189,24 @@ export class DriversService {
       throw new BadRequestException('Seuls les taxis (5 ou 7 places) sont acceptés pour le moment');
     }
 
+    if (!files?.frontPhoto?.[0] || !files?.rearPhoto?.[0] || !files?.sidePhoto?.[0]) {
+      throw new BadRequestException('Les 3 photos (avant, arrière, latérale) sont obligatoires.');
+    }
+
+    // validate sizes/types
+    const validateFile = (f: Express.Multer.File) => {
+      if (f.size > 5 * 1024 * 1024) throw new BadRequestException(`Fichier trop volumineux (max 5MB)`);
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.mimetype)) throw new BadRequestException(`Format invalide. Seuls JPG/PNG/WEBP acceptés.`);
+    };
+    validateFile(files.frontPhoto[0]);
+    validateFile(files.rearPhoto[0]);
+    validateFile(files.sidePhoto[0]);
+
     let enforcedCapacity = dto.capacity;
     if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
     if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
 
-    return prisma.vehicle.create({
+    const newVehicle = await prisma.vehicle.create({
       data: {
         ...dto,
         capacity: enforcedCapacity,
@@ -190,19 +216,54 @@ export class DriversService {
         inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       },
     });
+
+    try {
+      const ext1 = files.frontPhoto[0].mimetype.split('/')[1];
+      const ext2 = files.rearPhoto[0].mimetype.split('/')[1];
+      const ext3 = files.sidePhoto[0].mimetype.split('/')[1];
+      
+      const frontPath = `vehicles/${newVehicle.id}/front.${ext1}`;
+      const rearPath = `vehicles/${newVehicle.id}/rear.${ext2}`;
+      const sidePath = `vehicles/${newVehicle.id}/side.${ext3}`;
+
+      await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
+      await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
+      await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
+
+      return await prisma.vehicle.update({
+        where: { id: newVehicle.id },
+        data: {
+          frontPhotoKey: frontPath,
+          rearPhotoKey: rearPath,
+          sidePhotoKey: sidePath,
+        }
+      });
+    } catch (e) {
+      await prisma.vehicle.delete({ where: { id: newVehicle.id } });
+      throw new BadRequestException('Erreur lors de l\'upload des photos. Véhicule non enregistré.');
+    }
   }
 
   async getMyVehicles(userId: string) {
     const driver = await prisma.driverProfile.findUnique({ where: { userId } });
     if (!driver) throw new NotFoundException('Profil chauffeur introuvable');
 
-    return prisma.vehicle.findMany({
+    const vehicles = await prisma.vehicle.findMany({
       where: { ownerId: driver.id },
     });
+
+    return Promise.all(vehicles.map(async (v) => {
+      return {
+        ...v,
+        frontPhotoUrl: v.frontPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey) : null,
+        rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
+        sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
+      };
+    }));
   }
 
   async getAllVehiclesAdmin() {
-    return prisma.vehicle.findMany({
+    const vehicles = await prisma.vehicle.findMany({
       include: {
         owner: {
           include: {
@@ -212,9 +273,23 @@ export class DriversService {
       },
       orderBy: { createdAt: 'desc' }
     });
+
+    return Promise.all(vehicles.map(async (v) => {
+      return {
+        ...v,
+        frontPhotoUrl: v.frontPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey) : null,
+        rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
+        sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
+      };
+    }));
   }
 
-  async updateVehicleForDriver(userId: string, vehicleId: string, dto: UpdateVehicleDto) {
+  async updateVehicleForDriver(
+    userId: string, 
+    vehicleId: string, 
+    dto: UpdateVehicleDto,
+    files?: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] }
+  ) {
     const driver = await prisma.driverProfile.findUnique({ where: { userId } });
     if (!driver || driver.type !== 'OWNER') {
       throw new BadRequestException('Seul un chauffeur propriétaire peut modifier ses véhicules');
@@ -225,8 +300,17 @@ export class DriversService {
       throw new NotFoundException('Véhicule introuvable ou non autorisé');
     }
 
+    // validate sizes/types if files provided
+    const validateFile = (f: Express.Multer.File) => {
+      if (f.size > 5 * 1024 * 1024) throw new BadRequestException(`Fichier trop volumineux (max 5MB)`);
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.mimetype)) throw new BadRequestException(`Format invalide. Seuls JPG/PNG/WEBP acceptés.`);
+    };
+    if (files?.frontPhoto?.[0]) validateFile(files.frontPhoto[0]);
+    if (files?.rearPhoto?.[0]) validateFile(files.rearPhoto[0]);
+    if (files?.sidePhoto?.[0]) validateFile(files.sidePhoto[0]);
+
     // Business Logic: If certified, cannot modify critical fields
-    const isCriticalChange = !!(dto.plateNumber || dto.type || dto.frontPhotoData || dto.rearPhotoData || dto.sidePhotoData);
+    const isCriticalChange = !!(dto.plateNumber || dto.type || files?.frontPhoto?.[0] || files?.rearPhoto?.[0] || files?.sidePhoto?.[0]);
     
     if (vehicle.certificationStatus === 'CERTIFIED' && isCriticalChange) {
       throw new BadRequestException('Impossible de modifier un véhicule certifié. Contactez le support.');
@@ -243,12 +327,39 @@ export class DriversService {
     if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
     if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
 
+    let frontPath = vehicle.frontPhotoKey;
+    let rearPath = vehicle.rearPhotoKey;
+    let sidePath = vehicle.sidePhotoKey;
+
+    try {
+      if (files?.frontPhoto?.[0]) {
+        const ext = files.frontPhoto[0].mimetype.split('/')[1];
+        frontPath = `vehicles/${vehicle.id}/front.${ext}`;
+        await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
+      }
+      if (files?.rearPhoto?.[0]) {
+        const ext = files.rearPhoto[0].mimetype.split('/')[1];
+        rearPath = `vehicles/${vehicle.id}/rear.${ext}`;
+        await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
+      }
+      if (files?.sidePhoto?.[0]) {
+        const ext = files.sidePhoto[0].mimetype.split('/')[1];
+        sidePath = `vehicles/${vehicle.id}/side.${ext}`;
+        await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
+      }
+    } catch (e) {
+      throw new BadRequestException('Erreur lors de l\'upload des nouvelles photos.');
+    }
+
     return prisma.vehicle.update({
       where: { id: vehicleId },
       data: {
         ...dto,
         capacity: enforcedCapacity,
         approvalStatus: nextApprovalStatus,
+        frontPhotoKey: frontPath,
+        rearPhotoKey: rearPath,
+        sidePhotoKey: sidePath,
       },
     });
   }

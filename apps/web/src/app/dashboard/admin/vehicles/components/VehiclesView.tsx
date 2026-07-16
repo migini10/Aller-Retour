@@ -128,9 +128,9 @@ export default function VehiclesView() {
                   <div className="text-xs text-slate-500">{v.capacity} places</div>
                 </td>
                 <td className="p-3 flex gap-2">
-                  {v.frontPhotoData ? <img src={v.frontPhotoData} alt="Front" className="w-10 h-10 object-cover rounded bg-slate-200" title="Avant" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">AV</div>}
-                  {v.rearPhotoData ? <img src={v.rearPhotoData} alt="Rear" className="w-10 h-10 object-cover rounded bg-slate-200" title="Arrière" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">AR</div>}
-                  {v.sidePhotoData ? <img src={v.sidePhotoData} alt="Side" className="w-10 h-10 object-cover rounded bg-slate-200" title="Côté" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">LAT</div>}
+                  {v.frontPhotoUrl ? <img src={v.frontPhotoUrl} alt="Front" className="w-10 h-10 object-cover rounded bg-slate-200" title="Avant" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">AV</div>}
+                  {v.rearPhotoUrl ? <img src={v.rearPhotoUrl} alt="Rear" className="w-10 h-10 object-cover rounded bg-slate-200" title="Arrière" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">AR</div>}
+                  {v.sidePhotoUrl ? <img src={v.sidePhotoUrl} alt="Side" className="w-10 h-10 object-cover rounded bg-slate-200" title="Côté" /> : <div className="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[10px]">LAT</div>}
                 </td>
                 <td className="p-3">
                   <StatusBadge status={v.approvalStatus} />
