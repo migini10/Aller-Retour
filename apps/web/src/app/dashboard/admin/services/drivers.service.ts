@@ -64,6 +64,11 @@ export class DriversService {
     return true;
   }
 
+  static async getAllVehicles(): Promise<Vehicle[]> {
+    const json = await ApiClient.get(`/v1/drivers/admin/vehicles`);
+    return json || [];
+  }
+
   static async getDriverEarnings(id: string): Promise<DriverEarning[]> {
     const json = await ApiClient.get(`/v1/drivers/${id}/earnings`);
     return json.data || [];

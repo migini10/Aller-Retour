@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import 'dart:convert';
+import 'vehicle_submission_screen.dart';
 
 class DriverVehiculeScreen extends StatefulWidget {
   const DriverVehiculeScreen({super.key});
@@ -38,49 +39,16 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
     }
   }
 
-  void _showAddVehicleDialog() {
-    final plateController = TextEditingController();
-    String type = 'TAXI_5_PLACES';
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Soumettre un véhicule'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: plateController, decoration: const InputDecoration(labelText: 'Plaque (ex: AA-123-BB)')),
-            DropdownButtonFormField<String>(
-              value: type,
-              items: const [
-                DropdownMenuItem(value: 'TAXI_5_PLACES', child: Text('Taxi 5 Places')),
-                DropdownMenuItem(value: 'TAXI_7_PLACES', child: Text('Taxi 7 Places')),
-              ],
-              onChanged: (val) { if (val != null) type = val; },
-              decoration: const InputDecoration(labelText: 'Type de véhicule'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              try {
-                await ApiClient().post('/v1/drivers/me/vehicles', body: {
-                  'plateNumber': plateController.text.trim(),
-                  'type': type,
-                  'capacity': type == 'TAXI_5_PLACES' ? 5 : 7,
-                });
-                _fetchData();
-              } catch (e) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
-              }
-            },
-            child: const Text('Soumettre'),
-          ),
-        ],
+  Future<void> _navigateToSubmission([Map<String, dynamic>? vehicle]) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VehicleSubmissionScreen(existingVehicle: vehicle),
       ),
     );
+    if (result == true) {
+      _fetchData();
+    }
   }
 
   @override
@@ -92,6 +60,13 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
         elevation: 0,
         title: const Text('Mon Véhicule', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        actions: [
+          if (_isOwner)
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => _navigateToSubmission(),
+            ),
+        ],
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
@@ -114,7 +89,7 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                       const SizedBox(height: 24),
                       if (_isOwner)
                         ElevatedButton(
-                          onPressed: _showAddVehicleDialog,
+                          onPressed: () => _navigateToSubmission(),
                           child: const Text('Soumettre un véhicule'),
                         ),
                     ],
@@ -156,7 +131,15 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                     certText = 'Non certifié';
                   }
 
-                  return Card(
+                  return GestureDetector(
+                    onTap: () {
+                      if (_isOwner && certStatus != 'CERTIFIED') {
+                        _navigateToSubmission(v);
+                      } else if (certStatus == 'CERTIFIED') {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Véhicule certifié. Modification non autorisée. Veuillez contacter le support.')));
+                      }
+                    },
+                    child: Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -192,6 +175,7 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                           if (v['brand'] != null) Text('Marque: ${v['brand']}'),
                           if (v['model'] != null) Text('Modèle: ${v['model']}'),
                         ],
+                      ),
                       ),
                     ),
                   );

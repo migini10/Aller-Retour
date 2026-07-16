@@ -26,6 +26,7 @@ export const adminNavigation: AdminNavItem[] = [
   { id: 'dashboard', label: 'Dashboard', path: '/dashboard/admin', icon: LayoutDashboard },
   { id: 'users', label: 'Utilisateurs', path: '/dashboard/admin/users', icon: Users, requiredPermission: 'view_users' },
   { id: 'drivers', label: 'Chauffeurs', path: '/dashboard/admin/drivers', icon: CarFront, requiredPermission: 'view_drivers' },
+  { id: 'vehicles', label: 'Véhicules', path: '/dashboard/admin/vehicles', icon: CarFront, requiredPermission: 'view_drivers' },
   { id: 'trips', label: 'Trajets', path: '/dashboard/admin/trips', icon: Route, requiredPermission: 'view_trips' },
   { id: 'bookings', label: 'Réservations', path: '/dashboard/admin/bookings', icon: TicketCheck, requiredPermission: 'view_bookings' },
   { id: 'payments', label: 'Paiements', path: '/dashboard/admin/payments', icon: Wallet, requiredPermission: 'view_payments' },

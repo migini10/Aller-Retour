@@ -28,6 +28,17 @@ export class DriversController {
     return this.driversService.createVehicleForDriver(req.user.id, dto);
   }
 
+  @Patch('me/vehicles/:vehicleId')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async updateMyVehicle(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+    @Body() dto: UpdateVehicleDto,
+  ) {
+    return this.driversService.updateVehicleForDriver(req.user.id, vehicleId, dto);
+  }
+
   @Get()
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)
@@ -47,6 +58,13 @@ export class DriversController {
   @Roles(UserRole.SUPER_ADMIN)
   async updateKyc(@Param('id') id: string, @Body() dto: UpdateKycDto) {
     return this.driversService.updateKyc(id, dto);
+  }
+
+  @Get('admin/vehicles')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  async getAllAdminVehicles() {
+    return this.driversService.getAllVehiclesAdmin();
   }
 
   @Get(':id/vehicles')

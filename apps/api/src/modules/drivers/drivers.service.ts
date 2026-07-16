@@ -201,6 +201,58 @@ export class DriversService {
     });
   }
 
+  async getAllVehiclesAdmin() {
+    return prisma.vehicle.findMany({
+      include: {
+        owner: {
+          include: {
+            user: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async updateVehicleForDriver(userId: string, vehicleId: string, dto: UpdateVehicleDto) {
+    const driver = await prisma.driverProfile.findUnique({ where: { userId } });
+    if (!driver || driver.type !== 'OWNER') {
+      throw new BadRequestException('Seul un chauffeur propriétaire peut modifier ses véhicules');
+    }
+
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle || vehicle.ownerId !== driver.id) {
+      throw new NotFoundException('Véhicule introuvable ou non autorisé');
+    }
+
+    // Business Logic: If certified, cannot modify critical fields
+    const isCriticalChange = !!(dto.plateNumber || dto.type || dto.frontPhotoData || dto.rearPhotoData || dto.sidePhotoData);
+    
+    if (vehicle.certificationStatus === 'CERTIFIED' && isCriticalChange) {
+      throw new BadRequestException('Impossible de modifier un véhicule certifié. Contactez le support.');
+    }
+
+    let nextApprovalStatus = vehicle.approvalStatus;
+    if (vehicle.approvalStatus === 'APPROVED' && vehicle.certificationStatus !== 'CERTIFIED' && isCriticalChange) {
+      nextApprovalStatus = 'PENDING_REVIEW';
+    } else if (vehicle.approvalStatus === 'REJECTED') {
+      nextApprovalStatus = 'PENDING_REVIEW';
+    }
+
+    let enforcedCapacity = vehicle.capacity;
+    if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
+    if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
+
+    return prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: {
+        ...dto,
+        capacity: enforcedCapacity,
+        approvalStatus: nextApprovalStatus,
+      },
+    });
+  }
+
   async approveVehicleAdmin(adminId: string, vehicleId: string) {
     const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
     if (!vehicle) throw new NotFoundException("Véhicule introuvable");

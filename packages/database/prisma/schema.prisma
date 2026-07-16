@@ -94,7 +94,12 @@ model Vehicle {
 
   insuranceExpiry  DateTime
   inspectionExpiry DateTime
-  photoUrl         String?
+  
+  // TODO: Migrer vers Supabase Storage à long terme. Fallback temporaire Base64.
+  frontPhotoData   String?        @db.Text
+  rearPhotoData    String?        @db.Text
+  sidePhotoData    String?        @db.Text
+
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   trips            Trip[]

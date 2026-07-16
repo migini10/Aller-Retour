@@ -13,4 +13,35 @@ export class UpdateVehicleDto {
   @IsOptional()
   @IsString()
   inspectionExpiry?: string;
+
+  @IsOptional()
+  @IsString()
+  plateNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  type?: any;
+
+  @IsOptional()
+  @IsString()
+  brand?: string;
+
+  @IsOptional()
+  @IsString()
+  model?: string;
+
+  @IsOptional()
+  year?: number;
+
+  @IsOptional()
+  @IsString()
+  frontPhotoData?: string;
+
+  @IsOptional()
+  @IsString()
+  rearPhotoData?: string;
+
+  @IsOptional()
+  @IsString()
+  sidePhotoData?: string;
 }

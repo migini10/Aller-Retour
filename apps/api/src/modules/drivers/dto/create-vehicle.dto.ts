@@ -29,4 +29,16 @@ export class CreateVehicleDto {
   @IsOptional()
   @IsEnum(VehicleStatus)
   status?: VehicleStatus;
+
+  @IsOptional()
+  @IsString()
+  frontPhotoData?: string;
+
+  @IsOptional()
+  @IsString()
+  rearPhotoData?: string;
+
+  @IsOptional()
+  @IsString()
+  sidePhotoData?: string;
 }
