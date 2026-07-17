@@ -92,6 +92,13 @@ export class DriversController {
     return this.driversService.getAllVehiclesAdmin();
   }
 
+  @Post('admin/storage/vehicle-photo-smoke-test')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  async runStorageSmokeTest() {
+    return this.driversService.smokeTestStorageAdmin();
+  }
+
   @Get(':id/vehicles')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.SUPER_ADMIN)

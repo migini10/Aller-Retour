@@ -213,6 +213,7 @@ export class DriversService {
     let rearPath = '';
     let sidePath = '';
 
+    let uploadedPaths: string[] = [];
     try {
       const ext1 = files.frontPhoto[0].mimetype.split('/')[1];
       const ext2 = files.rearPhoto[0].mimetype.split('/')[1];
@@ -233,35 +234,47 @@ export class DriversService {
       if (!files.sidePhoto[0].buffer || files.sidePhoto[0].size === 0) throw new Error("Side photo buffer is empty");
 
       await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
+      uploadedPaths.push(frontPath);
       await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
+      uploadedPaths.push(rearPath);
       await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
+      uploadedPaths.push(sidePath);
 
       console.log('--- SUPABASE UPLOAD SUCCESS ---');
     } catch (e) {
       console.error('--- SUPABASE ERROR EXCEPTION ---');
       console.error(e);
-      // No need to delete from Prisma since we haven't inserted yet!
+      // Rollback
+      for (const path of uploadedPaths) {
+        await this.supabase.deleteFile('vehicles', path).catch(err => console.error('Rollback error:', err));
+      }
       throw new BadRequestException(`Erreur lors de l'upload des photos: ${(e as Error).message || e}`);
     }
 
     console.log('--- PRISMA DB INSERT ATTEMPT ---');
-    const newVehicle = await prisma.vehicle.create({
-      data: {
-        ...dto,
-        id: vehicleId,
-        capacity: enforcedCapacity,
-        ownerId: driver.id,
-        approvalStatus: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
-        insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-        inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-        frontPhotoKey: frontPath,
-        rearPhotoKey: rearPath,
-        sidePhotoKey: sidePath,
-      },
-    });
-    console.log('--- PRISMA DB INSERT SUCCESS ---');
-
-    return newVehicle;
+    try {
+      const newVehicle = await prisma.vehicle.create({
+        data: {
+          ...dto,
+          id: vehicleId,
+          capacity: enforcedCapacity,
+          ownerId: driver.id,
+          approvalStatus: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
+          insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+          inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+          frontPhotoKey: frontPath,
+          rearPhotoKey: rearPath,
+          sidePhotoKey: sidePath,
+        },
+      });
+      console.log('--- PRISMA DB INSERT SUCCESS ---');
+      return newVehicle;
+    } catch (dbError) {
+      for (const path of uploadedPaths) {
+        await this.supabase.deleteFile('vehicles', path).catch(console.error);
+      }
+      throw new BadRequestException(`Erreur base de données lors de la création du véhicule: ${(dbError as Error).message}`);
+    }
   }
 
   async getMyVehicles(userId: string) {
@@ -379,28 +392,35 @@ export class DriversService {
     let rearPath = vehicle.rearPhotoKey;
     let sidePath = vehicle.sidePhotoKey;
 
+    let uploadedPaths: string[] = [];
     try {
       if (files?.frontPhoto?.[0]) {
         if (!files.frontPhoto[0].buffer || files.frontPhoto[0].size === 0) throw new Error("Front photo buffer is empty");
         const ext = files.frontPhoto[0].mimetype.split('/')[1];
         frontPath = `${vehicle.id}/front.${ext}`;
         await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
+        uploadedPaths.push(frontPath);
       }
       if (files?.rearPhoto?.[0]) {
         if (!files.rearPhoto[0].buffer || files.rearPhoto[0].size === 0) throw new Error("Rear photo buffer is empty");
         const ext = files.rearPhoto[0].mimetype.split('/')[1];
         rearPath = `${vehicle.id}/rear.${ext}`;
         await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
+        uploadedPaths.push(rearPath);
       }
       if (files?.sidePhoto?.[0]) {
         if (!files.sidePhoto[0].buffer || files.sidePhoto[0].size === 0) throw new Error("Side photo buffer is empty");
         const ext = files.sidePhoto[0].mimetype.split('/')[1];
         sidePath = `${vehicle.id}/side.${ext}`;
         await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
+        uploadedPaths.push(sidePath);
       }
     } catch (e) {
       console.error('--- SUPABASE ERROR EXCEPTION IN UPDATE ---');
       console.error(e);
+      for (const path of uploadedPaths) {
+        await this.supabase.deleteFile('vehicles', path).catch(err => console.error('Rollback error:', err));
+      }
       throw new BadRequestException(`Erreur lors de l'upload des nouvelles photos: ${(e as Error).message || e}`);
     }
 
@@ -418,7 +438,75 @@ export class DriversService {
         rearPhotoKey: rearPath,
         sidePhotoKey: sidePath,
       },
+    }).catch(async (dbError) => {
+      for (const path of uploadedPaths) {
+        await this.supabase.deleteFile('vehicles', path).catch(console.error);
+      }
+      throw new BadRequestException(`Erreur DB lors de la modification: ${(dbError as Error).message}`);
     });
+  }
+
+  async smokeTestStorageAdmin() {
+    if (process.env.ENABLE_STORAGE_DIAGNOSTICS !== 'true') {
+      throw new BadRequestException("Storage diagnostics are disabled.");
+    }
+    
+    const timestamp = Date.now();
+    const frontPath = `diagnostics/${timestamp}/front.jpg`;
+    const rearPath = `diagnostics/${timestamp}/rear.jpg`;
+    const sidePath = `diagnostics/${timestamp}/side.jpg`;
+
+    // 1x1 pixel transparent PNG
+    const pixelBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    const buffer = Buffer.from(pixelBase64, 'base64');
+    
+    const frontFile = { buffer, mimetype: 'image/png', originalname: 'front.png', size: buffer.length } as any;
+    const rearFile = { buffer, mimetype: 'image/png', originalname: 'rear.png', size: buffer.length } as any;
+    const sideFile = { buffer, mimetype: 'image/png', originalname: 'side.png', size: buffer.length } as any;
+
+    let frontUploaded = false;
+    let rearUploaded = false;
+    let sideUploaded = false;
+    let signedUrlsGenerated = false;
+
+    try {
+      await this.supabase.uploadFile('vehicles', frontPath, frontFile);
+      frontUploaded = true;
+      await this.supabase.uploadFile('vehicles', rearPath, rearFile);
+      rearUploaded = true;
+      await this.supabase.uploadFile('vehicles', sidePath, sideFile);
+      sideUploaded = true;
+    } catch (e) {
+      console.error('Smoke test upload error:', e);
+    }
+
+    let urls: string[] = [];
+    try {
+      if (frontUploaded && rearUploaded && sideUploaded) {
+        const u1 = await this.supabase.getSignedUrl('vehicles', frontPath);
+        const u2 = await this.supabase.getSignedUrl('vehicles', rearPath);
+        const u3 = await this.supabase.getSignedUrl('vehicles', sidePath);
+        if (u1 && u2 && u3) {
+          signedUrlsGenerated = true;
+          urls = [u1, u2, u3];
+        }
+      }
+    } catch (e) {
+      console.error('Smoke test signed URL error:', e);
+    }
+
+    return {
+      bucket: 'vehicles',
+      supabaseUrlHost: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.replace(/https?:\/\//, '').split('.')[0] + '...supabase.co' : 'unknown',
+      frontUploaded,
+      rearUploaded,
+      sideUploaded,
+      frontPath,
+      rearPath,
+      sidePath,
+      signedUrlsGenerated,
+      urls
+    };
   }
 
   async approveVehicleAdmin(adminId: string, vehicleId: string) {
