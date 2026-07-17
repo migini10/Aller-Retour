@@ -189,7 +189,11 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.asset('assets/images/vehicle_photo_guide_allogoo.png', height: 180, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(height: 180, color: Colors.grey, child: const Center(child: Text('Image Guide Manquante', style: TextStyle(color: Colors.white))))),
+                    child: Image.asset(
+                      'assets/images/vehicle_photo_guide_allogoo.png',
+                      width: double.infinity,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   const SizedBox(height: 24),
 

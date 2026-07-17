@@ -404,6 +404,10 @@ export class DriversService {
       throw new BadRequestException(`Erreur lors de l'upload des nouvelles photos: ${(e as Error).message || e}`);
     }
 
+    if (!frontPath || !rearPath || !sidePath) {
+      throw new BadRequestException("Toutes les photos doivent être présentes en base de données.");
+    }
+
     return prisma.vehicle.update({
       where: { id: vehicleId },
       data: {
