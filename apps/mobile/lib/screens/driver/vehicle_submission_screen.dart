@@ -120,10 +120,18 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       }
 
       if (mounted) {
-        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Succès: véhicule soumis. (Debug: pas de pop)'), duration: Duration(seconds: 5)));
+        // Navigator.pop(context, true); // TEMPORARILY COMMENTED OUT FOR DEBUG
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
+      if (mounted) {
+        // Show a massive snackbar
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('ERREUR API:\n${e.toString()}'),
+          duration: const Duration(seconds: 15),
+          backgroundColor: Colors.red,
+        ));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -247,6 +255,13 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _submit,
                       child: const Text('Soumettre le véhicule', style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Center(
+                    child: Text(
+                      'DEBUG: VehicleSubmissionScreen | Build: 5a875b0',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],

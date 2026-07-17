@@ -168,8 +168,20 @@ class ApiClient {
         }
       }
 
+      print('=== MULTIPART REQUEST DEBUG ===');
+      print('URL: $method $uri');
+      print('Headers: ${request.headers}');
+      print('Fields: ${request.fields}');
+      print('Files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}');
+      print('===============================');
+
       final streamedResponse = await request.send().timeout(const Duration(seconds: 30));
       final response = await http.Response.fromStream(streamedResponse);
+      
+      print('=== MULTIPART RESPONSE DEBUG ===');
+      print('StatusCode: ${response.statusCode}');
+      print('Body: ${response.body}');
+      print('================================');
       _handleErrors(response);
       return response;
     } catch (e) {

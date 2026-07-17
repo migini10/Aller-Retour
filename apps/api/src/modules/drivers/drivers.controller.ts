@@ -35,6 +35,15 @@ export class DriversController {
     @Body() dto: CreateVehicleDto,
     @UploadedFiles() files: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] },
   ) {
+    console.log('=== BACKEND POST /v1/drivers/me/vehicles ===');
+    console.log('User ID:', req.user.id);
+    console.log('Body (DTO):', dto);
+    console.log('Files received:', {
+      frontPhoto: files?.frontPhoto?.length ? true : false,
+      rearPhoto: files?.rearPhoto?.length ? true : false,
+      sidePhoto: files?.sidePhoto?.length ? true : false,
+    });
+    console.log('=============================================');
     return this.driversService.createVehicleForDriver(req.user.id, dto, files);
   }
 

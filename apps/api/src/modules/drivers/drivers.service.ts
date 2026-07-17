@@ -226,11 +226,19 @@ export class DriversService {
       const rearPath = `vehicles/${newVehicle.id}/rear.${ext2}`;
       const sidePath = `vehicles/${newVehicle.id}/side.${ext3}`;
 
+      console.log('--- SUPABASE UPLOAD ATTEMPT ---');
+      console.log(`Front Path: ${frontPath}`);
+      console.log(`Rear Path: ${rearPath}`);
+      console.log(`Side Path: ${sidePath}`);
+
       await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
       await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
       await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
 
-      return await prisma.vehicle.update({
+      console.log('--- SUPABASE UPLOAD SUCCESS ---');
+
+      console.log('--- PRISMA UPDATE DB ATTEMPT ---');
+      const updatedVehicle = await prisma.vehicle.update({
         where: { id: newVehicle.id },
         data: {
           frontPhotoKey: frontPath,
@@ -238,9 +246,13 @@ export class DriversService {
           sidePhotoKey: sidePath,
         }
       });
+      console.log('--- PRISMA UPDATE DB SUCCESS ---');
+      return updatedVehicle;
     } catch (e) {
+      console.error('--- SUPABASE ERROR EXCEPTION ---');
+      console.error(e);
       await prisma.vehicle.delete({ where: { id: newVehicle.id } });
-      throw new BadRequestException('Erreur lors de l\'upload des photos. Véhicule non enregistré.');
+      throw new BadRequestException(`Erreur lors de l'upload des photos: ${(e as Error).message || e}`);
     }
   }
 
@@ -253,11 +265,25 @@ export class DriversService {
     });
 
     return Promise.all(vehicles.map(async (v) => {
+      let frontPhotoUrl = null;
+      let rearPhotoUrl = null;
+      let sidePhotoUrl = null;
+
+      try {
+        if (v.frontPhotoKey) frontPhotoUrl = await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey);
+        if (v.rearPhotoKey) rearPhotoUrl = await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey);
+        if (v.sidePhotoKey) sidePhotoUrl = await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey);
+      } catch (e) {
+        console.error('--- DRIVER GET VEHICLES SIGNED URL ERROR ---');
+        console.error(`Vehicle ID: ${v.id}`);
+        console.error(e);
+      }
+
       return {
         ...v,
-        frontPhotoUrl: v.frontPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey) : null,
-        rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
-        sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
+        frontPhotoUrl,
+        rearPhotoUrl,
+        sidePhotoUrl,
       };
     }));
   }
@@ -275,11 +301,25 @@ export class DriversService {
     });
 
     return Promise.all(vehicles.map(async (v) => {
+      let frontPhotoUrl = null;
+      let rearPhotoUrl = null;
+      let sidePhotoUrl = null;
+
+      try {
+        if (v.frontPhotoKey) frontPhotoUrl = await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey);
+        if (v.rearPhotoKey) rearPhotoUrl = await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey);
+        if (v.sidePhotoKey) sidePhotoUrl = await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey);
+      } catch (e) {
+        console.error('--- ADMIN GET VEHICLES SIGNED URL ERROR ---');
+        console.error(`Vehicle ID: ${v.id}`);
+        console.error(e);
+      }
+
       return {
         ...v,
-        frontPhotoUrl: v.frontPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.frontPhotoKey) : null,
-        rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
-        sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
+        frontPhotoUrl,
+        rearPhotoUrl,
+        sidePhotoUrl,
       };
     }));
   }
