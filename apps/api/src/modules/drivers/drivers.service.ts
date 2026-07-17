@@ -157,7 +157,7 @@ export class DriversService {
     const existingVehicle = await prisma.vehicle.findUnique({ where: { plateNumber: dto.plateNumber } });
     if (existingVehicle) throw new BadRequestException('Un véhicule avec cette plaque existe déjà');
 
-    let enforcedCapacity = dto.capacity;
+    let enforcedCapacity = dto.capacity || 5;
     if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
     if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
 
@@ -202,7 +202,7 @@ export class DriversService {
     validateFile(files.rearPhoto[0]);
     validateFile(files.sidePhoto[0]);
 
-    let enforcedCapacity = dto.capacity;
+    let enforcedCapacity = dto.capacity || 5;
     if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
     if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
 

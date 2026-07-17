@@ -1,4 +1,5 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 import { VehicleStatus } from '@prisma/client';
 
 export class UpdateVehicleDto {
@@ -31,5 +32,12 @@ export class UpdateVehicleDto {
   model?: string;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
   year?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  capacity?: number;
 }

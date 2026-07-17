@@ -41,3 +41,4 @@ flutter:
     - .env
     - assets/images/
     - assets/images/destinations/
+    - assets/images/vehicle_photo_guide_senegal_taxi.png

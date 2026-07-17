@@ -167,92 +167,99 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       appBar: AppBar(
         title: Text(widget.existingVehicle != null ? 'Modifier Véhicule' : 'Ajouter un Véhicule'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Guide Image
-                    const Text('Guide de prise de photo:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset('assets/images/vehicle_photo_guide_senegal_taxi.png', height: 180, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(height: 180, color: Colors.grey, child: const Center(child: Text('Image Guide Manquante', style: TextStyle(color: Colors.white))))),
-                    ),
-                    const SizedBox(height: 24),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Guide Image
+                  const Text('Guide de prise de photo:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset('assets/images/vehicle_photo_guide_senegal_taxi.png', height: 180, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(height: 180, color: Colors.grey, child: const Center(child: Text('Image Guide Manquante', style: TextStyle(color: Colors.white))))),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Photos
-                    const Text('Photos du véhicule (Obligatoires)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(child: _buildPhotoPicker('Avant', 'front', _frontPhotoFile, _frontPhotoUrl)),
-                        const SizedBox(width: 8),
-                        Expanded(child: _buildPhotoPicker('Arrière', 'rear', _rearPhotoFile, _rearPhotoUrl)),
-                        const SizedBox(width: 8),
-                        Expanded(child: _buildPhotoPicker('Latérale', 'side', _sidePhotoFile, _sidePhotoUrl)),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
+                  // Photos
+                  const Text('Photos du véhicule (Obligatoires)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: _buildPhotoPicker('Avant', 'front', _frontPhotoFile, _frontPhotoUrl)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildPhotoPicker('Arrière', 'rear', _rearPhotoFile, _rearPhotoUrl)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildPhotoPicker('Latérale', 'side', _sidePhotoFile, _sidePhotoUrl)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Fields
-                    TextFormField(
-                      controller: _plateController,
-                      decoration: const InputDecoration(labelText: 'Plaque d\'immatriculation', border: OutlineInputBorder()),
-                      validator: (v) => v!.isEmpty ? 'Requis' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _type,
-                      decoration: const InputDecoration(labelText: 'Type de Véhicule', border: OutlineInputBorder()),
-                      items: const [
-                        DropdownMenuItem(value: 'TAXI_5_PLACES', child: Text('Taxi 5 Places')),
-                        DropdownMenuItem(value: 'TAXI_7_PLACES', child: Text('Taxi 7 Places')),
-                      ],
-                      onChanged: (v) { if (v != null) setState(() => _type = v); },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _brandController,
-                            decoration: const InputDecoration(labelText: 'Marque (ex: Peugeot)', border: OutlineInputBorder()),
-                          ),
+                  // Fields
+                  TextFormField(
+                    controller: _plateController,
+                    decoration: const InputDecoration(labelText: 'Plaque d\'immatriculation', border: OutlineInputBorder()),
+                    validator: (v) => v!.isEmpty ? 'Requis' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _type,
+                    decoration: const InputDecoration(labelText: 'Type de Véhicule', border: OutlineInputBorder()),
+                    items: const [
+                      DropdownMenuItem(value: 'TAXI_5_PLACES', child: Text('Taxi 5 Places')),
+                      DropdownMenuItem(value: 'TAXI_7_PLACES', child: Text('Taxi 7 Places')),
+                    ],
+                    onChanged: (v) { if (v != null) setState(() => _type = v); },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _brandController,
+                          decoration: const InputDecoration(labelText: 'Marque (ex: Peugeot)', border: OutlineInputBorder()),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _modelController,
-                            decoration: const InputDecoration(labelText: 'Modèle', border: OutlineInputBorder()),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _yearController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Année (ex: 2015)', border: OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 32),
-                    
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _submit,
-                        child: const Text('Soumettre le véhicule', style: TextStyle(fontSize: 16)),
                       ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _modelController,
+                          decoration: const InputDecoration(labelText: 'Modèle', border: OutlineInputBorder()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _yearController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Année (ex: 2015)', border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submit,
+                      child: const Text('Soumettre le véhicule', style: TextStyle(fontSize: 16)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
     );
   }
 }
