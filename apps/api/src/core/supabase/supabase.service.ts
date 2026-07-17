@@ -24,6 +24,7 @@ export class SupabaseService {
   }
 
   async uploadFile(bucket: string, path: string, file: Express.Multer.File): Promise<string> {
+    this.logger.log(`Starting Supabase upload: bucket=${bucket}, path=${path}, size=${file.size} bytes`);
     const { data, error } = await this.supabase.storage
       .from(bucket)
       .upload(path, file.buffer, {
@@ -32,10 +33,11 @@ export class SupabaseService {
       });
 
     if (error) {
-      this.logger.error(`Supabase upload error: ${error.message}`);
+      this.logger.error(`Supabase upload error for ${path}: ${error.message}`);
       throw new Error(`Failed to upload file to Supabase: ${error.message}`);
     }
 
+    this.logger.log(`Supabase upload successful: ${path}. Data: ${JSON.stringify(data)}`);
     return data.path;
   }
 

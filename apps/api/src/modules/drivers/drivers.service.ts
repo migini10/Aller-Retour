@@ -206,54 +206,62 @@ export class DriversService {
     if (dto.type === 'TAXI_5_PLACES') enforcedCapacity = 5;
     if (dto.type === 'TAXI_7_PLACES') enforcedCapacity = 7;
 
-    const newVehicle = await prisma.vehicle.create({
-      data: {
-        ...dto,
-        capacity: enforcedCapacity,
-        ownerId: driver.id,
-        approvalStatus: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
-        insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-        inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      },
-    });
+    // Generate ID beforehand to use in paths and ensure atomic insert
+    const vehicleId = crypto.randomUUID();
+
+    let frontPath = '';
+    let rearPath = '';
+    let sidePath = '';
 
     try {
       const ext1 = files.frontPhoto[0].mimetype.split('/')[1];
       const ext2 = files.rearPhoto[0].mimetype.split('/')[1];
       const ext3 = files.sidePhoto[0].mimetype.split('/')[1];
       
-      const frontPath = `vehicles/${newVehicle.id}/front.${ext1}`;
-      const rearPath = `vehicles/${newVehicle.id}/rear.${ext2}`;
-      const sidePath = `vehicles/${newVehicle.id}/side.${ext3}`;
+      // Removed redundant 'vehicles/' prefix since bucket is already 'vehicles'
+      frontPath = `${vehicleId}/front.${ext1}`;
+      rearPath = `${vehicleId}/rear.${ext2}`;
+      sidePath = `${vehicleId}/side.${ext3}`;
 
       console.log('--- SUPABASE UPLOAD ATTEMPT ---');
       console.log(`Front Path: ${frontPath}`);
       console.log(`Rear Path: ${rearPath}`);
       console.log(`Side Path: ${sidePath}`);
 
+      if (!files.frontPhoto[0].buffer || files.frontPhoto[0].size === 0) throw new Error("Front photo buffer is empty");
+      if (!files.rearPhoto[0].buffer || files.rearPhoto[0].size === 0) throw new Error("Rear photo buffer is empty");
+      if (!files.sidePhoto[0].buffer || files.sidePhoto[0].size === 0) throw new Error("Side photo buffer is empty");
+
       await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
       await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
       await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
 
       console.log('--- SUPABASE UPLOAD SUCCESS ---');
-
-      console.log('--- PRISMA UPDATE DB ATTEMPT ---');
-      const updatedVehicle = await prisma.vehicle.update({
-        where: { id: newVehicle.id },
-        data: {
-          frontPhotoKey: frontPath,
-          rearPhotoKey: rearPath,
-          sidePhotoKey: sidePath,
-        }
-      });
-      console.log('--- PRISMA UPDATE DB SUCCESS ---');
-      return updatedVehicle;
     } catch (e) {
       console.error('--- SUPABASE ERROR EXCEPTION ---');
       console.error(e);
-      await prisma.vehicle.delete({ where: { id: newVehicle.id } });
+      // No need to delete from Prisma since we haven't inserted yet!
       throw new BadRequestException(`Erreur lors de l'upload des photos: ${(e as Error).message || e}`);
     }
+
+    console.log('--- PRISMA DB INSERT ATTEMPT ---');
+    const newVehicle = await prisma.vehicle.create({
+      data: {
+        ...dto,
+        id: vehicleId,
+        capacity: enforcedCapacity,
+        ownerId: driver.id,
+        approvalStatus: 'PENDING_REVIEW', // Driver submitted vehicles are pending review
+        insuranceExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        inspectionExpiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        frontPhotoKey: frontPath,
+        rearPhotoKey: rearPath,
+        sidePhotoKey: sidePath,
+      },
+    });
+    console.log('--- PRISMA DB INSERT SUCCESS ---');
+
+    return newVehicle;
   }
 
   async getMyVehicles(userId: string) {
@@ -373,22 +381,27 @@ export class DriversService {
 
     try {
       if (files?.frontPhoto?.[0]) {
+        if (!files.frontPhoto[0].buffer || files.frontPhoto[0].size === 0) throw new Error("Front photo buffer is empty");
         const ext = files.frontPhoto[0].mimetype.split('/')[1];
-        frontPath = `vehicles/${vehicle.id}/front.${ext}`;
+        frontPath = `${vehicle.id}/front.${ext}`;
         await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
       }
       if (files?.rearPhoto?.[0]) {
+        if (!files.rearPhoto[0].buffer || files.rearPhoto[0].size === 0) throw new Error("Rear photo buffer is empty");
         const ext = files.rearPhoto[0].mimetype.split('/')[1];
-        rearPath = `vehicles/${vehicle.id}/rear.${ext}`;
+        rearPath = `${vehicle.id}/rear.${ext}`;
         await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
       }
       if (files?.sidePhoto?.[0]) {
+        if (!files.sidePhoto[0].buffer || files.sidePhoto[0].size === 0) throw new Error("Side photo buffer is empty");
         const ext = files.sidePhoto[0].mimetype.split('/')[1];
-        sidePath = `vehicles/${vehicle.id}/side.${ext}`;
+        sidePath = `${vehicle.id}/side.${ext}`;
         await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
       }
     } catch (e) {
-      throw new BadRequestException('Erreur lors de l\'upload des nouvelles photos.');
+      console.error('--- SUPABASE ERROR EXCEPTION IN UPDATE ---');
+      console.error(e);
+      throw new BadRequestException(`Erreur lors de l'upload des nouvelles photos: ${(e as Error).message || e}`);
     }
 
     return prisma.vehicle.update({
