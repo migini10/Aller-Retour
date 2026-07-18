@@ -750,62 +750,78 @@ export class DriversService {
     const frontExt = frontFile.originalname.split('.').pop();
     const frontFileName = `${plate}_${vehicleId}/documents/${typeStr}/${frontName}.${frontExt}`;
 
-    const fileUrl = await this.supabase.uploadFile('vehicles', frontFileName, frontFile);
-
-    if (!fileUrl) {
-      throw new BadRequestException('Échec du téléchargement du document recto.');
+    let fileUrl: string;
+    try {
+      fileUrl = await this.supabase.uploadFile('vehicles', frontFileName, frontFile);
+      if (!fileUrl) throw new Error('URL vide retournée');
+    } catch (e) {
+      throw new BadRequestException(`Échec du téléchargement du document recto: ${(e as Error).message || e}`);
     }
 
     let backFileName = null;
+    let backUrl = null;
     if (backFile) {
       const backExt = backFile.originalname.split('.').pop();
       backFileName = `${plate}_${vehicleId}/documents/${typeStr}/back.${backExt}`;
-      const backUrl = await this.supabase.uploadFile('vehicles', backFileName, backFile);
-      if (!backUrl) {
-        throw new BadRequestException('Échec du téléchargement du document verso.');
+      try {
+        backUrl = await this.supabase.uploadFile('vehicles', backFileName, backFile);
+        if (!backUrl) throw new Error('URL verso vide retournée');
+      } catch (e) {
+        // Rollback front file if back file fails
+        await this.supabase.deleteFile('vehicles', frontFileName).catch(err => console.error('Rollback error:', err));
+        throw new BadRequestException(`Échec du téléchargement du document verso: ${(e as Error).message || e}`);
       }
     }
 
-    const existingDoc = await prisma.vehicleDocument.findFirst({
-      where: { vehicleId, type: dto.type },
-    });
-
-    if (existingDoc) {
-      await prisma.vehicleDocument.update({
-        where: { id: existingDoc.id },
-        data: {
-          fileKey: frontFileName,
-          backFileKey: backFileName,
-          status: 'PENDING_REVIEW',
-          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
-          rejectionReason: null,
-          reviewedAt: null,
-          reviewedById: null,
-        },
+    try {
+      const existingDoc = await prisma.vehicleDocument.findFirst({
+        where: { vehicleId, type: dto.type },
       });
 
-      const getBucket = (key: string) => key.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
-      const filesToDelete = [
-        { bucket: getBucket(existingDoc.fileKey), key: existingDoc.fileKey }
-      ];
-      if (existingDoc.backFileKey) {
-        filesToDelete.push({ bucket: getBucket(existingDoc.backFileKey), key: existingDoc.backFileKey });
-      }
+      if (existingDoc) {
+        await prisma.vehicleDocument.update({
+          where: { id: existingDoc.id },
+          data: {
+            fileKey: frontFileName,
+            backFileKey: backFileName,
+            status: 'PENDING_REVIEW',
+            expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+            rejectionReason: null,
+            reviewedAt: null,
+            reviewedById: null,
+          },
+        });
 
-      for (const { bucket, key } of filesToDelete) {
-        this.supabase.deleteFile(bucket, key).catch(e => console.error(`Echec suppression ancien fichier ${key} (${bucket}):`, e));
+        const getBucket = (key: string) => key.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+        const filesToDelete = [
+          { bucket: getBucket(existingDoc.fileKey), key: existingDoc.fileKey }
+        ];
+        if (existingDoc.backFileKey) {
+          filesToDelete.push({ bucket: getBucket(existingDoc.backFileKey), key: existingDoc.backFileKey });
+        }
+
+        for (const { bucket, key } of filesToDelete) {
+          this.supabase.deleteFile(bucket, key).catch(e => console.error(`Echec suppression ancien fichier ${key} (${bucket}):`, e));
+        }
+      } else {
+        await prisma.vehicleDocument.create({
+          data: {
+            vehicleId,
+            type: dto.type,
+            fileKey: frontFileName,
+            backFileKey: backFileName,
+            status: 'PENDING_REVIEW',
+            expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+          },
+        });
       }
-    } else {
-      await prisma.vehicleDocument.create({
-        data: {
-          vehicleId,
-          type: dto.type,
-          fileKey: frontFileName,
-          backFileKey: backFileName,
-          status: 'PENDING_REVIEW',
-          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
-        },
-      });
+    } catch (dbError) {
+      // Rollback files
+      await this.supabase.deleteFile('vehicles', frontFileName).catch(console.error);
+      if (backFileName) {
+        await this.supabase.deleteFile('vehicles', backFileName).catch(console.error);
+      }
+      throw new BadRequestException(`Erreur base de données lors de l'enregistrement du document: ${(dbError as Error).message}`);
     }
 
     return { success: true, message: 'Document uploadé avec succès, en attente de validation.' };
