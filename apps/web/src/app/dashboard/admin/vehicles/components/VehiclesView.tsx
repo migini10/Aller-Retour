@@ -5,6 +5,21 @@ import { Vehicle } from '../../types/driver.types';
 import { DriversService } from '../../services/drivers.service';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 
+const SafeImage = ({ src, alt }: { src: string | null; alt: string }) => {
+  const [error, setError] = useState(false);
+  if (!src) {
+    return <div className="w-full h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-slate-400">Manquante</div>;
+  }
+  if (error) {
+    return <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-red-400 border border-red-200 dark:border-red-900/30 text-sm">Image inaccessible</div>;
+  }
+  return (
+    <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full h-48 rounded-lg overflow-hidden border dark:border-slate-800 hover:opacity-90 transition-opacity">
+      <img src={src} alt={alt} onError={() => setError(true)} className="w-full h-full object-cover bg-slate-100" />
+    </a>
+  );
+};
+
 export default function VehiclesView() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,7 +151,10 @@ export default function VehiclesView() {
                   <div className="text-xs text-slate-500">{v.capacity} places</div>
                 </td>
                 <td className="p-3">
-                  <StatusBadge status={v.approvalStatus} />
+                  <StatusBadge 
+                    label={v.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : v.approvalStatus === 'APPROVED' ? 'Approuvé' : v.approvalStatus === 'REJECTED' ? 'Rejeté' : v.approvalStatus} 
+                    variant={v.approvalStatus === 'APPROVED' ? 'success' : v.approvalStatus === 'REJECTED' ? 'error' : 'warning'} 
+                  />
                 </td>
                 <td className="p-3">
                   {v.certificationStatus === 'CERTIFIED' ? (
@@ -195,7 +213,12 @@ export default function VehiclesView() {
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Approbation</div>
-                  <div className="mt-1"><StatusBadge status={selectedVehicle.approvalStatus} /></div>
+                  <div className="mt-1">
+                    <StatusBadge 
+                      label={selectedVehicle.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : selectedVehicle.approvalStatus === 'APPROVED' ? 'Approuvé' : selectedVehicle.approvalStatus === 'REJECTED' ? 'Rejeté' : selectedVehicle.approvalStatus} 
+                      variant={selectedVehicle.approvalStatus === 'APPROVED' ? 'success' : selectedVehicle.approvalStatus === 'REJECTED' ? 'error' : 'warning'} 
+                    />
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Certification</div>
@@ -223,27 +246,15 @@ export default function VehiclesView() {
                 <div className="flex flex-col gap-4">
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Avant</div>
-                    {selectedVehicle.frontPhotoUrl ? (
-                      <img src={selectedVehicle.frontPhotoUrl} alt="Front" className="w-full h-48 object-cover rounded-lg bg-slate-100 border dark:border-slate-800" />
-                    ) : (
-                      <div className="w-full h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-slate-400">Manquante</div>
-                    )}
+                    <SafeImage src={selectedVehicle.frontPhotoUrl} alt="Front" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Arrière</div>
-                    {selectedVehicle.rearPhotoUrl ? (
-                      <img src={selectedVehicle.rearPhotoUrl} alt="Rear" className="w-full h-48 object-cover rounded-lg bg-slate-100 border dark:border-slate-800" />
-                    ) : (
-                      <div className="w-full h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-slate-400">Manquante</div>
-                    )}
+                    <SafeImage src={selectedVehicle.rearPhotoUrl} alt="Rear" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Latérale</div>
-                    {selectedVehicle.sidePhotoUrl ? (
-                      <img src={selectedVehicle.sidePhotoUrl} alt="Side" className="w-full h-48 object-cover rounded-lg bg-slate-100 border dark:border-slate-800" />
-                    ) : (
-                      <div className="w-full h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-slate-400">Manquante</div>
-                    )}
+                    <SafeImage src={selectedVehicle.sidePhotoUrl} alt="Side" />
                   </div>
                 </div>
               </div>
