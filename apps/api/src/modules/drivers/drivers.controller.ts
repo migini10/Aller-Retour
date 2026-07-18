@@ -200,17 +200,20 @@ export class DriversController {
   @Post('me/vehicles/:vehicleId/documents')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
   @Roles(UserRole.DRIVER)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'frontFile', maxCount: 1 }, { name: 'backFile', maxCount: 1 }]))
   async uploadVehicleDocument(
     @Request() req: any,
     @Param('vehicleId') vehicleId: string,
     @Body() dto: UploadVehicleDocumentDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: { frontFile?: Express.Multer.File[], backFile?: Express.Multer.File[] },
   ) {
-    if (!file) {
-      throw new BadRequestException('Veuillez fournir un fichier pour le document.');
+    if (!files || !files.frontFile || files.frontFile.length === 0) {
+      throw new BadRequestException('Veuillez fournir au moins le fichier recto (frontFile) du document.');
     }
-    return this.driversService.uploadVehicleDocument(req.user.id, vehicleId, dto, file);
+    const frontFile = files.frontFile[0];
+    const backFile = files.backFile && files.backFile.length > 0 ? files.backFile[0] : undefined;
+    
+    return this.driversService.uploadVehicleDocument(req.user.id, vehicleId, dto, frontFile, backFile);
   }
 
   @Get('me/vehicles/:vehicleId/documents')

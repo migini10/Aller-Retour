@@ -715,7 +715,13 @@ export class DriversService {
     return { success: true, message: 'Le véhicule sera supprimé dans 30 jours.' };
   }
 
-  async uploadVehicleDocument(driverUserId: string, vehicleId: string, dto: UploadVehicleDocumentDto, file: Express.Multer.File) {
+  async uploadVehicleDocument(
+    driverUserId: string,
+    vehicleId: string,
+    dto: UploadVehicleDocumentDto,
+    frontFile: Express.Multer.File,
+    backFile?: Express.Multer.File,
+  ) {
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: vehicleId },
       include: { owner: true },
@@ -725,13 +731,27 @@ export class DriversService {
       throw new NotFoundException('Véhicule introuvable.');
     }
 
-    const ext = file.originalname.split('.').pop();
-    const fileName = `${vehicleId}/${crypto.randomUUID()}.${ext}`;
+    if (dto.type === 'REGISTRATION_CARD' && dto.isNewRegistrationCard === 'true' && !backFile) {
+      throw new BadRequestException('Veuillez fournir le fichier verso pour la carte grise.');
+    }
 
-    const fileUrl = await this.supabase.uploadFile('vehicle-documents', fileName, file);
+    const frontExt = frontFile.originalname.split('.').pop();
+    const frontFileName = `${vehicleId}/${crypto.randomUUID()}.${frontExt}`;
+
+    const fileUrl = await this.supabase.uploadFile('vehicle-documents', frontFileName, frontFile);
 
     if (!fileUrl) {
-      throw new BadRequestException('Échec du téléchargement du document.');
+      throw new BadRequestException('Échec du téléchargement du document recto.');
+    }
+
+    let backFileName = null;
+    if (backFile) {
+      const backExt = backFile.originalname.split('.').pop();
+      backFileName = `${vehicleId}/${crypto.randomUUID()}.${backExt}`;
+      const backUrl = await this.supabase.uploadFile('vehicle-documents', backFileName, backFile);
+      if (!backUrl) {
+        throw new BadRequestException('Échec du téléchargement du document verso.');
+      }
     }
 
     const existingDoc = await prisma.vehicleDocument.findFirst({
@@ -742,7 +762,8 @@ export class DriversService {
       await prisma.vehicleDocument.update({
         where: { id: existingDoc.id },
         data: {
-          fileKey: fileName,
+          fileKey: frontFileName,
+          backFileKey: backFileName,
           status: 'PENDING_REVIEW',
           expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
           rejectionReason: null,
@@ -750,13 +771,16 @@ export class DriversService {
           reviewedById: null,
         },
       });
-      this.supabase.deleteFiles('vehicle-documents', [existingDoc.fileKey]).catch(console.error);
+      const filesToDelete = [existingDoc.fileKey];
+      if (existingDoc.backFileKey) filesToDelete.push(existingDoc.backFileKey);
+      this.supabase.deleteFiles('vehicle-documents', filesToDelete).catch(console.error);
     } else {
       await prisma.vehicleDocument.create({
         data: {
           vehicleId,
           type: dto.type,
-          fileKey: fileName,
+          fileKey: frontFileName,
+          backFileKey: backFileName,
           status: 'PENDING_REVIEW',
           expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
         },
@@ -779,14 +803,19 @@ export class DriversService {
     const documentsWithUrls = await Promise.all(
       vehicle.documents.map(async (doc: any) => {
         let url = null;
+        let backUrl = null;
         try {
           url = await this.supabase.getSignedUrl('vehicle-documents', doc.fileKey);
+          if (doc.backFileKey) {
+            backUrl = await this.supabase.getSignedUrl('vehicle-documents', doc.backFileKey);
+          }
         } catch (e) {
           console.error(`Erreur URL signée pour le document ${doc.fileKey}`, e);
         }
         return {
           ...doc,
           fileUrl: url,
+          backUrl: backUrl,
         };
       })
     );

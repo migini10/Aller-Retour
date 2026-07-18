@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
-import '../../services/api_client.dart';
+import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../services/api_client.dart';
 
 class VehicleDocumentsScreen extends StatefulWidget {
   final String vehicleId;
@@ -14,6 +16,7 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
   bool _isLoading = true;
   List<dynamic> _documents = [];
   String _error = '';
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -34,21 +37,178 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
     }
   }
 
-  Future<void> _uploadDocument(String type) async {
-    // Dans un vrai device on ouvrirait FilePicker ou ImagePicker
-    // Ici pour la logique de test, on simule l'appel API ou on montre un message.
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sélecteur de fichier (Mock)')));
+  Future<void> _uploadSimpleDocument(String type, ImageSource source) async {
+    final XFile? image = await _picker.pickImage(source: source);
+    if (image == null) return;
     
-    // Simuler le succès d'un upload
-    // try {
-    //   await ApiClient().postMultipart(
-    //     '/v1/drivers/me/vehicles/${widget.vehicleId}/documents',
-    //     {'type': type},
-    //     [fichier]
-    //   );
-    //   _fetchDocuments();
-    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document envoyé pour validation.')));
-    // } catch (e) { ... }
+    if (!mounted) return;
+    _performUpload(type, {'frontFile': File(image.path)});
+  }
+
+  void _showSimpleUploadBottomSheet(String type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Prendre une photo'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _uploadSimpleDocument(type, ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _uploadSimpleDocument(type, ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRegistrationCardBottomSheet() {
+    bool hasVerso = false;
+    File? frontFile;
+    File? backFile;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16, right: 16, top: 16
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Carte Grise', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  
+                  // Recto (Mandatory)
+                  const Text('Recto (Obligatoire)'),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(frontFile == null ? 'Sélectionner le Recto' : 'Recto sélectionné'),
+                    onPressed: () async {
+                      final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
+                      if (img != null) {
+                        setModalState(() { frontFile = File(img.path); });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Toggle Verso
+                  SwitchListTile(
+                    title: const Text('Nouvelle carte grise avec verso'),
+                    value: hasVerso,
+                    onChanged: (val) {
+                      setModalState(() {
+                        hasVerso = val;
+                        if (!val) backFile = null;
+                      });
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  
+                  // Verso (Conditional)
+                  if (hasVerso) ...[
+                    const Text('Verso (Obligatoire)'),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(backFile == null ? 'Sélectionner le Verso' : 'Verso sélectionné'),
+                      onPressed: () async {
+                        final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
+                        if (img != null) {
+                          setModalState(() { backFile = File(img.path); });
+                        }
+                      },
+                    ),
+                  ],
+                  
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    onPressed: () {
+                      if (frontFile == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le recto.')));
+                        return;
+                      }
+                      if (hasVerso && backFile == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le verso.')));
+                        return;
+                      }
+                      Navigator.pop(ctx);
+                      
+                      final Map<String, File> files = {'frontFile': frontFile!};
+                      if (hasVerso && backFile != null) {
+                        files['backFile'] = backFile!;
+                      }
+                      _performUpload('REGISTRATION_CARD', files, isNewRegistrationCard: hasVerso);
+                    },
+                    child: const Text('Envoyer le document'),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          }
+        );
+      }
+    );
+  }
+
+  Future<void> _performUpload(String type, Map<String, File> files, {bool isNewRegistrationCard = false}) async {
+    setState(() { _isLoading = true; });
+
+    try {
+      final fields = {'type': type};
+      if (type == 'REGISTRATION_CARD' && isNewRegistrationCard) {
+        fields['isNewRegistrationCard'] = 'true';
+      }
+
+      await ApiClient().multipartRequest(
+        'POST',
+        '/v1/drivers/me/vehicles/${widget.vehicleId}/documents',
+        fields: fields,
+        files: files,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document envoyé avec succès pour validation.')));
+      }
+      await _fetchDocuments();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Erreur d\'envoi: ${e.toString()}';
+        });
+      }
+    }
+  }
+
+  Future<void> _uploadDocument(String type) async {
+    if (type == 'REGISTRATION_CARD') {
+      _showRegistrationCardBottomSheet();
+    } else {
+      _showSimpleUploadBottomSheet(type);
+    }
   }
 
   @override
@@ -57,16 +217,27 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
       appBar: AppBar(title: const Text('Papiers du véhicule')),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
-        : _error.isNotEmpty
-          ? Center(child: Text(_error, style: const TextStyle(color: Colors.red)))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildDocItem('REGISTRATION_CARD', 'Carte Grise'),
-                _buildDocItem('INSURANCE', 'Assurance'),
-                _buildDocItem('TECHNICAL_INSPECTION', 'Visite Technique'),
-              ],
-            )
+        : Column(
+            children: [
+              if (_error.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.red.shade100,
+                  width: double.infinity,
+                  child: Text(_error, style: const TextStyle(color: Colors.red)),
+                ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildDocItem('REGISTRATION_CARD', 'Carte Grise'),
+                    _buildDocItem('INSURANCE', 'Assurance'),
+                    _buildDocItem('TECHNICAL_INSPECTION', 'Visite Technique'),
+                  ],
+                ),
+              ),
+            ],
+          ),
     );
   }
 

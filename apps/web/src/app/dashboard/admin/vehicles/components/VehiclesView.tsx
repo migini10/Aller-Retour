@@ -320,9 +320,16 @@ export default function VehiclesView() {
                             Expire le : {new Date(doc.expiresAt).toLocaleDateString()}
                           </div>
                         )}
-                        <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block mb-3">
-                          Voir le document
-                        </a>
+                        <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
+                            Voir le document {doc.type === 'REGISTRATION_CARD' && doc.backUrl ? '(Recto)' : ''}
+                          </a>
+                          {doc.backUrl && (
+                            <a href={doc.backUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
+                              Voir le Verso
+                            </a>
+                          )}
+                        </div>
                         {doc.status !== 'APPROVED' && (
                           <div className="flex gap-2">
                             <button onClick={async () => {

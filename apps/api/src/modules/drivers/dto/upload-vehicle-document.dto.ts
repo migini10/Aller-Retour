@@ -11,4 +11,9 @@ export class UploadVehicleDocumentDto {
   @IsOptional()
   @IsString()
   expiresAt?: string;
+
+  @ApiProperty({ required: false, description: 'True si c\'est une nouvelle carte grise nécessitant un verso' })
+  @IsOptional()
+  @IsString()
+  isNewRegistrationCard?: string;
 }
