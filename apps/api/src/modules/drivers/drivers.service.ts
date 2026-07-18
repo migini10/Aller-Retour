@@ -18,6 +18,10 @@ export class DriversService {
     private readonly supabase: SupabaseService,
     private readonly authService: AuthService
   ) {}
+
+  private cleanPlate(plate: string): string {
+    return plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  }
   async findAll(filters: ListDriversDto) {
     const { page = 1, limit = 10, search, kycStatus, hasVehicle, isActive } = filters;
     const skip = (page - 1) * limit;
@@ -227,10 +231,10 @@ export class DriversService {
       const ext2 = files.rearPhoto[0].mimetype.split('/')[1];
       const ext3 = files.sidePhoto[0].mimetype.split('/')[1];
       
-      // Removed redundant 'vehicles/' prefix since bucket is already 'vehicles'
-      frontPath = `${vehicleId}/front.${ext1}`;
-      rearPath = `${vehicleId}/rear.${ext2}`;
-      sidePath = `${vehicleId}/side.${ext3}`;
+      const plate = this.cleanPlate(dto.plateNumber);
+      frontPath = `${plate}_${vehicleId}/photos/front.${ext1}`;
+      rearPath = `${plate}_${vehicleId}/photos/rear.${ext2}`;
+      sidePath = `${plate}_${vehicleId}/photos/side.${ext3}`;
 
       console.log('--- SUPABASE UPLOAD ATTEMPT ---');
       console.log(`Front Path: ${frontPath}`);
@@ -402,24 +406,26 @@ export class DriversService {
 
     let uploadedPaths: string[] = [];
     try {
+      const plate = this.cleanPlate(vehicle.plateNumber);
+
       if (files?.frontPhoto?.[0]) {
         if (!files.frontPhoto[0].buffer || files.frontPhoto[0].size === 0) throw new Error("Front photo buffer is empty");
         const ext = files.frontPhoto[0].mimetype.split('/')[1];
-        frontPath = `${vehicle.id}/front.${ext}`;
+        frontPath = `${plate}_${vehicle.id}/photos/front.${ext}`;
         await this.supabase.uploadFile('vehicles', frontPath, files.frontPhoto[0]);
         uploadedPaths.push(frontPath);
       }
       if (files?.rearPhoto?.[0]) {
         if (!files.rearPhoto[0].buffer || files.rearPhoto[0].size === 0) throw new Error("Rear photo buffer is empty");
         const ext = files.rearPhoto[0].mimetype.split('/')[1];
-        rearPath = `${vehicle.id}/rear.${ext}`;
+        rearPath = `${plate}_${vehicle.id}/photos/rear.${ext}`;
         await this.supabase.uploadFile('vehicles', rearPath, files.rearPhoto[0]);
         uploadedPaths.push(rearPath);
       }
       if (files?.sidePhoto?.[0]) {
         if (!files.sidePhoto[0].buffer || files.sidePhoto[0].size === 0) throw new Error("Side photo buffer is empty");
         const ext = files.sidePhoto[0].mimetype.split('/')[1];
-        sidePath = `${vehicle.id}/side.${ext}`;
+        sidePath = `${plate}_${vehicle.id}/photos/side.${ext}`;
         await this.supabase.uploadFile('vehicles', sidePath, files.sidePhoto[0]);
         uploadedPaths.push(sidePath);
       }
@@ -736,10 +742,15 @@ export class DriversService {
       throw new BadRequestException('Veuillez fournir le fichier verso pour la carte grise.');
     }
 
-    const frontExt = frontFile.originalname.split('.').pop();
-    const frontFileName = `${vehicleId}/${uuidv4()}.${frontExt}`;
+    const plate = this.cleanPlate(vehicle.plateNumber);
+    const typeStr = dto.type.toLowerCase().replace(/_/g, '-');
+    const isRegistration = dto.type === 'REGISTRATION_CARD';
+    const frontName = isRegistration ? 'front' : 'file';
 
-    const fileUrl = await this.supabase.uploadFile('vehicle-documents', frontFileName, frontFile);
+    const frontExt = frontFile.originalname.split('.').pop();
+    const frontFileName = `${plate}_${vehicleId}/documents/${typeStr}/${frontName}.${frontExt}`;
+
+    const fileUrl = await this.supabase.uploadFile('vehicles', frontFileName, frontFile);
 
     if (!fileUrl) {
       throw new BadRequestException('Échec du téléchargement du document recto.');
@@ -748,8 +759,8 @@ export class DriversService {
     let backFileName = null;
     if (backFile) {
       const backExt = backFile.originalname.split('.').pop();
-      backFileName = `${vehicleId}/${uuidv4()}.${backExt}`;
-      const backUrl = await this.supabase.uploadFile('vehicle-documents', backFileName, backFile);
+      backFileName = `${plate}_${vehicleId}/documents/${typeStr}/back.${backExt}`;
+      const backUrl = await this.supabase.uploadFile('vehicles', backFileName, backFile);
       if (!backUrl) {
         throw new BadRequestException('Échec du téléchargement du document verso.');
       }
@@ -772,9 +783,18 @@ export class DriversService {
           reviewedById: null,
         },
       });
-      const filesToDelete = [existingDoc.fileKey];
-      if (existingDoc.backFileKey) filesToDelete.push(existingDoc.backFileKey);
-      this.supabase.deleteFiles('vehicle-documents', filesToDelete).catch(console.error);
+
+      const getBucket = (key: string) => key.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+      const filesToDelete = [
+        { bucket: getBucket(existingDoc.fileKey), key: existingDoc.fileKey }
+      ];
+      if (existingDoc.backFileKey) {
+        filesToDelete.push({ bucket: getBucket(existingDoc.backFileKey), key: existingDoc.backFileKey });
+      }
+
+      for (const { bucket, key } of filesToDelete) {
+        this.supabase.deleteFile(bucket, key).catch(e => console.error(`Echec suppression ancien fichier ${key} (${bucket}):`, e));
+      }
     } else {
       await prisma.vehicleDocument.create({
         data: {
@@ -801,25 +821,26 @@ export class DriversService {
       throw new NotFoundException('Véhicule introuvable.');
     }
 
-    const documentsWithUrls = await Promise.all(
-      vehicle.documents.map(async (doc: any) => {
-        let url = null;
-        let backUrl = null;
-        try {
-          url = await this.supabase.getSignedUrl('vehicle-documents', doc.fileKey);
-          if (doc.backFileKey) {
-            backUrl = await this.supabase.getSignedUrl('vehicle-documents', doc.backFileKey);
-          }
-        } catch (e) {
-          console.error(`Erreur URL signée pour le document ${doc.fileKey}`, e);
+    const documentsWithUrls = await Promise.all(vehicle.documents.map(async (doc) => {
+      let fileUrl = null;
+      let backUrl = null;
+      try {
+        const frontBucket = doc.fileKey.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+        fileUrl = await this.supabase.getSignedUrl(frontBucket, doc.fileKey);
+
+        if (doc.backFileKey) {
+          const backBucket = doc.backFileKey.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+          backUrl = await this.supabase.getSignedUrl(backBucket, doc.backFileKey);
         }
-        return {
-          ...doc,
-          fileUrl: url,
-          backUrl: backUrl,
-        };
-      })
-    );
+      } catch (e) {
+        console.error(`Erreur URL signée pour le document ${doc.fileKey}`, e);
+      }
+      return {
+        ...doc,
+        fileUrl,
+        backUrl,
+      };
+    }));
 
     return { documents: documentsWithUrls };
   }

@@ -58,9 +58,16 @@ export class VehiclesCronService {
 
           // Delete documents from storage
           const documents = await prisma.vehicleDocument.findMany({ where: { vehicleId: vehicle.id } });
-          const docKeys = documents.map(d => d.fileKey).filter(Boolean);
-          if (docKeys.length > 0) {
-            await this.supabase.deleteFiles('vehicle-documents', docKeys);
+          const getBucket = (key: string) => key.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+          
+          const filesToDelete: { bucket: string, key: string }[] = [];
+          for (const doc of documents) {
+            if (doc.fileKey) filesToDelete.push({ bucket: getBucket(doc.fileKey), key: doc.fileKey });
+            if (doc.backFileKey) filesToDelete.push({ bucket: getBucket(doc.backFileKey), key: doc.backFileKey });
+          }
+
+          for (const { bucket, key } of filesToDelete) {
+            await this.supabase.deleteFile(bucket, key).catch(e => this.logger.error(`Erreur suppression document ${key}`, e));
           }
 
           // Update DB
