@@ -129,12 +129,12 @@ class ApiClient {
     return response;
   }
 
-  Future<http.Response> delete(String endpoint, {bool requireAuth = true}) async {
+  Future<http.Response> delete(String endpoint, {dynamic body, bool requireAuth = true}) async {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders(requireAuth: requireAuth);
 
     final response = await http
-        .delete(uri, headers: headers)
+        .delete(uri, headers: headers, body: body != null ? json.encode(body) : null)
         .timeout(const Duration(seconds: _timeoutSeconds));
 
     _handleErrors(response);
