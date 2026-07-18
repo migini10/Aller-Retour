@@ -98,9 +98,9 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       };
 
       final Map<String, File> files = {};
-      if (_frontPhotoFile != null) files['frontPhoto'] = _frontPhotoFile!;
-      if (_rearPhotoFile != null) files['rearPhoto'] = _rearPhotoFile!;
-      if (_sidePhotoFile != null) files['sidePhoto'] = _sidePhotoFile!;
+      if (_frontPhotoFile != null && await _frontPhotoFile!.length() > 0) files['frontPhoto'] = _frontPhotoFile!;
+      if (_rearPhotoFile != null && await _rearPhotoFile!.length() > 0) files['rearPhoto'] = _rearPhotoFile!;
+      if (_sidePhotoFile != null && await _sidePhotoFile!.length() > 0) files['sidePhoto'] = _sidePhotoFile!;
 
       if (widget.existingVehicle != null) {
         final id = widget.existingVehicle!['id'];
@@ -120,8 +120,8 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Succès: véhicule soumis. (Debug: pas de pop)'), duration: Duration(seconds: 5)));
-        // Navigator.pop(context, true); // TEMPORARILY COMMENTED OUT FOR DEBUG
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Succès: véhicule soumis.'), duration: Duration(seconds: 5)));
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {

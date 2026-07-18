@@ -2,6 +2,7 @@ import 'package:aller_retour_mobile/core/config/env_config.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../core/constants/storage_keys.dart';
@@ -161,9 +162,11 @@ class ApiClient {
       if (files != null) {
         for (var entry in files.entries) {
           final file = entry.value;
+          final ext = file.path.toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
           request.files.add(await http.MultipartFile.fromPath(
             entry.key,
             file.path,
+            contentType: MediaType('image', ext),
           ));
         }
       }
