@@ -62,7 +62,7 @@ class ApiClient {
     return headers;
   }
 
-  void _handleErrors(http.Response response) async {
+  Future<void> _handleErrors(http.Response response) async {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return; // Success
     }
@@ -101,7 +101,7 @@ class ApiClient {
         .get(uri, headers: headers)
         .timeout(const Duration(seconds: _timeoutSeconds));
 
-    _handleErrors(response);
+    await _handleErrors(response);
     return response;
   }
 
@@ -113,7 +113,7 @@ class ApiClient {
         .post(uri, headers: headers, body: body != null ? json.encode(body) : null)
         .timeout(const Duration(seconds: _timeoutSeconds));
 
-    _handleErrors(response);
+    await _handleErrors(response);
     return response;
   }
 
@@ -125,7 +125,7 @@ class ApiClient {
         .patch(uri, headers: headers, body: body != null ? json.encode(body) : null)
         .timeout(const Duration(seconds: _timeoutSeconds));
 
-    _handleErrors(response);
+    await _handleErrors(response);
     return response;
   }
 
@@ -137,7 +137,7 @@ class ApiClient {
         .delete(uri, headers: headers, body: body != null ? json.encode(body) : null)
         .timeout(const Duration(seconds: _timeoutSeconds));
 
-    _handleErrors(response);
+    await _handleErrors(response);
     return response;
   }
 
@@ -185,7 +185,7 @@ class ApiClient {
       print('StatusCode: ${response.statusCode}');
       print('Body: ${response.body}');
       print('================================');
-      _handleErrors(response);
+      await _handleErrors(response);
       return response;
     } catch (e) {
       if (e is ApiException || e is UnauthorizedException || e is AccountNotVerifiedException) rethrow;

@@ -683,14 +683,16 @@ export class DriversService {
 
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: vehicleId },
-      include: { driverProfile: true, trips: true },
+      include: { owner: true },
     });
 
-    if (!vehicle || vehicle.driverProfile.userId !== driverUserId) {
+    if (!vehicle || vehicle.owner?.userId !== driverUserId) {
       throw new NotFoundException('Véhicule introuvable ou vous n\'en êtes pas le propriétaire.');
     }
 
-    if (vehicle.trips.length === 0) {
+    const tripsCount = await prisma.trip.count({ where: { vehicleId } });
+
+    if (tripsCount === 0) {
       await prisma.vehicle.delete({ where: { id: vehicleId } });
       const photos = [vehicle.frontPhotoKey, vehicle.rearPhotoKey, vehicle.sidePhotoKey].filter(Boolean);
       if (photos.length > 0) {
@@ -716,17 +718,17 @@ export class DriversService {
   async uploadVehicleDocument(driverUserId: string, vehicleId: string, dto: UploadVehicleDocumentDto, file: Express.Multer.File) {
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: vehicleId },
-      include: { driverProfile: true },
+      include: { owner: true },
     });
 
-    if (!vehicle || vehicle.driverProfile.userId !== driverUserId) {
-      throw new NotFoundException('Véhicule introuvable ou vous n\'en êtes pas le propriétaire.');
+    if (!vehicle || vehicle.owner?.userId !== driverUserId) {
+      throw new NotFoundException('Véhicule introuvable.');
     }
 
-    const fileExt = file.originalname.split('.').pop();
-    const fileName = `${vehicleId}/${dto.type}_${Date.now()}.${fileExt}`;
+    const ext = file.originalname.split('.').pop();
+    const fileName = `${vehicleId}/${crypto.randomUUID()}.${ext}`;
 
-    const fileUrl = await this.supabase.uploadFile('vehicle-documents', fileName, file.buffer, file.mimetype);
+    const fileUrl = await this.supabase.uploadFile('vehicle-documents', fileName, file);
 
     if (!fileUrl) {
       throw new BadRequestException('Échec du téléchargement du document.');
@@ -767,15 +769,15 @@ export class DriversService {
   async getVehicleDocuments(driverUserId: string | null, vehicleId: string) {
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: vehicleId },
-      include: { driverProfile: true, documents: true },
+      include: { owner: true, documents: true },
     });
 
-    if (!vehicle || (driverUserId && vehicle.driverProfile.userId !== driverUserId)) {
+    if (!vehicle || (driverUserId && vehicle.owner?.userId !== driverUserId)) {
       throw new NotFoundException('Véhicule introuvable.');
     }
 
     const documentsWithUrls = await Promise.all(
-      vehicle.documents.map(async (doc) => {
+      vehicle.documents.map(async (doc: any) => {
         let url = null;
         try {
           url = await this.supabase.getSignedUrl('vehicle-documents', doc.fileKey);
@@ -789,7 +791,7 @@ export class DriversService {
       })
     );
 
-    return documentsWithUrls;
+    return { documents: documentsWithUrls };
   }
 
   async approveVehicleDocument(adminId: string, documentId: string) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import 'dart:convert';
-import 'dart:io';
 
 class VehicleDocumentsScreen extends StatefulWidget {
   final String vehicleId;
@@ -26,7 +25,8 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
     setState(() { _isLoading = true; _error = ''; });
     try {
       final res = await ApiClient().get('/v1/drivers/me/vehicles/${widget.vehicleId}/documents');
-      _documents = jsonDecode(res.body);
+      final data = jsonDecode(res.body);
+      _documents = data['documents'] ?? [];
     } catch (e) {
       _error = 'Erreur de chargement: ${e.toString()}';
     } finally {

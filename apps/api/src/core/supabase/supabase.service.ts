@@ -53,6 +53,15 @@ export class SupabaseService {
     }
   }
 
+  async deleteFiles(bucket: string, paths: string[]): Promise<void> {
+    if (!paths || paths.length === 0) return;
+    const { error } = await this.supabase.storage.from(bucket).remove(paths);
+    if (error) {
+      this.logger.error(`Supabase deleteFiles error: ${error.message}`);
+      throw new Error(`Failed to delete files from Supabase: ${error.message}`);
+    }
+  }
+
   async getSignedUrl(bucket: string, path: string, expiresIn: number = 3600): Promise<string | null> {
     if (!path) return null;
     const { data, error } = await this.supabase.storage

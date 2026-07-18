@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Post, Param, Body, Query, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Body, Query, UseGuards, Request, UseInterceptors, UploadedFiles, UploadedFile, BadRequestException } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
@@ -225,7 +225,7 @@ export class DriversController {
 
   @Get('admin/vehicles/:vehicleId/documents')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   async getVehicleDocumentsAdmin(
     @Param('vehicleId') vehicleId: string,
   ) {
@@ -235,7 +235,7 @@ export class DriversController {
 
   @Patch('admin/vehicle-documents/:documentId/approve')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   async approveVehicleDocument(
     @Request() req: any,
     @Param('documentId') documentId: string,
@@ -245,7 +245,7 @@ export class DriversController {
 
   @Patch('admin/vehicle-documents/:documentId/reject')
   @UseGuards(AuthGuard('jwt'), RbacGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   async rejectVehicleDocument(
     @Request() req: any,
     @Param('documentId') documentId: string,

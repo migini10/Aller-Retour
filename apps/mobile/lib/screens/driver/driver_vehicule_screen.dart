@@ -97,16 +97,16 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
           body: {'pin': pin}
         );
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Véhicule supprimé avec succès')));
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Véhicule supprimé avec succès')));
           _fetchData();
         } else {
           final errorMsg = jsonDecode(res.body)['message'] ?? 'Erreur lors de la suppression';
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
-          setState(() => _isLoading = false);
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+          if (mounted) setState(() => _isLoading = false);
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-        setState(() => _isLoading = false);
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
