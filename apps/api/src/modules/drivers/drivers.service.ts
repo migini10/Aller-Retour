@@ -451,62 +451,88 @@ export class DriversService {
       throw new BadRequestException("Storage diagnostics are disabled.");
     }
     
+    const client = this.supabase.getClient();
+    const bucketName = 'vehicles';
     const timestamp = Date.now();
     const frontPath = `diagnostics/${timestamp}/front.jpg`;
-    const rearPath = `diagnostics/${timestamp}/rear.jpg`;
-    const sidePath = `diagnostics/${timestamp}/side.jpg`;
-
-    // 1x1 pixel transparent PNG
-    const pixelBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-    const buffer = Buffer.from(pixelBase64, 'base64');
     
-    const frontFile = { buffer, mimetype: 'image/png', originalname: 'front.png', size: buffer.length } as any;
-    const rearFile = { buffer, mimetype: 'image/png', originalname: 'rear.png', size: buffer.length } as any;
-    const sideFile = { buffer, mimetype: 'image/png', originalname: 'side.png', size: buffer.length } as any;
+    const audit: any = {
+      envSupabaseUrlExists: !!process.env.SUPABASE_URL,
+      envSupabaseKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      maskedSupabaseUrl: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.replace(/https?:\/\//, '').split('.')[0] + '...supabase.co' : 'null',
+      bucketUsed: bucketName,
+      listBucketsAttempted: true,
+      listBucketsError: null,
+      bucketExists: false,
+      bucketPrivate: null,
+      uploadAttempted: false,
+      uploadError: null,
+      uploadPath: frontPath,
+      signedUrlAttempted: false,
+      signedUrlError: null,
+      signedUrls: [],
+    };
 
-    let frontUploaded = false;
-    let rearUploaded = false;
-    let sideUploaded = false;
-    let signedUrlsGenerated = false;
-
+    // 1. List Buckets
     try {
-      await this.supabase.uploadFile('vehicles', frontPath, frontFile);
-      frontUploaded = true;
-      await this.supabase.uploadFile('vehicles', rearPath, rearFile);
-      rearUploaded = true;
-      await this.supabase.uploadFile('vehicles', sidePath, sideFile);
-      sideUploaded = true;
-    } catch (e) {
-      console.error('Smoke test upload error:', e);
-    }
-
-    let urls: string[] = [];
-    try {
-      if (frontUploaded && rearUploaded && sideUploaded) {
-        const u1 = await this.supabase.getSignedUrl('vehicles', frontPath);
-        const u2 = await this.supabase.getSignedUrl('vehicles', rearPath);
-        const u3 = await this.supabase.getSignedUrl('vehicles', sidePath);
-        if (u1 && u2 && u3) {
-          signedUrlsGenerated = true;
-          urls = [u1, u2, u3];
+      const { data: buckets, error: bucketsError } = await client.storage.listBuckets();
+      if (bucketsError) {
+        audit.listBucketsError = bucketsError;
+      } else {
+        const vehicleBucket = buckets?.find(b => b.name === bucketName);
+        if (vehicleBucket) {
+          audit.bucketExists = true;
+          audit.bucketPrivate = !vehicleBucket.public;
         }
       }
     } catch (e) {
-      console.error('Smoke test signed URL error:', e);
+      audit.listBucketsError = String(e);
     }
 
-    return {
-      bucket: 'vehicles',
-      supabaseUrlHost: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.replace(/https?:\/\//, '').split('.')[0] + '...supabase.co' : 'unknown',
-      frontUploaded,
-      rearUploaded,
-      sideUploaded,
-      frontPath,
-      rearPath,
-      sidePath,
-      signedUrlsGenerated,
-      urls
-    };
+    // 2. Upload
+    audit.uploadAttempted = true;
+    const pixelBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    const buffer = Buffer.from(pixelBase64, 'base64');
+    
+    try {
+      const { data: uploadData, error: uploadError } = await client.storage
+        .from(bucketName)
+        .upload(frontPath, buffer, { contentType: 'image/jpeg', upsert: true });
+        
+      if (uploadError) {
+        audit.uploadError = uploadError;
+      } else {
+        audit.uploadSuccess = true;
+      }
+    } catch (e) {
+      audit.uploadError = String(e);
+    }
+
+    // 3. Signed URL
+    if (audit.uploadSuccess) {
+      audit.signedUrlAttempted = true;
+      try {
+        const { data: signedData, error: signedError } = await client.storage
+          .from(bucketName)
+          .createSignedUrl(frontPath, 3600);
+          
+        if (signedError) {
+          audit.signedUrlError = signedError;
+        } else if (signedData?.signedUrl) {
+          audit.signedUrls.push(signedData.signedUrl);
+        }
+      } catch (e) {
+        audit.signedUrlError = String(e);
+      }
+    }
+
+    // Final result checks
+    audit.frontUploaded = audit.uploadSuccess || false;
+    audit.rearUploaded = audit.frontUploaded;
+    audit.sideUploaded = audit.frontUploaded;
+    audit.signedUrlsGenerated = audit.signedUrls.length > 0;
+
+    return audit;
   }
 
   async approveVehicleAdmin(adminId: string, vehicleId: string) {

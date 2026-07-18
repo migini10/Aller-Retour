@@ -23,6 +23,10 @@ export class SupabaseService {
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
+  getClient(): SupabaseClient {
+    return this.supabase;
+  }
+
   async uploadFile(bucket: string, path: string, file: Express.Multer.File): Promise<string> {
     this.logger.log(`Starting Supabase upload: bucket=${bucket}, path=${path}, size=${file.size} bytes`);
     const { data, error } = await this.supabase.storage
