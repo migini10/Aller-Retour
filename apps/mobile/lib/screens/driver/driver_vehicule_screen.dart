@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import 'dart:convert';
 import 'vehicle_submission_screen.dart';
+import 'vehicle_documents_screen.dart';
 
 class DriverVehiculeScreen extends StatefulWidget {
   const DriverVehiculeScreen({super.key});
@@ -48,6 +49,65 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
     );
     if (result == true) {
       _fetchData();
+    }
+  }
+
+  Future<void> _deleteVehicle(String vehicleId) async {
+    String? pin;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String inputPin = '';
+        return AlertDialog(
+          title: const Text('Supprimer le véhicule'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Êtes-vous sûr de vouloir supprimer ce véhicule ? Veuillez entrer votre code PIN pour confirmer.'),
+              const SizedBox(height: 16),
+              TextField(
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 4,
+                onChanged: (val) => inputPin = val,
+                decoration: const InputDecoration(labelText: 'Code PIN', border: OutlineInputBorder()),
+              )
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
+            ElevatedButton(
+              onPressed: () {
+                pin = inputPin;
+                Navigator.pop(ctx, true);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Confirmer'),
+            ),
+          ],
+        );
+      }
+    );
+
+    if (confirmed == true && pin != null && pin!.isNotEmpty) {
+      setState(() => _isLoading = true);
+      try {
+        final res = await ApiClient().delete(
+          '/v1/drivers/me/vehicles/$vehicleId', 
+          body: {'pin': pin}
+        );
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Véhicule supprimé avec succès')));
+          _fetchData();
+        } else {
+          final errorMsg = jsonDecode(res.body)['message'] ?? 'Erreur lors de la suppression';
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+          setState(() => _isLoading = false);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -174,6 +234,52 @@ class _DriverVehiculeScreenState extends State<DriverVehiculeScreen> {
                           Text('Capacité: ${v['capacity']} places'),
                           if (v['brand'] != null) Text('Marque: ${v['brand']}'),
                           if (v['model'] != null) Text('Modèle: ${v['model']}'),
+                          
+                          if (v['photosRenewalStatus'] == 'EXPIRING_SOON')
+                            Container(
+                              margin: const EdgeInsets.only(top: 12),
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.orange.shade100,
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.warning, color: Colors.orange),
+                                  SizedBox(width: 8),
+                                  Expanded(child: Text('Vos photos expirent bientôt. Pensez à les renouveler.', style: TextStyle(color: Colors.orange))),
+                                ],
+                              )
+                            ),
+                          if (v['photosRenewalStatus'] == 'EXPIRED')
+                            Container(
+                              margin: const EdgeInsets.only(top: 12),
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.red.shade100,
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.error, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Expanded(child: Text('Vos photos ont expiré. La création de trajets est bloquée.', style: TextStyle(color: Colors.red))),
+                                ],
+                              )
+                            ),
+                            
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDocumentsScreen(vehicleId: v['id'])));
+                                },
+                                child: const Text('Gérer les papiers'),
+                              ),
+                              if (_isOwner)
+                                TextButton(
+                                  onPressed: () => _deleteVehicle(v['id']),
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                  child: const Text('Supprimer'),
+                                ),
+                            ],
+                          )
                         ],
                       ),
                       ),

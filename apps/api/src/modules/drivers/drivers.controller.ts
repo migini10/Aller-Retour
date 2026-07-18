@@ -10,6 +10,10 @@ import { ListDriversDto } from './dto/list-drivers.dto';
 import { UpdateKycDto } from './dto/update-kyc.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { DeleteVehicleDto } from './dto/delete-vehicle.dto';
+import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @Controller('drivers')
 export class DriversController {
@@ -180,5 +184,76 @@ export class DriversController {
   @Roles(UserRole.SUPER_ADMIN)
   async getReviews(@Param('id') id: string) {
     return this.driversService.getReviews(id);
+  }
+
+  @Delete('me/vehicles/:vehicleId')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async deleteVehicle(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+    @Body() dto: DeleteVehicleDto,
+  ) {
+    return this.driversService.deleteVehicle(req.user.id, vehicleId, dto.pin);
+  }
+
+  @Post('me/vehicles/:vehicleId/documents')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadVehicleDocument(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+    @Body() dto: UploadVehicleDocumentDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Veuillez fournir un fichier pour le document.');
+    }
+    return this.driversService.uploadVehicleDocument(req.user.id, vehicleId, dto, file);
+  }
+
+  @Get('me/vehicles/:vehicleId/documents')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async getVehicleDocuments(
+    @Request() req: any,
+    @Param('vehicleId') vehicleId: string,
+  ) {
+    return this.driversService.getVehicleDocuments(req.user.id, vehicleId);
+  }
+
+  @Get('admin/vehicles/:vehicleId/documents')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  async getVehicleDocumentsAdmin(
+    @Param('vehicleId') vehicleId: string,
+  ) {
+    // Reusing the same method but bypassing the driver owner check by passing null for driverUserId
+    return this.driversService.getVehicleDocuments(null, vehicleId);
+  }
+
+  @Patch('admin/vehicle-documents/:documentId/approve')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  async approveVehicleDocument(
+    @Request() req: any,
+    @Param('documentId') documentId: string,
+  ) {
+    return this.driversService.approveVehicleDocument(req.user.id, documentId);
+  }
+
+  @Patch('admin/vehicle-documents/:documentId/reject')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  async rejectVehicleDocument(
+    @Request() req: any,
+    @Param('documentId') documentId: string,
+    @Body() body: { reason: string },
+  ) {
+    if (!body.reason) {
+      throw new BadRequestException('La raison du rejet est requise.');
+    }
+    return this.driversService.rejectVehicleDocument(req.user.id, documentId, body.reason);
   }
 }

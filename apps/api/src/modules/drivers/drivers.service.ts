@@ -1,15 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { prisma, KYCStatus } from '@aller-retour/database';
+import { prisma, KYCStatus, DocumentStatus } from '@aller-retour/database';
 import { ListDriversDto } from './dto/list-drivers.dto';
 import { UpdateKycDto } from './dto/update-kyc.dto';
 import { SupabaseService } from '../../core/supabase/supabase.service';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
+import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
 import { BadRequestException } from '@nestjs/common';
+import { Express } from 'express';
+
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class DriversService {
-  constructor(private readonly supabase: SupabaseService) {}
+  constructor(
+    private readonly supabase: SupabaseService,
+    private readonly authService: AuthService
+  ) {}
   async findAll(filters: ListDriversDto) {
     const { page = 1, limit = 10, search, kycStatus, hasVehicle, isActive } = filters;
     const skip = (page - 1) * limit;
@@ -539,12 +546,18 @@ export class DriversService {
     const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
     if (!vehicle) throw new NotFoundException("Véhicule introuvable");
 
+    const inOneYear = new Date();
+    inOneYear.setFullYear(inOneYear.getFullYear() + 1);
+
     return prisma.vehicle.update({
       where: { id: vehicleId },
       data: {
         approvalStatus: 'APPROVED',
         approvedAt: new Date(),
         approvedById: adminId,
+        photosRenewalStatus: 'VALID',
+        photosApprovedAt: new Date(),
+        photosExpireAt: inOneYear,
       },
     });
   }
@@ -564,11 +577,26 @@ export class DriversService {
   }
 
   async certifyVehicleAdmin(adminId: string, vehicleId: string) {
-    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    const vehicle = await prisma.vehicle.findUnique({ 
+      where: { id: vehicleId },
+      include: { documents: true }
+    });
     if (!vehicle) throw new NotFoundException("Véhicule introuvable");
 
     if (vehicle.approvalStatus !== 'APPROVED') {
       throw new BadRequestException("Un véhicule doit être approuvé avant d'être certifié");
+    }
+
+    if (vehicle.photosRenewalStatus !== 'VALID') {
+      throw new BadRequestException("Les photos du véhicule doivent être valides (non expirées et approuvées) pour la certification.");
+    }
+
+    const hasApprovedCarteGrise = vehicle.documents.some(d => d.type === 'REGISTRATION_CARD' && d.status === 'APPROVED');
+    const hasApprovedAssurance = vehicle.documents.some(d => d.type === 'INSURANCE' && d.status === 'APPROVED');
+    const hasApprovedVisite = vehicle.documents.some(d => d.type === 'TECHNICAL_INSPECTION' && d.status === 'APPROVED');
+
+    if (!hasApprovedCarteGrise || !hasApprovedAssurance || !hasApprovedVisite) {
+      throw new BadRequestException("Les 3 documents obligatoires (Carte grise, Assurance, Visite technique) doivent être approuvés pour certifier le véhicule.");
     }
 
     return prisma.vehicle.update({
@@ -648,5 +676,153 @@ export class DriversService {
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
+  }
+
+  async deleteVehicle(driverUserId: string, vehicleId: string, pin: string) {
+    await this.authService.verifyUserPin(driverUserId, pin);
+
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: vehicleId },
+      include: { driverProfile: true, trips: true },
+    });
+
+    if (!vehicle || vehicle.driverProfile.userId !== driverUserId) {
+      throw new NotFoundException('Véhicule introuvable ou vous n\'en êtes pas le propriétaire.');
+    }
+
+    if (vehicle.trips.length === 0) {
+      await prisma.vehicle.delete({ where: { id: vehicleId } });
+      const photos = [vehicle.frontPhotoKey, vehicle.rearPhotoKey, vehicle.sidePhotoKey].filter(Boolean);
+      if (photos.length > 0) {
+        await this.supabase.deleteFiles('vehicles', photos as string[]);
+      }
+      return { success: true, message: 'Véhicule définitivement supprimé car il n\'a pas d\'historique.' };
+    }
+
+    const in30Days = new Date();
+    in30Days.setDate(in30Days.getDate() + 30);
+
+    await prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: {
+        deletedAt: new Date(),
+        deletionScheduledAt: in30Days,
+      },
+    });
+
+    return { success: true, message: 'Le véhicule sera supprimé dans 30 jours.' };
+  }
+
+  async uploadVehicleDocument(driverUserId: string, vehicleId: string, dto: UploadVehicleDocumentDto, file: Express.Multer.File) {
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: vehicleId },
+      include: { driverProfile: true },
+    });
+
+    if (!vehicle || vehicle.driverProfile.userId !== driverUserId) {
+      throw new NotFoundException('Véhicule introuvable ou vous n\'en êtes pas le propriétaire.');
+    }
+
+    const fileExt = file.originalname.split('.').pop();
+    const fileName = `${vehicleId}/${dto.type}_${Date.now()}.${fileExt}`;
+
+    const fileUrl = await this.supabase.uploadFile('vehicle-documents', fileName, file.buffer, file.mimetype);
+
+    if (!fileUrl) {
+      throw new BadRequestException('Échec du téléchargement du document.');
+    }
+
+    const existingDoc = await prisma.vehicleDocument.findFirst({
+      where: { vehicleId, type: dto.type },
+    });
+
+    if (existingDoc) {
+      await prisma.vehicleDocument.update({
+        where: { id: existingDoc.id },
+        data: {
+          fileKey: fileName,
+          status: 'PENDING_REVIEW',
+          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+          rejectionReason: null,
+          reviewedAt: null,
+          reviewedById: null,
+        },
+      });
+      this.supabase.deleteFiles('vehicle-documents', [existingDoc.fileKey]).catch(console.error);
+    } else {
+      await prisma.vehicleDocument.create({
+        data: {
+          vehicleId,
+          type: dto.type,
+          fileKey: fileName,
+          status: 'PENDING_REVIEW',
+          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        },
+      });
+    }
+
+    return { success: true, message: 'Document uploadé avec succès, en attente de validation.' };
+  }
+
+  async getVehicleDocuments(driverUserId: string | null, vehicleId: string) {
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: vehicleId },
+      include: { driverProfile: true, documents: true },
+    });
+
+    if (!vehicle || (driverUserId && vehicle.driverProfile.userId !== driverUserId)) {
+      throw new NotFoundException('Véhicule introuvable.');
+    }
+
+    const documentsWithUrls = await Promise.all(
+      vehicle.documents.map(async (doc) => {
+        let url = null;
+        try {
+          url = await this.supabase.getSignedUrl('vehicle-documents', doc.fileKey);
+        } catch (e) {
+          console.error(`Erreur URL signée pour le document ${doc.fileKey}`, e);
+        }
+        return {
+          ...doc,
+          fileUrl: url,
+        };
+      })
+    );
+
+    return documentsWithUrls;
+  }
+
+  async approveVehicleDocument(adminId: string, documentId: string) {
+    const doc = await prisma.vehicleDocument.findUnique({ where: { id: documentId } });
+    if (!doc) throw new NotFoundException('Document introuvable.');
+
+    await prisma.vehicleDocument.update({
+      where: { id: documentId },
+      data: {
+        status: 'APPROVED',
+        reviewedAt: new Date(),
+        reviewedById: adminId,
+        rejectionReason: null,
+      },
+    });
+
+    return { success: true, message: 'Document approuvé avec succès.' };
+  }
+
+  async rejectVehicleDocument(adminId: string, documentId: string, reason: string) {
+    const doc = await prisma.vehicleDocument.findUnique({ where: { id: documentId } });
+    if (!doc) throw new NotFoundException('Document introuvable.');
+
+    await prisma.vehicleDocument.update({
+      where: { id: documentId },
+      data: {
+        status: 'REJECTED',
+        reviewedAt: new Date(),
+        reviewedById: adminId,
+        rejectionReason: reason,
+      },
+    });
+
+    return { success: true, message: 'Document rejeté.' };
   }
 }

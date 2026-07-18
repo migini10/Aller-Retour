@@ -321,6 +321,10 @@ export class TripsService {
       throw new BadRequestException("Ce véhicule n'est pas approuvé pour effectuer des trajets.");
     }
 
+    if (vehicle.photosRenewalStatus === 'EXPIRED') {
+      throw new BadRequestException("Les photos de votre véhicule ont expiré. Veuillez les renouveler pour créer un trajet.");
+    }
+
     if (vehicle.ownerId !== driverProfile.id) {
       throw new ForbiddenException("Ce véhicule ne vous appartient pas.");
     }

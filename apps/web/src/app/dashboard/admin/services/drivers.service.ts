@@ -64,6 +64,21 @@ export class DriversService {
     return true;
   }
 
+  static async getVehicleDocuments(vehicleId: string): Promise<any[]> {
+    const json = await ApiClient.get(`/v1/drivers/admin/vehicles/${vehicleId}/documents`);
+    return json || [];
+  }
+
+  static async approveVehicleDocument(documentId: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicle-documents/${documentId}/approve`, {});
+    return true;
+  }
+
+  static async rejectVehicleDocument(documentId: string, reason: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/drivers/admin/vehicle-documents/${documentId}/reject`, { reason });
+    return true;
+  }
+
   static async getAllVehicles(): Promise<Vehicle[]> {
     const json = await ApiClient.get(`/v1/drivers/admin/vehicles`);
     return json || [];

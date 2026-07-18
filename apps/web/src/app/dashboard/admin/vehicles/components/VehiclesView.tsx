@@ -28,6 +28,8 @@ export default function VehiclesView() {
   
   // Drawer state
   const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(false);
 
   const fetchVehicles = async () => {
     setIsLoading(true);
@@ -38,13 +40,33 @@ export default function VehiclesView() {
       // If a vehicle is currently selected in the drawer, update its data
       if (selectedVehicle) {
         const updatedVehicle = data.find((v: any) => v.id === selectedVehicle.id);
-        if (updatedVehicle) setSelectedVehicle(updatedVehicle);
+        if (updatedVehicle) {
+          setSelectedVehicle(updatedVehicle);
+          fetchDocuments(updatedVehicle.id);
+        }
       }
     } catch (e) {
       console.error(e);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchDocuments = async (vehicleId: string) => {
+    setIsLoadingDocs(true);
+    try {
+      const docs = await DriversService.getVehicleDocuments(vehicleId);
+      setDocuments(docs);
+    } catch (e) {
+      console.error('Erreur chargement documents', e);
+    } finally {
+      setIsLoadingDocs(false);
+    }
+  };
+
+  const openVehicleDetails = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    fetchDocuments(vehicle.id);
   };
 
   useEffect(() => {
@@ -166,7 +188,7 @@ export default function VehiclesView() {
                   )}
                 </td>
                 <td className="p-3 text-right">
-                  <button onClick={() => setSelectedVehicle(v)} className="text-sm px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-md shadow-sm transition-colors">
+                  <button onClick={() => openVehicleDetails(v)} className="text-sm px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-md shadow-sm transition-colors">
                     Détails
                   </button>
                 </td>
@@ -243,6 +265,21 @@ export default function VehiclesView() {
 
               <div className="mb-6">
                 <h3 className="font-bold mb-4 border-b pb-2 dark:border-slate-800">Photos (Obligatoires)</h3>
+                
+                {selectedVehicle.photosRenewalStatus && (
+                  <div className="mb-4 text-sm">
+                    Statut du renouvellement : 
+                    <span className={`ml-2 font-medium ${selectedVehicle.photosRenewalStatus === 'VALID' ? 'text-green-600' : selectedVehicle.photosRenewalStatus === 'EXPIRING_SOON' ? 'text-orange-500' : selectedVehicle.photosRenewalStatus === 'EXPIRED' ? 'text-red-600' : 'text-yellow-600'}`}>
+                      {selectedVehicle.photosRenewalStatus}
+                    </span>
+                    {selectedVehicle.photosExpireAt && (
+                      <span className="ml-2 text-slate-500">
+                        (Expire le : {new Date(selectedVehicle.photosExpireAt).toLocaleDateString()})
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-4">
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Avant</div>
@@ -257,6 +294,60 @@ export default function VehiclesView() {
                     <SafeImage src={selectedVehicle.sidePhotoUrl} alt="Side" />
                   </div>
                 </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="font-bold mb-4 border-b pb-2 dark:border-slate-800">Documents Administratifs</h3>
+                {isLoadingDocs ? (
+                  <div className="text-sm text-slate-500 animate-pulse">Chargement des documents...</div>
+                ) : documents.length === 0 ? (
+                  <div className="text-sm text-slate-500">Aucun document téléchargé.</div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {documents.map((doc: any) => (
+                      <div key={doc.id} className="border dark:border-slate-800 rounded-lg p-4 bg-slate-50 dark:bg-slate-800/30">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="font-medium text-sm">
+                            {doc.type === 'REGISTRATION_CARD' ? 'Carte Grise' : doc.type === 'INSURANCE' ? 'Assurance' : doc.type === 'TECHNICAL_INSPECTION' ? 'Visite Technique' : doc.type}
+                          </div>
+                          <StatusBadge 
+                            label={doc.status === 'PENDING_REVIEW' ? 'En attente' : doc.status === 'APPROVED' ? 'Approuvé' : 'Rejeté'} 
+                            variant={doc.status === 'APPROVED' ? 'success' : doc.status === 'REJECTED' ? 'error' : 'warning'} 
+                          />
+                        </div>
+                        {doc.expiresAt && (
+                          <div className="text-xs text-slate-500 mb-2">
+                            Expire le : {new Date(doc.expiresAt).toLocaleDateString()}
+                          </div>
+                        )}
+                        <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block mb-3">
+                          Voir le document
+                        </a>
+                        {doc.status !== 'APPROVED' && (
+                          <div className="flex gap-2">
+                            <button onClick={async () => {
+                              if (!confirm('Approuver ce document ?')) return;
+                              await DriversService.approveVehicleDocument(doc.id);
+                              fetchDocuments(selectedVehicle.id);
+                            }} className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-xs font-medium dark:bg-green-900/30 dark:text-green-400">
+                              Approuver
+                            </button>
+                            {doc.status !== 'REJECTED' && (
+                              <button onClick={async () => {
+                                const r = prompt('Raison du rejet :');
+                                if (!r) return;
+                                await DriversService.rejectVehicleDocument(doc.id, r);
+                                fetchDocuments(selectedVehicle.id);
+                              }} className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-xs font-medium dark:bg-red-900/30 dark:text-red-400">
+                                Rejeter
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -274,9 +365,23 @@ export default function VehiclesView() {
               <div className="flex gap-3">
                 {selectedVehicle.certificationStatus === 'CERTIFIED' ? (
                   <button disabled className="flex-1 py-2 bg-slate-200 text-slate-500 rounded-lg font-medium cursor-not-allowed dark:bg-slate-800 dark:text-slate-500">Déjà certifié</button>
-                ) : (
-                  <button onClick={() => handleCertify(selectedVehicle.id)} className="flex-1 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">Certifier</button>
-                )}
+                ) : (() => {
+                  const isCertifiable = selectedVehicle.approvalStatus === 'APPROVED' &&
+                    selectedVehicle.photosRenewalStatus === 'VALID' &&
+                    documents.some(d => d.type === 'REGISTRATION_CARD' && d.status === 'APPROVED') &&
+                    documents.some(d => d.type === 'INSURANCE' && d.status === 'APPROVED') &&
+                    documents.some(d => d.type === 'TECHNICAL_INSPECTION' && d.status === 'APPROVED');
+                  return (
+                    <button 
+                      onClick={() => handleCertify(selectedVehicle.id)} 
+                      disabled={!isCertifiable}
+                      title={!isCertifiable ? "Documents ou photos incomplets/invalides" : ""}
+                      className={`flex-1 py-2 rounded-lg font-medium ${isCertifiable ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50' : 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'}`}
+                    >
+                      Certifier
+                    </button>
+                  );
+                })()}
                 <button onClick={() => handleRevoke(selectedVehicle.id)} className="flex-1 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-medium dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">Révoquer</button>
               </div>
             </div>
