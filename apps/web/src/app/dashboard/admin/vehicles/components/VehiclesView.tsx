@@ -5,7 +5,7 @@ import { Vehicle } from '../../types/driver.types';
 import { DriversService } from '../../services/drivers.service';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 
-const SafeImage = ({ src, alt }: { src: string | null; alt: string }) => {
+const SafeImage = ({ src, alt }: { src: string | null | undefined; alt: string }) => {
   const [error, setError] = useState(false);
   useEffect(() => {
     setError(false);
@@ -58,10 +58,12 @@ export default function VehiclesView() {
   const fetchDocuments = async (vehicleId: string) => {
     setIsLoadingDocs(true);
     try {
-      const docs = await DriversService.getVehicleDocuments(vehicleId);
+      const response = await DriversService.getVehicleDocuments(vehicleId);
+      const docs = Array.isArray(response) ? response : (response?.documents || []);
       setDocuments(docs);
     } catch (e) {
       console.error('Erreur chargement documents', e);
+      setDocuments([]);
     } finally {
       setIsLoadingDocs(false);
     }
@@ -177,7 +179,7 @@ export default function VehiclesView() {
                 </td>
                 <td className="p-3">
                   <StatusBadge 
-                    label={v.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : v.approvalStatus === 'APPROVED' ? 'Approuvé' : v.approvalStatus === 'REJECTED' ? 'Rejeté' : v.approvalStatus} 
+                    label={v.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : v.approvalStatus === 'APPROVED' ? 'Approuvé' : v.approvalStatus === 'REJECTED' ? 'Rejeté' : (v.approvalStatus || 'Inconnu')} 
                     variant={v.approvalStatus === 'APPROVED' ? 'success' : v.approvalStatus === 'REJECTED' ? 'error' : 'warning'} 
                   />
                 </td>
@@ -240,7 +242,7 @@ export default function VehiclesView() {
                   <div className="text-xs text-slate-500">Approbation</div>
                   <div className="mt-1">
                     <StatusBadge 
-                      label={selectedVehicle.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : selectedVehicle.approvalStatus === 'APPROVED' ? 'Approuvé' : selectedVehicle.approvalStatus === 'REJECTED' ? 'Rejeté' : selectedVehicle.approvalStatus} 
+                      label={selectedVehicle.approvalStatus === 'PENDING_REVIEW' ? 'En attente' : selectedVehicle.approvalStatus === 'APPROVED' ? 'Approuvé' : selectedVehicle.approvalStatus === 'REJECTED' ? 'Rejeté' : (selectedVehicle.approvalStatus || 'Inconnu')} 
                       variant={selectedVehicle.approvalStatus === 'APPROVED' ? 'success' : selectedVehicle.approvalStatus === 'REJECTED' ? 'error' : 'warning'} 
                     />
                   </div>
@@ -286,15 +288,15 @@ export default function VehiclesView() {
                 <div className="flex flex-col gap-4">
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Avant</div>
-                    <SafeImage src={selectedVehicle.frontPhotoUrl} alt="Front" />
+                    <SafeImage src={selectedVehicle?.frontPhotoUrl ?? null} alt="Front" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Arrière</div>
-                    <SafeImage src={selectedVehicle.rearPhotoUrl} alt="Rear" />
+                    <SafeImage src={selectedVehicle?.rearPhotoUrl ?? null} alt="Rear" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-500 mb-2">Latérale</div>
-                    <SafeImage src={selectedVehicle.sidePhotoUrl} alt="Side" />
+                    <SafeImage src={selectedVehicle?.sidePhotoUrl ?? null} alt="Side" />
                   </div>
                 </div>
               </div>
@@ -324,14 +326,18 @@ export default function VehiclesView() {
                           </div>
                         )}
                         <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
-                            Voir le document {doc.type === 'REGISTRATION_CARD' && doc.backUrl ? '(Recto)' : ''}
-                          </a>
-                          {doc.backUrl && (
+                          {doc.fileUrl ? (
+                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
+                              Voir le document {doc.type === 'REGISTRATION_CARD' && doc.backUrl ? '(Recto)' : ''}
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs block">Document introuvable</span>
+                          )}
+                          {doc.backUrl ? (
                             <a href={doc.backUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
                               Voir le Verso
                             </a>
-                          )}
+                          ) : null}
                         </div>
                         {doc.status !== 'APPROVED' && (
                           <div className="flex gap-2">
@@ -378,9 +384,9 @@ export default function VehiclesView() {
                 ) : (() => {
                   const isCertifiable = selectedVehicle.approvalStatus === 'APPROVED' &&
                     selectedVehicle.photosRenewalStatus === 'VALID' &&
-                    documents.some(d => d.type === 'REGISTRATION_CARD' && d.status === 'APPROVED') &&
-                    documents.some(d => d.type === 'INSURANCE' && d.status === 'APPROVED') &&
-                    documents.some(d => d.type === 'TECHNICAL_INSPECTION' && d.status === 'APPROVED');
+                    (documents || []).some(d => d?.type === 'REGISTRATION_CARD' && d?.status === 'APPROVED') &&
+                    (documents || []).some(d => d?.type === 'INSURANCE' && d?.status === 'APPROVED') &&
+                    (documents || []).some(d => d?.type === 'TECHNICAL_INSPECTION' && d?.status === 'APPROVED');
                   return (
                     <button 
                       onClick={() => handleCertify(selectedVehicle.id)} 
