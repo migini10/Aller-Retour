@@ -172,8 +172,21 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(widget.existingVehicle != null ? 'Modifier Véhicule' : 'Ajouter un Véhicule'),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _submit,
+              child: const Text('Soumettre le véhicule', style: TextStyle(fontSize: 16)),
+            ),
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -252,22 +265,6 @@ class _VehicleSubmissionScreenState extends State<VehicleSubmissionScreen> {
                     decoration: const InputDecoration(labelText: 'Année (ex: 2015)', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 32),
-                  
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submit,
-                      child: const Text('Soumettre le véhicule', style: TextStyle(fontSize: 16)),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text(
-                      'DEBUG: VehicleSubmissionScreen | Build: 5a875b0',
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ),
                 ],
               ),
             ),

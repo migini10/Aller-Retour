@@ -263,12 +263,20 @@ export default function VehiclesView() {
             <div className="p-4 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-900 sticky bottom-0">
               <h3 className="font-semibold text-sm mb-3">Actions d'Approbation</h3>
               <div className="flex gap-3 mb-4">
-                <button onClick={() => handleApprove(selectedVehicle.id)} className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">Approuver</button>
+                {selectedVehicle.approvalStatus === 'APPROVED' ? (
+                  <button disabled className="flex-1 py-2 bg-slate-200 text-slate-500 rounded-lg font-medium cursor-not-allowed dark:bg-slate-800 dark:text-slate-500">Déjà approuvé</button>
+                ) : (
+                  <button onClick={() => handleApprove(selectedVehicle.id)} className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">Approuver</button>
+                )}
                 <button onClick={() => handleReject(selectedVehicle.id)} className="flex-1 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">Rejeter</button>
               </div>
               <h3 className="font-semibold text-sm mb-3">Actions de Certification</h3>
               <div className="flex gap-3">
-                <button onClick={() => handleCertify(selectedVehicle.id)} className="flex-1 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">Certifier</button>
+                {selectedVehicle.certificationStatus === 'CERTIFIED' ? (
+                  <button disabled className="flex-1 py-2 bg-slate-200 text-slate-500 rounded-lg font-medium cursor-not-allowed dark:bg-slate-800 dark:text-slate-500">Déjà certifié</button>
+                ) : (
+                  <button onClick={() => handleCertify(selectedVehicle.id)} className="flex-1 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">Certifier</button>
+                )}
                 <button onClick={() => handleRevoke(selectedVehicle.id)} className="flex-1 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-medium dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">Révoquer</button>
               </div>
             </div>
