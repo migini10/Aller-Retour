@@ -7,6 +7,9 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 
 const SafeImage = ({ src, alt }: { src: string | null; alt: string }) => {
   const [error, setError] = useState(false);
+  useEffect(() => {
+    setError(false);
+  }, [src]);
   if (!src) {
     return <div className="w-full h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-slate-400">Manquante</div>;
   }

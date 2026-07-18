@@ -8,6 +8,7 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
 import { BadRequestException } from '@nestjs/common';
 import { Express } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
 import { AuthService } from '../auth/auth.service';
 
@@ -736,7 +737,7 @@ export class DriversService {
     }
 
     const frontExt = frontFile.originalname.split('.').pop();
-    const frontFileName = `${vehicleId}/${crypto.randomUUID()}.${frontExt}`;
+    const frontFileName = `${vehicleId}/${uuidv4()}.${frontExt}`;
 
     const fileUrl = await this.supabase.uploadFile('vehicle-documents', frontFileName, frontFile);
 
@@ -747,7 +748,7 @@ export class DriversService {
     let backFileName = null;
     if (backFile) {
       const backExt = backFile.originalname.split('.').pop();
-      backFileName = `${vehicleId}/${crypto.randomUUID()}.${backExt}`;
+      backFileName = `${vehicleId}/${uuidv4()}.${backExt}`;
       const backUrl = await this.supabase.uploadFile('vehicle-documents', backFileName, backFile);
       if (!backUrl) {
         throw new BadRequestException('Échec du téléchargement du document verso.');
