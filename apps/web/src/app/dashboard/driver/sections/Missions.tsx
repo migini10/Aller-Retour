@@ -26,6 +26,9 @@ export default function SectionMissions() {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
 
+  const [myVehicles, setMyVehicles] = useState<any[]>([]);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
+
   const [lockingMission, setLockingMission] = useState<any | null>(null);
   const [securityCode, setSecurityCode] = useState('');
   const [lockError, setLockError] = useState('');
@@ -224,6 +227,7 @@ export default function SectionMissions() {
     date: '',
     heure: '',
     pricePerSeat: '' as number | '',
+    vehicleId: '',
     vehicleCapacity: '' as number | '',
     placesLibres: '' as number | '',
     passagers: 0,
@@ -256,6 +260,23 @@ export default function SectionMissions() {
     
     fetchPrices();
   }, [formData.originCity, formData.destinationCity]);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      const fetchVehicles = async () => {
+        setIsLoadingVehicles(true);
+        try {
+          const res = await ApiClient.get('/v1/drivers/me/vehicles');
+          setMyVehicles(res);
+        } catch (e) {
+          console.error("Erreur chargement véhicules:", e);
+        } finally {
+          setIsLoadingVehicles(false);
+        }
+      };
+      fetchVehicles();
+    }
+  }, [isModalOpen]);
 
   const getTodayStr = () => {
     const d = new Date();
@@ -327,7 +348,7 @@ export default function SectionMissions() {
     if (!formData.heure) missingFields.push("Heure");
     if (!formData.pricePerSeat) missingFields.push("Prix par place");
     if (!formData.placesLibres) missingFields.push("Places libres");
-    if (!formData.vehicleCapacity) missingFields.push("Type de voiture");
+    if (!formData.vehicleId) missingFields.push("Mes véhicules");
 
     if (missingFields.length > 0) {
       const errMsg = `Champs obligatoires manquants : ${missingFields.join(', ')}`;
@@ -366,7 +387,7 @@ export default function SectionMissions() {
         pricePerSeat: formData.pricePerSeat,
         departureTime: departureTime,
         placesLibres: formData.placesLibres,
-        vehicleCapacity: formData.vehicleCapacity,
+        vehicleId: formData.vehicleId,
         passagers: formData.passagers,
         isAirConditioned: formData.isAirConditioned,
         takesTollRoad: formData.takesTollRoad
@@ -398,6 +419,7 @@ export default function SectionMissions() {
             date: '',
             heure: '',
             pricePerSeat: '',
+            vehicleId: '',
             vehicleCapacity: '',
             placesLibres: '',
             passagers: 0,
@@ -517,6 +539,7 @@ export default function SectionMissions() {
               date: '',
               heure: '',
               pricePerSeat: '' as any,
+              vehicleId: '',
               vehicleCapacity: '' as any,
               placesLibres: '' as any,
               passagers: 0,
@@ -697,6 +720,7 @@ export default function SectionMissions() {
                         date: (m as any).rawDate || (m.date === "Aujourd'hui" ? getTodayStr() : m.date === "Demain" ? (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })() : getTodayStr()),
                         heure: m.heure,
                         pricePerSeat: m.pricePerSeat || 5000,
+                        vehicleId: m.vehicleId || '',
                         vehicleCapacity: m.vehicleCapacity || 5,
                         placesLibres: m.placesLibres || 0,
                         passagers: m.passagers || 0,
@@ -920,20 +944,52 @@ export default function SectionMissions() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 relative">
-                  <label className="text-xs text-slate-400 font-medium">Type de Voiture</label>
+                  <label className="text-xs text-slate-400 font-medium">Mes véhicules</label>
                   <select 
-                    value={formData.vehicleCapacity} 
+                    value={formData.vehicleId} 
                     onChange={e => {
-                      const capacity = parseInt(e.target.value);
-                      const places = capacity - 1 - (formData.passagers || 0);
-                      setFormData({...formData, vehicleCapacity: capacity, placesLibres: places > 0 ? places : 0});
+                      const vId = e.target.value;
+                      const vehicle = myVehicles.find(v => v.id === vId);
+                      if (vehicle) {
+                        const capacity = vehicle.capacity;
+                        const places = capacity - 1 - (formData.passagers || 0);
+                        setFormData({
+                          ...formData, 
+                          vehicleId: vId,
+                          vehicleCapacity: capacity, 
+                          placesLibres: places > 0 ? places : 0
+                        });
+                      }
                     }} 
                     className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none appearance-none transition-colors" 
                     required
                   >
-                    <option value="" disabled>Capacité totale</option>
-                    <option value="5">Voiture 5 places</option>
-                    <option value="7">Voiture 7 places</option>
+                    <option value="" disabled>Choisir un véhicule</option>
+                    {myVehicles.filter(v => v.deletedAt === null).map(v => {
+                      const isApproved = v.approvalStatus === 'APPROVED';
+                      const isExpired = v.photosRenewalStatus === 'EXPIRED';
+                      const isSelectable = isApproved && !isExpired;
+                      
+                      let reason = '';
+                      if (!isApproved) {
+                        if (v.approvalStatus === 'PENDING_REVIEW') reason = 'En attente d\'approbation';
+                        else if (v.approvalStatus === 'REJECTED') reason = 'Rejeté';
+                        else reason = 'Non approuvé';
+                      } else if (isExpired) {
+                        reason = 'Photos expirées';
+                      } else {
+                        reason = 'Approuvé';
+                      }
+
+                      const capacityUtile = v.capacity - 1;
+                      const label = `${v.plateNumber} — ${v.brand || ''} ${v.model || ''} — Taxi ${v.capacity} places — ${capacityUtile} passagers — ${reason}`;
+
+                      return (
+                        <option key={v.id} value={v.id} disabled={!isSelectable}>
+                          {label}
+                        </option>
+                      );
+                    })}
                   </select>
                   <div className="absolute right-4 top-10 pointer-events-none text-slate-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -941,7 +997,7 @@ export default function SectionMissions() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-400 font-medium">Places Disponibles</label>
-                  <input type="number" min="1" max={formData.vehicleCapacity ? formData.vehicleCapacity - 1 : 6} value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 4" disabled={!formData.vehicleCapacity} />
+                  <input type="number" min="1" max={formData.vehicleCapacity ? (formData.vehicleCapacity as number) - 1 : 6} value={formData.placesLibres} onChange={e => setFormData({...formData, placesLibres: e.target.value ? parseInt(e.target.value) : ''})} className="w-full bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#2A2A2A] rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-orange-500 outline-none transition-colors" required placeholder="ex: 4" disabled={!formData.vehicleId} />
                 </div>
               </div>
               
@@ -1007,9 +1063,15 @@ export default function SectionMissions() {
                 </div>
               )}
 
+              {(!myVehicles.some(v => v.approvalStatus === 'APPROVED' && v.deletedAt === null) && !isLoadingVehicles) && (
+                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium mt-2">
+                  Aucun véhicule approuvé disponible pour proposer un trajet.
+                </div>
+              )}
+
               <button 
                 type="submit" 
-                disabled={isLoading}
+                disabled={isLoading || !myVehicles.some(v => v.approvalStatus === 'APPROVED' && v.deletedAt === null)}
                 className="w-full mt-4 bg-orange-600 disabled:bg-[#222222] disabled:text-slate-500 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 relative overflow-hidden"
               >
                 {isLoading ? (

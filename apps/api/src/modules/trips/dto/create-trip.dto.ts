@@ -14,9 +14,9 @@ export class CreateTripDto {
   @IsDateString()
   departureTime?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  vehicleId?: string;
+  vehicleId!: string;
 
   @IsOptional()
   @IsString()
@@ -39,12 +39,6 @@ export class CreateTripDto {
   @IsNumber()
   @Min(0)
   passagers?: number = 0;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  vehicleCapacity?: number = 5;
 
   @IsOptional()
   isAirConditioned?: boolean;

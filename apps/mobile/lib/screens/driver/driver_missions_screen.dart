@@ -157,6 +157,25 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   }
 
   List<int> _dynamicRecommendedPrices = [];
+  List<Map<String, dynamic>> _myVehicles = [];
+  bool _isLoadingVehicles = false;
+
+  Future<void> _fetchMyVehicles(StateSetter setModalState) async {
+    setModalState(() => _isLoadingVehicles = true);
+    try {
+      final res = await ApiClient().get('/v1/drivers/me/vehicles');
+      if (res.statusCode == 200) {
+        final List<dynamic> data = json.decode(res.body);
+        setModalState(() {
+          _myVehicles = List<Map<String, dynamic>>.from(data);
+        });
+      }
+    } catch (e) {
+      debugPrint("Erreur récupération véhicules: $e");
+    } finally {
+      setModalState(() => _isLoadingVehicles = false);
+    }
+  }
 
   Future<void> _fetchPopularPrices(String? origin, String? dest, StateSetter setModalState) async {
     if (origin == null || dest == null) return;
@@ -238,12 +257,11 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     bool isAirConditioned = missionToEdit != null ? (missionToEdit['isAirConditioned'] ?? true) : true;
     bool takesTollRoad = missionToEdit != null ? (missionToEdit['takesTollRoad'] ?? true) : true;
     
-    String? vehicleCapacity;
-    if (missionToEdit != null && missionToEdit['vehicule'] != null) {
-      final match = RegExp(r'\d+').firstMatch(missionToEdit['vehicule']);
-      if (match != null) {
-        vehicleCapacity = match.group(0);
-      }
+    String? vehicleId;
+    int? vehicleCapacity;
+    if (missionToEdit != null && missionToEdit['vehicleId'] != null) {
+      vehicleId = missionToEdit['vehicleId'];
+      vehicleCapacity = missionToEdit['vehicleCapacity'];
     }
 
     final TextEditingController placesController = TextEditingController(text: missionToEdit != null ? missionToEdit['placesLibres']?.toString() : '');
@@ -254,6 +272,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
     bool isLoading = false;
     bool _isPricesFetchedInit = false;
+    bool _isVehiclesFetchedInit = false;
 
     showModalBottomSheet(
       context: context,
@@ -265,6 +284,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
             if (!_isPricesFetchedInit && originCity != null && destinationCity != null) {
               _isPricesFetchedInit = true;
               _fetchPopularPrices(originCity, destinationCity, setModalState);
+            }
+            if (!_isVehiclesFetchedInit) {
+              _isVehiclesFetchedInit = true;
+              _fetchMyVehicles(setModalState);
             }
 
             final List<Map<String, String>> availableDates = _getAvailableDates();
@@ -347,20 +370,81 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildDropdownObj('Type de Voiture', vehicleCapacity, [
-                                  {'value': '5', 'label': 'Voiture 5 places'},
-                                  {'value': '7', 'label': 'Voiture 7 places'},
-                                ], (v) {
-                                  setModalState(() {
-                                    vehicleCapacity = v;
-                                    if (v != null) {
-                                      int cap = int.tryParse(v) ?? 5;
-                                      int pax = int.tryParse(passagersController.text) ?? 0;
-                                      int places = cap - 1 - pax;
-                                      placesController.text = places > 0 ? places.toString() : '0';
-                                    }
-    });
-                                }), ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Mes véhicules', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0A0A0A),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Theme.of(context).dividerColor),
+                                      ),
+                                      child: _isLoadingVehicles
+                                        ? const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
+                                        : DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              isExpanded: true,
+                                              value: vehicleId,
+                                              hint: Text('Choisir', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24), fontSize: 14)),
+                                              dropdownColor: Theme.of(context).cardColor,
+                                              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                              onChanged: (v) {
+                                                if (v == null) return;
+                                                final vehicle = _myVehicles.firstWhere((x) => x['id'] == v);
+                                                final capacity = vehicle['capacity'] ?? 5;
+                                                setModalState(() {
+                                                  vehicleId = v;
+                                                  vehicleCapacity = capacity;
+                                                  int pax = int.tryParse(passagersController.text) ?? 0;
+                                                  int places = capacity - 1 - pax;
+                                                  placesController.text = places > 0 ? places.toString() : '0';
+                                                });
+                                              },
+                                              items: _myVehicles.where((v) => v['deletedAt'] == null).map((v) {
+                                                final isApproved = v['approvalStatus'] == 'APPROVED';
+                                                final isExpired = v['photosRenewalStatus'] == 'EXPIRED';
+                                                final isSelectable = isApproved && !isExpired;
+                                                
+                                                String reason = '';
+                                                if (!isApproved) {
+                                                  if (v['approvalStatus'] == 'PENDING_REVIEW') reason = 'En attente d\'approbation';
+                                                  else if (v['approvalStatus'] == 'REJECTED') reason = 'Rejeté';
+                                                  else reason = 'Non approuvé';
+                                                } else if (isExpired) {
+                                                  reason = 'Photos expirées';
+                                                } else {
+                                                  reason = 'Approuvé';
+                                                }
+                                                
+                                                int cap = v['capacity'] ?? 5;
+                                                int capUtile = cap - 1;
+                                                String plate = v['plateNumber'] ?? '';
+                                                String brand = v['brand'] ?? '';
+                                                String model = v['model'] ?? '';
+                                                String labelText = "$plate — $brand $model — Taxi $cap places — $capUtile passagers — $reason";
+
+                                                return DropdownMenuItem<String>(
+                                                  value: v['id'],
+                                                  enabled: isSelectable,
+                                                  child: Text(
+                                                    labelText,
+                                                    style: TextStyle(
+                                                      color: isSelectable ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                                                      fontSize: 12,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildTextFieldController('Places Disponibles', placesController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 4'),
@@ -404,7 +488,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 child: _buildTextFieldController('Passagers prévus', passagersController, icon: Icons.people_outline, keyboardType: TextInputType.number, hintText: 'ex: 0', onChanged: (val) {
                                   int pax = int.tryParse(val) ?? 0;
                                   if (vehicleCapacity != null) {
-                                    int cap = int.tryParse(vehicleCapacity!) ?? 5;
+                                    int cap = vehicleCapacity!;
                                     int places = cap - 1 - pax;
                                     placesController.text = places > 0 ? places.toString() : '0';
                                   }
@@ -449,14 +533,29 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             ],
                           ),
                           const SizedBox(height: 32),
+                          if (!_isLoadingVehicles && !_myVehicles.any((v) => v['approvalStatus'] == 'APPROVED' && v['deletedAt'] == null))
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF43F5E).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFF43F5E).withValues(alpha: 0.3)),
+                              ),
+                              child: Text(
+                                'Aucun véhicule approuvé disponible pour proposer un trajet.',
+                                style: TextStyle(color: const Color(0xFFF43F5E), fontSize: 13, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: isLoading ? null : () async {
+                              onPressed: (isLoading || _isLoadingVehicles || !_myVehicles.any((v) => v['approvalStatus'] == 'APPROVED' && v['deletedAt'] == null)) ? null : () async {
                                 String placesLibres = placesController.text;
                                 String price = priceController.text;
                                 
-                                if (originCity == null || destinationCity == null || date == null || time == null || vehicleCapacity == null || placesLibres.isEmpty || price.isEmpty) {
+                                if (originCity == null || destinationCity == null || date == null || time == null || vehicleId == null || placesLibres.isEmpty || price.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs obligatoires'), backgroundColor: Colors.redAccent));
                                   return;
                                 }
@@ -483,7 +582,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                       'pricePerSeat': int.tryParse(price) ?? 0,
                                       'departureTime': departureTime,
                                       'placesLibres': int.tryParse(placesLibres) ?? 0,
-                                      'vehicleCapacity': int.tryParse(vehicleCapacity!) ?? 0,
+                                      'vehicleId': vehicleId,
                                       'isAirConditioned': isAirConditioned,
                                       'takesTollRoad': takesTollRoad,
                                       'passagers': int.tryParse(passagersController.text) ?? 0,

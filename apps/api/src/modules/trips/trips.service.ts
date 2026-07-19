@@ -287,31 +287,16 @@ export class TripsService {
       throw new ForbiddenException("Les chauffeurs assignés ne peuvent pas créer de trajets.");
     }
 
-    let vehicleId = dto.vehicleId;
+    const vehicleId = dto.vehicleId;
     if (!vehicleId) {
-      const approvedVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'APPROVED' || v.approvalStatus === 'ACTIVE');
-      const pendingVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'PENDING_REVIEW');
-      
-      const rejectedVehicles = driverProfile.vehicles.filter(v => v.approvalStatus === 'REJECTED');
-      
-      if (approvedVehicles.length === 1) {
-        vehicleId = approvedVehicles[0].id;
-      } else if (approvedVehicles.length > 1) {
-        throw new BadRequestException("Vous possédez plusieurs véhicules approuvés. Veuillez en sélectionner un explicitement.");
-      } else if (pendingVehicles.length > 0) {
-        throw new BadRequestException("Votre véhicule est en attente de validation.");
-      } else if (rejectedVehicles.length > 0) {
-        throw new BadRequestException("Votre véhicule a été rejeté.");
-      } else {
-        throw new BadRequestException("Aucun véhicule approuvé n'est associé à ce chauffeur.");
-      }
+      throw new BadRequestException("L'identifiant du véhicule est obligatoire.");
     }
 
     const vehicle = await prisma.vehicle.findUnique({
       where: { id: vehicleId }
     });
 
-    if (!vehicle || (vehicle.approvalStatus !== 'APPROVED' && vehicle.approvalStatus !== 'ACTIVE')) {
+    if (!vehicle || vehicle.approvalStatus !== 'APPROVED') {
       if (vehicle?.approvalStatus === 'PENDING_REVIEW') {
         throw new BadRequestException("Votre véhicule est en attente de validation.");
       }
@@ -319,6 +304,10 @@ export class TripsService {
         throw new BadRequestException("Votre véhicule a été rejeté.");
       }
       throw new BadRequestException("Ce véhicule n'est pas approuvé pour effectuer des trajets.");
+    }
+
+    if (vehicle.deletedAt !== null) {
+      throw new BadRequestException("Ce véhicule a été supprimé.");
     }
 
     if (vehicle.photosRenewalStatus === 'EXPIRED') {
