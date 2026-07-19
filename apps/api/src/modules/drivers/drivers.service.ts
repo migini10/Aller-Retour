@@ -793,10 +793,11 @@ export class DriversService {
         });
 
         const getBucket = (key: string) => key.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
-        const filesToDelete = [
-          { bucket: getBucket(existingDoc.fileKey), key: existingDoc.fileKey }
-        ];
-        if (existingDoc.backFileKey) {
+        const filesToDelete = [];
+        if (existingDoc.fileKey && existingDoc.fileKey !== frontFileName) {
+          filesToDelete.push({ bucket: getBucket(existingDoc.fileKey), key: existingDoc.fileKey });
+        }
+        if (existingDoc.backFileKey && existingDoc.backFileKey !== backFileName) {
           filesToDelete.push({ bucket: getBucket(existingDoc.backFileKey), key: existingDoc.backFileKey });
         }
 
