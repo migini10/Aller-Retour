@@ -331,7 +331,7 @@ export default function VehiclesView() {
                               Voir le document {doc.type === 'REGISTRATION_CARD' && doc.backUrl ? '(Recto)' : ''}
                             </a>
                           ) : (
-                            <span className="text-slate-400 text-xs block">Document introuvable</span>
+                            <span className="text-red-500 font-medium text-xs block">Fichier manquant</span>
                           )}
                           {doc.backUrl ? (
                             <a href={doc.backUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs block">
@@ -341,13 +341,19 @@ export default function VehiclesView() {
                         </div>
                         {doc.status !== 'APPROVED' && (
                           <div className="flex gap-2">
-                            <button onClick={async () => {
-                              if (!confirm('Approuver ce document ?')) return;
-                              await DriversService.approveVehicleDocument(doc.id);
-                              fetchDocuments(selectedVehicle.id);
-                            }} className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-xs font-medium dark:bg-green-900/30 dark:text-green-400">
-                              Approuver
-                            </button>
+                            {doc.fileUrl ? (
+                              <button onClick={async () => {
+                                if (!confirm('Approuver ce document ?')) return;
+                                await DriversService.approveVehicleDocument(doc.id);
+                                fetchDocuments(selectedVehicle.id);
+                              }} className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-xs font-medium dark:bg-green-900/30 dark:text-green-400">
+                                Approuver
+                              </button>
+                            ) : (
+                              <button disabled className="px-3 py-1 bg-slate-100 text-slate-400 rounded text-xs font-medium cursor-not-allowed dark:bg-slate-800 dark:text-slate-600" title="Impossible d'approuver un document sans fichier">
+                                Approuver
+                              </button>
+                            )}
                             {doc.status !== 'REJECTED' && (
                               <button onClick={async () => {
                                 const r = prompt('Raison du rejet :');

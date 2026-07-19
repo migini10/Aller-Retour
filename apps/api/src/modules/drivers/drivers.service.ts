@@ -841,11 +841,17 @@ export class DriversService {
       let fileUrl = null;
       let backUrl = null;
       try {
-        const frontBucket = doc.fileKey.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
-        fileUrl = await this.supabase.getSignedUrl(frontBucket, doc.fileKey);
+        if (doc.fileKey) {
+          const frontBucket = doc.fileKey.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+          console.log(`[VehicleDocuments] Generating signed URL | docId: ${doc.id} | bucket: ${frontBucket} | key: ${doc.fileKey}`);
+          fileUrl = await this.supabase.getSignedUrl(frontBucket, doc.fileKey);
+        } else {
+          console.warn(`[VehicleDocuments] Missing fileKey for docId: ${doc.id}`);
+        }
 
         if (doc.backFileKey) {
           const backBucket = doc.backFileKey.includes('/documents/') ? 'vehicles' : 'vehicle-documents';
+          console.log(`[VehicleDocuments] Generating signed URL for backFile | docId: ${doc.id} | bucket: ${backBucket} | key: ${doc.backFileKey}`);
           backUrl = await this.supabase.getSignedUrl(backBucket, doc.backFileKey);
         }
       } catch (e) {
