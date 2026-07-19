@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useDriverOperations } from '../hooks/useDriverOperations';
 import { DriverEarning } from '../types/driver-earning.types';
+import { useModal } from '../../../../components/ModalContext';
 
 function PayoutModal({ 
   isOpen, 
@@ -26,6 +27,7 @@ function PayoutModal({
   onConfirm: (payoutRef: string) => Promise<void>;
   earning: DriverEarning | null;
 }) {
+  const { showToast } = useModal();
   const [payoutRef, setPayoutRef] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,8 +42,9 @@ function PayoutModal({
       await onConfirm(payoutRef);
       setPayoutRef('');
       onClose();
+      showToast('Paiement validé avec succès', 'success');
     } catch (err: any) {
-      alert(err.message || "Erreur lors de la validation du paiement.");
+      showToast(err.message || "Erreur lors de la validation du paiement.", 'error');
     } finally {
       setIsSubmitting(false);
     }

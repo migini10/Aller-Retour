@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { NotificationsService } from '../services/notifications.service';
 import { GetNotificationsFilters, AppNotification } from '../types/notification.types';
+import { useModal } from '../../../../components/ModalContext';
 
 export function useNotifications() {
+  const { showToast } = useModal();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -20,11 +22,11 @@ export function useNotifications() {
       setTotalItems(response.meta.total);
     } catch (err: any) {
       setError(err);
-      alert(err.message || 'Erreur lors du chargement des notifications');
+      showToast(err.message || 'Erreur lors du chargement des notifications', 'error');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   return {
     notifications,

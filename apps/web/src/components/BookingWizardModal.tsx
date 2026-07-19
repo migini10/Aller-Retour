@@ -12,6 +12,7 @@ import { VILLES_SENEGAL, INITIAL_QUARTIERS } from '../data/quartiers';
 import QRCodeBrandEngine from './QRCodeBrandEngine';
 import { OrangeMoneyLogo } from './OrangeMoneyLogo';
 import { useAuth } from './AuthContext';
+import { useModal } from './ModalContext';
 import { useUser } from '../hooks/useUser';
 import { ApiClient } from '@/lib/api.client';
 
@@ -23,6 +24,7 @@ interface BookingWizardModalProps {
 }
 
 export default function BookingWizardModal({ isOpen, onClose, initialType = 'allo-dakar', initialData }: BookingWizardModalProps) {
+  const { showToast } = useModal();
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false);
   const { isAuthenticated, openAuthModal, user } = useAuth();
@@ -1292,13 +1294,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                       }
                       setPaymentData(null); 
                     } else {
-                      alert("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.");
+                      showToast("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.", 'warning');
                     }
                   } else {
-                    alert("Erreur de communication avec le serveur.");
+                    showToast("Erreur de communication avec le serveur.", 'error');
                   }
                 } catch (e) {
-                  alert("Erreur de vérification du paiement.");
+                  showToast("Erreur de vérification du paiement.", 'error');
                 }
                 setIsVerifyingPayment(false);
               }}
@@ -1457,13 +1459,13 @@ export default function BookingWizardModal({ isOpen, onClose, initialType = 'all
                       }
                       setPaymentData(null); 
                     } else {
-                      alert("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.");
+                      showToast("Le paiement n'a pas encore été reçu. Veuillez vérifier votre application Mobile Money.", 'warning');
                     }
                   } else {
-                    alert("Erreur de communication avec le serveur.");
+                    showToast("Erreur de communication avec le serveur.", 'error');
                   }
                 } catch (e) {
-                  alert("Erreur de vérification du paiement.");
+                  showToast("Erreur de vérification du paiement.", 'error');
                 }
                 setIsVerifyingPayment(false);
               }}

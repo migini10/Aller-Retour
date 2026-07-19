@@ -8,7 +8,7 @@ import { useAuth } from '@/components/AuthContext';
 import { ApiClient } from '@/lib/api.client';
 
 export default function ColisPage() {
-  const { openColisWizard } = useModal();
+  const { openColisWizard, showToast } = useModal();
   const { user } = useAuth();
   const [localColis, setLocalColis] = React.useState<any[]>([]);
   const [trackingColis, setTrackingColis] = React.useState<any | null>(null);
@@ -180,14 +180,14 @@ export default function ColisPage() {
               <button 
                 onClick={() => {
                   if (!searchQuery.trim()) {
-                    alert("Veuillez entrer un numéro de colis valide.");
+                    showToast("Veuillez entrer un numéro de colis valide.", 'error');
                     return;
                   }
                   const found = localColis.find(c => String(c?.id || '').toUpperCase().includes(searchQuery.toUpperCase()));
                   if (found) {
                     setTrackingColis(found);
                   } else {
-                    alert("Colis non trouvé");
+                    showToast("Colis non trouvé", 'error');
                   }
                 }}
                 className="bg-white text-purple-600 hover:bg-slate-50 font-bold px-8 py-4 rounded-xl transition-colors shadow-lg whitespace-nowrap"

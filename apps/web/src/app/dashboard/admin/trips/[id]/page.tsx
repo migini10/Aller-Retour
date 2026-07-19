@@ -13,10 +13,12 @@ import { TripsService } from '../../services/trips.service';
 
 import { TripManifestView, TripBookingsView } from '../components/TripViews';
 import { Lock, Unlock, Trash2, MapPin, Clock, CreditCard, UserPlus } from 'lucide-react';
+import { useModal } from '../../../../../components/ModalContext';
 
 type TabId = 'general' | 'manifest' | 'bookings';
 
 export default function TripDetailPage() {
+  const { showConfirmDialog, showToast } = useModal();
   const params = useParams();
   const router = useRouter();
   
@@ -54,23 +56,25 @@ export default function TripDetailPage() {
 
   const handleToggleLock = async () => {
     try {
-      if (confirm('Voulez-vous modifier le verrouillage de ce trajet ?')) {
+      if (await showConfirmDialog('Modifier verrouillage', 'Voulez-vous modifier le verrouillage de ce trajet ?')) {
         await TripsService.toggleLock(manifest.tripId);
         refresh();
+        showToast('Verrouillage modifié avec succès', 'success');
       }
     } catch (e) {
-      alert("Erreur lors du verrouillage/déverrouillage.");
+      showToast("Erreur lors du verrouillage/déverrouillage.", 'error');
     }
   };
 
   const handleDelete = async () => {
     try {
-      if (confirm('Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.')) {
+      if (await showConfirmDialog('Supprimer le trajet', 'Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.', 'danger')) {
         await TripsService.deleteTrip(manifest.tripId);
+        showToast('Trajet supprimé avec succès', 'success');
         router.push('/dashboard/admin/trips');
       }
     } catch (e) {
-      alert("Erreur lors de la suppression.");
+      showToast("Erreur lors de la suppression.", 'error');
     }
   };
 

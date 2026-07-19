@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { ReviewsService } from '../services/reviews.service';
 import { GetReviewsFilters, Review, ReviewStatus } from '../types/review.types';
+import { useModal } from '../../../../components/ModalContext';
 
 export function useReviews() {
+  const { showToast } = useModal();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -19,7 +21,7 @@ export function useReviews() {
       setTotalPages(response.meta.totalPages);
     } catch (err: any) {
       setError(err);
-      alert(err.message || 'Erreur lors du chargement des avis');
+      showToast(err.message || 'Erreur lors du chargement des avis', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -30,12 +32,12 @@ export function useReviews() {
       // Optimistic update
       setReviews(prev => prev.map(r => r.id === id ? { ...r, status } : r));
       await ReviewsService.updateReviewStatus(id, status);
-      alert(status === 'VISIBLE' ? 'Avis publié avec succès' : 'Avis masqué avec succès');
+      showToast(status === 'VISIBLE' ? 'Avis publié avec succès' : 'Avis masqué avec succès', 'success');
       return true;
     } catch (err: any) {
       // Rollback on error
       setReviews(prev => prev.map(r => r.id === id ? { ...r, status: status === 'VISIBLE' ? 'HIDDEN' : 'VISIBLE' } : r));
-      alert(err.message || 'Erreur lors de la mise à jour du statut');
+      showToast(err.message || 'Erreur lors de la mise à jour du statut', 'error');
       return false;
     }
   };

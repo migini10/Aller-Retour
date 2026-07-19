@@ -15,8 +15,10 @@ import {
   User, MapPin, Clock, CreditCard, Ticket, 
   Trash2, Send, QrCode, RefreshCw, AlertTriangle 
 } from 'lucide-react';
+import { useModal } from '../../../../../components/ModalContext';
 
 export default function BookingDetailPage() {
+  const { showConfirmDialog, showToast } = useModal();
   const params = useParams();
   const router = useRouter();
   
@@ -52,14 +54,14 @@ export default function BookingDetailPage() {
 
   const handleAdminCancel = async () => {
     try {
-      if (confirm('ATTENTION: Êtes-vous sûr de vouloir annuler de force cette réservation ? Cette action modifiera le statut et libérera la place sans demander le code secret du passager.')) {
+      if (await showConfirmDialog('Annuler la réservation', 'ATTENTION: Êtes-vous sûr de vouloir annuler de force cette réservation ? Cette action modifiera le statut et libérera la place sans demander le code secret du passager.', 'danger')) {
         setIsCancelling(true);
         await BookingsService.adminCancelBooking(booking.id);
         await refresh();
-        alert('Réservation annulée avec succès.');
+        showToast('Réservation annulée avec succès.', 'success');
       }
     } catch (e: any) {
-      alert(e.message || "Erreur lors de l'annulation.");
+      showToast(e.message || "Erreur lors de l'annulation.", 'error');
     } finally {
       setIsCancelling(false);
     }
@@ -68,9 +70,9 @@ export default function BookingDetailPage() {
   const handleRefreshStatus = async () => {
     try {
       await refresh();
-      alert("Statut mis à jour.");
+      showToast("Statut mis à jour.", 'success');
     } catch (e) {
-      alert("Erreur lors de la mise à jour.");
+      showToast("Erreur lors de la mise à jour.", 'error');
     }
   };
 

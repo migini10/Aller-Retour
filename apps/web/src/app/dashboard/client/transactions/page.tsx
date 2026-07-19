@@ -4,8 +4,10 @@ import { getApiUrl } from '@/lib/config';
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, CreditCard, ArrowDownLeft, ArrowUpRight, Search, Download, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useModal } from '@/components/ModalContext';
 
 export default function TransactionsHistoryPage() {
+  const { showConfirmDialog, showToast } = useModal();
   const transactions = [
     {
       id: 'TRX_001',
@@ -219,8 +221,8 @@ export default function TransactionsHistoryPage() {
     fetchTxs();
   }, []);
 
-  const handleCancel = (id: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir annuler ce transfert ? Les fonds vous seront restitués car le bénéficiaire ne les a pas encore utilisés.")) {
+  const handleCancel = async (id: string) => {
+    if (await showConfirmDialog("Annuler", "Êtes-vous sûr de vouloir annuler ce transfert ? Les fonds vous seront restitués car le bénéficiaire ne les a pas encore utilisés.", 'danger')) {
       setTxs(txs.map(tx => tx.id === id ? { 
         ...tx, 
         status: 'Annulé', 

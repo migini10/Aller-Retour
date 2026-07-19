@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, CheckCircle2, Phone, MessageSquare, AlertCircle, ArrowLeftRight, Check, Loader2, Clock } from 'lucide-react';
 import { ApiClient } from '@/lib/api.client';
 import QRCodeBrandEngine from '../../../../components/QRCodeBrandEngine';
+import { useModal } from '../../../../components/ModalContext';
 
 // Mock de passagers initiaux pour le trajet TRIP-402
 const initialPassagers = [
@@ -20,6 +21,7 @@ const mockTargetTrips = [
 ];
 
 export default function SectionPassagers() {
+  const { showToast } = useModal();
   const [passagers, setPassagers] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -130,12 +132,12 @@ export default function SectionPassagers() {
           setSelectedTargetTripId(null);
         }, 2000);
       } else {
-        alert(data?.error || 'Une erreur est survenue lors du transfert.');
+        showToast(data?.error || 'Une erreur est survenue lors du transfert.', 'error');
         setIsSubmitting(false);
       }
     } catch (error: any) {
       console.error('Transfer API error:', error);
-      alert(error.message || 'Erreur réseau lors du transfert.');
+      showToast(error.message || 'Erreur réseau lors du transfert.', 'error');
       setIsSubmitting(false);
     }
   };

@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { Settings, User, Lock, Globe, CreditCard, Trash2, Save, Eye, EyeOff, Sun, Moon, ShieldCheck } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useUser } from '../../../../hooks/useUser';
+import { useModal } from '../../../../components/ModalContext';
 
 const sections = ['Profil', 'Sécurité', 'Préférences', 'Paiements', 'Compte'];
 
 export default function SectionParametres() {
+  const { showToast } = useModal();
   const [tab, setTab] = useState('Profil');
   const [showPwd, setShowPwd] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -72,11 +74,11 @@ export default function SectionParametres() {
             localStorage.setItem('ar_use_biometrics', 'false');
             setUseBiometrics(false);
           }
-          alert(`Verrouillage de l'application ${pendingToggle.value ? 'activé' : 'désactivé'} avec succès !`);
+          showToast(`Verrouillage de l'application ${pendingToggle.value ? 'activé' : 'désactivé'} avec succès !`, 'success');
         } else {
           localStorage.setItem('ar_use_biometrics', pendingToggle.value ? 'true' : 'false');
           setUseBiometrics(pendingToggle.value);
-          alert(`Sécurité biométrique ${pendingToggle.value ? 'activée' : 'désactivée'} avec succès !`);
+          showToast(`Sécurité biométrique ${pendingToggle.value ? 'activée' : 'désactivée'} avec succès !`, 'success');
         }
         setShowConfirmPin(false);
         setPendingToggle(null);
@@ -102,7 +104,7 @@ export default function SectionParametres() {
 
   const handleSave = () => {
     updateUser(editName, editPhone);
-    alert('Profil mis à jour avec succès !');
+    showToast('Profil mis à jour avec succès !', 'success');
   };
 
   const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';

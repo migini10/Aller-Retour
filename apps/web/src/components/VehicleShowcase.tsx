@@ -20,6 +20,7 @@ import {
   Eye, 
   Layers
 } from 'lucide-react';
+import { useModal } from './ModalContext';
 
 interface Vehicle {
   id: string;
@@ -151,7 +152,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
   }
 ];
 
-export default function VehicleShowcase() {
+export default function VehicleShowcase({ onClose }: { onClose?: () => void }) {
+  const { showToast } = useModal();
   const [filterType, setFilterType] = useState<string>('all');
   const [filterComfort, setFilterComfort] = useState<string>('all');
   const [filterAcOnly, setFilterAcOnly] = useState<boolean>(false);
@@ -178,7 +180,7 @@ export default function VehicleShowcase() {
       setComparedVehicleIds(comparedVehicleIds.filter(item => item !== id));
     } else {
       if (comparedVehicleIds.length >= 3) {
-        alert("Vous pouvez comparer au maximum 3 véhicules simultanément.");
+        showToast("Vous pouvez comparer au maximum 3 véhicules simultanément.", 'warning');
         return;
       }
       setComparedVehicleIds([...comparedVehicleIds, id]);

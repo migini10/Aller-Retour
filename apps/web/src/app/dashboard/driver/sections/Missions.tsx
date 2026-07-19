@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Clock, Play, CheckCircle2, AlertTriangle, MessageSquare, MapPin, Plus, X, Loader2, CarFront, Lock, Unlock, ArrowLeftRight } from 'lucide-react';
 import { ApiClient } from '@/lib/api.client';
+import { useModal } from '../../../../components/ModalContext';
 
 const tabs = ['Programmées', 'Toutes', 'Aujourd\'hui', 'Historique'];
 
@@ -13,6 +14,7 @@ const statutStyle: Record<string, string> = {
 };
 
 export default function SectionMissions() {
+  const { showConfirmDialog, showToast } = useModal();
   const [isMounted, setIsMounted] = React.useState(false);
   const [cancelAlertMessage, setCancelAlertMessage] = useState('');
   const [tab, setTab] = useState('Programmées');
@@ -460,7 +462,7 @@ export default function SectionMissions() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Erreur de connexion.");
+      showToast(err.message || "Erreur de connexion.", 'error');
     } finally {
       setIsLoading(false);
     }
@@ -716,7 +718,7 @@ export default function SectionMissions() {
                 {m.statut === 'programmé' && m.passagers === 0 && (
                   <button 
                     onClick={async () => {
-                      if (confirm("Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.")) {
+                      if (await showConfirmDialog('Supprimer trajet', "Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.", 'danger')) {
                         try {
                           await ApiClient.delete(`/v1/trips/${m.id}`);
 
@@ -732,8 +734,9 @@ export default function SectionMissions() {
                               localStorage.setItem('demo_trips', JSON.stringify(updatedStorage));
                             } catch(e) {}
                           }
+                          showToast('Trajet supprimé avec succès', 'success');
                         } catch (err: any) {
-                          alert(`Impossible de supprimer le trajet : ${err.message || 'Erreur inconnue'}`);
+                          showToast(`Impossible de supprimer le trajet : ${err.message || 'Erreur inconnue'}`, 'error');
                         }
                       }
                     }}

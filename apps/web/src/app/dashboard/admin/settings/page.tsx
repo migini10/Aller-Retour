@@ -8,8 +8,10 @@ import { motion } from 'framer-motion';
 import { useSettings } from '../hooks/useSettings';
 import { Save, Settings2, ShieldCheck, Mail, Phone, DollarSign, Activity, HelpCircle } from 'lucide-react';
 import { UpdateSettingsPayload } from '../types/settings.types';
+import { useModal } from '../../../../components/ModalContext';
 
 export default function SettingsPage() {
+  const { showToast } = useModal();
   const { settings, isLoading, isSaving, fetchSettings, updateSettings } = useSettings();
   
   const [formData, setFormData] = useState<UpdateSettingsPayload>({});
@@ -49,17 +51,17 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (formData.clientCommissionRate === undefined || isNaN(formData.clientCommissionRate)) {
-      alert("Le taux de commission client est invalide.");
+      showToast("Le taux de commission client est invalide.", 'error');
       return;
     }
     if (formData.driverCommissionRate === undefined || isNaN(formData.driverCommissionRate)) {
-      alert("Le taux de commission chauffeur est invalide.");
+      showToast("Le taux de commission chauffeur est invalide.", 'error');
       return;
     }
 
     const success = await updateSettings(formData);
     if (success) {
-      alert('Paramètres sauvegardés avec succès !');
+      showToast('Paramètres sauvegardés avec succès !', 'success');
     }
   };
 

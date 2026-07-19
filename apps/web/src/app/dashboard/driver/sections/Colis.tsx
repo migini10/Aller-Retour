@@ -400,9 +400,6 @@ export default function SectionColis() {
         </div>
       )}
 
-
-      )}
-
     </div>
   );
 }

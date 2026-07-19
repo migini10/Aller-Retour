@@ -1,8 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { Ticket, Search, User, CreditCard, CheckCircle2, Printer, Users } from 'lucide-react';
+import { useModal } from '../../../../components/ModalContext';
 
 export default function SectionVente() {
+  const { showToast } = useModal();
   const [step, setStep] = useState(1);
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
 
@@ -152,7 +154,7 @@ export default function SectionVente() {
               </button>
             </div>
 
-            <button onClick={() => { alert("Billet généré avec succès !"); setStep(1); setSelectedSeat(null); }} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-lg transition-colors shadow-[0_0_20px_rgba(5,150,105,0.3)] flex items-center justify-center gap-2">
+            <button onClick={() => { showToast("Billet généré avec succès !", 'success'); setStep(1); setSelectedSeat(null); }} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-lg transition-colors shadow-[0_0_20px_rgba(5,150,105,0.3)] flex items-center justify-center gap-2">
               <Printer className="w-5 h-5" /> Imprimer Billet & Terminer
             </button>
             <button onClick={() => setStep(3)} className="mt-4 text-sm font-semibold text-slate-400 hover:text-white transition-colors">Retour aux infos passager</button>

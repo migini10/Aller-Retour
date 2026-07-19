@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Vehicle } from '../../types/driver.types';
 import { DriversService } from '../../services/drivers.service';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { useModal } from '../../../../../components/ModalContext';
 
 const SafeImage = ({ src, alt }: { src: string | null | undefined; alt: string }) => {
   const [error, setError] = useState(false);
@@ -24,6 +25,7 @@ const SafeImage = ({ src, alt }: { src: string | null | undefined; alt: string }
 };
 
 export default function VehiclesView() {
+  const { showConfirmDialog, showPromptDialog, showToast } = useModal();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterApproval, setFilterApproval] = useState<string>('ALL');
@@ -79,43 +81,47 @@ export default function VehiclesView() {
   }, []);
 
   const handleApprove = async (vehicleId: string) => {
-    if (!confirm('Approuver ce véhicule ?')) return;
+    if (!(await showConfirmDialog('Approuver le véhicule', 'Approuver ce véhicule ?'))) return;
     try {
       await DriversService.approveVehicle(vehicleId);
       await fetchVehicles();
+      showToast('Véhicule approuvé avec succès', 'success');
     } catch (e) {
-      alert('Erreur');
+      showToast("Erreur lors de l'approbation", 'error');
     }
   };
 
   const handleReject = async (vehicleId: string) => {
-    const reason = prompt('Raison du rejet (optionnel) :');
+    const reason = await showPromptDialog('Rejeter le véhicule', 'Raison du rejet (optionnel) :');
     if (reason === null) return;
     try {
       await DriversService.rejectVehicle(vehicleId, reason);
       await fetchVehicles();
+      showToast('Véhicule rejeté', 'success');
     } catch (e) {
-      alert('Erreur');
+      showToast('Erreur lors du rejet', 'error');
     }
   };
 
   const handleCertify = async (vehicleId: string) => {
-    if (!confirm('Certifier ce véhicule ?')) return;
+    if (!(await showConfirmDialog('Certifier le véhicule', 'Le véhicule sera marqué comme certifié et pourra être priorisé.'))) return;
     try {
       await DriversService.certifyVehicle(vehicleId);
       await fetchVehicles();
+      showToast('Véhicule certifié avec succès', 'success');
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Erreur');
+      showToast(e instanceof Error ? e.message : 'Erreur lors de la certification', 'error');
     }
   };
 
   const handleRevoke = async (vehicleId: string) => {
-    if (!confirm('Révoquer la certification de ce véhicule ?')) return;
+    if (!(await showConfirmDialog('Révoquer', 'Révoquer la certification de ce véhicule ?', 'danger'))) return;
     try {
       await DriversService.revokeCertification(vehicleId);
       await fetchVehicles();
+      showToast('Certification révoquée', 'success');
     } catch (e) {
-      alert('Erreur');
+      showToast('Erreur lors de la révocation', 'error');
     }
   };
 
@@ -343,9 +349,14 @@ export default function VehiclesView() {
                           <div className="flex gap-2">
                             {doc.fileUrl ? (
                               <button onClick={async () => {
-                                if (!confirm('Approuver ce document ?')) return;
-                                await DriversService.approveVehicleDocument(doc.id);
-                                fetchDocuments(selectedVehicle.id);
+                                if (!(await showConfirmDialog('Approuver', 'Approuver ce document ?'))) return;
+                                try {
+                                  await DriversService.approveVehicleDocument(doc.id);
+                                  fetchDocuments(selectedVehicle.id);
+                                  showToast('Document approuvé', 'success');
+                                } catch(e) {
+                                  showToast("Erreur lors de l'approbation", 'error');
+                                }
                               }} className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-xs font-medium dark:bg-green-900/30 dark:text-green-400">
                                 Approuver
                               </button>
@@ -356,10 +367,15 @@ export default function VehiclesView() {
                             )}
                             {doc.status !== 'REJECTED' && (
                               <button onClick={async () => {
-                                const r = prompt('Raison du rejet :');
+                                const r = await showPromptDialog('Rejeter', 'Raison du rejet :');
                                 if (!r) return;
-                                await DriversService.rejectVehicleDocument(doc.id, r);
-                                fetchDocuments(selectedVehicle.id);
+                                try {
+                                  await DriversService.rejectVehicleDocument(doc.id, r);
+                                  fetchDocuments(selectedVehicle.id);
+                                  showToast('Document rejeté', 'success');
+                                } catch(e) {
+                                  showToast('Erreur lors du rejet', 'error');
+                                }
                               }} className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-xs font-medium dark:bg-red-900/30 dark:text-red-400">
                                 Rejeter
                               </button>

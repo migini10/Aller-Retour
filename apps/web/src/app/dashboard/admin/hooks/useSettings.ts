@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { SettingsService } from '../services/settings.service';
 import { SystemSettings, UpdateSettingsPayload } from '../types/settings.types';
+import { useModal } from '../../../../components/ModalContext';
 
 export function useSettings() {
+  const { showToast } = useModal();
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,12 +33,12 @@ export function useSettings() {
       return true;
     } catch (err: any) {
       setError(err);
-      alert(err.message || 'Erreur lors de la sauvegarde des paramètres');
+      showToast(err.message || 'Erreur lors de la sauvegarde des paramètres', 'error');
       return false;
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [showToast]);
 
   return {
     settings,

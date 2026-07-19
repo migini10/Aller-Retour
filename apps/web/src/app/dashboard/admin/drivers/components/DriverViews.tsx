@@ -5,8 +5,10 @@ import { DriverProfile, Vehicle, DriverEarning, DriverReview } from '../../types
 import { DriversService } from '../../services/drivers.service';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { AdminTable } from '../../components/tables/AdminTable';
+import { useModal } from '../../../../../components/ModalContext';
 
 export function DriverVehiclesView({ driverId }: { driverId: string }) {
+  const { showToast } = useModal();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
@@ -38,8 +40,9 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
         await DriversService.updateVehicleStatus(driverId, vehicleId, status);
       }
       fetchVehicles();
+      showToast('Mise à jour réussie', 'success');
     } catch (e) {
-      alert('Erreur lors de la mise à jour');
+      showToast('Erreur lors de la mise à jour', 'error');
     }
   };
 
@@ -51,8 +54,9 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
         await DriversService.revokeCertification(vehicleId);
       }
       fetchVehicles();
+      showToast('Certification mise à jour', 'success');
     } catch (e) {
-      alert('Erreur lors de la mise à jour de la certification');
+      showToast('Erreur lors de la mise à jour de la certification', 'error');
     }
   };
 
@@ -62,8 +66,9 @@ export function DriverVehiclesView({ driverId }: { driverId: string }) {
       await DriversService.createDriverVehicle(driverId, newVehicle);
       setIsAdding(false);
       fetchVehicles();
+      showToast('Véhicule ajouté avec succès', 'success');
     } catch (e) {
-      alert("Erreur lors de l'ajout du véhicule");
+      showToast("Erreur lors de l'ajout du véhicule", 'error');
     }
   };
 

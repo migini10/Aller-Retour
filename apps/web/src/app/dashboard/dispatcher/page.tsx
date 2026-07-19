@@ -9,11 +9,13 @@ import {
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api.client';
 import QRCodeBrandEngine from '../../../components/QRCodeBrandEngine';
+import { useModal } from '../../../components/ModalContext';
 
 type BilletState = 'idle' | 'generating' | 'success';
 type ScanState = 'idle' | 'scanning' | 'valid' | 'invalid' | 'already_used' | 'success';
 
 export default function DispatcherDashboard() {
+  const { showToast } = useModal();
   const [phone, setPhone] = useState('');
   const [nomClient, setNomClient] = useState('');
   const [ligne, setLigne] = useState('Dakar ➔ Touba (08:00 — 4 500 FCFA)');
@@ -39,8 +41,8 @@ export default function DispatcherDashboard() {
 
   // Génération simulée d'un billet
   const handleEmettreStep1 = () => {
-    if (!nomClient.trim()) { alert('Veuillez saisir le nom complet du client.'); return; }
-    if (!phone) { alert('Veuillez saisir le numéro de téléphone du client.'); return; }
+    if (!nomClient.trim()) { showToast('Veuillez saisir le nom complet du client.', 'warning'); return; }
+    if (!phone) { showToast('Veuillez saisir le numéro de téléphone du client.', 'warning'); return; }
     setBilletState('generating');
     setShowBilletModal(true);
     setTimeout(() => setBilletState('success'), 1800);
@@ -54,7 +56,7 @@ export default function DispatcherDashboard() {
   };
 
   const handleScan = async () => {
-    if (!scanCode.trim()) { alert('Veuillez saisir ou coller un code QR.'); return; }
+    if (!scanCode.trim()) { showToast('Veuillez saisir ou coller un code QR.', 'warning'); return; }
     setScanState('scanning');
     
     try {

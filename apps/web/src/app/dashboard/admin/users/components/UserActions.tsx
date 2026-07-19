@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { User, UserStatus, UserPermissions } from '../../types/user.types';
 import { ShieldBan, ShieldCheck, KeyRound, Clock, Bug } from 'lucide-react';
 import { UsersService } from '../../services/users.service';
+import { useModal } from '../../../../../components/ModalContext';
 
 interface UserActionsProps {
   user: User;
@@ -12,6 +13,7 @@ interface UserActionsProps {
 }
 
 export function UserActions({ user, permissions, onRefresh }: UserActionsProps) {
+  const { showConfirmDialog, showToast } = useModal();
   const [isProcessing, setIsProcessing] = useState(false);
   const isSuspended = user.status === UserStatus.SUSPENDED || user.status === UserStatus.BANNED;
 
@@ -22,55 +24,55 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
       onRefresh();
     } catch (error) {
       console.error('Failed to update status', error);
-      alert('Erreur lors de la mise à jour du statut');
+      showToast('Erreur lors de la mise à jour du statut', 'error');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleResetPin = async () => {
-    if (!window.confirm('Voulez-vous forcer la réinitialisation du PIN de cet utilisateur ?')) return;
+    if (!(await showConfirmDialog('Réinitialiser le PIN', 'Voulez-vous forcer la réinitialisation du PIN de cet utilisateur ?', 'danger'))) return;
     
     try {
       setIsProcessing(true);
       await UsersService.resetUserPin(user.id);
-      alert('Demande de réinitialisation envoyée avec succès.');
+      showToast('Demande de réinitialisation envoyée avec succès.', 'success');
       onRefresh();
     } catch (error) {
       console.error('Failed to reset pin', error);
-      alert('Erreur lors de la réinitialisation du PIN');
+      showToast('Erreur lors de la réinitialisation du PIN', 'error');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleVerifyTestAccount = async () => {
-    if (!window.confirm('Voulez-vous valider ce compte de test manuellement ?')) return;
+    if (!(await showConfirmDialog('Valider compte de test', 'Voulez-vous valider ce compte de test manuellement ?'))) return;
     
     try {
       setIsProcessing(true);
       await UsersService.verifyTestAccount(user.id);
-      alert('Compte de test validé avec succès');
+      showToast('Compte de test validé avec succès', 'success');
       onRefresh();
     } catch (error: any) {
       console.error('Failed to verify test account', error);
-      alert(error?.response?.data?.message || error?.message || 'Erreur lors de la validation du compte de test');
+      showToast(error?.response?.data?.message || error?.message || 'Erreur lors de la validation du compte de test', 'error');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleMarkTestAccount = async () => {
-    if (!window.confirm('Voulez-vous marquer cet utilisateur comme compte de test ?')) return;
+    if (!(await showConfirmDialog('Marquer comme test', 'Voulez-vous marquer cet utilisateur comme compte de test ?'))) return;
     
     try {
       setIsProcessing(true);
       await UsersService.markTestAccount(user.id);
-      alert('Compte marqué comme compte de test avec succès');
+      showToast('Compte marqué comme compte de test avec succès', 'success');
       onRefresh();
     } catch (error: any) {
       console.error('Failed to mark test account', error);
-      alert(error?.response?.data?.message || error?.message || 'Erreur lors du marquage du compte de test');
+      showToast(error?.response?.data?.message || error?.message || 'Erreur lors du marquage du compte de test', 'error');
     } finally {
       setIsProcessing(false);
     }

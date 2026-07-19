@@ -12,10 +12,12 @@ import { useDrivers } from '../../hooks/useDrivers';
 import { DriversService } from '../../services/drivers.service';
 
 import { DriverVehiclesView, DriverEarningsView, DriverReviewsView } from '../components/DriverViews';
+import { useModal } from '../../../../../components/ModalContext';
 
 type TabId = 'profile' | 'vehicles' | 'earnings' | 'reviews';
 
 export default function DriverDetailPage() {
+  const { showToast } = useModal();
   const params = useParams();
   const router = useRouter();
   const { driver, isLoading, isError, permissions, refresh } = useDrivers({ id: params.id as string });
@@ -52,8 +54,9 @@ export default function DriverDetailPage() {
     try {
       await DriversService.updateKycStatus(driver.id, status);
       refresh();
+      showToast('Statut KYC mis à jour', 'success');
     } catch (e) {
-      alert("Erreur lors de la mise à jour KYC");
+      showToast("Erreur lors de la mise à jour KYC", 'error');
     }
   };
 
