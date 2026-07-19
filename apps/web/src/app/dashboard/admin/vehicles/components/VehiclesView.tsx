@@ -388,16 +388,33 @@ export default function VehiclesView() {
                 {selectedVehicle.certificationStatus === 'CERTIFIED' ? (
                   <button disabled className="flex-1 py-2 bg-slate-200 text-slate-500 rounded-lg font-medium cursor-not-allowed dark:bg-slate-800 dark:text-slate-500">Déjà certifié</button>
                 ) : (() => {
-                  const isCertifiable = selectedVehicle.approvalStatus === 'APPROVED' &&
-                    selectedVehicle.photosRenewalStatus === 'VALID' &&
-                    (documents || []).some(d => d?.type === 'REGISTRATION_CARD' && d?.status === 'APPROVED') &&
-                    (documents || []).some(d => d?.type === 'INSURANCE' && d?.status === 'APPROVED') &&
-                    (documents || []).some(d => d?.type === 'TECHNICAL_INSPECTION' && d?.status === 'APPROVED');
+                  const hasCarteGrise = (documents || []).some(d => d?.type === 'REGISTRATION_CARD' && d?.status === 'APPROVED' && !!d?.fileUrl);
+                  const hasAssurance = (documents || []).some(d => d?.type === 'INSURANCE' && d?.status === 'APPROVED' && !!d?.fileUrl);
+                  const hasVisite = (documents || []).some(d => d?.type === 'TECHNICAL_INSPECTION' && d?.status === 'APPROVED' && !!d?.fileUrl);
+                  const arePhotosValid = !selectedVehicle.photosExpireAt || new Date(selectedVehicle.photosExpireAt) > new Date();
+
+                  let blockReason = "";
+                  if (selectedVehicle.approvalStatus !== 'APPROVED') {
+                    blockReason = "Véhicule non approuvé";
+                  } else if (!arePhotosValid) {
+                    blockReason = "Photos expirées";
+                  } else {
+                    const missing = [];
+                    if (!hasCarteGrise) missing.push("Carte Grise");
+                    if (!hasAssurance) missing.push("Assurance");
+                    if (!hasVisite) missing.push("Visite Technique");
+                    if (missing.length > 0) {
+                      blockReason = `Documents manquants/invalides (${missing.join(", ")})`;
+                    }
+                  }
+
+                  const isCertifiable = !blockReason;
+
                   return (
                     <button 
                       onClick={() => handleCertify(selectedVehicle.id)} 
                       disabled={!isCertifiable}
-                      title={!isCertifiable ? "Documents ou photos incomplets/invalides" : ""}
+                      title={!isCertifiable ? `Certification bloquée : ${blockReason}` : ""}
                       className={`flex-1 py-2 rounded-lg font-medium ${isCertifiable ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50' : 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'}`}
                     >
                       Certifier
