@@ -945,7 +945,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                               Icon(Icons.directions_bus, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 6),
                               Expanded(
-                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places offertes', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                                child: Text('${mission['vehicule']} • ${mission['passagers']} passagers prévus • ${mission['placesPrises'] ?? 0} places prises • ${mission['placesLibres'] ?? 0} places disponibles', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
                               ),
                             ],
                           ),
@@ -1318,7 +1318,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                 Divider(color: Theme.of(context).dividerColor, height: 32),
                 _buildDetailRow('Véhicule', mission['vehicule']),
                 _buildDetailRow('Prix de la place', '${mission['pricePerSeat'] ?? 5000} FCFA'),
-                _buildDetailRow('Places offertes', '${(mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0)} places'),
+                _buildDetailRow('Places disponibles', '${(mission['placesLibres'] ?? 0) + (mission['placesPrises'] ?? 0)} places'),
                 _buildDetailRow('Places réservées', '${mission['placesPrises'] ?? 0} places'),
                 _buildDetailRow('Places restantes', '${mission['placesLibres'] ?? 0} places', valueColor: const Color(0xFF10B981)),
                 _buildDetailRow('Passagers prévus', '${mission['passagers'] ?? 0} passagers'),

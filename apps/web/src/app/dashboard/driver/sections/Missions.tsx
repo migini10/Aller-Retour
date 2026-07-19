@@ -643,7 +643,7 @@ export default function SectionMissions() {
                   : new Date(m.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
                 } à {m.heure}</p>
                 <p className="text-xs text-slate-500">
-                  {m.vehicule} • {m.passagers} passagers prévus • {m.placesPrises ?? 0} places prises • {m.placesLibres} places offertes
+                  {m.vehicule} • {m.passagers} passagers prévus • {m.placesPrises ?? 0} places prises • {m.placesLibres} places disponibles
                 </p>
                 {/* Options (mock pour les missions statiques si pas défini) */}
                 <div className="flex flex-wrap gap-2 pt-1">
@@ -1127,7 +1127,7 @@ export default function SectionMissions() {
                   <span className="font-bold text-orange-500">{selectedDetailMission.pricePerSeat || 5000} FCFA</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Places offertes</span>
+                  <span className="text-slate-500 dark:text-slate-400">Places disponibles</span>
                   <span className="font-semibold text-slate-900 dark:text-white">{(selectedDetailMission.placesLibres || 0) + (selectedDetailMission.placesPrises || 0)} places</span>
                 </div>
                 <div className="flex justify-between text-sm">

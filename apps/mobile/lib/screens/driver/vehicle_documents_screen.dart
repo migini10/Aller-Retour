@@ -94,87 +94,91 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text('Carte Grise', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  
-                  // Recto (Mandatory)
-                  const Text('Recto (Obligatoire)'),
-                  const SizedBox(height: 8),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.upload_file),
-                    label: Text(frontFile == null ? 'Sélectionner le Recto' : 'Recto sélectionné'),
-                    onPressed: () async {
-                      final source = await _showImageSourcePicker();
-                      if (source != null) {
-                        final XFile? img = await _picker.pickImage(source: source);
-                        if (img != null) {
-                          setModalState(() { frontFile = File(img.path); });
-                        }
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Carte Grise', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text('Recto (Obligatoire)'),
+                            const SizedBox(height: 8),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.upload_file),
+                              label: Text(frontFile == null ? 'Sélectionner le Recto' : 'Recto sélectionné'),
+                              onPressed: () async {
+                                final source = await _showImageSourcePicker();
+                                if (source != null) {
+                                  final XFile? img = await _picker.pickImage(source: source);
+                                  if (img != null) {
+                                    setModalState(() { frontFile = File(img.path); });
+                                  }
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 16),
 
-                  // Toggle Verso
-                  SwitchListTile(
-                    title: const Text('Nouvelle carte grise avec verso'),
-                    value: hasVerso,
-                    onChanged: (val) {
-                      setModalState(() {
-                        hasVerso = val;
-                        if (!val) backFile = null;
-                      });
-                    },
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  
-                  // Verso (Conditional)
-                  if (hasVerso) ...[
-                    const Text('Verso (Obligatoire)'),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.upload_file),
-                      label: Text(backFile == null ? 'Sélectionner le Verso' : 'Verso sélectionné'),
-                      onPressed: () async {
-                        final source = await _showImageSourcePicker();
-                        if (source != null) {
-                          final XFile? img = await _picker.pickImage(source: source);
-                          if (img != null) {
-                            setModalState(() { backFile = File(img.path); });
-                          }
-                        }
-                      },
+                            SwitchListTile(
+                              title: const Text('Nouvelle carte grise avec verso'),
+                              value: hasVerso,
+                              onChanged: (val) {
+                                setModalState(() {
+                                  hasVerso = val;
+                                  if (!val) backFile = null;
+                                });
+                              },
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            
+                            if (hasVerso) ...[
+                              const Text('Verso (Obligatoire)'),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.upload_file),
+                                label: Text(backFile == null ? 'Sélectionner le Verso' : 'Verso sélectionné'),
+                                onPressed: () async {
+                                  final source = await _showImageSourcePicker();
+                                  if (source != null) {
+                                    final XFile? img = await _picker.pickImage(source: source);
+                                    if (img != null) {
+                                      setModalState(() { backFile = File(img.path); });
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
                     ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                      onPressed: () {
+                        if (frontFile == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le recto.')));
+                          return;
+                        }
+                        if (hasVerso && backFile == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le verso.')));
+                          return;
+                        }
+                        Navigator.pop(ctx);
+                        
+                        final Map<String, File> files = {'frontFile': frontFile!};
+                        if (hasVerso && backFile != null) {
+                          files['backFile'] = backFile!;
+                        }
+                        _performUpload('REGISTRATION_CARD', files, isNewRegistrationCard: hasVerso);
+                      },
+                      child: const Text('Envoyer le document'),
+                    ),
+                    const SizedBox(height: 16),
                   ],
-                  
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                    onPressed: () {
-                      if (frontFile == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le recto.')));
-                        return;
-                      }
-                      if (hasVerso && backFile == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez sélectionner le verso.')));
-                        return;
-                      }
-                      Navigator.pop(ctx);
-                      
-                      final Map<String, File> files = {'frontFile': frontFile!};
-                      if (hasVerso && backFile != null) {
-                        files['backFile'] = backFile!;
-                      }
-                      _performUpload('REGISTRATION_CARD', files, isNewRegistrationCard: hasVerso);
-                    },
-                    child: const Text('Envoyer le document'),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                ),
               ),
-            ),
             );
           }
         );
