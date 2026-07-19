@@ -45,8 +45,15 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
     _performUpload(type, {'frontFile': File(image.path)});
   }
 
-  void _showSimpleUploadBottomSheet(String type) {
-    showModalBottomSheet(
+  void _showSimpleUploadBottomSheet(String type) async {
+    final source = await _showImageSourcePicker();
+    if (source != null) {
+      _uploadSimpleDocument(type, source);
+    }
+  }
+
+  Future<ImageSource?> _showImageSourcePicker() {
+    return showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -55,18 +62,12 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: const Text('Prendre une photo'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _uploadSimpleDocument(type, ImageSource.camera);
-              },
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: const Text('Choisir depuis la galerie'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _uploadSimpleDocument(type, ImageSource.gallery);
-              },
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
           ],
         ),
@@ -85,13 +86,14 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 16, right: 16, top: 16
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  left: 16, right: 16, top: 16
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text('Carte Grise', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -104,9 +106,12 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
                     icon: const Icon(Icons.upload_file),
                     label: Text(frontFile == null ? 'Sélectionner le Recto' : 'Recto sélectionné'),
                     onPressed: () async {
-                      final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
-                      if (img != null) {
-                        setModalState(() { frontFile = File(img.path); });
+                      final source = await _showImageSourcePicker();
+                      if (source != null) {
+                        final XFile? img = await _picker.pickImage(source: source);
+                        if (img != null) {
+                          setModalState(() { frontFile = File(img.path); });
+                        }
                       }
                     },
                   ),
@@ -133,9 +138,12 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
                       icon: const Icon(Icons.upload_file),
                       label: Text(backFile == null ? 'Sélectionner le Verso' : 'Verso sélectionné'),
                       onPressed: () async {
-                        final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
-                        if (img != null) {
-                          setModalState(() { backFile = File(img.path); });
+                        final source = await _showImageSourcePicker();
+                        if (source != null) {
+                          final XFile? img = await _picker.pickImage(source: source);
+                          if (img != null) {
+                            setModalState(() { backFile = File(img.path); });
+                          }
                         }
                       },
                     ),
@@ -166,6 +174,7 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
                   const SizedBox(height: 16),
                 ],
               ),
+            ),
             );
           }
         );
