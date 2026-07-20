@@ -920,14 +920,14 @@ export class DriversService {
     try {
       const pinHash = await bcrypt.hash(dto.pin, 10);
       await prisma.driverProfile.update({
-        where: { userId },
+        where: { id: user.driverProfile.id },
         data: { pinHash },
       });
 
       return { success: true, message: 'Code PIN configuré avec succès.' };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur DB lors de configurePin:', error);
-      throw new BadRequestException('Erreur interne lors de la sauvegarde du code PIN.');
+      throw new BadRequestException(`Erreur Prisma: ${error.message || error}`);
     }
   }
 
@@ -957,7 +957,7 @@ export class DriversService {
     }
 
     const updatedProfile = await prisma.driverProfile.update({
-      where: { userId },
+      where: { id: user.driverProfile.id },
       data: { operationalStatus: status },
     });
 
