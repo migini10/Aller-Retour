@@ -927,7 +927,7 @@ export class DriversService {
       return { success: true, message: 'Code PIN configuré avec succès.' };
     } catch (error: any) {
       console.error('Erreur DB lors de configurePin:', error);
-      throw new BadRequestException(`Erreur Prisma: ${error.message || error}`);
+      throw new BadRequestException('Impossible d\'enregistrer le code PIN. Veuillez réessayer plus tard.');
     }
   }
 
@@ -956,10 +956,16 @@ export class DriversService {
       throw new UnauthorizedException('Code PIN incorrect');
     }
 
-    const updatedProfile = await prisma.driverProfile.update({
-      where: { id: user.driverProfile.id },
-      data: { operationalStatus: status },
-    });
+    let updatedProfile;
+    try {
+      updatedProfile = await prisma.driverProfile.update({
+        where: { id: user.driverProfile.id },
+        data: { operationalStatus: status },
+      });
+    } catch (error) {
+      console.error('Erreur DB lors de updateDriverStatus:', error);
+      throw new BadRequestException('Impossible de mettre à jour le statut. Veuillez réessayer plus tard.');
+    }
 
     return {
       success: true,

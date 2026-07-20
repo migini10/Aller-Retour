@@ -123,7 +123,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
     } catch (e) {
       // ignore
     } finally {
-      // Done fetching
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -242,7 +244,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                             border: Border.all(color: _getStatusColor(_operationalStatus).withValues(alpha: 0.5)),
                                           ),
                                           alignment: Alignment.center,
-                                          child: Text('STATUT : $_operationalStatus', style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                          child: Text('STATUT : ${_formatStatus(_operationalStatus).toUpperCase()}', style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                         ),
                                       ),
                                     ),
@@ -688,6 +690,17 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
     }
   }
 
+  String _formatStatus(String status) {
+    switch (status) {
+      case 'DISPONIBLE': return 'Disponible';
+      case 'INDISPONIBLE': return 'Indisponible';
+      case 'EN_RAMASSAGE': return 'En ramassage';
+      case 'EN_ROUTE': return 'En route';
+      case 'EN_PAUSE': return 'En pause';
+      default: return status;
+    }
+  }
+
   Future<void> _showStatusPicker(BuildContext context) async {
     final statuses = ['DISPONIBLE', 'INDISPONIBLE', 'EN_RAMASSAGE', 'EN_ROUTE', 'EN_PAUSE'];
     
@@ -705,7 +718,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
             ),
             ...statuses.map((s) => ListTile(
               leading: Icon(Icons.circle, color: _getStatusColor(s), size: 16),
-              title: Text(s),
+              title: Text(_formatStatus(s)),
               trailing: _operationalStatus == s ? const Icon(Icons.check, color: Colors.green) : null,
               onTap: () {
                 Navigator.pop(ctx);
@@ -784,6 +797,10 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
         });
         
         if (!mounted) return;
+        
+        setState(() {
+          _operationalStatus = newStatus;
+        });
         
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut mis à jour'), backgroundColor: Colors.green));
         await _fetchDashboardData();
