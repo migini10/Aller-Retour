@@ -244,7 +244,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                             border: Border.all(color: _getStatusColor(_operationalStatus).withValues(alpha: 0.5)),
                                           ),
                                           alignment: Alignment.center,
-                                          child: Text('STATUT : ${_formatStatus(_operationalStatus).toUpperCase()}', style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                          child: Text('STATUT : ${_formatStatus(_operationalStatus)}', style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                         ),
                                       ),
                                     ),
