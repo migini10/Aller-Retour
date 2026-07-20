@@ -19,6 +19,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
   final ScrollController _scrollController = ScrollController();
   String _userName = '';
   String _operationalStatus = 'INDISPONIBLE';
+  bool _hasPinConfigured = false;
 
   String _vehicleStatus = 'Chargement...';
   Color _vehicleStatusColor = Colors.grey;
@@ -42,9 +43,13 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
       try {
         final authResp = await ApiClient().get('/v1/auth/me');
         if (authResp.statusCode == 200) {
-          final userData = json.decode(authResp.body);
-          if (userData['driverProfile'] != null && userData['driverProfile']['operationalStatus'] != null) {
-            _operationalStatus = userData['driverProfile']['operationalStatus'];
+          final responseData = json.decode(authResp.body);
+          final userObj = responseData['user'];
+          if (userObj != null) {
+            _hasPinConfigured = userObj['pinConfigured'] ?? false;
+            if (userObj['driverProfile'] != null && userObj['driverProfile']['operationalStatus'] != null) {
+              _operationalStatus = userObj['driverProfile']['operationalStatus'];
+            }
           }
         }
       } catch (e) {
@@ -705,7 +710,11 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
               onTap: () {
                 Navigator.pop(ctx);
                 if (s != _operationalStatus) {
-                  _promptPinAndChangeStatus(s);
+                  if (!_hasPinConfigured) {
+                    _showPinSetupFlow(newStatus: s);
+                  } else {
+                    _promptPinAndChangeStatus(s);
+                  }
                 }
               },
             )),
@@ -776,19 +785,18 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
         
         if (!mounted) return;
         
-        if (resp.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut mis à jour'), backgroundColor: Colors.green));
-          await _fetchDashboardData();
-        } else {
-          final error = json.decode(resp.body);
-          final errorMessage = error['message'] ?? 'Erreur PIN';
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage), backgroundColor: Colors.red));
-          
-          if (resp.statusCode == 401) {
-            await PinStorageService.deletePin();
-          } else if (resp.statusCode == 400 && errorMessage.toString().toLowerCase().contains('non configuré')) {
-            await _showPinSetupFlow();
-          }
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut mis à jour'), backgroundColor: Colors.green));
+        await _fetchDashboardData();
+        
+      } on ApiException catch (e) {
+        if (!mounted) return;
+        final errorMessage = e.message;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage), backgroundColor: Colors.red));
+        
+        if (e.statusCode == 401) {
+          await PinStorageService.deletePin();
+        } else if (e.statusCode == 400 && errorMessage.toLowerCase().contains('non configuré')) {
+          await _showPinSetupFlow(newStatus: newStatus);
         }
       } catch (e) {
         if (!mounted) return;
@@ -799,7 +807,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
     }
   }
 
-  Future<void> _showPinSetupFlow() async {
+  Future<void> _showPinSetupFlow({String? newStatus}) async {
     String newPin = '';
     String confirmPin = '';
     
@@ -855,41 +863,47 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
           
           if (!mounted) return;
           
-          if (resp.statusCode == 200 || resp.statusCode == 201) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN configuré avec succès'), backgroundColor: Colors.green));
-            
-            final LocalAuthentication auth = LocalAuthentication();
-            bool canCheckBiometrics = false;
-            try {
-              canCheckBiometrics = await auth.canCheckBiometrics;
-            } catch (e) {
-              // ignore
-            }
-            
-            if (canCheckBiometrics && mounted) {
-               bool? useBiometric = await showDialog<bool>(
-                 context: context,
-                 builder: (ctx) => AlertDialog(
-                   title: const Text('Empreinte digitale'),
-                   content: const Text("Voulez-vous utiliser l'empreinte pour les prochaines validations ?"),
-                   actions: [
-                     TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Non')),
-                     TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Oui')),
-                   ],
-                 ),
-               );
-               
-               if (useBiometric == true) {
-                 await PinStorageService.savePin(newPin);
-                 if (mounted) {
-                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biométrie activée'), backgroundColor: Colors.green));
-                 }
-               }
-            }
-          } else {
-             final error = json.decode(resp.body);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error['message'] ?? 'Erreur lors de la configuration'), backgroundColor: Colors.red));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN configuré avec succès'), backgroundColor: Colors.green));
+          setState(() {
+            _hasPinConfigured = true;
+          });
+          
+          final LocalAuthentication auth = LocalAuthentication();
+          bool canCheckBiometrics = false;
+          try {
+            canCheckBiometrics = await auth.canCheckBiometrics;
+          } catch (e) {
+            // ignore
           }
+          
+          if (canCheckBiometrics && mounted) {
+             bool? useBiometric = await showDialog<bool>(
+               context: context,
+               builder: (ctx) => AlertDialog(
+                 title: const Text('Empreinte digitale'),
+                 content: const Text("Voulez-vous utiliser l'empreinte pour les prochaines validations ?"),
+                 actions: [
+                   TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Non')),
+                   TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Oui')),
+                 ],
+               ),
+             );
+             
+             if (useBiometric == true) {
+               await PinStorageService.savePin(newPin);
+               if (mounted) {
+                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Biométrie activée'), backgroundColor: Colors.green));
+               }
+             }
+          }
+          
+          if (mounted && newStatus != null) {
+            _promptPinAndChangeStatus(newStatus);
+          }
+          
+        } on ApiException catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), backgroundColor: Colors.red));
         } catch (e) {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau'), backgroundColor: Colors.red));
