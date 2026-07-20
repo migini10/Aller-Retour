@@ -309,11 +309,13 @@ void showColisModal(BuildContext context, {String? initialTripId}) {
                                                 });
                                               } else {
                                                 setState(() => isLoading = false);
+                                                if (!context.mounted) return;
                                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur lors de la création du colis.')));
                                               }
                                             } catch (e) {
                                               debugPrint('Error: $e');
                                               setState(() => isLoading = false);
+                                              if (!context.mounted) return;
                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur réseau: $e')));
                                             }
                                           }

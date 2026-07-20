@@ -41,7 +41,7 @@ class _VehicleDocumentsScreenState extends State<VehicleDocumentsScreen> {
     final XFile? image = await _picker.pickImage(source: source);
     if (image == null) return;
     
-    if (!mounted) return;
+    if (!context.mounted) return;
     _performUpload(type, {'frontFile': File(image.path)});
   }
 

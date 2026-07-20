@@ -50,7 +50,6 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class InactivityTimer {
   static Timer? _timer;
   static const int _timeoutMinutes = 10;
-  static bool _isLocked = false;
 
   static void resetTimer() {
     _timer?.cancel();
@@ -60,7 +59,6 @@ class InactivityTimer {
       final appLockEnabled = prefs.getBool('appLockEnabled') ?? false;
       if (!isLoggedIn || !appLockEnabled) return; // Only lock if logged in and app lock is enabled
       
-      _isLocked = true;
       if (navigatorKey.currentState != null) {
         // Prevent pushing multiple lock screens
         bool canPush = true;

@@ -35,6 +35,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(data['message'] ?? 'Code envoyé.')),
         );
@@ -42,10 +43,12 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
         throw ApiException(response.statusCode, data['message'] ?? 'Erreur inconnue');
       }
     } on ApiException catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur : ${e.message}')),
       );
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur inattendue : $e')),
       );
@@ -72,18 +75,22 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Compte vérifié avec succès !')),
         );
+        if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         throw ApiException(response.statusCode, data['message'] ?? 'Erreur de vérification');
       }
     } on ApiException catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur : ${e.message}')),
       );
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur inattendue : $e')),
       );

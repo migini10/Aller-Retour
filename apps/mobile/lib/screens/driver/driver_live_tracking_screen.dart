@@ -175,7 +175,7 @@ class _DriverLiveTrackingScreenState extends State<DriverLiveTrackingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('En route vers \$_destinationCity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('En route vers $_destinationCity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,

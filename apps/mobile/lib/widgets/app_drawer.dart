@@ -21,7 +21,6 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   String _userName = 'Utilisateur';
   String _userInitials = 'U';
-  String _userPhone = '';
 
   @override
   void initState() {
@@ -33,7 +32,6 @@ class _AppDrawerState extends State<AppDrawer> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
-      _userPhone = prefs.getString(StorageKeys.userPhone) ?? '';
       _userInitials = _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
       if (_userName.contains(' ')) {
         final parts = _userName.split(' ');
@@ -62,7 +60,16 @@ class _AppDrawerState extends State<AppDrawer> {
                 children: [
                   // Stylish Header
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      'assets/images/logo_allogoo.png',
+                      height: 32,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     child: Row(
                       children: [
                         Container(
@@ -169,6 +176,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: InkWell(
                       onTap: () async {
                         final prefs = await SharedPreferences.getInstance();
+                        if (!context.mounted) return;
                         
                         // Strict isolation enforcement for space switching
                         Navigator.pop(context);

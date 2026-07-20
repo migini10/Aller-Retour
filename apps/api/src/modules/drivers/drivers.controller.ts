@@ -12,6 +12,8 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { DeleteVehicleDto } from './dto/delete-vehicle.dto';
 import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
+import { UpdateDriverStatusDto } from './dto/update-driver-status.dto';
+import { ConfigurePinDto } from './dto/configure-pin.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 
@@ -66,6 +68,26 @@ export class DriversController {
     @UploadedFiles() files?: { frontPhoto?: Express.Multer.File[], rearPhoto?: Express.Multer.File[], sidePhoto?: Express.Multer.File[] },
   ) {
     return this.driversService.updateVehicleForDriver(req.user.id, vehicleId, dto, files);
+  }
+
+  @Patch('me/status')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async updateMyStatus(
+    @Request() req: any,
+    @Body() dto: UpdateDriverStatusDto,
+  ) {
+    return this.driversService.updateDriverStatus(req.user.id, dto.status, dto.pin);
+  }
+
+  @Post('me/pin')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async configurePin(
+    @Request() req: any,
+    @Body() dto: ConfigurePinDto,
+  ) {
+    return this.driversService.configurePin(req.user.id, dto);
   }
 
   @Get()

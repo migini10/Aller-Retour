@@ -281,14 +281,22 @@ export class AuthService {
         transportPoints: true,
         createdAt: true,
         driverProfile: {
-          select: { type: true }
+          select: { type: true, operationalStatus: true, pinHash: true }
         }
       }
     });
     if (!user) {
       throw new UnauthorizedException('Utilisateur introuvable');
     }
-    return { success: true, user };
+    
+    // On ne retourne jamais pinHash, juste un boolean
+    let pinConfigured = false;
+    if (user.driverProfile) {
+      pinConfigured = !!user.driverProfile.pinHash;
+      delete (user.driverProfile as any).pinHash;
+    }
+
+    return { success: true, user: { ...user, pinConfigured } };
   }
 
   async verifyUserPin(userId: string, pin: string) {

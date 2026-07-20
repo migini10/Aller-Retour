@@ -470,6 +470,7 @@ class _DriverColisScreenState extends State<DriverColisScreen> {
                                           );
                                           
                                           if (response.statusCode >= 200 && response.statusCode < 300) {
+                                            if (!mounted) return;
                                             Navigator.pop(context);
                                             await _loadColis();
                                             if (mounted) {

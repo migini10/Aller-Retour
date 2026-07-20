@@ -378,7 +378,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF0A0A0A),
+                                        color: Theme.of(context).scaffoldBackgroundColor,
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(color: Theme.of(context).dividerColor),
                                       ),
@@ -548,10 +548,12 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 textAlign: TextAlign.center,
                               ),
                             ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: (isLoading || _isLoadingVehicles || !_myVehicles.any((v) => v['approvalStatus'] == 'APPROVED' && v['deletedAt'] == null)) ? null : () async {
+                          SafeArea(
+                            bottom: true,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: (isLoading || _isLoadingVehicles || !_myVehicles.any((v) => v['approvalStatus'] == 'APPROVED' && v['deletedAt'] == null)) ? null : () async {
                                 String placesLibres = placesController.text;
                                 String price = priceController.text;
                                 
@@ -590,13 +592,16 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
                                   if (res.statusCode == 200 || res.statusCode == 201) {
                                     _fetchMissions();
+                                    if (!context.mounted) return;
                                     Navigator.pop(context);
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Trajet créé avec succès via API !', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), backgroundColor: Colors.green));
                                   } else {
                                     final errorBody = res.body;
                                     throw Exception('API error: ${res.statusCode} - $errorBody');
                                   }
                                 } catch(e) {
+                                  if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e', style: TextStyle(color: Theme.of(context).colorScheme.onError)), backgroundColor: Theme.of(context).colorScheme.error, duration: const Duration(seconds: 5)));
                                 } finally {
                                   if (context.mounted) {
@@ -616,7 +621,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.white, strokeWidth: 2)),
+                                      SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
                                       const SizedBox(width: 8),
                                       const Text('Traitement en cours...', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                     ],
@@ -624,7 +629,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 : Text(missionToEdit != null ? 'Modifier le trajet' : 'Publier le trajet', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ),
                           ),
-                          const SizedBox(height: 32),
+                        ),
+                        const SizedBox(height: 32),
                         ],
                       ),
                     ),
@@ -647,7 +653,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF0A0A0A),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Theme.of(context).dividerColor),
           ),
@@ -682,7 +688,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF0A0A0A),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Theme.of(context).dividerColor),
           ),
@@ -1049,11 +1055,13 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
 
                                     if (res.statusCode == 200 || res.statusCode == 201) {
                                       _fetchMissions();
+                                      if (!context.mounted) return;
                                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet repoussé de 1h avec succès !'), backgroundColor: Colors.green));
                                     } else {
                                       throw Exception('API error');
                                     }
                                   } catch (e) {
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors du report: $e'), backgroundColor: Colors.redAccent));
                                   }
                                 }),
@@ -1084,12 +1092,14 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                           setState(() {
                                             mission['isLocked'] = data['isLocked'] ?? false;
                                           });
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet déverrouillé avec succès.'), backgroundColor: Colors.green));
                                         }
                                       } catch (e) {
                                         setState(() {
                                           mission['isLocked'] = false;
                                         });
+                                        if (!context.mounted) return;
                                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet déverrouillé.'), backgroundColor: Colors.green));
                                       }
                                     } else {
@@ -1106,14 +1116,17 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                         if (res.statusCode == 200) {
                                           final data = json.decode(res.body);
                                           if (data['success'] == false) {
+                                            if (!context.mounted) return;
                                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Code PIN incorrect.'), backgroundColor: Colors.red));
                                             return;
                                           }
                                           setState(() {
                                             mission['isLocked'] = data['isLocked'] ?? true;
                                           });
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet verrouillé avec succès.'), backgroundColor: Colors.green));
                                         } else {
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
                                         }
                                       } catch (e) {
@@ -1121,8 +1134,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                           setState(() {
                                             mission['isLocked'] = true;
                                           });
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet verrouillé.'), backgroundColor: Colors.green));
                                         } else {
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
                                         }
                                       }
@@ -1378,6 +1393,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             if (res.statusCode == 200) {
                               final data = json.decode(res.body);
                               if (data['success'] == false) {
+                                if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['error'] ?? 'Code PIN incorrect.'), backgroundColor: Colors.red));
                                 return;
                               }
@@ -1385,8 +1401,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 mission['isLocked'] = data['isLocked'] ?? true;
                               });
                               setStateDialog(() {});
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet verrouillé avec succès.'), backgroundColor: Colors.green));
                             } else {
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
                             }
                           } catch (e) {
@@ -1396,8 +1414,10 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 mission['isLocked'] = true;
                               });
                               setStateDialog(() {});
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Démo : Trajet verrouillé.'), backgroundColor: Colors.green));
                             } else {
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code PIN incorrect (Démo: 123456).'), backgroundColor: Colors.red));
                             }
                           }
@@ -1415,6 +1435,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                                 mission['isLocked'] = data['isLocked'] ?? false;
                               });
                               setStateDialog(() {});
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trajet déverrouillé avec succès.'), backgroundColor: Colors.green));
                             }
                           } catch (e) {

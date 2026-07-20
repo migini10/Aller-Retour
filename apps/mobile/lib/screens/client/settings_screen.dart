@@ -102,6 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                       
                       if (response.statusCode == 200 || response.statusCode == 201) {
+                        if (!context.mounted) return;
                         Navigator.pop(context, true);
                       } else {
                         String errorMsg = 'Code PIN incorrect';
@@ -112,15 +113,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           }
                         } catch (_) {}
 
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(errorMsg)),
                         );
+                        if (!context.mounted) return;
                         Navigator.pop(context, false);
                       }
                     } catch (e) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Impossible de contacter le serveur')),
                       );
+                      if (!context.mounted) return;
                       Navigator.pop(context, false);
                     } finally {
                       setDialogState(() => isVerifying = false);

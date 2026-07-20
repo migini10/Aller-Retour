@@ -104,6 +104,8 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                         }),
                       );
                       
+                      if (!context.mounted) return;
+                      
                       if (response.statusCode == 200 || response.statusCode == 201) {
                         Navigator.pop(context, true);
                       } else {
@@ -121,6 +123,7 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                         Navigator.pop(context, false);
                       }
                     } catch (e) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Impossible de contacter le serveur')),
                       );

@@ -233,18 +233,21 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
         body: {'secretCode': secretCode.trim()},
       );
       if (response.statusCode == 200) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Réservation annulée. Montant remboursé sur votre Wallet.')),
         );
         _loadUserData(); // Refresh tickets and wallet
       } else {
         final err = jsonDecode(response.body);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(err['message'] ?? 'Erreur lors de l\'annulation.')),
         );
         setState(() => _isLoading = false);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur: $e')),
       );

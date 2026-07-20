@@ -6,11 +6,13 @@ import { SupabaseService } from '../../core/supabase/supabase.service';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Express } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AuthService } from '../auth/auth.service';
+import * as bcrypt from 'bcrypt';
+import { DriverOperationalStatus } from '@aller-retour/database';
 
 @Injectable()
 export class DriversService {
@@ -886,19 +888,83 @@ export class DriversService {
   }
 
   async rejectVehicleDocument(adminId: string, documentId: string, reason: string) {
-    const doc = await prisma.vehicleDocument.findUnique({ where: { id: documentId } });
-    if (!doc) throw new NotFoundException('Document introuvable.');
+    const document = await prisma.vehicleDocument.findUnique({ where: { id: documentId } });
+    if (!document) throw new NotFoundException('Document introuvable');
+    if (document.status !== DocumentStatus.PENDING_REVIEW) throw new BadRequestException(`Document déjà ${document.status}`);
 
-    await prisma.vehicleDocument.update({
+    const updated = await prisma.vehicleDocument.update({
       where: { id: documentId },
       data: {
-        status: 'REJECTED',
+        status: DocumentStatus.REJECTED,
+        rejectionReason: reason,
         reviewedAt: new Date(),
         reviewedById: adminId,
-        rejectionReason: reason,
       },
     });
 
-    return { success: true, message: 'Document rejeté.' };
+    return { success: true, document: updated };
+  }
+
+  async configurePin(userId: string, dto: { pin: string; confirmPin: string }) {
+    if (dto.pin !== dto.confirmPin) {
+      throw new BadRequestException('Les codes PIN ne correspondent pas.');
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { driverProfile: true },
+    });
+    if (!user || !user.driverProfile) {
+      throw new NotFoundException('Profil chauffeur introuvable.');
+    }
+    
+    // Si MVP exige refus si déjà configuré:
+    // if (user.driverProfile.pinHash) {
+    //   throw new BadRequestException('Code PIN déjà configuré. (La modification n\\'est pas encore implémentée dans cette version)');
+    // }
+
+    const pinHash = await bcrypt.hash(dto.pin, 10);
+    await prisma.driverProfile.update({
+      where: { userId },
+      data: { pinHash },
+    });
+
+    return { success: true, message: 'Code PIN configuré avec succès.' };
+  }
+
+  async updateDriverStatus(userId: string, status: DriverOperationalStatus, pin: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { driverProfile: true },
+    });
+
+    if (!user || !user.driverProfile) {
+      throw new NotFoundException('Profil chauffeur introuvable.');
+    }
+
+    if (!user.driverProfile.pinHash) {
+      throw new BadRequestException('Code PIN non configuré');
+    }
+
+    let isPinValid = false;
+    try {
+      isPinValid = await bcrypt.compare(pin, user.driverProfile.pinHash);
+    } catch (e) {
+      isPinValid = false;
+    }
+    
+    if (!isPinValid) {
+      throw new UnauthorizedException('Code PIN incorrect');
+    }
+
+    const updatedProfile = await prisma.driverProfile.update({
+      where: { userId },
+      data: { operationalStatus: status },
+    });
+
+    return {
+      success: true,
+      operationalStatus: updatedProfile.operationalStatus,
+      message: 'Statut mis à jour avec succès.',
+    };
   }
 }

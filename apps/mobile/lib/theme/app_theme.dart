@@ -14,7 +14,7 @@ class AppTheme {
   static const Color lightCardBg = Colors.white;
   static const Color lightDivider = Color(0xFFE2E8F0); // slate-200
   static const Color lightTextPrimary = Color(0xFF0F172A); // slate-900
-  static const Color lightTextSecondary = Color(0xFF64748B); // slate-500
+  static const Color lightTextSecondary = Color(0xFF475569); // slate-600
 
   static ThemeData get lightTheme {
     final baseTextTheme = const TextTheme(
@@ -50,7 +50,16 @@ class AppTheme {
       dividerTheme: const DividerThemeData(color: lightDivider, thickness: 1),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: lightCardBg,
+        elevation: 8,
+        shadowColor: Color(0x1A000000),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      ),
+      cardTheme: const CardThemeData(
+        elevation: 4,
+        shadowColor: Color(0x0A000000),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+        color: lightCardBg,
+        margin: EdgeInsets.zero,
       ),
     );
   }

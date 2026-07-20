@@ -18,7 +18,7 @@ class ColisScreen extends StatefulWidget {
 
 class _ColisScreenState extends State<ColisScreen> {
   List<dynamic> localColis = [];
-  bool _isLoading = true;
+
   Timer? _pollingTimer;
   final TextEditingController searchController = TextEditingController();
   String _userPhone = '';
@@ -323,15 +323,13 @@ class _ColisScreenState extends State<ColisScreen> {
           setState(() {
             final List<dynamic> data = jsonDecode(response.body);
             localColis = data;
-            if (!silent) _isLoading = false;
+            localColis = data;
           });
         }
       }
     } catch (e) {
       debugPrint('Error loading colis: $e');
-      if (!silent && mounted) {
-        setState(() { _isLoading = false; });
-      }
+      // Do nothing on error
     }
   }
 
