@@ -914,21 +914,21 @@ export class DriversService {
       include: { driverProfile: true },
     });
     if (!user || !user.driverProfile) {
-      throw new NotFoundException('Profil chauffeur introuvable.');
+      throw new BadRequestException('Profil chauffeur introuvable.');
     }
-    
-    // Si MVP exige refus si déjà configuré:
-    // if (user.driverProfile.pinHash) {
-    //   throw new BadRequestException('Code PIN déjà configuré. (La modification n\\'est pas encore implémentée dans cette version)');
-    // }
 
-    const pinHash = await bcrypt.hash(dto.pin, 10);
-    await prisma.driverProfile.update({
-      where: { userId },
-      data: { pinHash },
-    });
+    try {
+      const pinHash = await bcrypt.hash(dto.pin, 10);
+      await prisma.driverProfile.update({
+        where: { userId },
+        data: { pinHash },
+      });
 
-    return { success: true, message: 'Code PIN configuré avec succès.' };
+      return { success: true, message: 'Code PIN configuré avec succès.' };
+    } catch (error) {
+      console.error('Erreur DB lors de configurePin:', error);
+      throw new BadRequestException('Erreur interne lors de la sauvegarde du code PIN.');
+    }
   }
 
   async updateDriverStatus(userId: string, status: DriverOperationalStatus, pin: string) {
