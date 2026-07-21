@@ -21,6 +21,8 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
   List<Map<String, dynamic>> filteredMissions = [];
   bool isLoading = true;
 
+  bool _hasChanges = false;
+
   @override
   void initState() {
     super.initState();
@@ -789,6 +791,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       final res = await ApiClient().patch('/v1/trips/$tripId/status', body: body);
 
       if (res.statusCode == 200) {
+        _hasChanges = true;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut du trajet mis à jour avec succès'), backgroundColor: Colors.green));
           _fetchMissions();
@@ -842,10 +845,20 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
       return true;
     }).toList();
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Navigator.pop(context, _hasChanges);
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context, _hasChanges),
+          ),
+          backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text('Missions & Trajets', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         centerTitle: true,
@@ -1239,7 +1252,7 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, Map<String, dynamic> mission) {

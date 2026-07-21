@@ -70,14 +70,14 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
 
     try {
       final encodedCode = Uri.encodeComponent(code.trim());
-      final response = await ApiClient().post('/v1/bookings/verify-qr/$encodedCode/board', body: {});
+      final response = await ApiClient().get('/v1/bookings/verify-qr/$encodedCode');
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         if (mounted) {
           setState(() {
             scanData = data;
-            // Map new API structure to UI expectations
+            // Map API structure to UI expectations
             scanData!['passengerName'] = data['booking']?['user']?['fullName'];
             scanData!['seatNumber'] = data['booking']?['seatNumber'];
             scanData!['amountPaid'] = data['booking']?['price'];
@@ -85,7 +85,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
             scanData!['route'] = '${data['booking']?['trip']?['route']?['originStation']?['city'] ?? ''} - ${data['booking']?['trip']?['route']?['destinationStation']?['city'] ?? ''}';
             scanData!['passengersCount'] = 1; // single ticket
             
-            scanResult = 'success';
+            scanResult = 'valid';
           });
         }
       }
@@ -110,7 +110,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
       }
     }
 
-    if (scanResult != 'success') {
+    if (scanResult != 'valid') {
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) {
           setState(() {
@@ -124,12 +124,65 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
   }
 
   Future<void> _handleBoardingApi() async {
-    // Deprecated since _handleScanApi directly boards now.
+    if (_manualCodeController.text.trim().isEmpty) return;
+
     setState(() {
-      scanResult = 'idle';
-      isScanning = true;
-      _manualCodeController.clear();
+      scanResult = 'scanning';
     });
+
+    try {
+      final encodedCode = Uri.encodeComponent(_manualCodeController.text.trim());
+      final response = await ApiClient().post('/v1/bookings/verify-qr/$encodedCode/board', body: {});
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (mounted) {
+          setState(() {
+            scanResult = 'success';
+          });
+          
+          Future.delayed(const Duration(seconds: 3), () {
+            if (mounted) {
+              setState(() {
+                scanResult = 'idle';
+                isScanning = true;
+                _manualCodeController.clear();
+              });
+            }
+          });
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          scanData = {'message': e.message};
+          scanResult = 'invalid';
+        });
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) {
+            setState(() {
+              scanResult = 'idle';
+              isScanning = true;
+              _manualCodeController.clear();
+            });
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          scanResult = 'invalid';
+        });
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) {
+            setState(() {
+              scanResult = 'idle';
+              isScanning = true;
+              _manualCodeController.clear();
+            });
+          }
+        });
+      }
+    }
   }
 
   @override

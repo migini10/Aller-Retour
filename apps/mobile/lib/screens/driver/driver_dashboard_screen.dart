@@ -66,13 +66,13 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
             final cert = vehicle['certificationStatus'];
             
             if (cert == 'CERTIFIED') {
-              _vehicleStatus = 'Véhicule certifié';
+              _vehicleStatus = 'Certifié';
             } else if (approval == 'APPROVED') {
-              _vehicleStatus = 'Véhicule approuvé';
+              _vehicleStatus = 'Approuvé';
             } else if (approval == 'REJECTED') {
-              _vehicleStatus = 'Véhicule rejeté';
+              _vehicleStatus = 'Rejeté';
             } else {
-              _vehicleStatus = 'Véhicule en attente';
+              _vehicleStatus = 'En attente';
             }
           }
         }
@@ -234,7 +234,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                             border: Border.all(color: _getStatusColor(_operationalStatus).withValues(alpha: 0.5)),
                                           ),
                                           alignment: Alignment.center,
-                                          child: Text('STATUT : ${_formatStatus(_operationalStatus)}', style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                          child: Text(_formatStatus(_operationalStatus), style: TextStyle(color: _getStatusColor(_operationalStatus), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                         ),
                                       ),
                                     ),
@@ -248,17 +248,17 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                           height: 32,
                                           padding: const EdgeInsets.symmetric(horizontal: 12),
                                           decoration: BoxDecoration(
-                                            color: _vehicleStatus == 'Véhicule certifié' ? Colors.green.withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2),
+                                            color: _vehicleStatus == 'Certifié' ? Colors.green.withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2),
                                             borderRadius: BorderRadius.circular(16),
-                                            border: Border.all(color: _vehicleStatus == 'Véhicule certifié' ? Colors.green.withValues(alpha: 0.5) : Colors.orange.withValues(alpha: 0.5)),
+                                            border: Border.all(color: _vehicleStatus == 'Certifié' ? Colors.green.withValues(alpha: 0.5) : Colors.orange.withValues(alpha: 0.5)),
                                           ),
                                           alignment: Alignment.center,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(_vehicleStatus == 'Véhicule certifié' ? Icons.verified : Icons.pending_actions, color: _vehicleStatus == 'Véhicule certifié' ? Colors.green : Colors.orange, size: 14),
+                                              Icon(_vehicleStatus == 'Certifié' ? Icons.verified : Icons.pending_actions, color: _vehicleStatus == 'Certifié' ? Colors.green : Colors.orange, size: 14),
                                               const SizedBox(width: 4),
-                                              Text(_vehicleStatus, style: TextStyle(color: _vehicleStatus == 'Véhicule certifié' ? Colors.green : Colors.orange, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                              Text(_vehicleStatus, style: TextStyle(color: _vehicleStatus == 'Certifié' ? Colors.green : Colors.orange, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                             ],
                                           ),
                                         ),
@@ -297,7 +297,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       onPressed: () {
-                                        Navigator.pushNamed(context, '/driver/missions').then((_) => _fetchDashboardData());
+                                        Navigator.pushNamed(context, '/driver/missions').then((val) {
+                                          if (val == true) _fetchDashboardData();
+                                        });
                                       },
                                       icon: const Icon(Icons.route, size: 18),
                                       label: const Text('Créer un voyage', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -478,7 +480,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, '/driver/missions').then((_) => _fetchDashboardData());
+                                    Navigator.pushNamed(context, '/driver/missions').then((val) {
+                          if (val == true) _fetchDashboardData();
+                        });
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(context).colorScheme.onSurface,
