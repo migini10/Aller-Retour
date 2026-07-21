@@ -297,7 +297,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       onPressed: () {
-                                        Navigator.pushNamed(context, '/driver/missions');
+                                        Navigator.pushNamed(context, '/driver/missions').then((_) => _fetchDashboardData());
                                       },
                                       icon: const Icon(Icons.route, size: 18),
                                       label: const Text('Créer un voyage', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -478,7 +478,7 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, '/driver/missions');
+                                    Navigator.pushNamed(context, '/driver/missions').then((_) => _fetchDashboardData());
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(context).colorScheme.onSurface,

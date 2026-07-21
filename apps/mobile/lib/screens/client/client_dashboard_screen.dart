@@ -1908,7 +1908,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                             const SizedBox(height: 6),
                             
                             // Row 3: Tags (Climatisé, Autoroute, Certifié)
-                            Row(
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
                                 if (t['isCertified'] == true)
                                   Container(
@@ -2763,7 +2765,15 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            final url = Uri.parse('whatsapp://send?text=Voici mon billet Allo Dakar !');
+                            final whatsappText = Uri.encodeComponent('🚗 *Billet Confirmé : Allo Dakar*\n'
+                                '📍 Trajet : ${departCity.split(',')[0]} ➔ ${arriveeCity.split(',')[0]}\n'
+                                '📅 Date : $dateStr\n'
+                                '👤 Passager : $nom\n'
+                                '🎟️ Places : $passagersCount\n'
+                                '💰 Prix Total : $total FCFA\n\n'
+                                'Référence : ${createdBookingToken ?? "N/A"}\n'
+                                'Bon voyage avec Allo Dakar !');
+                            final url = Uri.parse('whatsapp://send?text=$whatsappText');
                             try { await launchUrl(url); } catch (e) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur WhatsApp'))); }
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
@@ -2794,13 +2804,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               return Dialog(
                 backgroundColor: Colors.transparent,
                 insetPadding: const EdgeInsets.all(16),
-                child: Container(
-                  width: 420, // max-w-md (equivalent)
-                  constraints: BoxConstraints(
-                    minHeight: 500,
-                  maxHeight: MediaQuery.of(context).size.height * 0.9,
-                ),
-                decoration: BoxDecoration(
+                child: SafeArea(
+                  child: Container(
+                    width: 420, // max-w-md (equivalent)
+                    constraints: BoxConstraints(
+                      minHeight: 500,
+                      maxHeight: MediaQuery.of(context).size.height * 0.9,
+                    ),
+                    decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
@@ -3150,6 +3161,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                           ),
                         ),
                   ],
+                ),
                 ),
               ),
             );

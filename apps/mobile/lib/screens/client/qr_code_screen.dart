@@ -671,13 +671,13 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     );
   }
 
-  Widget _buildDetailField(BuildContext context, String label, String value, {Color valueColor = Colors.white}) {
+  Widget _buildDetailField(BuildContext context, String label, String value, {Color? valueColor}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
         const SizedBox(height: 4),
-        Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
+        Text(value, style: TextStyle(color: valueColor ?? Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w900), maxLines: 1, overflow: TextOverflow.ellipsis),
       ],
     );
   }

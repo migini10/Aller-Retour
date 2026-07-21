@@ -69,7 +69,8 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
     });
 
     try {
-      final response = await ApiClient().post('/v1/bookings/verify-qr/${code.trim()}', body: {});
+      final encodedCode = Uri.encodeComponent(code.trim());
+      final response = await ApiClient().post('/v1/bookings/verify-qr/$encodedCode/board', body: {});
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
@@ -689,7 +690,7 @@ Widget _buildValidModalOverlay() {
           const SizedBox(height: 16),
           Text('Billet Invalide', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Inconnu ou annulé', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+          const Text('Billet invalide ou déjà utilisé', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           
           Container(
