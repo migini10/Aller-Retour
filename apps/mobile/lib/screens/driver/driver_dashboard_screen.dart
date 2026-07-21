@@ -22,8 +22,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
   bool _hasPinConfigured = false;
 
   String _vehicleStatus = 'Chargement...';
-  Color _vehicleStatusColor = Colors.grey;
-  IconData _vehicleStatusIcon = Icons.directions_car;
   
   int _tripsToday = 0;
   Map<String, dynamic>? _nextTrip;
@@ -62,8 +60,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
           final List vehicles = json.decode(vehicleResp.body);
           if (vehicles.isEmpty) {
             _vehicleStatus = 'Aucun véhicule';
-            _vehicleStatusColor = Colors.grey;
-            _vehicleStatusIcon = Icons.directions_car;
           } else {
             final vehicle = vehicles.first;
             final approval = vehicle['approvalStatus'];
@@ -71,20 +67,12 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
             
             if (cert == 'CERTIFIED') {
               _vehicleStatus = 'Véhicule certifié';
-              _vehicleStatusColor = Colors.greenAccent;
-              _vehicleStatusIcon = Icons.verified;
             } else if (approval == 'APPROVED') {
               _vehicleStatus = 'Véhicule approuvé';
-              _vehicleStatusColor = Colors.greenAccent;
-              _vehicleStatusIcon = Icons.check_circle_outline;
             } else if (approval == 'REJECTED') {
               _vehicleStatus = 'Véhicule rejeté';
-              _vehicleStatusColor = Colors.redAccent;
-              _vehicleStatusIcon = Icons.error_outline;
             } else {
               _vehicleStatus = 'Véhicule en attente';
-              _vehicleStatusColor = Colors.orangeAccent;
-              _vehicleStatusIcon = Icons.pending_actions;
             }
           }
         }
@@ -227,7 +215,9 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 8,
                                 children: [
                                   GestureDetector(
                                     onTap: () => _showStatusPicker(context),
@@ -249,7 +239,6 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
                                   if (_vehicleStatus != 'Chargement...')
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
@@ -259,17 +248,17 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> with Sing
                                           height: 32,
                                           padding: const EdgeInsets.symmetric(horizontal: 12),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 0.1),
+                                            color: _vehicleStatus == 'Véhicule certifié' ? Colors.green.withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2),
                                             borderRadius: BorderRadius.circular(16),
-                                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                            border: Border.all(color: _vehicleStatus == 'Véhicule certifié' ? Colors.green.withValues(alpha: 0.5) : Colors.orange.withValues(alpha: 0.5)),
                                           ),
                                           alignment: Alignment.center,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(_vehicleStatusIcon, color: _vehicleStatusColor, size: 14),
-                                              const SizedBox(width: 6),
-                                              Text(_vehicleStatus, style: TextStyle(color: _vehicleStatusColor, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                              Icon(_vehicleStatus == 'Véhicule certifié' ? Icons.verified : Icons.pending_actions, color: _vehicleStatus == 'Véhicule certifié' ? Colors.green : Colors.orange, size: 14),
+                                              const SizedBox(width: 4),
+                                              Text(_vehicleStatus, style: TextStyle(color: _vehicleStatus == 'Véhicule certifié' ? Colors.green : Colors.orange, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                             ],
                                           ),
                                         ),

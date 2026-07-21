@@ -745,6 +745,90 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
     }
   }
 
+  Future<void> _confirmAndUpdateTripStatus(String tripId, String status, String message, {bool forceOverride = false, String? pin}) async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Annuler', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEA580C),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Confirmer', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    await _performUpdateTripStatus(tripId, status, forceOverride: forceOverride, pin: pin);
+  }
+
+  Future<void> _performUpdateTripStatus(String tripId, String status, {bool forceOverride = false, String? pin}) async {
+    if (!mounted) return;
+    setState(() => isLoading = true);
+
+    try {
+      final body = <String, dynamic>{
+        'status': status,
+        if (forceOverride) 'forceOverride': true,
+        if (pin != null) 'pin': pin,
+      };
+
+      final res = await ApiClient().patch('/v1/trips/$tripId/status', body: body);
+
+      if (res.statusCode == 200) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Statut du trajet mis à jour avec succès'), backgroundColor: Colors.green));
+          _fetchMissions();
+        }
+      } else {
+        throw ApiException(res.statusCode, 'Erreur lors de la mise à jour.');
+      }
+    } on ApiException catch (e) {
+      if (e.message == 'NO_PASSENGERS_SCANNED') {
+        setState(() => isLoading = false);
+        if (mounted) {
+          _confirmAndUpdateTripStatus(
+            tripId, 
+            status, 
+            'Attention : Aucun passager n\'a été scanné pour ce trajet.\nVoulez-vous vraiment prendre la route quand même ?', 
+            forceOverride: true
+          );
+        }
+      } else if (e.message == 'PIN_REQUIRED') {
+        setState(() => isLoading = false);
+        if (mounted) {
+          final pinCode = await _showPinConfirmationDialog(context);
+          if (pinCode != null && pinCode.isNotEmpty) {
+            _performUpdateTripStatus(tripId, status, forceOverride: forceOverride, pin: pinCode);
+          }
+        }
+      } else {
+        setState(() => isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), backgroundColor: Colors.red));
+        }
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> filteredMissions = missions.where((m) {
@@ -1001,23 +1085,18 @@ class _DriverMissionsScreenState extends State<DriverMissionsScreen> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              if (mission['statut'] == 'à venir')
-                                Builder(
-                                  builder: (ctx) {
-                                    String trajet = mission['trajet'] ?? '';
-                                    String separator = trajet.contains('→') ? '→' : trajet.contains('->') ? '->' : trajet.contains(' - ') ? ' - ' : '-';
-                                    List<String> parts = trajet.split(separator);
-                                    String destinationCity = parts.length > 1 ? parts[1].trim() : 'Destination';
-                                    
-                                    return _buildActionButton(Icons.play_arrow, 'En route vers $destinationCity', const Color(0xFFEA580C), Colors.white, () {
-                                      Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => driver_live_tracking_screen.DriverLiveTrackingScreen(mission: mission),
-                                      ));
-    });
-                                  }
-                                ),
-                              if (mission['statut'] == 'en cours')
-                                _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF059669), Colors.white, () {}),
+                              if (mission['statut'] == 'programmé')
+                                _buildActionButton(Icons.play_arrow, 'Démarrer ramassage', const Color(0xFFEA580C), Colors.white, () {
+                                  _confirmAndUpdateTripStatus(mission['id'], 'BOARDING', 'Voulez-vous démarrer le ramassage des passagers pour ce trajet ?');
+                                }),
+                              if (mission['statut'] == 'en ramassage')
+                                _buildActionButton(Icons.directions_car, 'Prendre la route', const Color(0xFF3B82F6), Colors.white, () {
+                                  _confirmAndUpdateTripStatus(mission['id'], 'IN_TRANSIT', 'Voulez-vous prendre la route pour ce trajet ?');
+                                }),
+                              if (mission['statut'] == 'en route')
+                                _buildActionButton(Icons.check_circle, 'Terminer trajet', const Color(0xFF10B981), Colors.white, () {
+                                  _confirmAndUpdateTripStatus(mission['id'], 'COMPLETED', 'Voulez-vous terminer définitivement ce trajet ?');
+                                }),
                               _buildActionButton(Icons.location_on, 'Voir détails', Theme.of(context).cardColor, Theme.of(context).colorScheme.onSurface, () {
                                 _showMissionDetailsDialog(context, mission);
                               }, borderColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),

@@ -7,6 +7,7 @@ import { TripsService } from './trips.service';
 import { SearchTripsDto } from './dto/search-trips.dto';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { UpdateTripStatusDto } from './dto/update-trip-status.dto';
 import { RbacGuard } from '../../core/rbac/rbac.guard';
 import { Roles } from '../../core/rbac/roles.decorator';
 import { UserRole } from '@aller-retour/database';
@@ -74,6 +75,15 @@ export class TripsController {
   @ApiOperation({ summary: 'Modifier un trajet' })
   async updateTrip(@Param('id') id: string, @Req() req: any, @Body() dto: UpdateTripDto) {
     return this.tripsService.updateTrip(id, req.user.id, req.user.role, dto);
+  }
+
+  @Patch(':id/status')
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Modifier le statut d\'un trajet (cycle de vie)' })
+  async updateTripStatus(@Param('id') id: string, @Req() req: any, @Body() dto: UpdateTripStatusDto) {
+    return this.tripsService.updateTripStatus(id, req.user.id, req.user.role, dto.status, dto.pin, dto.forceOverride);
   }
 
   @Delete(':id')

@@ -95,8 +95,14 @@ class TripModel {
       case 'SCHEDULED':
         mappedStatut = 'programmé';
         break;
-      case 'IN_PROGRESS':
-        mappedStatut = 'en cours';
+      case 'BOARDING':
+        mappedStatut = 'en ramassage';
+        break;
+      case 'IN_TRANSIT':
+        mappedStatut = 'en route';
+        break;
+      case 'ARRIVED':
+        mappedStatut = 'arrivé';
         break;
       case 'COMPLETED':
         mappedStatut = 'terminé';

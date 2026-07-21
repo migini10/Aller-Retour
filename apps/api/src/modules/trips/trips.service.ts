@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { prisma, TripStatus, DriverType, UserRole } from '@aller-retour/database';
+import { prisma, TripStatus, DriverType, UserRole, DriverOperationalStatus } from '@aller-retour/database';
 import * as bcrypt from 'bcrypt';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
@@ -581,5 +581,82 @@ export class TripsService {
         isLocked: alt.isLocked,
       };
     });
+  }
+  async updateTripStatus(tripId: string, userId: string, role: string, newStatus: TripStatus, pin?: string, forceOverride?: boolean) {
+    await this.checkTripOwnership(tripId, userId, role);
+
+    const trip = await prisma.trip.findUnique({
+      where: { id: tripId },
+      include: {
+        driver: { include: { user: true } },
+        bookings: { where: { status: { in: ['CONFIRMED', 'BOARDED'] } } },
+      },
+    });
+
+    if (!trip) {
+      throw new NotFoundException("Trajet introuvable.");
+    }
+
+    // Validation du PIN si fourni
+    if (pin && trip.driver?.user?.passwordHash) {
+      let isPinValid = false;
+      if (trip.driver.user.passwordHash.startsWith('$2')) {
+        isPinValid = await bcrypt.compare(pin, trip.driver.user.passwordHash);
+      } else {
+        isPinValid = trip.driver.user.passwordHash === pin;
+      }
+      if (!isPinValid) {
+        throw new BadRequestException('Code PIN incorrect');
+      }
+    }
+
+    // Règles de PIN requis
+    const needsPin = (newStatus === TripStatus.CANCELLED) || 
+                     (newStatus === TripStatus.COMPLETED && trip.status !== TripStatus.IN_TRANSIT);
+    
+    if (needsPin && !pin) {
+      throw new BadRequestException("PIN_REQUIRED");
+    }
+
+    // Garde-fou IN_TRANSIT
+    if (newStatus === TripStatus.IN_TRANSIT && !forceOverride) {
+      const hasConfirmed = trip.bookings.some(b => b.status === 'CONFIRMED');
+      const hasBoarded = trip.bookings.some(b => b.status === 'BOARDED');
+      if (hasConfirmed && !hasBoarded) {
+        throw new BadRequestException("NO_PASSENGERS_SCANNED");
+      }
+    }
+
+    let newDriverStatus: DriverOperationalStatus | undefined = undefined;
+
+    if (newStatus === TripStatus.BOARDING) {
+      newDriverStatus = DriverOperationalStatus.EN_RAMASSAGE;
+    } else if (newStatus === TripStatus.IN_TRANSIT) {
+      newDriverStatus = DriverOperationalStatus.EN_ROUTE;
+    } else if (newStatus === TripStatus.COMPLETED) {
+      newDriverStatus = DriverOperationalStatus.DISPONIBLE;
+    } else if (newStatus === TripStatus.CANCELLED) {
+      // Sauf EN_PAUSE / INDISPONIBLE manuel
+      if (trip.driver?.operationalStatus !== DriverOperationalStatus.EN_PAUSE && 
+          trip.driver?.operationalStatus !== DriverOperationalStatus.INDISPONIBLE) {
+        newDriverStatus = DriverOperationalStatus.DISPONIBLE;
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.trip.update({
+        where: { id: tripId },
+        data: { status: newStatus }
+      });
+
+      if (newDriverStatus && trip.driver) {
+        await tx.driverProfile.update({
+          where: { id: trip.driver.id },
+          data: { operationalStatus: newDriverStatus }
+        });
+      }
+    });
+
+    return { success: true, newTripStatus: newStatus, newDriverStatus };
   }
 }
