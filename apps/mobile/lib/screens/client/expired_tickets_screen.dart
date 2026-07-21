@@ -330,7 +330,7 @@ class _ExpiredTicketsScreenState extends State<ExpiredTicketsScreen> {
                                   ],
                                 ),
                                 Text(
-                                  'Réf: VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
+                                  'Réf: ${t['publicReference'] ?? "VOY-${t['id'].toString().split('-')[0].toUpperCase()}"}',
                                   style: const TextStyle(color: Colors.grey, fontSize: 11),
                                 ),
                               ],

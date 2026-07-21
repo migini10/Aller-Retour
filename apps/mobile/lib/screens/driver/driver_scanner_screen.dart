@@ -81,6 +81,7 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
             scanData!['passengerName'] = data['booking']?['user']?['fullName'];
             scanData!['seatNumber'] = data['booking']?['seatNumber'];
             scanData!['amountPaid'] = data['booking']?['price'];
+            scanData!['publicReference'] = data['booking']?['publicReference'];
             scanData!['departureTime'] = data['booking']?['trip']?['departureTime'];
             scanData!['route'] = '${data['booking']?['trip']?['route']?['originStation']?['city'] ?? ''} - ${data['booking']?['trip']?['route']?['destinationStation']?['city'] ?? ''}';
             scanData!['passengersCount'] = 1; // single ticket
@@ -371,7 +372,8 @@ class _DriverScannerScreenState extends State<DriverScannerScreen> with SingleTi
 
 Widget _buildValidModalOverlay() {
   final String ticketId = scanData?['ticketId'] ?? '---';
-  final String ticketShort = ticketId == '---' ? '---' : 'VOY-${ticketId.split('-').first.toUpperCase()}';
+  final String publicReference = scanData?['publicReference'] ?? '';
+  final String ticketShort = ticketId == '---' ? '---' : (publicReference.isNotEmpty ? publicReference : 'VOY-${ticketId.split('-').first.toUpperCase()}');
   
   String dateFormatted = '---';
   if (scanData?['departureTime'] != null) {

@@ -220,6 +220,7 @@ model Booking {
   userId              String
   seatNumber          Int
   qrCodeToken         String               @unique
+  publicReference     String?              @unique
   status              BookingStatus        @default(PENDING_PAYMENT)
   basePrice           Float
   clientFee           Float

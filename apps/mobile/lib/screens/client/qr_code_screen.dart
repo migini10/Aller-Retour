@@ -415,7 +415,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                     time: timeStr,
                     from: origin,
                     to: dest,
-                    ticketNo: 'VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
+                    ticketNo: t['publicReference'] ?? 'VOY-${t['id'].toString().split('-')[0].toUpperCase()}',
                     seat: '#${t['seatNumber']}',
                     passenger: _userName,
                     vehicle: vehicle,

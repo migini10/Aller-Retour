@@ -50,6 +50,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
   Timer? _priveRequestsTimer;
   Timer? _walletTimer;
   String? createdBookingToken;
+  String? createdBookingPublicRef;
 
   Future<void> _fetchPriveRequests() async {
     try {
@@ -2771,7 +2772,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                 '👤 Passager : $nom\n'
                                 '🎟️ Places : $passagersCount\n'
                                 '💰 Prix Total : $total FCFA\n\n'
-                                'Référence : ${createdBookingToken ?? "N/A"}\n'
+                                'Référence : ${createdBookingPublicRef ?? "N/A"}\n'
                                 'Bon voyage avec Allo Dakar !');
                             final url = Uri.parse('whatsapp://send?text=$whatsappText');
                             try { await launchUrl(url); } catch (e) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur WhatsApp'))); }
@@ -3036,6 +3037,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                            isQueued = false;
                                            if (apiData['booking'] != null) {
                                              createdBookingToken = apiData['booking']['qrCodeToken'];
+                                             createdBookingPublicRef = apiData['booking']['publicReference'];
                                            }
                                          });
                                         

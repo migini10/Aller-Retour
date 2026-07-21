@@ -78,6 +78,8 @@ export class BookingsService {
       // Generate a signed token securely
       const qrCodeToken = this.qrService.generateQrToken(tripId, assignedSeat);
       
+      const publicReference = 'VOY-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      
       const status = (paymentMethod === 'WAVE' || paymentMethod === 'ORANGE_MONEY' || paymentMethod === 'FREE_MONEY' || paymentMethod === 'MTN_MOMO') 
         ? 'PENDING_PAYMENT' 
         : 'CONFIRMED';
@@ -88,6 +90,7 @@ export class BookingsService {
           userId,
           seatNumber: assignedSeat,
           qrCodeToken,
+          publicReference,
           status,
           basePrice: pricing.basePrice,
           clientFee: pricing.clientFee,
