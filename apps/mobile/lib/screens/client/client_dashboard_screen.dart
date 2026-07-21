@@ -1979,32 +1979,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                     ],
                                   ),
                                 ),
-                                if (isTooSoon)
-                                  // Call button for too-soon trips
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final phone = t['driverPhone'] ?? '+221 77 000 00 00';
-                                      // ignore: deprecated_member_use
-                                      await launchUrl(Uri.parse('tel:$phone'));
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFE11D48),
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [BoxShadow(color: const Color(0xFFE11D48).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
-                                      ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.phone, color: Colors.white, size: 14),
-                                          SizedBox(width: 6),
-                                          Text('Appeler', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                else if (!isFull)
+                                if (!isFull)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                     decoration: BoxDecoration(
@@ -2959,12 +2934,18 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                            final diffMinutes = depTime.difference(now).inMinutes;
                                            final isTooSoon = diffMinutes >= 0 && diffMinutes < 60;
                                            
-                                           // Vehicle type formatting
+                                           // Vehicle type formatting and capacity calculation
                                            String vehicleType = "Voiture";
+                                           int vehicleCapacity = 5;
                                            if (e['vehicle'] != null) {
-                                             final cap = e['vehicle']['capacity'] ?? 5;
-                                             vehicleType = "Voiture $cap places";
+                                             vehicleCapacity = e['vehicle']['capacity'] ?? 5;
+                                             vehicleType = "Voiture $vehicleCapacity places";
                                            }
+                                           
+                                           int passengerCapacity = vehicleCapacity - 1;
+                                           int placesPrises = e['placesPrises'] ?? 0;
+                                           int realAvailableSeats = passengerCapacity - placesPrises;
+                                           if (realAvailableSeats < 0) realAvailableSeats = 0;
                                            
                                            return {
                                             "id": e['id'],
@@ -2975,9 +2956,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                             "route": (e['takesTollRoad'] != false) ? "Autoroute" : "Nationale",
                                             "time": '${depTime.hour.toString().padLeft(2, '0')}:${depTime.minute.toString().padLeft(2, '0')}',
                                             "passagers": e['passagers'] ?? 0,
-                                            "placesPrises": e['placesPrises'] ?? 0,
-                                            "availableSeats": e['availableSeats'] ?? 5,
-                                            "seatsOffered": e['seatsOffered'] ?? 5,
+                                            "placesPrises": placesPrises,
+                                            "availableSeats": realAvailableSeats,
+                                            "seatsOffered": passengerCapacity,
                                             "isTooSoon": isTooSoon,
                                             "driverPhone": e['driverPhone'] ?? '+221 77 000 00 00',
                                             "isCertified": e['isCertified'] ?? false,
