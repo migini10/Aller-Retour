@@ -19,7 +19,8 @@ class TicketImageGenerator {
     final dest = ticket['trip']['route']['destinationStation']['city'];
     final ref = ticket['qrCodeToken'];
     final publicRef = ticket['publicReference'] ?? 'VOY-${ticket['id'].toString().split('-')[0].toUpperCase()}';
-    final seat = '#${ticket['seatNumber']}';
+    
+    final passagers = ticket['passengersCount'] ?? ticket['passengerCount'] ?? ticket['places'] ?? 1;
     
     // Fallback passenger name
     String passenger = 'Passager';
@@ -70,9 +71,9 @@ class TicketImageGenerator {
             Text('$origin ➔ $dest', style: const TextStyle(color: Color(0xFFF97316), fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             _buildRow('Passager', passenger),
+            _buildRow('Passagers', '$passagers'),
             _buildRow('Date & Heure', '$dateStr à $timeStr'),
-            _buildRow('Siège', seat),
-            _buildRow('Montant payé (avec frais)', priceStr),
+            _buildRow('Montant total', priceStr),
           ],
         ),
       ),
@@ -105,17 +106,10 @@ class TicketImageGenerator {
       await file.writeAsBytes(pngBytes);
       
       if (shareOnly) {
-        final whatsappText = Uri.encodeComponent('🚗 *Billet confirmé – Allogoo*\n'
-            '📍 Trajet : $origin ➔ $dest\n'
-            '📅 Date : $dateStr à $timeStr\n'
-            '👤 Passager : $passenger\n'
-            '🎟️ Siège : $seat\n'
-            '💰 Prix total avec frais : $priceStr\n\n'
-            '🔖 Référence : $publicRef\n\n'
-            'Bon voyage avec Allogoo.');
+        final whatsappText = 'Billet Allogoo $publicRef';
         
         // We will share the file. The user can choose WhatsApp natively.
-        await Share.shareXFiles([XFile(file.path)], text: 'Voici mon billet Allogoo !\n\n$whatsappText');
+        await Share.shareXFiles([XFile(file.path)], text: whatsappText);
       } else {
         // Just share/save the image
         await Share.shareXFiles([XFile(file.path)], text: 'Billet Allogoo $publicRef');

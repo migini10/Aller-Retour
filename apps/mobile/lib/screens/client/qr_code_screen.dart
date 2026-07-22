@@ -581,7 +581,6 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                         Row(
                           children: [
                             Expanded(child: _buildDetailField(context, 'N° Billet', ticketNo)),
-                            Expanded(child: _buildDetailField(context, 'Siège', seat, valueColor: Colors.orangeAccent)),
                             Expanded(child: _buildDetailField(context, 'Passager', passenger)),
                           ],
                         ),
@@ -731,7 +730,6 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               const SizedBox(height: 24),
               _buildDetailRow(context, 'Passager', passenger),
               _buildDetailRow(context, 'Date & Heure', '$date à $time'),
-              _buildDetailRow(context, 'Siège', seat),
               _buildDetailRow(context, 'Montant payé', price),
               const SizedBox(height: 32),
               Row(
