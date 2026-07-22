@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'dart:io';
 import '../../widgets/shared_scaffold.dart'; 
 import 'qr_code_screen.dart';
+import 'package:gal/gal.dart';
 
 class TicketImageGenerator {
   static Future<void> generateAndProcessTicket(BuildContext context, Map<String, dynamic> ticket, {required bool shareOnly}) async {
@@ -111,8 +112,31 @@ class TicketImageGenerator {
         // We will share the file. The user can choose WhatsApp natively.
         await Share.shareXFiles([XFile(file.path)], text: whatsappText);
       } else {
-        // Just share/save the image
-        await Share.shareXFiles([XFile(file.path)], text: 'Billet Allogoo $publicRef');
+        try {
+          final hasAccess = await Gal.hasAccess();
+          if (!hasAccess) {
+            await Gal.requestAccess();
+          }
+          await Gal.putImage(file.path);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Billet téléchargé avec succès', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('Erreur lors de la sauvegarde avec Gal: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Erreur lors du téléchargement. Vérifiez les permissions.', style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error generating ticket image: $e');
