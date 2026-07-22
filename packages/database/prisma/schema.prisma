@@ -65,27 +65,27 @@ model SecurityEvent {
 }
 
 model DriverProfile {
-  id              String          @id @default(uuid())
-  userId          String          @unique
-  type            DriverType      @default(OWNER)
-  managerId       String?
-  manager         DriverProfile?  @relation("DriverManager", fields: [managerId], references: [id])
-  employees       DriverProfile[] @relation("DriverManager")
-  vehicles        Vehicle[]
-  licenseNumber   String?         @unique
-  licenseExpiry   DateTime?
-  licenseFrontUrl String?
-  licenseBackUrl  String?
-  kycStatus       KYCStatus       @default(PENDING)
-  rating          Float           @default(5.0)
-  totalTrips      Int             @default(0)
-  isVerified      Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trips           Trip[]
+  id                String                  @id @default(uuid())
+  userId            String                  @unique
+  type              DriverType              @default(OWNER)
+  managerId         String?
+  manager           DriverProfile?          @relation("DriverManager", fields: [managerId], references: [id])
+  employees         DriverProfile[]         @relation("DriverManager")
+  vehicles          Vehicle[]
+  licenseNumber     String?                 @unique
+  licenseExpiry     DateTime?
+  licenseFrontUrl   String?
+  licenseBackUrl    String?
+  kycStatus         KYCStatus               @default(PENDING)
+  rating            Float                   @default(5.0)
+  totalTrips        Int                     @default(0)
+  isVerified        Boolean                 @default(false)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trips             Trip[]
   operationalStatus DriverOperationalStatus @default(INDISPONIBLE)
-  pinHash         String?
+  pinHash           String?
 
   @@map("driver_profiles")
 }
@@ -99,18 +99,18 @@ enum DriverOperationalStatus {
 }
 
 model Vehicle {
-  id               String         @id @default(uuid())
-  plateNumber      String         @unique
-  type             VehicleType
-  capacity         Int
-  brand            String?
-  model            String?
-  year             Int?
-  ownerId          String?
-  owner            DriverProfile? @relation(fields: [ownerId], references: [id])
-  approvalStatus         VehicleStatus              @default(ACTIVE) @map("status")
-  certificationStatus    VehicleCertificationStatus @default(NOT_CERTIFIED)
-  
+  id                  String                     @id @default(uuid())
+  plateNumber         String                     @unique
+  type                VehicleType
+  capacity            Int
+  brand               String?
+  model               String?
+  year                Int?
+  ownerId             String?
+  owner               DriverProfile?             @relation(fields: [ownerId], references: [id])
+  approvalStatus      VehicleStatus              @default(ACTIVE) @map("status")
+  certificationStatus VehicleCertificationStatus @default(NOT_CERTIFIED)
+
   approvedAt             DateTime?
   approvedById           String?
   rejectedAt             DateTime?
@@ -121,28 +121,28 @@ model Vehicle {
 
   insuranceExpiry  DateTime
   inspectionExpiry DateTime
-  
+
   // Clés Supabase Storage pour le bucket "vehicles"
-  frontPhotoKey    String?
-  rearPhotoKey     String?
-  sidePhotoKey     String?
+  frontPhotoKey String?
+  rearPhotoKey  String?
+  sidePhotoKey  String?
 
   // Suppression logique
-  deletedAt                DateTime?
-  deletionScheduledAt      DateTime?
-  isArchived               Boolean                    @default(false)
+  deletedAt           DateTime?
+  deletionScheduledAt DateTime?
+  isArchived          Boolean   @default(false)
 
   // Renouvellement photos
-  photosApprovedAt         DateTime?
-  photosExpireAt           DateTime?
-  photosRenewalStatus      VehiclePhotoRenewalStatus  @default(PENDING_REVIEW)
+  photosApprovedAt    DateTime?
+  photosExpireAt      DateTime?
+  photosRenewalStatus VehiclePhotoRenewalStatus @default(PENDING_REVIEW)
 
   // Documents
-  documents                VehicleDocument[]
+  documents VehicleDocument[]
 
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  trips            Trip[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trips     Trip[]
 
   @@index([plateNumber])
   @@map("vehicles")
