@@ -2,12 +2,39 @@
 'use client';
 
 import React from 'react';
-import { User } from '../../types/user.types';
-import { KeyRound, Smartphone, Mail, Calendar, Info, ShieldCheck, Bug } from 'lucide-react';
+import { User, UserStatus } from '../../types/user.types';
+import { KeyRound, Smartphone, Mail, Calendar, Info, ShieldCheck, Bug, ShieldAlert, ShieldBan } from 'lucide-react';
 
 export function UserProfile({ user }: { user: User }) {
   return (
-    <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col">
+      {user.status === UserStatus.BANNED && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border-b border-rose-200 dark:border-rose-500/20 p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 font-bold">
+            <ShieldBan className="w-5 h-5" />
+            <span>COMPTE BANNI DÉFINITIVEMENT</span>
+          </div>
+          <div className="text-sm text-rose-700 dark:text-rose-400 pl-8 flex flex-col gap-1">
+            <p><strong>Raison :</strong> {user.banReason || 'Non spécifiée'}</p>
+            <p><strong>Banni le :</strong> {user.bannedAt ? new Date(user.bannedAt).toLocaleString('fr-FR') : 'Date inconnue'}</p>
+            {user.bannedById && <p><strong>Par :</strong> {user.bannedById}</p>}
+          </div>
+        </div>
+      )}
+
+      {user.status === UserStatus.TEMPORARILY_BLOCKED && (
+        <div className="bg-orange-50 dark:bg-orange-500/10 border-b border-orange-200 dark:border-orange-500/20 p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-3 text-orange-600 dark:text-orange-500 font-bold">
+            <ShieldAlert className="w-5 h-5" />
+            <span>COMPTE TEMPORAIREMENT BLOQUÉ</span>
+          </div>
+          <div className="text-sm text-orange-700 dark:text-orange-400 pl-8 flex flex-col gap-1">
+            <p><strong>Raison :</strong> Trop de tentatives de connexion échouées (Anti-bruteforce)</p>
+            <p><strong>Jusqu'au :</strong> {user.blockedUntil ? new Date(user.blockedUntil).toLocaleString('fr-FR') : 'Inconnu'}</p>
+          </div>
+        </div>
+      )}
+
       <div className="p-6 border-b border-slate-100 dark:border-slate-800/50">
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Informations du profil</h3>
       </div>

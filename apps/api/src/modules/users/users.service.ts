@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger, BadRequestException } from '@nestjs/common';
 import { prisma, User, UserRole } from '@aller-retour/database';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserStatusDto, UserStatusAction } from './dto/update-user-status.dto';
@@ -121,7 +121,7 @@ export class UsersService {
     };
   }
 
-  async updateStatus(id: string, dto: UpdateUserStatusDto) {
+  async updateStatus(id: string, dto: UpdateUserStatusDto, adminId?: string) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       throw new NotFoundException('Utilisateur introuvable');
@@ -131,10 +131,16 @@ export class UsersService {
     if (dto.action === UserStatusAction.ACTIVATE) {
       data.isActive = true;
       data.blockedUntil = null;
+      data.bannedAt = null;
+      data.bannedById = null;
+      data.banReason = null;
     } else if (dto.action === UserStatusAction.SUSPEND) {
       data.isActive = false;
     } else if (dto.action === UserStatusAction.BLOCK) {
-      data.blockedUntil = new Date('2099-12-31T23:59:59.000Z');
+      if (!dto.reason) throw new BadRequestException('La raison est obligatoire pour bannir un utilisateur.');
+      data.bannedAt = new Date();
+      data.bannedById = adminId;
+      data.banReason = dto.reason;
     }
 
     const updatedUser = await prisma.user.update({
@@ -144,14 +150,43 @@ export class UsersService {
         id: true,
         isActive: true,
         blockedUntil: true,
+        bannedAt: true,
+        banReason: true,
+        bannedById: true,
         updatedAt: true,
       },
     });
+
+    if (dto.action === UserStatusAction.ACTIVATE && user.bannedAt) {
+      await prisma.securityEvent.create({
+        data: {
+          userId: id,
+          action: 'ACCOUNT_REACTIVATED',
+          adminId,
+        }
+      });
+    } else if (dto.action === UserStatusAction.BLOCK) {
+      await prisma.securityEvent.create({
+        data: {
+          userId: id,
+          action: 'ACCOUNT_BANNED',
+          reason: dto.reason,
+          adminId,
+        }
+      });
+    }
 
     return {
       message: 'Statut mis à jour avec succès',
       user: this.mapUserStatus(updatedUser as any),
     };
+  }
+
+  async getSecurityEvents(userId: string) {
+    return prisma.securityEvent.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async resetPin(id: string) {
@@ -258,10 +293,12 @@ export class UsersService {
     let status = 'ACTIVE';
     const now = new Date();
 
-    if (!user.isActive) {
+    if ((user as any).bannedAt) {
+      status = 'BANNED';
+    } else if (!user.isActive) {
       status = 'SUSPENDED';
     } else if (user.blockedUntil && user.blockedUntil > now) {
-      status = 'BANNED';
+      status = 'TEMPORARILY_BLOCKED';
     }
 
     // Remove raw fields

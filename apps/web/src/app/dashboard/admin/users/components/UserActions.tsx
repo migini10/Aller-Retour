@@ -5,6 +5,8 @@ import { User, UserStatus, UserPermissions } from '../../types/user.types';
 import { ShieldBan, ShieldCheck, KeyRound, Clock, Bug } from 'lucide-react';
 import { UsersService } from '../../services/users.service';
 import { useModal } from '../../../../../components/ModalContext';
+import { BanUserModal } from './BanUserModal';
+import { SecurityHistoryModal } from './SecurityHistoryModal';
 
 interface UserActionsProps {
   user: User;
@@ -15,6 +17,8 @@ interface UserActionsProps {
 export function UserActions({ user, permissions, onRefresh }: UserActionsProps) {
   const { showConfirmDialog, showToast } = useModal();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBanModalOpen, setIsBanModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const isSuspended = user.status === UserStatus.SUSPENDED || user.status === UserStatus.BANNED;
 
   const handleStatusChange = async (action: 'ACTIVATE' | 'SUSPEND') => {
@@ -25,6 +29,20 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
     } catch (error) {
       console.error('Failed to update status', error);
       showToast('Erreur lors de la mise à jour du statut', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBanUser = async (reason: string) => {
+    try {
+      setIsProcessing(true);
+      await UsersService.updateUserStatus(user.id, 'BLOCK' as any, reason);
+      showToast('Utilisateur banni avec succès', 'success');
+      onRefresh();
+    } catch (error) {
+      console.error('Failed to ban user', error);
+      showToast('Erreur lors du bannissement de l\'utilisateur', 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -87,12 +105,12 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
         {permissions.canSuspendUser && (
           !isSuspended ? (
             <button 
-              onClick={() => handleStatusChange('SUSPEND')}
+              onClick={() => setIsBanModalOpen(true)}
               disabled={isProcessing}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-rose-50 text-rose-600 dark:hover:bg-rose-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
             >
               <ShieldBan className="w-5 h-5 shrink-0" />
-              Suspendre le compte
+              Bannir le compte
             </button>
           ) : (
             <button 
@@ -140,12 +158,28 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
         )}
 
         {permissions.canViewUser && (
-          <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300 transition-colors text-left w-full font-semibold text-sm">
+          <button 
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300 transition-colors text-left w-full font-semibold text-sm"
+          >
             <Clock className="w-5 h-5 shrink-0" />
             Voir l'historique de sécurité
           </button>
         )}
       </div>
+
+      <BanUserModal 
+        isOpen={isBanModalOpen} 
+        onClose={() => setIsBanModalOpen(false)} 
+        onConfirm={handleBanUser} 
+        userName={`${user.firstName} ${user.lastName}`} 
+      />
+
+      <SecurityHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        userId={user.id}
+      />
     </div>
   );
 }

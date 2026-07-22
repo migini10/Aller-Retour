@@ -94,14 +94,18 @@ export class AuthService {
       throw new UnauthorizedException("Numéro de téléphone incorrect ou compte inactif.");
     }
 
+    // 0. Check if user is permanently banned
+    if ((user as any).bannedAt) {
+      const banReason = (user as any).banReason || 'Raison non renseignée';
+      throw new UnauthorizedException(`Votre compte a été suspendu. Raison : ${banReason}`);
+    }
+
     const now = new Date();
 
-    // 1. Check if the user is currently blocked
+    // 1. Check if the user is currently blocked (bruteforce)
     if (user.blockedUntil && user.blockedUntil > now) {
-      const remainingMs = user.blockedUntil.getTime() - now.getTime();
-      const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
       throw new UnauthorizedException(
-        `Votre compte est bloqué suite à 4 tentatives incorrectes. Veuillez contacter le service client ou réessayer dans ${remainingHours} heure(s).`
+        `Compte temporairement bloqué jusqu’au ${user.blockedUntil.toLocaleString('fr-FR', { timeZone: 'UTC' })}`
       );
     }
 
@@ -151,6 +155,16 @@ export class AuthService {
           blockedUntil: blockedUntilDate,
         },
       });
+
+      if (newAttempts >= 4) {
+        await prisma.securityEvent.create({
+          data: {
+            userId: user.id,
+            action: 'LOGIN_TEMP_BLOCKED',
+            reason: 'Trop de tentatives de connexion échouées',
+          }
+        });
+      }
 
       throw new UnauthorizedException(message);
     }
@@ -280,6 +294,9 @@ export class AuthService {
         colisPoints: true,
         transportPoints: true,
         createdAt: true,
+        bannedAt: true,
+        banReason: true,
+        blockedUntil: true,
         driverProfile: {
           select: { type: true, operationalStatus: true, pinHash: true }
         }
@@ -287,6 +304,18 @@ export class AuthService {
     });
     if (!user) {
       throw new UnauthorizedException('Utilisateur introuvable');
+    }
+
+    if (user.bannedAt) {
+      const reason = user.banReason || 'Raison non renseignée';
+      throw new UnauthorizedException(`Votre compte a été suspendu. Raison : ${reason}`);
+    }
+
+    const now = new Date();
+    if (user.blockedUntil && user.blockedUntil > now) {
+      throw new UnauthorizedException(
+        `Compte temporairement bloqué jusqu’au ${user.blockedUntil.toLocaleString('fr-FR', { timeZone: 'UTC' })}`
+      );
     }
     
     // On ne retourne jamais pinHash, juste un boolean

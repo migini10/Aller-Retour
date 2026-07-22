@@ -51,9 +51,14 @@ export class UsersService {
     return this.mapUser(json);
   }
 
-  static async updateUserStatus(id: string, action: 'ACTIVATE' | 'SUSPEND' | 'BLOCK'): Promise<boolean> {
-    await ApiClient.patch(`/v1/users/${id}/status`, { action });
+  static async updateUserStatus(id: string, action: 'ACTIVATE' | 'SUSPEND' | 'BLOCK', reason?: string): Promise<boolean> {
+    await ApiClient.patch(`/v1/users/${id}/status`, { action, reason });
     return true;
+  }
+
+  static async getSecurityEvents(id: string): Promise<any[]> {
+    const res = await ApiClient.get(`/v1/users/${id}/security-events`);
+    return res.data;
   }
 
   static async resetUserPin(id: string): Promise<boolean> {

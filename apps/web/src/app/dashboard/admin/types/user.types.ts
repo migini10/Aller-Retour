@@ -10,6 +10,7 @@ export enum UserStatus {
   PENDING = 'PENDING', // pending verification
   SUSPENDED = 'SUSPENDED',
   BANNED = 'BANNED',
+  TEMPORARILY_BLOCKED = 'TEMPORARILY_BLOCKED',
 }
 
 export type UserBadge = 'VERIFIED' | 'SUSPENDED' | 'NEW' | 'TOP_DRIVER' | 'TOP_CLIENT' | 'REPORTED' | 'VIP';
@@ -63,6 +64,10 @@ export interface User {
   verifiedAt?: string | null;
   verificationMethod?: string | null;
   verifiedById?: string | null;
+  bannedAt?: string | null;
+  bannedById?: string | null;
+  banReason?: string | null;
+  blockedUntil?: string | null;
   hasPinConfigured: boolean;
   pinLastModified?: string;
   createdAt: string;

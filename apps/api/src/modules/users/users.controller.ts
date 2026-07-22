@@ -27,8 +27,14 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateUserStatusDto) {
-    return this.usersService.updateStatus(id, dto);
+  async updateStatus(@Param('id') id: string, @Body() dto: UpdateUserStatusDto, @Req() req: any) {
+    const adminId = req.user?.id;
+    return this.usersService.updateStatus(id, dto, adminId);
+  }
+
+  @Get(':id/security-events')
+  async getSecurityEvents(@Param('id') id: string) {
+    return this.usersService.getSecurityEvents(id);
   }
 
   @Post(':id/reset-pin')
