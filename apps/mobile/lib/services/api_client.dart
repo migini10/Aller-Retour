@@ -87,7 +87,7 @@ class ApiClient {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(StorageKeys.authToken);
       await prefs.remove(StorageKeys.userRole);
-      throw UnauthorizedException('Session expired or unauthorized');
+      throw UnauthorizedException(errorMessage);
     }
 
     throw ApiException(response.statusCode, errorMessage, data: responseData);

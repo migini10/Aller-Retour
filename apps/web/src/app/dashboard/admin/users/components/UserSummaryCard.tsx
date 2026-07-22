@@ -23,12 +23,27 @@ export function UserSummaryCard({ user }: { user: User }) {
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${user.role === UserRole.DRIVER ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
               {user.role === UserRole.DRIVER ? 'Chauffeur' : 'Client'}
             </span>
-            <StatusBadge label={user.status} variant={user.status === 'ACTIVE' ? 'success' : user.status === 'PENDING' ? 'warning' : 'error'} />
+            <StatusBadge 
+              label={
+                user.status === 'TEMPORARILY_BLOCKED' ? 'Temporairement bloqué' : 
+                user.status === 'BANNED' ? 'Banni' : 
+                user.status === 'SUSPENDED' ? 'Suspendu' : 
+                user.status === 'ACTIVE' ? 'Actif' : 
+                user.status === 'PENDING' ? 'En attente' : 
+                user.status
+              } 
+              variant={
+                user.status === 'ACTIVE' ? 'success' : 
+                user.status === 'TEMPORARILY_BLOCKED' ? 'warning' : 
+                user.status === 'PENDING' ? 'warning' : 
+                'error'
+              } 
+            />
           </div>
         </div>
         <div className="text-slate-500 dark:text-slate-400 text-sm mb-4 space-y-1">
           <p>{user.email} • {user.phone}</p>
-          <p>Inscrit le {new Date(user.createdAt).toLocaleDateString()} • Dernier login: {new Date(user.lastLoginAt).toLocaleString()}</p>
+          <p>Inscrit le {new Date(user.createdAt).toLocaleDateString()} • Dernier login: {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('fr-FR') : 'Jamais connecté'}</p>
         </div>
         <div className="flex flex-wrap justify-center sm:justify-start gap-2">
           {user.badges.filter(b => b !== 'VERIFIED' && b !== 'REPORTED').map(badge => (

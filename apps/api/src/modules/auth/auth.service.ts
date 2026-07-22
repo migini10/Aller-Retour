@@ -104,9 +104,11 @@ export class AuthService {
 
     // 1. Check if the user is currently blocked (bruteforce)
     if (user.blockedUntil && user.blockedUntil > now) {
-      throw new UnauthorizedException(
-        `Compte temporairement bloqué jusqu’au ${user.blockedUntil.toLocaleString('fr-FR', { timeZone: 'UTC' })}`
-      );
+      throw new UnauthorizedException({
+        message: `Compte temporairement bloqué jusqu’au ${user.blockedUntil.toLocaleString('fr-FR', { timeZone: 'UTC' })}`,
+        code: 'TEMPORARILY_BLOCKED',
+        blockedUntil: user.blockedUntil.toISOString(),
+      });
     }
 
     // 2. If blockedUntil is set but the 24h time has elapsed, automatically unblock the account
@@ -163,6 +165,11 @@ export class AuthService {
             action: 'LOGIN_TEMP_BLOCKED',
             reason: 'Trop de tentatives de connexion échouées',
           }
+        });
+        throw new UnauthorizedException({
+          message: `Compte temporairement bloqué jusqu’au ${blockedUntilDate!.toLocaleString('fr-FR', { timeZone: 'UTC' })}`,
+          code: 'TEMPORARILY_BLOCKED',
+          blockedUntil: blockedUntilDate!.toISOString(),
         });
       }
 

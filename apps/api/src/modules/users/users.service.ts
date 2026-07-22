@@ -58,6 +58,9 @@ export class UsersService {
           role: true,
           isActive: true,
           blockedUntil: true,
+          bannedAt: true,
+          banReason: true,
+          bannedById: true,
           createdAt: true,
           updatedAt: true,
           failedAttempts: true,
@@ -95,6 +98,9 @@ export class UsersService {
         role: true,
         isActive: true,
         blockedUntil: true,
+        bannedAt: true,
+        banReason: true,
+        bannedById: true,
         createdAt: true,
         updatedAt: true,
         failedAttempts: true,
@@ -302,7 +308,7 @@ export class UsersService {
     }
 
     // Remove raw fields
-    const { isActive, blockedUntil, passwordHash, ...cleanUser } = user as any;
+    const { isActive, passwordHash, ...cleanUser } = user as any;
 
     return {
       ...cleanUser,

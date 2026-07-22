@@ -30,7 +30,7 @@ export function UserProfile({ user }: { user: User }) {
           </div>
           <div className="text-sm text-orange-700 dark:text-orange-400 pl-8 flex flex-col gap-1">
             <p><strong>Raison :</strong> Trop de tentatives de connexion échouées (Anti-bruteforce)</p>
-            <p><strong>Jusqu'au :</strong> {user.blockedUntil ? new Date(user.blockedUntil).toLocaleString('fr-FR') : 'Inconnu'}</p>
+            <p><strong>Jusqu'au :</strong> {user.blockedUntil ? new Date(user.blockedUntil).toLocaleString('fr-FR') : 'Date de fin non renseignée'}</p>
           </div>
         </div>
       )}
