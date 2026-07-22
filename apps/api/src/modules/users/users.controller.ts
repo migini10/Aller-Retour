@@ -37,6 +37,13 @@ export class UsersController {
     return this.usersService.getSecurityEvents(id);
   }
 
+  @Post(':id/unblock-temp')
+  @Roles('SUPER_ADMIN')
+  async unblockTemp(@Param('id') id: string, @Req() req: any) {
+    const adminId = req.user?.id;
+    return this.usersService.unblockTemp(id, adminId);
+  }
+
   @Post(':id/reset-pin')
   async resetPin(@Param('id') id: string) {
     return this.usersService.resetPin(id);

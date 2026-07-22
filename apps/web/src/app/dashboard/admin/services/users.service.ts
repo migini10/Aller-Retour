@@ -58,7 +58,12 @@ export class UsersService {
 
   static async getSecurityEvents(id: string): Promise<any[]> {
     const res = await ApiClient.get(`/v1/users/${id}/security-events`);
-    return res.data;
+    return Array.isArray(res) ? res : (res.data || []);
+  }
+
+  static async unblockTemp(id: string): Promise<boolean> {
+    await ApiClient.post(`/v1/users/${id}/unblock-temp`);
+    return true;
   }
 
   static async resetUserPin(id: string): Promise<boolean> {

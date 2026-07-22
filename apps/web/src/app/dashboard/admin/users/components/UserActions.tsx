@@ -96,6 +96,22 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
     }
   };
 
+  const handleUnblockTemp = async () => {
+    if (!(await showConfirmDialog('Débloquer le compte', 'Voulez-vous débloquer ce compte manuellement ?'))) return;
+    
+    try {
+      setIsProcessing(true);
+      await UsersService.unblockTemp(user.id);
+      showToast('Compte débloqué avec succès', 'success');
+      onRefresh();
+    } catch (error: any) {
+      console.error('Failed to unblock temp account', error);
+      showToast(error?.response?.data?.message || error?.message || 'Erreur lors du déblocage', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-slate-100 dark:border-slate-800/50">
@@ -112,7 +128,7 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
               <ShieldBan className="w-5 h-5 shrink-0" />
               Bannir le compte
             </button>
-          ) : (
+          ) : user.status === UserStatus.BANNED ? (
             <button 
               onClick={() => handleStatusChange('ACTIVATE')}
               disabled={isProcessing}
@@ -121,7 +137,18 @@ export function UserActions({ user, permissions, onRefresh }: UserActionsProps) 
               <ShieldCheck className="w-5 h-5 shrink-0" />
               Réactiver le compte
             </button>
-          )
+          ) : null
+        )}
+
+        {user.status === UserStatus.TEMPORARILY_BLOCKED && permissions.canSuspendUser && (
+          <button 
+            onClick={handleUnblockTemp}
+            disabled={isProcessing}
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 text-blue-600 dark:hover:bg-blue-500/10 transition-colors text-left w-full font-semibold text-sm disabled:opacity-50"
+          >
+            <ShieldCheck className="w-5 h-5 shrink-0" />
+            Débloquer le compte
+          </button>
         )}
         
         {user.isTestAccount && !user.verifiedAt && (

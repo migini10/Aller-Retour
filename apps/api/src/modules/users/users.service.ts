@@ -195,6 +195,35 @@ export class UsersService {
     });
   }
 
+  async unblockTemp(id: string, adminId: string) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+    if (!user.blockedUntil || user.blockedUntil < new Date()) {
+      throw new BadRequestException('Ce compte n\'est pas temporairement bloqué.');
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id },
+        data: {
+          blockedUntil: null,
+          failedAttempts: 0,
+        },
+      });
+
+      await tx.securityEvent.create({
+        data: {
+          userId: id,
+          action: 'LOGIN_TEMP_UNBLOCKED',
+          reason: 'Déblocage manuel par un administrateur',
+          adminId,
+        },
+      });
+    });
+
+    return { message: 'Compte débloqué avec succès' };
+  }
+
   async resetPin(id: string) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {

@@ -40,6 +40,8 @@ export function SecurityHistoryModal({ isOpen, onClose, userId }: SecurityHistor
         return <UserX className="w-5 h-5 text-rose-500" />;
       case 'ACCOUNT_REACTIVATED':
         return <ShieldCheck className="w-5 h-5 text-emerald-500" />;
+      case 'LOGIN_TEMP_UNBLOCKED':
+        return <ShieldCheck className="w-5 h-5 text-blue-500" />;
       default:
         return <Clock className="w-5 h-5 text-slate-400" />;
     }
@@ -53,6 +55,8 @@ export function SecurityHistoryModal({ isOpen, onClose, userId }: SecurityHistor
         return 'Bannissement définitif';
       case 'ACCOUNT_REACTIVATED':
         return 'Réactivation du compte';
+      case 'LOGIN_TEMP_UNBLOCKED':
+        return 'Déblocage manuel du compte';
       default:
         return action;
     }
