@@ -1732,7 +1732,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Où allez-vous avec Allo Dakar ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Où allez-vous avec Allogoo ?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _buildPlacesAutocomplete('Ville de départ (ex: Dakar)', departController, icon: Icons.location_on),
                   const SizedBox(height: 12),
@@ -2019,7 +2019,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                 children: [
                   Padding(
                     padding: EdgeInsets.only(bottom: 12),
-                    child: Text('Choix du véhicule Allo Dakar', style: TextStyle(color: textMutedColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text('Choix du véhicule Allogoo', style: TextStyle(color: textMutedColor, fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                   if (realTrips.isEmpty)
                     Container(
@@ -2338,7 +2338,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(child: Text('Billet ${selectedTrip?['company'] ?? 'Allo Dakar'}', style: TextStyle(color: textMutedColor), overflow: TextOverflow.ellipsis)),
+                            Expanded(child: Text('Billet ${selectedTrip?['company'] ?? 'Allogoo'}', style: TextStyle(color: textMutedColor), overflow: TextOverflow.ellipsis)),
                             const SizedBox(width: 8),
                             Text('$subtotal FCFA', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ],
@@ -2454,7 +2454,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('${DateTime.parse(alt['departureTime']).toLocal().toString().substring(11, 16)} - ${alt['companyName'] ?? 'Allo Dakar'}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text('${DateTime.parse(alt['departureTime']).toLocal().toString().substring(11, 16)} - ${alt['companyName'] ?? 'Allogoo'}', style: const TextStyle(fontWeight: FontWeight.bold)),
                                       Text('${alt['availableSeats']} place(s) dispo', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                                     ],
                                   ),
@@ -2530,7 +2530,8 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
               }
               int passagersCount = int.tryParse((passagers ?? '1').split(' ')[0]) ?? 1;
               int basePrice = selectedTrip?['price'] ?? 5000;
-              int total = basePrice * passagersCount;
+              int subtotal = basePrice * passagersCount;
+              int total = subtotal + (subtotal * 0.03).round();
               String departCity = departController.text.isNotEmpty ? departController.text : 'Dakar, Sénégal';
               String arriveeCity = arriveeController.text.isNotEmpty ? arriveeController.text : 'Touba, Sénégal';
               String dateStr = date ?? 'Aujourd\'hui';
@@ -2713,7 +2714,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
                               Uint8List pngBytes = byteData!.buffer.asUint8List();
                               final file = XFile.fromData(pngBytes, name: 'billet.png', mimeType: 'image/png');
-                              await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
+                              await Share.shareXFiles([file], text: 'Voici mon billet Allogoo !');
                             } catch (e) {}
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).cardColor, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
@@ -2730,7 +2731,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                               ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
                               Uint8List pngBytes = byteData!.buffer.asUint8List();
                               final file = XFile.fromData(pngBytes, name: 'billet.png', mimeType: 'image/png');
-                              await Share.shareXFiles([file], text: 'Voici mon billet Allo Dakar !');
+                              await Share.shareXFiles([file], text: 'Voici mon billet Allogoo !');
                             } catch (e) {}
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).cardColor, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
@@ -2741,14 +2742,14 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> with Sing
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            final whatsappText = Uri.encodeComponent('🚗 *Billet Confirmé : Allo Dakar*\n'
+                            final whatsappText = Uri.encodeComponent('🚗 *Billet confirmé – Allogoo*\n'
                                 '📍 Trajet : ${departCity.split(',')[0]} ➔ ${arriveeCity.split(',')[0]}\n'
                                 '📅 Date : $dateStr\n'
                                 '👤 Passager : $nom\n'
                                 '🎟️ Places : $passagersCount\n'
-                                '💰 Prix Total : $total FCFA\n\n'
-                                'Référence : ${createdBookingPublicRef ?? "N/A"}\n'
-                                'Bon voyage avec Allo Dakar !');
+                                '💰 Prix total avec frais : $total FCFA\n\n'
+                                '🔖 Référence : ${createdBookingPublicRef ?? "N/A"}\n\n'
+                                'Bon voyage avec Allogoo.');
                             final url = Uri.parse('whatsapp://send?text=$whatsappText');
                             try { await launchUrl(url); } catch (e) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur WhatsApp'))); }
                           },

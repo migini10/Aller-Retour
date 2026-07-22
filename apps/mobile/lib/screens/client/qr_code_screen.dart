@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../services/api_client.dart';
 import '../../widgets/shared_scaffold.dart';
+import 'ticket_image_generator.dart';
 
 class QrCodeScreen extends StatefulWidget {
   const QrCodeScreen({super.key});
@@ -419,8 +420,9 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                     seat: '#${t['seatNumber']}',
                     passenger: _userName,
                     vehicle: vehicle,
-                    price: '${t['amountPaid']} FCFA',
+                    price: "${t['amountPaid'] ?? t['basePrice']} FCFA",
                     ticketId: t['id'],
+                    rawTicket: t,
                   );
 
                   return Padding(
@@ -451,6 +453,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     required String vehicle,
     required String price,
     String ticketId = '',
+    Map<String, dynamic>? rawTicket,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -600,7 +603,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            _showTicketDetails(context, ref, ticketNo, passenger, from, to, date, time, seat, price);
+                            _showTicketDetails(context, ref, ticketNo, passenger, from, to, date, time, seat, price, rawTicket);
                           },
                           icon: Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface),
                           label: Text('Détails', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
@@ -615,7 +618,10 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Téléchargement du billet...')));
+                            if (rawTicket != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Génération du billet...')));
+                              TicketImageGenerator.generateAndProcessTicket(context, rawTicket, shareOnly: false);
+                            }
                           },
                           icon: Icon(Icons.download, color: Theme.of(context).colorScheme.onSurface),
                           label: const Text('Télécharger'),
@@ -682,7 +688,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     );
   }
 
-  void _showTicketDetails(BuildContext context, String ref, String ticketNo, String passenger, String from, String to, String date, String time, String seat, String price) {
+  void _showTicketDetails(BuildContext context, String ref, String ticketNo, String passenger, String from, String to, String date, String time, String seat, String price, Map<String, dynamic>? rawTicket) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -728,19 +734,43 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               _buildDetailRow(context, 'Siège', seat),
               _buildDetailRow(context, 'Montant payé', price),
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Fermer'),
+                    ),
                   ),
-                  child: const Text('Fermer'),
-                ),
+                  if (rawTicket != null) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Close modal before generating
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Préparation du partage...')));
+                          TicketImageGenerator.generateAndProcessTicket(context, rawTicket, shareOnly: true);
+                        },
+                        icon: const Icon(Icons.share, size: 18),
+                        label: const Text('Partager'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF25D366), // WhatsApp color for recognition
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 8),
             ],
