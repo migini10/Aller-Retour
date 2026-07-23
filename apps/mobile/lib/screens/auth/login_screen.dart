@@ -140,6 +140,20 @@ class _LoginScreenState extends State<LoginScreen> {
           final isVerified = data['user']['verifiedAt'] != null;
           await prefs.setBool('isVerified', isVerified);
 
+          // Fetch complete profile to get driverProfile (OWNER / ASSIGNED)
+          try {
+            final meResp = await ApiClient().get('/v1/auth/me', requireAuth: true);
+            final meData = jsonDecode(meResp.body);
+            if (meData['user'] != null && meData['user']['driverProfile'] != null) {
+              final type = meData['user']['driverProfile']['type'];
+              if (type != null) {
+                await prefs.setString(StorageKeys.driverType, type);
+              }
+            }
+          } catch (e) {
+            // Ignorer si échec (au pire, récupéré au prochain lancement ou dans main.dart)
+          }
+
           if (mounted) {
             if (isVerified) {
               Navigator.pushReplacementNamed(context, '/home');

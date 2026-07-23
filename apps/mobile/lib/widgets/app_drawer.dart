@@ -21,6 +21,7 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   String _userName = 'Utilisateur';
   String _userInitials = 'U';
+  String? _driverType;
 
   @override
   void initState() {
@@ -32,6 +33,7 @@ class _AppDrawerState extends State<AppDrawer> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString(StorageKeys.userName) ?? 'Utilisateur';
+      _driverType = prefs.getString(StorageKeys.driverType);
       _userInitials = _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
       if (_userName.contains(' ')) {
         final parts = _userName.split(' ');
@@ -125,6 +127,8 @@ class _AppDrawerState extends State<AppDrawer> {
                             _buildMenuItem(context, Icons.storefront_outlined, 'Marketplace', Colors.indigo, route: '/driver/marketplace'),
                             _buildMenuItem(context, Icons.inventory_2_outlined, 'Gestion des Colis', Colors.amber, route: '/driver/colis'),
                             _buildMenuItem(context, Icons.directions_bus_outlined, 'Véhicule', Colors.blueGrey, route: '/driver/vehicule'),
+                            if (_driverType == 'OWNER')
+                              _buildMenuItem(context, Icons.groups_outlined, 'Mes chauffeurs', Colors.deepPurple, route: '/driver/my-drivers'),
                             _buildMenuItem(context, Icons.notifications_none_outlined, 'Notifications', Colors.red, route: '/driver/notifications'),
                             _buildMenuItem(context, Icons.help_outline, 'Support', Colors.lightBlue, route: '/driver/support'),
                             _buildMenuItem(context, Icons.settings_outlined, 'Paramètres', Colors.grey, route: '/driver/settings'),

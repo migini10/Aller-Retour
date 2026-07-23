@@ -34,6 +34,7 @@ import 'screens/driver/driver_scanner_screen.dart';
 import 'screens/driver/driver_vehicule_screen.dart';
 import 'screens/driver/driver_settings_screen.dart';
 import 'screens/driver/driver_localisation_screen.dart';
+import 'screens/driver/driver_my_drivers_screen.dart';
 import 'screens/client/parrainage_screen.dart';
 import 'services/offline_db.dart';
 import 'theme/app_theme.dart';
@@ -103,6 +104,11 @@ void main() async {
         final role = user['role'];
         if (role != null) {
           await prefs.setString(StorageKeys.userRole, role);
+        }
+        
+        final driverProfile = user['driverProfile'];
+        if (driverProfile != null && driverProfile['type'] != null) {
+          await prefs.setString(StorageKeys.driverType, driverProfile['type']);
         }
       }
     } catch (e) {
@@ -204,6 +210,7 @@ class AllerRetourApp extends StatelessWidget {
         '/driver/vehicule': (context) => const DriverVehiculeScreen(),
         '/driver/settings': (context) => const DriverSettingsScreen(),
         '/driver/localisation': (context) => const DriverLocalisationScreen(),
+        '/driver/my-drivers': (context) => const DriverMyDriversScreen(),
         '/parrainage': (context) => const ParrainageScreen(),
         '/contact': (context) => const ContactScreen(),
         '/support': (context) => const SupportScreen(),
