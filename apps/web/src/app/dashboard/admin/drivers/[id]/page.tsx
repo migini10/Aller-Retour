@@ -99,7 +99,7 @@ export default function DriverDetailPage() {
             {driver.type === 'ASSIGNED' && (
               <div className="text-sm text-slate-500">
                 Manager: <span className="font-semibold text-slate-700 dark:text-slate-300">
-                  {driver.managerName || driver.managerPhone || driver.managerId || 'Inconnu'}
+                  {[driver.managerName, driver.managerPhone].filter(Boolean).join(' - ') || driver.managerId || 'Inconnu'}
                 </span>
               </div>
             )}
@@ -164,8 +164,16 @@ export default function DriverDetailPage() {
             {permissions.canEditKyc && driver.kycStatus === 'PENDING' && (
               <div className="bg-white dark:bg-[#141414] rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col gap-2">
                 <h3 className="font-bold mb-2">Actions KYC</h3>
-                <button onClick={() => handleKycAction('APPROVED')} className="w-full p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold">Valider le dossier</button>
-                <button onClick={() => handleKycAction('REJECTED')} className="w-full p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-semibold">Rejeter le dossier</button>
+                {driver.driverDetails ? (
+                  <>
+                    <button onClick={() => handleKycAction('APPROVED')} className="w-full p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold">Valider le dossier</button>
+                    <button onClick={() => handleKycAction('REJECTED')} className="w-full p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-semibold">Rejeter le dossier</button>
+                  </>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">
+                    Aucune action KYC disponible sans dossier fourni.
+                  </p>
+                )}
               </div>
             )}
           </div>
