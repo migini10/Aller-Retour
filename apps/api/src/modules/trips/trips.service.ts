@@ -373,7 +373,10 @@ export class TripsService {
       where: { userId }
     });
 
-    if (!driverProfile || trip.vehicle.ownerId !== driverProfile.id) {
+    const isOwner = trip.vehicle.ownerId === driverProfile?.id;
+    const isAssigned = trip.driverId === driverProfile?.id;
+
+    if (!driverProfile || (!isOwner && !isAssigned)) {
       throw new ForbiddenException("Vous n'êtes pas autorisé à modifier ce trajet.");
     }
 
