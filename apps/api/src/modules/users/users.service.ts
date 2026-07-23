@@ -118,10 +118,24 @@ export class UsersService {
       throw new NotFoundException('Utilisateur introuvable');
     }
 
+    let bannedByDetails = null;
+    if (user.bannedById) {
+      const admin = await prisma.user.findUnique({
+        where: { id: user.bannedById },
+        select: { fullName: true, phone: true, email: true },
+      });
+      if (admin) {
+        bannedByDetails = admin.fullName || admin.phone || admin.email || user.bannedById;
+      } else {
+        bannedByDetails = "Administrateur inconnu";
+      }
+    }
+
     const mappedUser = this.mapUserStatus(user);
     // Add specific fields for detail view
     return {
       ...mappedUser,
+      bannedByDetails,
       hasPinConfigured: !!user.passwordHash,
       pinLastModified: user.updatedAt, // Approximation since we don't track pin change date separately
     };
@@ -189,10 +203,29 @@ export class UsersService {
   }
 
   async getSecurityEvents(userId: string) {
-    return prisma.securityEvent.findMany({
+    const events = await prisma.securityEvent.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+
+    return Promise.all(events.map(async (event) => {
+      let adminDetails = null;
+      if (event.adminId) {
+        const admin = await prisma.user.findUnique({
+          where: { id: event.adminId },
+          select: { fullName: true, phone: true, email: true },
+        });
+        if (admin) {
+          adminDetails = admin.fullName || admin.phone || admin.email || event.adminId;
+        } else {
+          adminDetails = "Administrateur inconnu";
+        }
+      }
+      return {
+        ...event,
+        adminDetails,
+      };
+    }));
   }
 
   async unblockTemp(id: string, adminId: string) {

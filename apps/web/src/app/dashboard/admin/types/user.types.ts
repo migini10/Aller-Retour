@@ -66,6 +66,7 @@ export interface User {
   verifiedById?: string | null;
   bannedAt?: string | null;
   bannedById?: string | null;
+  bannedByDetails?: string | null;
   banReason?: string | null;
   blockedUntil?: string | null;
   hasPinConfigured: boolean;

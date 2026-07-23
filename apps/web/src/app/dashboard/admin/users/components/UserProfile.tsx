@@ -17,7 +17,7 @@ export function UserProfile({ user }: { user: User }) {
           <div className="text-sm text-rose-700 dark:text-rose-400 pl-8 flex flex-col gap-1">
             <p><strong>Raison :</strong> {user.banReason || 'Non spécifiée'}</p>
             <p><strong>Banni le :</strong> {user.bannedAt ? new Date(user.bannedAt).toLocaleString('fr-FR') : 'Date inconnue'}</p>
-            {user.bannedById && <p><strong>Par :</strong> {user.bannedById}</p>}
+            {user.bannedById && <p><strong>Par :</strong> {user.bannedByDetails || user.bannedById}</p>}
           </div>
         </div>
       )}

@@ -107,7 +107,7 @@ export function SecurityHistoryModal({ isOpen, onClose, userId }: SecurityHistor
                     )}
                     {event.adminId && (
                       <div className="text-xs text-slate-400 mt-1">
-                        Action effectuée par : {event.adminId}
+                        Action effectuée par : {event.adminDetails || event.adminId}
                       </div>
                     )}
                   </div>
