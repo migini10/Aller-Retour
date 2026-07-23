@@ -142,10 +142,22 @@ class _DriverMyDriversScreenState extends State<DriverMyDriversScreen> {
                           if (formKey.currentState!.validate()) {
                             setStateModal(() => isSubmitting = true);
                             try {
+                              String cleanPhone = phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+                              if (!cleanPhone.startsWith('+221') && !cleanPhone.startsWith('221') && !cleanPhone.startsWith('00221')) {
+                                cleanPhone = '+221$cleanPhone';
+                              } else if (cleanPhone.startsWith('221')) {
+                                cleanPhone = '+$cleanPhone';
+                              } else if (cleanPhone.startsWith('00221')) {
+                                cleanPhone = cleanPhone.replaceFirst('00221', '+221');
+                              }
+                              
+                              // Generate a random 6-digit password
+                              final tempPassword = (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
+
                               final reqBody = {
-                                'firstName': firstNameController.text.trim(),
-                                'lastName': lastNameController.text.trim(),
-                                'phone': phoneController.text.trim(),
+                                'fullName': '${firstNameController.text.trim()} ${lastNameController.text.trim()}',
+                                'phone': cleanPhone,
+                                'temporaryPassword': tempPassword,
                               };
                               final res = await ApiClient().post('/v1/drivers/me/assigned', body: reqBody);
                               
@@ -158,7 +170,15 @@ class _DriverMyDriversScreenState extends State<DriverMyDriversScreen> {
                                 _fetchDrivers();
                               } else {
                                 final data = jsonDecode(res.body);
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Erreur lors de la création'), backgroundColor: Colors.red));
+                                String errorMsg = 'Erreur lors de la création';
+                                if (data['message'] != null) {
+                                  if (data['message'] is List) {
+                                    errorMsg = (data['message'] as List).join(', ');
+                                  } else {
+                                    errorMsg = data['message'].toString();
+                                  }
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg), backgroundColor: Colors.red));
                                 setStateModal(() => isSubmitting = false);
                               }
                             } catch (e) {
@@ -280,10 +300,9 @@ class _DriverMyDriversScreenState extends State<DriverMyDriversScreen> {
                   itemCount: _drivers.length,
                   itemBuilder: (ctx, i) {
                     final d = _drivers[i];
-                    final user = d['user'] ?? {};
-                    final name = user['fullName'] ?? 'Inconnu';
-                    final phone = user['phone'] ?? 'Pas de téléphone';
-                    final status = user['isActive'] == true ? 'ACTIF' : 'INACTIF';
+                    final name = '${d['firstName'] ?? ''} ${d['lastName'] ?? ''}'.trim();
+                    final phone = d['phone'] ?? 'Pas de téléphone';
+                    final status = d['status'] == 'ACTIVE' ? 'ACTIF' : 'INACTIF';
                     
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
