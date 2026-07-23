@@ -81,18 +81,28 @@ export default function DriverDetailPage() {
         <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xl font-bold text-slate-600 dark:text-slate-400">
-              {driver.firstName?.[0]}{driver.lastName?.[0]}
+              {driver.firstName?.[0] || 'C'}{driver.lastName?.[0] || 'H'}
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                {driver.firstName} {driver.lastName}
+                {driver.firstName || 'Chauffeur'} {driver.lastName || ''}
               </h1>
-              <p className="text-slate-500">{driver.email} • {driver.phone}</p>
+              <p className="text-slate-500">{driver.email || 'Pas d\'email'} • {driver.phone || 'Pas de téléphone'}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <StatusBadge label={driver.status} variant={driver.status === 'ACTIVE' ? 'success' : 'warning'} />
-            <StatusBadge label={`KYC: ${driver.kycStatus}`} variant={driver.kycStatus === 'APPROVED' ? 'success' : driver.kycStatus === 'REJECTED' ? 'error' : 'warning'} />
+          <div className="flex flex-col items-start sm:items-end gap-2">
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge label={driver.status} variant={driver.status === 'ACTIVE' ? 'success' : 'warning'} />
+              <StatusBadge label={`KYC: ${driver.kycStatus}`} variant={driver.kycStatus === 'APPROVED' ? 'success' : driver.kycStatus === 'REJECTED' ? 'error' : 'warning'} />
+              <StatusBadge label={driver.type === 'ASSIGNED' ? 'Assigné' : 'Propriétaire'} variant={driver.type === 'ASSIGNED' ? 'info' : 'default'} />
+            </div>
+            {driver.type === 'ASSIGNED' && (
+              <div className="text-sm text-slate-500">
+                Manager: <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {driver.managerName || driver.managerPhone || driver.managerId || 'Inconnu'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -135,7 +145,9 @@ export default function DriverDetailPage() {
                           <div><span className="text-slate-500">Carte d'Identité:</span> <span className="font-medium">{driver.driverDetails.identityCardNumber}</span></div>
                         </div>
                       ) : (
-                        <p className="text-slate-500">Aucun détail fourni.</p>
+                        <p className="text-slate-500">
+                          {driver.type === 'ASSIGNED' ? 'Aucun dossier KYC fourni.' : 'Aucun détail fourni.'}
+                        </p>
                       )}
                     </div>
                   )}

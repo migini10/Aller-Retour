@@ -21,9 +21,23 @@ export class DriversService {
   }
 
   static async getDriverById(id: string): Promise<DriverProfile | null> {
-    const json = await ApiClient.get(`/v1/drivers/${id}`);
-    if (!json) return null;
-    return json;
+    const d = await ApiClient.get(`/v1/drivers/${id}`);
+    if (!d) return null;
+    return {
+      id: d.id,
+      firstName: d.user?.fullName?.split(' ')[0] || '',
+      lastName: d.user?.fullName?.split(' ').slice(1).join(' ') || '',
+      email: d.user?.email,
+      phone: d.user?.phone,
+      status: d.user?.isActive ? 'ACTIVE' : 'SUSPENDED',
+      type: d.type,
+      managerId: d.managerId,
+      managerName: d.manager?.user?.fullName || null,
+      managerPhone: d.manager?.user?.phone || null,
+      kycStatus: d.kycStatus,
+      createdAt: d.createdAt,
+      driverDetails: d.driverDetails,
+    } as DriverProfile;
   }
 
   static async updateKycStatus(id: string, kycStatus: 'APPROVED' | 'REJECTED', reason?: string): Promise<boolean> {

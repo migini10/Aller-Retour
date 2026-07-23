@@ -10,6 +10,7 @@ export interface DriverProfile {
   type?: string;
   managerId?: string;
   managerName?: string;
+  managerPhone?: string;
   driverDetails?: {
     licenseNumber: string;
     licenseExpiry: string;
