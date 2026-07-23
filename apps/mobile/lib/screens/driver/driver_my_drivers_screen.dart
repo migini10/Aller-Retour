@@ -168,22 +168,22 @@ class _DriverMyDriversScreenState extends State<DriverMyDriversScreen> {
                                 Navigator.pop(ctx);
                                 _showSuccessDialog(data['driver'], data['temporaryPassword']);
                                 _fetchDrivers();
-                              } else {
-                                final data = jsonDecode(res.body);
-                                String errorMsg = 'Erreur lors de la création';
-                                if (data['message'] != null) {
-                                  if (data['message'] is List) {
-                                    errorMsg = (data['message'] as List).join(', ');
-                                  } else {
-                                    errorMsg = data['message'].toString();
-                                  }
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg), backgroundColor: Colors.red));
-                                setStateModal(() => isSubmitting = false);
                               }
+                            } on ApiException catch (e) {
+                              if (!mounted) return;
+                              String errorMsg = e.message;
+                              if (e.data != null && e.data['message'] != null) {
+                                if (e.data['message'] is List) {
+                                  errorMsg = (e.data['message'] as List).join(', ');
+                                } else {
+                                  errorMsg = e.data['message'].toString();
+                                }
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg), backgroundColor: Colors.red));
+                              setStateModal(() => isSubmitting = false);
                             } catch (e) {
                               if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur réseau'), backgroundColor: Colors.red));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur inattendue: $e'), backgroundColor: Colors.red));
                               setStateModal(() => isSubmitting = false);
                             }
                           }
