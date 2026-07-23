@@ -177,21 +177,23 @@ export class AuthService {
     }
 
     // 4. Correct login: Reset attempts & blocked status, and migrate PIN if needed
-    if (user.failedAttempts > 0 || user.blockedUntil !== null || needsMigration) {
-      const dataToUpdate: any = {
-        failedAttempts: 0,
-        blockedUntil: null,
-      };
-      
-      if (needsMigration) {
-        dataToUpdate.passwordHash = await bcrypt.hash(pin, 10);
-      }
+    const dataToUpdate: any = {
+      lastLoginAt: new Date(),
+    };
 
-      await prisma.user.update({
-        where: { id: user.id },
-        data: dataToUpdate,
-      });
+    if (user.failedAttempts > 0 || user.blockedUntil !== null) {
+      dataToUpdate.failedAttempts = 0;
+      dataToUpdate.blockedUntil = null;
     }
+    
+    if (needsMigration) {
+      dataToUpdate.passwordHash = await bcrypt.hash(pin, 10);
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: dataToUpdate,
+    });
 
     const token = this.generateToken(user);
     const { passwordHash: _, ...safeUser } = user as any;
