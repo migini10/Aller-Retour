@@ -160,6 +160,7 @@ export class PaymentService {
         trip: {
           include: { 
             driver: true,
+            paymentRecipient: true,
             vehicle: {
               include: { owner: true }
             }
@@ -204,17 +205,17 @@ export class PaymentService {
           }
         });
 
-        // Verify vehicle owner before assigning earning
-        const ownerId = booking.trip.vehicle?.owner?.userId;
-        if (!ownerId) {
-          throw new Error(`CRITICAL ANOMALY: Vehicle Owner not found for trip ${booking.tripId}. DriverEarnings cannot be silently assigned to the driver.`);
+        // Verify paymentRecipient or vehicle owner before assigning earning
+        const recipientId = booking.trip.paymentRecipient?.userId || booking.trip.vehicle?.owner?.userId;
+        if (!recipientId) {
+          throw new Error(`CRITICAL ANOMALY: Payment Recipient not found for trip ${booking.tripId}. DriverEarnings cannot be silently assigned.`);
         }
 
         // Et on crée le gain chauffeur attribué au propriétaire
         await tx.driverEarning.create({
           data: {
             bookingId: bookingId,
-            driverId: ownerId,
+            driverId: recipientId,
             basePrice: pricing.basePrice,
             driverCut: pricing.driverCut,
             platformCommission: pricing.platformCommission,

@@ -176,12 +176,28 @@ export default function TripDetailPage() {
                           </div>
                           <div className="flex flex-col gap-2 text-sm">
                             <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700/50">
-                              <span className="text-slate-500">Chauffeur Actuel</span>
-                              <span className="font-medium">À venir</span>
+                              <span className="text-slate-500">Créé par</span>
+                              <span className="font-medium text-right">
+                                {manifest.createdByName ? `${manifest.createdByName}\n(${manifest.createdByPhone || 'N/A'})` : 'Inconnu'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700/50">
+                              <span className="text-slate-500">Conduit par</span>
+                              <span className="font-medium text-right">
+                                {manifest.driverName ? `${manifest.driverName}\n(${manifest.driverPhone || 'N/A'})` : 'Inconnu'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700/50">
+                              <span className="text-slate-500">Paiement reçu par</span>
+                              <span className="font-medium text-right text-emerald-600">
+                                {manifest.paymentRecipientName ? `${manifest.paymentRecipientName}\n(${manifest.paymentRecipientPhone || 'N/A'})` : 'Inconnu'}
+                              </span>
                             </div>
                             <div className="flex justify-between items-center py-2">
                               <span className="text-slate-500">Véhicule Assigné</span>
-                              <span className="font-medium">À venir</span>
+                              <span className="font-medium">
+                                {manifest.vehiclePlateNumber || 'Non assigné'}
+                              </span>
                             </div>
                           </div>
                         </div>

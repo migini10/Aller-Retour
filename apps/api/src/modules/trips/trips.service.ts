@@ -210,6 +210,57 @@ export class TripsService {
     };
   }
 
+  async getAdminTripDetails(tripId: string) {
+    const trip = await prisma.trip.findUnique({
+      where: { id: tripId },
+      include: {
+        route: { include: { originStation: true, destinationStation: true } },
+        vehicle: { select: { plateNumber: true, type: true, capacity: true } },
+        driver: { select: { user: { select: { phone: true, fullName: true } } } },
+        createdBy: { select: { user: { select: { phone: true, fullName: true } } } },
+        paymentRecipient: { select: { user: { select: { phone: true, fullName: true } } } },
+        bookings: { 
+          where: { status: { in: ['CONFIRMED', 'BOARDED'] } },
+          include: { user: { select: { fullName: true, phone: true } } },
+          orderBy: { seatNumber: 'asc' } 
+        }
+      }
+    });
+
+    if (!trip) {
+      throw new NotFoundException('Trajet introuvable');
+    }
+
+    const totalRevenue = trip.bookings.reduce((sum, b) => sum + (b.amountPaid || 0), 0);
+    const bookedSeats = trip.bookings.length;
+    const totalPassengers = trip.initialPassengers + bookedSeats;
+
+    return {
+      tripId: trip.id,
+      departureCity: trip.route?.originStation?.city || '',
+      arrivalCity: trip.route?.destinationStation?.city || '',
+      departureTime: trip.departureTime,
+      totalSeats: trip.seatsOffered,
+      availableSeats: Math.max(0, trip.seatsOffered - totalPassengers),
+      totalRevenue,
+      status: trip.status,
+      driverName: trip.driver?.user?.fullName || null,
+      driverPhone: trip.driver?.user?.phone || null,
+      createdByName: trip.createdBy?.user?.fullName || null,
+      createdByPhone: trip.createdBy?.user?.phone || null,
+      paymentRecipientName: trip.paymentRecipient?.user?.fullName || null,
+      paymentRecipientPhone: trip.paymentRecipient?.user?.phone || null,
+      vehiclePlateNumber: trip.vehicle?.plateNumber || null,
+      passengers: trip.bookings.map(b => ({
+        bookingId: b.id,
+        seatNumber: b.seatNumber,
+        passengerName: b.user?.fullName,
+        passengerPhone: b.user?.phone,
+        status: b.status,
+      }))
+    };
+  }
+
   async findDriverTrips(userId: string, query: any) {
     const driverProfile = await prisma.driverProfile.findUnique({
       where: { userId }
@@ -283,10 +334,6 @@ export class TripsService {
       throw new ForbiddenException("Vous n'avez pas de profil chauffeur.");
     }
 
-    if (driverProfile.type === DriverType.ASSIGNED) {
-      throw new ForbiddenException("Les chauffeurs assignés ne peuvent pas créer de trajets.");
-    }
-
     const vehicleId = dto.vehicleId;
     if (!vehicleId) {
       throw new BadRequestException("L'identifiant du véhicule est obligatoire.");
@@ -314,8 +361,14 @@ export class TripsService {
       throw new BadRequestException("Les photos de votre véhicule ont expiré. Veuillez les renouveler pour créer un trajet.");
     }
 
-    if (vehicle.ownerId !== driverProfile.id) {
-      throw new ForbiddenException("Ce véhicule ne vous appartient pas.");
+    const paymentRecipientId = driverProfile.type === DriverType.OWNER ? driverProfile.id : driverProfile.managerId;
+
+    if (!paymentRecipientId) {
+      throw new ForbiddenException("Erreur de profil: aucun manager assigné.");
+    }
+
+    if (vehicle.ownerId !== paymentRecipientId) {
+      throw new ForbiddenException("Ce véhicule n'appartient pas à votre flotte.");
     }
 
     if ((dto.placesLibres || 4) > vehicle.capacity - 1) {
@@ -324,7 +377,7 @@ export class TripsService {
 
     let finalDriverId = driverProfile.id;
 
-    if (dto.assignedDriverId) {
+    if (driverProfile.type === DriverType.OWNER && dto.assignedDriverId) {
       const assignedDriver = await prisma.driverProfile.findUnique({
         where: { id: dto.assignedDriverId }
       });
@@ -333,6 +386,8 @@ export class TripsService {
         throw new ForbiddenException("Le chauffeur assigné n'est pas sous votre gestion.");
       }
       finalDriverId = assignedDriver.id;
+    } else if (driverProfile.type === DriverType.ASSIGNED && dto.assignedDriverId && dto.assignedDriverId !== driverProfile.id) {
+      throw new ForbiddenException("Vous ne pouvez pas assigner un autre chauffeur.");
     }
 
     const [originId, destinationId] = await Promise.all([
@@ -347,6 +402,8 @@ export class TripsService {
         routeId,
         vehicleId: vehicleId,
         driverId: finalDriverId,
+        createdByDriverId: driverProfile.id,
+        paymentRecipientId: paymentRecipientId,
         departureTime: dto.departureTime ? new Date(dto.departureTime) : new Date(),
         pricePerSeat: dto.pricePerSeat || 5000,
         isMarketplace: true,

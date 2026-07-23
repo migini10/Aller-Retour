@@ -415,8 +415,11 @@ export class DriversService {
     const driver = await prisma.driverProfile.findUnique({ where: { userId } });
     if (!driver) throw new NotFoundException('Profil chauffeur introuvable');
 
+    const targetOwnerId = driver.type === 'OWNER' ? driver.id : driver.managerId;
+    if (!targetOwnerId) return [];
+
     const vehicles = await prisma.vehicle.findMany({
-      where: { ownerId: driver.id },
+      where: { ownerId: targetOwnerId },
     });
 
     return Promise.all(vehicles.map(async (v) => {

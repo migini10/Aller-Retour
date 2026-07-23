@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/shared_scaffold.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/api_client.dart';
 import 'widgets/withdrawal_modal.dart';
 
@@ -15,11 +16,20 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
   int? _walletBalance;
   List<dynamic> _transactions = [];
   bool _isLoading = true;
+  String _driverType = 'OWNER';
 
   @override
   void initState() {
     super.initState();
+    _loadDriverType();
     _fetchDriverFinanceData();
+  }
+
+  Future<void> _loadDriverType() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _driverType = prefs.getString('driverType') ?? 'OWNER';
+    });
   }
 
   Future<void> _fetchDriverFinanceData() async {
@@ -123,44 +133,45 @@ class _DriverRevenusScreenState extends State<DriverRevenusScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            showWithdrawalModal(context, _walletBalance ?? 0, () {
-                              _fetchDriverFinanceData();
-                            });
-                          },
-                          icon: const Icon(Icons.call_made, color: Color(0xFFF97316), size: 16),
-                          label: const Text('Retrait instantané', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
+                  if (_driverType != 'ASSIGNED')
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              showWithdrawalModal(context, _walletBalance ?? 0, () {
+                                _fetchDriverFinanceData();
+                              });
+                            },
+                            icon: const Icon(Icons.call_made, color: Color(0xFFF97316), size: 16),
+                            label: const Text('Retrait instantané', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            showWithdrawalModal(context, _walletBalance ?? 0, () {
-                              _fetchDriverFinanceData();
-                            });
-                          },
-                          icon: const Icon(Icons.credit_card, color: Colors.white, size: 16),
-                          label: const Text('Méthodes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white54),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              showWithdrawalModal(context, _walletBalance ?? 0, () {
+                                _fetchDriverFinanceData();
+                              });
+                            },
+                            icon: const Icon(Icons.credit_card, color: Colors.white, size: 16),
+                            label: const Text('Méthodes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.white54),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

@@ -38,6 +38,13 @@ export interface TripManifest {
   totalSeats: number;
   availableSeats: number;
   totalRevenue: number;
+  driverName?: string | null;
+  driverPhone?: string | null;
+  createdByName?: string | null;
+  createdByPhone?: string | null;
+  paymentRecipientName?: string | null;
+  paymentRecipientPhone?: string | null;
+  vehiclePlateNumber?: string | null;
 }
 
 export interface TransferTarget {

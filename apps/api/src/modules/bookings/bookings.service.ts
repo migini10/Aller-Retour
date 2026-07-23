@@ -28,7 +28,7 @@ export class BookingsService {
 
       const trip = await tx.trip.findUnique({
         where: { id: tripId },
-        include: { vehicle: true, driver: true },
+        include: { vehicle: { include: { owner: true } }, driver: true, paymentRecipient: true },
       });
 
       if (!trip) throw new NotFoundException("Trajet introuvable.");
@@ -129,7 +129,7 @@ export class BookingsService {
         await tx.driverEarning.create({
           data: {
             bookingId: booking.id,
-            driverId: trip.driver.userId,
+            driverId: trip.paymentRecipient?.userId || trip.vehicle.owner?.userId || trip.driver.userId,
             basePrice: pricing.basePrice,
             driverCut: pricing.driverCut,
             platformCommission: pricing.platformCommission,

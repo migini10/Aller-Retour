@@ -37,7 +37,7 @@ export class TripsService {
   }
 
   static async getTripManifest(id: string): Promise<TripManifest | null> {
-    const json = await ApiClient.get(`/v1/trips/${id}/manifest`);
+    const json = await ApiClient.get(`/v1/trips/${id}/admin`);
     if (!json) return null;
     return json;
   }

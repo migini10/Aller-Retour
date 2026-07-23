@@ -59,6 +59,15 @@ export class TripsController {
     return this.tripsService.getManifest(tripId, req.user.id, req.user.role);
   }
 
+  @Get(':id/admin')
+  @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Détails du trajet pour Admin (avec stats et infos métier)' })
+  async getAdminTripDetails(@Param('id') tripId: string) {
+    return this.tripsService.getAdminTripDetails(tripId);
+  }
+
   @Post('create-allo-dakar')
   @UseGuards(AuthGuard('jwt'), VerifiedGuard, RbacGuard)
   @Roles(UserRole.SUPER_ADMIN, UserRole.DRIVER)
