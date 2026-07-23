@@ -7,6 +7,8 @@ interface GetDriversFilters {
   search?: string;
   status?: string;
   kycStatus?: string;
+  type?: string;
+  managerId?: string;
 }
 
 export class DriversService {

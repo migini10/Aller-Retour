@@ -7,6 +7,9 @@ export interface DriverProfile {
   status: string;
   kycStatus: string;
   createdAt: string;
+  type?: string;
+  managerId?: string;
+  managerName?: string;
   driverDetails?: {
     licenseNumber: string;
     licenseExpiry: string;

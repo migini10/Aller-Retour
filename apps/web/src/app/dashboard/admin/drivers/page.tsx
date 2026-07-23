@@ -14,18 +14,21 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useDrivers } from '../hooks/useDrivers';
+import { CreateAssignedDriverModal } from './components/CreateAssignedDriverModal';
 
 export default function Page() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const { drivers, meta, isLoading, permissions } = useDrivers({
+  const { drivers, meta, isLoading, permissions, refresh } = useDrivers({
     page: currentPage,
     search: searchQuery,
     status: filters.status,
     kycStatus: filters.kycStatus,
+    type: filters.type,
   });
 
   const handleFilterChange = (key: string, value: string) => {
@@ -41,9 +44,9 @@ export default function Page() {
         title="Chauffeurs" 
         description="Gestion des chauffeurs, validation KYC et documents."
         action={
-          <button className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold transition-colors">
+          <button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold transition-colors">
             <Plus className="w-4 h-4" />
-            Nouveau
+            Nouveau Chauffeur Assigné
           </button>
         }
       />
@@ -62,6 +65,7 @@ export default function Page() {
             activeFilters={filters}
             onFilterChange={handleFilterChange}
             groups={[
+              { id: 'type', label: 'Type de Chauffeur', options: [{ label: 'Tous', value: '' }, { label: 'Propriétaire (OWNER)', value: 'OWNER' }, { label: 'Assigné (ASSIGNED)', value: 'ASSIGNED' }] },
               { id: 'status', label: 'Statut Compte', options: [{ label: 'Actif', value: 'ACTIVE' }, { label: 'Suspendu', value: 'SUSPENDED' }] },
               { id: 'kycStatus', label: 'Statut KYC', options: [{ label: 'En attente', value: 'PENDING' }, { label: 'Validé', value: 'APPROVED' }, { label: 'Rejeté', value: 'REJECTED' }] }
             ]}
@@ -107,6 +111,24 @@ export default function Page() {
                   if (d.status === 'SUSPENDED') return <StatusBadge label="Suspendu" variant="error" />;
                   return <StatusBadge label={d.status} />;
                 }
+              },
+              {
+                header: 'Type',
+                accessorKey: 'type',
+                cell: (d) => {
+                  if (d.type === 'OWNER') return <StatusBadge label="Propriétaire" variant="default" />;
+                  if (d.type === 'ASSIGNED') return <StatusBadge label="Assigné" variant="info" />;
+                  return <StatusBadge label={d.type || 'Inconnu'} />;
+                }
+              },
+              {
+                header: 'Manager',
+                accessorKey: 'managerName',
+                cell: (d) => (
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
+                    {d.type === 'ASSIGNED' ? (d.managerName || 'Inconnu') : '-'}
+                  </div>
+                )
               },
               { 
                 header: 'KYC', 
@@ -158,6 +180,14 @@ export default function Page() {
             onPageChange={setCurrentPage} 
           />
         </motion.div>
+      )}
+
+      {isCreateModalOpen && (
+        <CreateAssignedDriverModal
+          owners={drivers} // Using currently loaded drivers as a simplified owner list (will filter internally)
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => refresh()}
+        />
       )}
 
     </AdminPageContainer>

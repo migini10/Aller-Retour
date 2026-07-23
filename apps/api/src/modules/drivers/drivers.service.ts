@@ -6,6 +6,7 @@ import { SupabaseService } from '../../core/supabase/supabase.service';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
+import { CreateAssignedDriverAdminDto, CreateAssignedDriverOwnerDto } from './dto/create-assigned-driver.dto';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Express } from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,6 +56,14 @@ export class DriversService {
       where.user.isActive = isActive === 'true';
     }
 
+    if (filters.type) {
+      where.type = filters.type;
+    }
+
+    if (filters.managerId) {
+      where.managerId = filters.managerId;
+    }
+
     const [total, drivers] = await Promise.all([
       prisma.driverProfile.count({ where }),
       prisma.driverProfile.findMany({
@@ -72,6 +81,13 @@ export class DriversService {
               isActive: true,
             },
           },
+          manager: {
+            include: {
+              user: {
+                select: { fullName: true }
+              }
+            }
+          },
           _count: {
             select: { vehicles: true, trips: true },
           },
@@ -82,18 +98,18 @@ export class DriversService {
     return {
       data: drivers.map((d: any) => ({
         id: d.id,
-        userId: d.userId,
-        type: d.type,
-        fullName: d.user?.fullName,
-        phone: d.user?.phone,
-        email: d.user?.email,
-        avatarUrl: d.user?.avatarUrl,
-        isActive: d.user?.isActive,
+        firstName: d.user?.fullName?.split(' ')[0] || '',
+        lastName: d.user?.fullName?.split(' ').slice(1).join(' ') || '',
+        email: d.user?.email || '',
+        phone: d.user?.phone || '',
+        status: d.user?.isActive ? 'ACTIVE' : 'SUSPENDED',
         kycStatus: d.kycStatus,
-        rating: d.rating,
-        totalTrips: d.totalTrips,
-        vehiclesCount: d._count?.vehicles || 0,
         createdAt: d.createdAt,
+        type: d.type,
+        managerId: d.managerId,
+        managerName: d.manager?.user?.fullName || null,
+        stats: { totalTrips: d.totalTrips },
+        vehiclesCount: d._count?.vehicles || 0,
       })),
       meta: {
         total,
@@ -161,6 +177,110 @@ export class DriversService {
         rearPhotoUrl: v.rearPhotoKey ? await this.supabase.getSignedUrl('vehicles', v.rearPhotoKey) : null,
         sidePhotoUrl: v.sidePhotoKey ? await this.supabase.getSignedUrl('vehicles', v.sidePhotoKey) : null,
       };
+    }));
+  }
+
+  async createAssignedDriverForAdmin(dto: CreateAssignedDriverAdminDto) {
+    const manager = await prisma.driverProfile.findUnique({
+      where: { id: dto.managerId },
+      include: { user: true },
+    });
+
+    if (!manager) throw new NotFoundException('Manager (OWNER) introuvable');
+    if (manager.type !== 'OWNER') throw new BadRequestException('Le manager doit être un OWNER');
+
+    const existingUser = await prisma.user.findUnique({ where: { phone: dto.phone } });
+    if (existingUser) throw new BadRequestException('Un utilisateur avec ce numéro de téléphone existe déjà');
+
+    const passwordHash = await bcrypt.hash(dto.temporaryPassword, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        phone: dto.phone,
+        fullName: dto.fullName,
+        passwordHash,
+        mustChangePassword: true,
+        role: 'DRIVER',
+        phoneVerified: true,
+      },
+    });
+
+    const driverProfile = await prisma.driverProfile.create({
+      data: {
+        userId: newUser.id,
+        type: 'ASSIGNED',
+        managerId: manager.id,
+      },
+    });
+
+    return { success: true, driverProfile };
+  }
+
+  async createAssignedDriverForOwner(ownerUserId: string, dto: CreateAssignedDriverOwnerDto) {
+    const manager = await prisma.driverProfile.findUnique({
+      where: { userId: ownerUserId },
+    });
+
+    if (!manager) throw new NotFoundException('Profil chauffeur (OWNER) introuvable');
+    if (manager.type !== 'OWNER') throw new BadRequestException('Seuls les OWNER peuvent créer des chauffeurs assignés');
+
+    const existingUser = await prisma.user.findUnique({ where: { phone: dto.phone } });
+    if (existingUser) throw new BadRequestException('Un utilisateur avec ce numéro de téléphone existe déjà');
+
+    const passwordHash = await bcrypt.hash(dto.temporaryPassword, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        phone: dto.phone,
+        fullName: dto.fullName,
+        passwordHash,
+        mustChangePassword: true,
+        role: 'DRIVER',
+        phoneVerified: true,
+      },
+    });
+
+    const driverProfile = await prisma.driverProfile.create({
+      data: {
+        userId: newUser.id,
+        type: 'ASSIGNED',
+        managerId: manager.id,
+      },
+    });
+
+    return { success: true, driverProfile };
+  }
+
+  async getMyAssignedDrivers(ownerUserId: string) {
+    const owner = await prisma.driverProfile.findUnique({ where: { userId: ownerUserId } });
+    if (!owner) throw new NotFoundException('Profil chauffeur introuvable');
+    if (owner.type !== 'OWNER') throw new BadRequestException('Seuls les OWNER ont des chauffeurs assignés');
+
+    const drivers = await prisma.driverProfile.findMany({
+      where: { managerId: owner.id, type: 'ASSIGNED' },
+      include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            isActive: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return drivers.map(d => ({
+      id: d.id,
+      firstName: d.user?.fullName?.split(' ')[0] || '',
+      lastName: d.user?.fullName?.split(' ').slice(1).join(' ') || '',
+      email: d.user?.email || '',
+      phone: d.user?.phone || '',
+      status: d.user?.isActive ? 'ACTIVE' : 'SUSPENDED',
+      createdAt: d.createdAt,
+      type: d.type,
+      managerId: d.managerId,
     }));
   }
 

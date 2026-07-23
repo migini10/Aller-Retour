@@ -30,4 +30,12 @@ export class ListDriversDto {
   @IsOptional()
   @IsBooleanString()
   isActive?: string;
+
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @IsOptional()
+  @IsString()
+  managerId?: string;
 }

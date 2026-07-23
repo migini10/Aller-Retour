@@ -14,6 +14,7 @@ import { DeleteVehicleDto } from './dto/delete-vehicle.dto';
 import { UploadVehicleDocumentDto } from './dto/upload-vehicle-document.dto';
 import { UpdateDriverStatusDto } from './dto/update-driver-status.dto';
 import { ConfigurePinDto } from './dto/configure-pin.dto';
+import { CreateAssignedDriverAdminDto, CreateAssignedDriverOwnerDto } from './dto/create-assigned-driver.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 
@@ -26,6 +27,30 @@ export class DriversController {
   @Roles(UserRole.DRIVER)
   async getMyVehicles(@Request() req: any) {
     return this.driversService.getMyVehicles(req.user.id);
+  }
+
+  @Post('me/assigned')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async createAssignedDriverForOwner(
+    @Request() req: any,
+    @Body() dto: CreateAssignedDriverOwnerDto
+  ) {
+    return this.driversService.createAssignedDriverForOwner(req.user.id, dto);
+  }
+
+  @Post('admin/assigned')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  async createAssignedDriverForAdmin(@Body() dto: CreateAssignedDriverAdminDto) {
+    return this.driversService.createAssignedDriverForAdmin(dto);
+  }
+
+  @Get('me/assigned-drivers')
+  @UseGuards(AuthGuard('jwt'), RbacGuard)
+  @Roles(UserRole.DRIVER)
+  async getMyAssignedDrivers(@Request() req: any) {
+    return this.driversService.getMyAssignedDrivers(req.user.id);
   }
 
   @Post('me/vehicles')

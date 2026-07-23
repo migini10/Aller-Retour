@@ -19,6 +19,7 @@ model User {
   verificationMethod    String?
   verifiedById          String?
   passwordHash          String?
+  mustChangePassword    Boolean                @default(false)
   fullName              String
   avatarUrl             String?
   role                  UserRole               @default(PASSENGER)
