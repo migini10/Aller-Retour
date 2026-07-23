@@ -166,7 +166,7 @@ class _DriverMyDriversScreenState extends State<DriverMyDriversScreen> {
                               if (res.statusCode == 201 || res.statusCode == 200) {
                                 final data = jsonDecode(res.body);
                                 Navigator.pop(ctx);
-                                _showSuccessDialog(data['driver'], data['temporaryPassword']);
+                                _showSuccessDialog(data['driverProfile'], tempPassword);
                                 _fetchDrivers();
                               }
                             } on ApiException catch (e) {
